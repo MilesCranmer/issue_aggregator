@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 491,
+        "title": "How to implement customized initialization of population?",
+        "body": "Hi all,\r\n\r\nI am implementing a custom project and have found the library very helpful.  How can I set up a customized initialization population to trigger symbol regression? Thanks in advance.\r\n\r\nJay",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi Jay,\r\n\r\nThe current code for initializing the population of expressions is here:\r\n\r\nhttps://github.com/MilesCranmer/SymbolicRegression.jl/blob/f38ea0df4c362cd52d0cc2034c358c0b11474697/src/Population.jl#L37-L63\r\n\r\nRight now it calls `gen_random_tree(nlength, options, nfeatures, T)` which is basically appending `nlength` random nodes to a root node. The code for that method is here: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/f38ea0df4c362cd52d0cc2034c358c0b11474697/src/MutationFunctions.jl#L228-L238.\r\n\r\nIf you're using PySR (?) you can see https://astroautomata.com/PySR/backend/ for customizing the backend and implementing custom behavior. (But it's probably easier to start directly with SymbolicRegression.jl so you can use Revise.jl for quickly changing things).\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-12-24T06:37:05Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMi0yNFQwNjozNzowNSswMDowMM4AeRsZ"
+          }
+        }
+      }
+    }
+  }
+}

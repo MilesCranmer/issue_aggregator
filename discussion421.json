@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 421,
+        "title": "Graph presentation of equations instead of tree presentation",
+        "body": "Hi,\r\n\r\nMy assumption is PySR converts equations into trees by using sequence-based list. For example, for equation 2*x+1, the tree is represented by a list like [+, 1, *, 2, x]. Did I get it correctly? \r\n\r\nI am curious to know if you could conceive any benefit of using graph presentation of equations instead of using trees (i.e. sequence-based list). The reason I am bringing this up is that there is a rich history of graph theory, which might contribute to search engine. \r\n\r\nThank you so much in advance for sharing your thoughts,\r\nCheers ",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @AKHCE,\r\n\r\nPySR stores expressions as binary trees rather than sequences. The struct is defined here: https://github.com/SymbolicML/DynamicExpressions.jl/blob/46388518281b0be12479afcb3a3b8bdabc361ccd/src/Equation.jl#L57\r\n\r\nTechnically as of https://github.com/MilesCranmer/SymbolicRegression.jl/pull/135, expressions are actually stored as acyclic graphs — which can let you have multiple parent nodes for a single child. That means you could in theory share a subexpression across an expression. However relevant utilities for that are not set up yet.\r\n\r\nI’d be interested to know if you have any ideas for exploiting graph theory.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-09-03T08:45:19Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wOS0wM1QwOTo0NToxOSswMTowMM4AaTlU"
+          }
+        }
+      }
+    }
+  }
+}

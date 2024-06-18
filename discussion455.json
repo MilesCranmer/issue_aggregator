@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 455,
+        "title": "just saving csv files",
+        "body": "Hi,\r\nPassing equation_file to PySRRegressor enables us to save the results in three formats .csv, .csv.bkup, and .pkl.  I am just wondering if there is a quick setting to tell PySRRegressor just to save .csv files as this is the one I personally use often.\r\nThank you so much for your support,\r\nCheers",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @AKHCE,\r\n\r\nRight now, no, all the files are saved automatically. It might be easier to just delete them afterwards, as it doesn't affect performance at all since those files are so small. Regarding the default behavior, I think it's better to have saving be opt-out rather than opt-in so that new users don't accidentally lose a long run. \r\n\r\nBut I'm open to adding an option to disable it though!\r\n\r\nThe .csv.bkup version is so that if the process is quit while Julia is writing the .csv version, progress is not lost. \r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-11-03T01:21:03Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMS0wM1QwMToyMTowMyswMDowMM4Acd5J"
+          }
+        }
+      }
+    }
+  }
+}

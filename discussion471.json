@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 471,
+        "title": "Using PySR on a trained feedforward neural network",
+        "body": "Hi. I have a single-layer feedforward neural network that was fitted on a dataset (created using known functions). I want to recover the generating functions from the outputs of the trained neural network (and not the output from the dataset). Is it possible to do so? If yes, are there any considerations/guidelines that might aid this search as opposed to if we were to use PySR directly on the dataset? Thanks!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hey @gurtajbir,\r\n\r\nYes, you would do this by recording the inputs and outputs from the network. This is what is done on https://github.com/MilesCranmer/symbolic_deep_learning (see end of example notebook notebook)\r\n\r\nHere is a [slide](https://speakerdeck.com/milescranmer/symbolic-distillation-of-neural-networks?slide=38):\r\n<img width=\"1390\" alt=\"Screenshot 2023-11-19 at 16 24 24\" src=\"https://github.com/MilesCranmer/PySR/assets/7593028/ac0e83a1-874c-4001-8abf-c2ef39172bc5\">\r\n",
+              "createdAt": "2023-11-19T16:25:19Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMS0xOVQxNjoyNToxOSswMDowMM4AdCZe"
+          }
+        }
+      }
+    }
+  }
+}

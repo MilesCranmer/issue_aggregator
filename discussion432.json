@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 432,
+        "title": "Defining boolean operators",
+        "body": "Hi, has anyone been successful at defining certain boolean operators such as \"or\"? For instance, here is a snippet from my model instantiation.\r\n```\r\n    model = PySRRegressor(\r\n    niterations = 350\r\n    binary_operators= [\"OR(x1, x2) = Float32(x1 == Float32(true) || x2 == Float32(true))\"],\r\n    \r\n    extra_sympy_mappings={\r\n        \"OR\": lambda x1, x2: sympy.Or(x1, x2)\r\n    },...\r\n```\r\n\r\nUpon searching in this space, the function returned doesn't include the defined \"or\" operator, instead returning a constant prediction. I have been successful with \"and\", \"greater than\" and \"less than\", but \"or\" seems to be causing problems. Is there something causing \"or\" to be more difficult for PySR to explore?\r\n\r\nThanks!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @j-thib,\r\n\r\nKeep in mind that PySR performs all calculations in the space of real numbers, so to do calculations like this, it is much easier to treat numbers greater than 0 as true, and numbers less than 0 as false. \r\n\r\nOtherwise, to get a true, it would have to exactly land on `x1 = 1.0`, which, if it's doing constant optimization, is basically going to be impossible.\r\n\r\nI would do this instead:\r\n\r\n```julia\r\nOR(x, y) = ((x > zero(x)) | (y > zero(y))) * one(x)\r\nAND(x, y) = ((x > zero(x)) & (y > zero(y))) * one(x)\r\n```\r\n\r\nThis assumes that `x > 0` => `true` and `x <= 0` => `false`. It should be much easier for it to search.\r\n\r\nAlso, some Julia stuff: `zero(x)` returns a `0.0` but with the same precision as `x`. Easier than writing `Float32(0.0)`. The `* one(x)` is just to convert from a Bool back to a Float.\r\n\r\n\r\nThen for your sympy version, I would actually write it like this:\r\n\r\n```python\r\n\"OR\": lambda x, y: sympy.Piecewise((1.0, (x > 0) | (y > 0)), (0.0, True)),\r\n\"AND\": lambda x, y: sympy.Piecewise((1.0, (x > 0) & (y > 0)), (0.0, True)),\r\n```\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-09-19T16:51:01Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wOS0xOVQxNzo1MTowMSswMTowMM4Aa44C"
+          }
+        }
+      }
+    }
+  }
+}

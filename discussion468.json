@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 468,
+        "title": "Encountering invalid git HEAD (reference 'refs/heads/master' not found) Error with pysr in Python",
+        "body": "Hello, \r\nI am encountering an issue with the pysr library in Python where it throws an error `invalid git HEAD (reference 'refs/heads/master' not found)` when trying to call Julia code. This issue arises when pysr attempts to add certain Julia packages as dependencies.\r\n\r\nEnvironment:\r\n```\r\nPython Version: 3.9.18\r\nJulia Version: 1.9.4\r\nOperating System: Windows 10\r\npysr Version: 0.16.3\r\n```\r\nSteps Already Taken:\r\nUpdating Julia Package Registry: Ran `Pkg.update()` in Julia REPL, which completed without indicating any changes needed.\r\nInstalling Dependencies in Julia: Successfully installed SymbolicRegression and ClusterManagers in Julia using` Pkg.add()`. No changes were indicated, suggesting these packages were already installed and up-to-date.\r\nEnsuring Correct Julia Environment in Python: Tried setting the Julia environment in Python to ensure pysr is using the same environment where the packages were installed.\r\nReinstalling pysr: Attempted uninstalling and reinstalling pysr in Python to ensure the latest version.\r\nCurrent Issue:\r\nDespite these steps, when running pysr.install() in Python, the error julia.core.JuliaError: Exception `'invalid git HEAD (reference 'refs/heads/master' not found)'` persists. This issue seems to occur when pysr tries to add its Julia dependencies.\r\n\r\nSeeking Assistance:\r\nI am looking for guidance or suggestions to resolve this issue. Thank you in advance for your time and assistance!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Maybe try doing the dependency install manually from the command line? Like this:\r\n\r\n```bash\r\nPYSR_VERSION=0.16.3\r\nSRJL_VERSION=0.22.4  # Note this must be updated when PySR version is changed. See `version.py`\r\njulia --project=\"@pysr-${PYSR_VERSION}\" -e \"using Pkg; pkg\\\"add PyCall ClusterManagers SymbolicRegression@${SRJL_VERSION}\\\"\"\r\n```\r\n\r\nand then just use PySR normally (without doing the `python -m pysr install`, as we did that above)",
+              "createdAt": "2023-11-16T22:57:42Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMS0xNlQyMjo1Nzo0MiswMDowMM4Ac91b"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 481,
+        "title": "Constrain User-Defined Operator",
+        "body": "Hello, \r\n\r\nI have a molecular wavefunction that is a linear combination of Gaussian type orbitals (GTOs). \r\n\r\n$$\r\n\\begin{align}\r\ny(r_{1},r_{2},r_{3}) = \\sum_{i=1}^{3}\\sum_{j=1}^{N}  c_{i,j} \\times x^{a}y^{b}z^{c} \\times e^{-\\alpha_{i,j} \\times r_{i}^{2}}\r\n\\end{align}\r\n$$\r\n\r\nI want to use PySR to find a linear combination of Slater type orbitals (STOs) that can approximate the wavefunction. \r\n\r\n$$\r\n\\begin{align}\r\nf(r_{1},r_{2},r_{3}) = \\sum_{i=1}^{3}\\sum_{j=1}^{N}  c_{i,j} \\times r_{i,j}^{a} \\times e^{-\\alpha_{i,j} \\times r_{i}}\r\n\\end{align}\r\n$$\r\n\r\nBecause it's of practical importance to me for each STO to be centered on an individual atom, I want to know if it is possible to implement a constraint that prevents an STO from having more than a single variable times a constant as an input. In short, I want to provide the function $s(r) = re^{-r}$ as my only unary operator to find the solution of the form $f(r_{1},r_{2}) = c_{0}r_{1}e^{-\\alpha_{0}r_1} + c_{1}r_{2}e^{-\\alpha_{1}r_{2}}$, where $r_{1}$ and $r_{2}$ are the data's features. However, the program predominantly explores solutions of the form $f(r_{1},r_{2}) = (r_{1} \\times r_{2})e^{-\\alpha_{1}r_{1} \\times + r_{2} + c_{0} + c_{1}}$. \r\n\r\nRegards,\r\nW. N.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @narvaez-programming,\r\nThe simplest solution is to set up `nested_constraints` and `constraints`: https://astroautomata.com/PySR/api/#working-with-complexities. For example, `constraints={\"sto\": 3}` would mean that the operator `sto(r) = r*exp(-r)` can have at most a complexity of 3 in its argument, meaning something like `sto(a * r)` or simpler would be allowed.\r\nCheers,\r\nMiles",
+              "createdAt": "2023-12-11T14:33:19Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMi0xMVQxNDozMzoxOSswMDowMM4Ad1VW"
+          }
+        }
+      }
+    }
+  }
+}

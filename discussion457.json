@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 457,
+        "title": "Manually calculate the complexity in python",
+        "body": "Hi,\r\nI am wondering if there is a built-in method in pysr by which users can calculate the complexity of equations. Or is there a way to calcualte complexity using sympy or other libs.\r\n\r\nAny advice is much apprecited, \r\nThanks",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Maybe see\r\n- https://github.com/MilesCranmer/PySR/discussions/380, or\r\n- https://github.com/MilesCranmer/PySR/issues/339?",
+              "createdAt": "2023-11-03T22:24:37Z"
+            },
+            {
+              "author":
+              {
+                "login": "AKHCE"
+              },
+              "body": "Thanks",
+              "createdAt": "2023-11-04T00:07:14Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMS0wNFQwMDowNzoxNCswMDowMM4AcgLQ"
+          }
+        }
+      }
+    }
+  }
+}

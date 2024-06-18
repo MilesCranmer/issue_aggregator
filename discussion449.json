@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 449,
+        "title": "How to constrain all the constants to be positive",
+        "body": "Hi Miles,\r\n\r\nI am a huge fan of PYSR. Currently, I am using PYSR to find mathematic models for human tissues, it works very well. \r\n\r\nSmall question: is it possible for us to constrain all the predicted constants to be positive? For example, in f(x)=a*exp(b*x)+c*ln(1-d*x), a,b,c,d should be strictly positive.\r\n\r\nThanks",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "You could do this with a custom objective function, like:\r\n\r\n```julia\r\nfunction eval_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    # See https://astroautomata.com/SymbolicRegression.jl/dev/types/#DynamicExpressions.EquationModule.Node\r\n    is_negative_constant(node) = node.degree == 0 && node.constant && node.val::T < 0\r\n    # (The ::T part is not required, but it just speeds it up as then Julia knows it isn't `nothing`)\r\n\r\n    # Will walk through tree and count number of times this function is true\r\n    num_negative_constants = count(is_negative_constant, tree)\r\n    #  (Tree utilities are defined here: https://github.com/SymbolicML/DynamicExpressions.jl/blob/master/src/base.jl,\r\n    #  and let you treat an expression like a Julia collection)\r\n\r\n    if num_negative_constants > 0\r\n        # Return 1000 times the number of negative constants as a regularization penalty\r\n        return L(1000 * num_negative_constants)\r\n    end\r\n\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    if !flag\r\n        return L(Inf)\r\n    end\r\n    return sum((prediction .- dataset.y) .^ 2) / dataset.n\r\nend\r\n```\r\n\r\nIt's better to have a scaling penalty like this so that you give it a sense of direction (many negative constants are worse than one negative constant).\r\n\r\n> I am a huge fan of PYSR.\r\n\r\nYou made my day :)\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-10-30T19:00:31Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMC0zMFQxOTowMDozMSswMDowMM4AcVXp"
+          }
+        }
+      }
+    }
+  }
+}

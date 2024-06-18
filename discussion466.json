@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 466,
+        "title": "Fail to build PyCall when installing PySR on a Linux server",
+        "body": "I fail to install PySR on my Linux server because PyCall cannot be built. I got the following error:\r\n`LoadError: Couldn't find libpython; check your PYTHON environment variable.`\r\n\r\nI have started an [issue](https://github.com/JuliaPy/PyCall.jl/issues/1061) on the PyCall.jl repository, yet no one answered for over 10 days. Have anyone encouter similar problems when installing PySR, or any idea how to fix this? (See my issue for PyCall for the environment info and full output message. )\r\n\r\nThanks! \r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hm, I wonder if this is the issue?\r\n\r\n```\r\ngnu/libpython3.10.a\"\\n/usr/local/lib/python3.10/config-3.10-x86_64-linux-gnu/libpython3.10.a: invalid ELF header\")\r\ndlopen(/usr/local/lib/libpython3.10.a) ==> ErrorException(\"could not load library \"/usr/local/lib/libpython3.10.a\"\\n/usr/local/lib/libpython3.10.a: invalid ELF header\")\r\n```",
+              "createdAt": "2023-11-16T07:30:38Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMS0xNlQwNzozMDozOCswMDowMM4Ac7zQ"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 519,
+        "title": "Why does tree conditions stopped working",
+        "body": "Right now, I have custom_objective, where right part of a tree is divided into to parts: left (`tree_att`) and right (`power`).\r\nI have constrains on `power` to be constant.\r\n\r\nI need to calculate derivative of this tree, but I have to change it; to look like `tree_att ^ (2 * power)`.\r\nIf I do this like in the code below, trees in the hall of fame stop following constrains, to be particular **`power` is no longer a constant.**\r\nWithout changing a tree, there are no problems. \r\n\r\n**Why can this problem occur?**\r\n\r\n```\r\n    # Two body part\r\n    E_two_body = tree\r\n\r\n    E_two_body.degree != 2 && return L(Inf)\r\n\r\n    # E repulsion\r\n    tree_rep = E_two_body.l\r\n\r\n    # E attraction, power\r\n    tree_att_p = E_two_body.r\r\n\r\n    tree_att_p.degree != 2 && return L(Inf)\r\n\r\n    # E attraction\r\n    tree_att = tree_att_p.l\r\n\r\n    # power\r\n    power = tree_att_p.r\r\n    power.constant != true && return L(Inf)\r\n\r\n    ...\r\n\r\n    eval_power = power.val\r\n    tree_att_p.op = 5 #options = [+, -, *, /, ^]\r\n    tree_att_p.r.val = 2 .* abs(eval_power)\r\n```",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I think you need\r\n```diff\r\n-    power.constant != true && return L(Inf)\r\n+    (power.degree != 0 || power.constant != true) && return L(Inf)\r\n```\r\n\r\nbecause the `.constant` field is some random value if it's an operator node. So for it to be a constant node it has to be `.degree == 0` AND `.constant == true`.\r\n\r\nAlso one other tip is that rather than returning `L(Inf)` for all of the constraints, you should return lesser and lesser penalties so that the evolutionary algorithm gets a sense of direction. e.g., for the first `L(Inf)`, make it `L(100_000)` (since that is the most important constraint to get right). The second `L(Inf)`, make it `L(50_000)`, since at least then it got the first constraint. Then `L(25_000)`. And so on. \r\n\r\n---\r\n\r\nAlso I would do\r\n\r\n```julia\r\n    eval_power = power.val::T\r\n```\r\n\r\nfor improved speed",
+              "createdAt": "2024-01-08T20:21:03Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMS0wOFQyMDoyMTowMyswMDowMM4Aeunw"
+          }
+        }
+      }
+    }
+  }
+}

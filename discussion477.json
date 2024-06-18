@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 477,
+        "title": "Including other Julia packages in \"full_objective\" definition",
+        "body": "I am having trouble finding the documentation for this. If I wanted to use another external Julia package in the definition of my full_objective function, how would I do this (if it is possible)? I get errors if I place it before the function definition as well as within the function definition. Could you please point me to the right resources for this? Thanks!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Does this work? https://astroautomata.com/PySR/examples/#7-julia-packages-and-types",
+              "createdAt": "2023-11-28T00:13:18Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMS0yOFQwMDoxMzoxOCswMDowMM4AdUnP"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 520,
+        "title": "Closed-Form Interpretation of Neural Network Classifiers with Symbolic Regression Gradients",
+        "body": "Thank you all and especially Miles for setting up this library and all the helpful comments here! It helped me to develop a neural network interpretation method tailored to what I need for my artificial scientific discovery projects. \r\n\r\nhttps://arxiv.org/abs/2401.04978",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Nice work, congrats!\r\n\r\nBy the way, if you want, you could add it here: https://github.com/MilesCranmer/PySR/blob/master/docs/papers.yml and it will show up on the applications page: https://astroautomata.com/PySR/papers/.",
+              "createdAt": "2024-01-16T12:03:57Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMS0xNlQxMjowMzo1NyswMDowMM4AfEJC"
+          }
+        }
+      }
+    }
+  }
+}

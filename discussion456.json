@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 456,
+        "title": "8 procs not used",
+        "body": "Dear Miles\r\n\r\nI have a dataset of 2000 training points. I have set the number of iterations to 100, procs=8 / cpu.count() and multithreading=True. When I am looking at the CPU usage, I see all 8 of them are at 50-70% during PySr's training. Even if I saturate procs to 32, this issue still remains. What should I change here? \r\n\r\nAlthough I get the answer in less than 2 minutes even with these settings, I want to make use of all 8 CPUs.\r\n\r\nIf I run for a higher number of iterations=500 and populations=3*32 over a \"pbs\" cluster of procs=32, I see the same issue there. Only one CPU is getting used. The settings here were: procs=32, cluster_manager=\"pbs\"\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Does it say the head occupation %? The lower that is, the better. If that number is high, the head worker basically can’t give out work quickly enough. \r\n\r\nTo improve this you should increase population size and/or ncyclesperiteration.\r\n\r\nAlternatively you can use multiprocessing instead of multithreading by setting `multithreading=False`. I find sometimes that improves usage of cores for whatever reason.",
+              "createdAt": "2023-11-03T08:02:44Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "What version of PBS are you using? I know that some people have run into issues on multi-node processing with PBS due to ClusterManagers.jl not yet supporting the latest qsub command line arguments. See https://github.com/JuliaParallel/ClusterManagers.jl/issues/179.\r\n\r\nSo your current options are to:\r\n1. Use single-node multiprocessing (`cluster_manager=None, multithreading=False, procs=32`).\r\n2. Use a slurm cluster manager, if available, to get working multi-node multiprocessing.\r\n3. Help us fix the issue on https://github.com/JuliaParallel/ClusterManagers.jl/issues/179. It's a bit hard for me to fix this myself since I don't have a PBS cluster I can test it on (all my institutes use slurm). So any help is much appreciated. ",
+              "createdAt": "2023-11-03T13:44:11Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "@Nakul9621 also this issue is highly relevant! https://github.com/MilesCranmer/PySR/issues/419",
+              "createdAt": "2023-11-03T13:55:23Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMS0wM1QxMzo1NToyMyswMDowMM4AcfGv"
+          }
+        }
+      }
+    }
+  }
+}

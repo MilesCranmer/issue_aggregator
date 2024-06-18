@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 447,
+        "title": "Fail to apply the multiprocessing with gradient-related customized loss function",
+        "body": "Hi, \r\nThank you for your great tool. I encountered a problem when I tried to use the multiprocessing calculation by setting the \"multithreading=False\", an error just occurred \"KeyError: key DynamicExpressionsZygoteExt [98b68043-617e-5e87-ba04-89939eaf59ce] not found\".\r\n![image](https://github.com/MilesCranmer/PySR/assets/111584092/b3061e7a-90ee-424f-b606-cf5c929bc6b3)\r\n\r\nThis issue arises possibly because I have customized the loss function (incorporating the gradient calculus), as I have tested a simple code provided in the manual (no customized loss function), and it works with the multiprocessing setup. \r\n\r\nMy devices info: Windows 10; Julia version: 1.9.3; pysr version is 0.16.3\r\n\r\n**My implementation:**\r\n```python\r\nfrom julia import MLJ\r\nfrom julia import SymbolicRegression\r\nfrom julia import Zygote\r\nfrom julia import SymbolicUtils\r\nmodel = PySRRegressor(\r\n    procs=2,\r\n    populations=4,\r\n    multithreading=False,\r\n    binary_operators=[\"+\",\"*\",\"pow\"],\r\n    full_objective=objective_all,\r\n    constraints={\"pow\":(4,1)},\r\n    nested_constraints={\r\n      \"pow\": { \"pow\":0},\t\t\t    \t\t\t    \r\n    }, \r\n    complexity_of_operators={\"pow\":2, \"+\":5,\"*\":5},\t\t\r\n    complexity_of_variables=4,      \r\n    complexity_of_constants=1,\r\n    maxsize=50,\r\n    maxdepth=5,\r\n    warmup_maxsize_by=0.2,\r\n    turbo=True,\r\n    enable_autodiff=True,\r\n    niterations=2,\r\n)\r\n```\r\n\r\n**The customized loss function**\r\n\r\n```julia\r\nfunction derivative_loss(tree, dataset::Dataset{T,L}, options, idx) where {T,L}\r\n    \r\n    # Column-major:\r\n    X = idx === nothing ? dataset.X : view(dataset.X, :, idx)\r\n    ∂y = idx === nothing ? dataset.y : view(dataset.y, idx)\r\n    \r\n    ŷ1, ∂ŷ1, completed = eval_grad_tree_array(tree, X, options; variable=true)\r\n    \r\n    ∂yx1_t = ∂ŷ1[1,1:41]\r\n    ∂yx2_t = ∂ŷ1[1,42:82]\r\n    ∂yx1_c = ∂ŷ1[1,83:123]\r\n    ∂yx2_c = ∂ŷ1[1,124:164]\r\n    ∂yx1_s = ∂ŷ1[1,165:205]\r\n    ∂yx2_s = ∂ŷ1[1,206:246]\r\n    \r\n    ∂y_t   = ∂y[1:41]\r\n    ∂y_c   = ∂y[83:123]\r\n    ∂y_s   = ∂y[165:205]\r\n    \r\n    !completed && return L(Inf)\r\n    diff_t = ∂yx1_t .- X[1,42:82] ./ X[1,1:41] .* ∂yx2_t\t\r\n    diff_c = ∂yx1_c .- X[1,124:164] ./ X[1,83:123] .* ∂yx2_c\t\r\n    diff_s = ((X[1,165:205]) .^ 2) ./ (1 .+ (X[1,165:205]) .^ 2) .* ∂yx1_s .- ((X[1,206:246]) .^ 2) ./ (1 .+ (X[1,206:246]) .^ 2) .* ∂yx2_s\r\n    \r\n    mse_t = sum(i -> (diff_t[i] - ∂y_t[i])^2, eachindex(∂y_t)) / length(∂y_t)\r\n    mse_c = sum(i -> (diff_c[i] - ∂y_c[i])^2, eachindex(∂y_c)) / length(∂y_c)\r\n    mse_s = sum(i -> (diff_s[i] - ∂y_s[i])^2, eachindex(∂y_s)) / length(∂y_s)\r\n    \r\n    return mse_t + mse_c + mse_s\r\nend\r\n```",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I think the issue is that you are not starting Julia within the right environment for PySR, because you are calling it `from julia import ...` before the first PySR run happens. Thus, the worker cannot find the right Julia package extension. I think the worker is activating a different environment and loading a different version of SymbolicRegression.jl than the head worker.\r\n\r\nCould you please try something like\r\n\r\n```python\r\nfrom pysr.julia_helpers import init_julia\r\ninit_julia(julia_kwargs=dict(optimize=3, threads=\"auto\"))\r\n```\r\n\r\nand only afterwards, run the `from julia import ...` stuff?\r\n\r\ni.e., it would look like\r\n\r\n```python\r\nfrom pysr.julia_helpers import init_julia\r\ninit_julia(julia_kwargs=dict(optimize=3, threads=\"auto\"))\r\n\r\nfrom julia import Zygote\r\n...\r\n```\r\n\r\nNote you might need to do `from julia import Pkg; Pkg.add(\"Zygote\")` after Julia has been loaded so that it installs Zygote in the correct environment.",
+              "createdAt": "2023-10-23T20:57:31Z"
+            },
+            {
+              "author":
+              {
+                "login": "HouJayson"
+              },
+              "body": "Thank you so much, your suggestions are highly valued.",
+              "createdAt": "2023-10-30T17:08:51Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMC0zMFQxNzowODo1MSswMDowMM4AcVIR"
+          }
+        }
+      }
+    }
+  }
+}

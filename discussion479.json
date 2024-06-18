@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 479,
+        "title": "Trouble using Symbolic Regression with Dimensional Constraints",
+        "body": "I was trying to follow the example code that uses dimensional constraints on the website - [Astro Automata](https://astroautomata.com/PySR/examples/#10-dimensional-constraints) - but it seems to break down when I keep the 'X_units' and 'y_units' part in the model.fit part - \r\n```\r\nmodel.fit(\r\n    X,\r\n    y,\r\n    X_units=[\"Constants.M_sun\", \"kg\", \"Constants.R_earth\"],\r\n    y_units=[\"kg * m / s^2\"]\r\n)\r\n```\r\nIt does seem to work when I comment them out and SR does give me the $\\frac{Mm}{r^2}$ relation but I'm having trouble constraining it. Not sure what I'm doing wrong or if I'm missing something.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hm, what is the error message you are seeing?",
+              "createdAt": "2023-11-29T14:04:03Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks for posting the error. As a temporary workaround, you can fix this by upgrading to Julia 1.10, where this error will no longer occur. I’ll see if I can get this working on the older Julia too… ",
+              "createdAt": "2023-11-30T05:50:30Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMS0zMFQwNTo1MDozMCswMDowMM4AdbME"
+          }
+        }
+      }
+    }
+  }
+}

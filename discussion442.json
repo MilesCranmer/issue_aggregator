@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 442,
+        "title": "Using features from the dataset",
+        "body": "Hello,\r\n\r\nI've just started using the PySR tool. Here's my challenge: I'm working with a dataset that consists of 79 features and a binary label (1 or 0).  This is a simple binary classification problem. I'm interested in exploring whether PySR can help me extract a mathematical expression from this dataset. I've tried some of the provided examples, but I haven't been able to use all 79 features/variables (or less) in the final mathematical expression. \r\n\r\nThanks in advance",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @lindeberg25,\r\n\r\nCan you post your dataset and what you’ve tried and the current results? Be sure to read the tuning page for general tips: https://astroautomata.com/PySR/tuning/\r\n\r\n79 features is quite a lot. To use all of them you’ll have to use at least `maxsize=160`, but probably twice that much to use them effectively. I’ve never gone that high so I’m not sure how it will work.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-10-16T04:47:08Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMC0xNlQwNTo0NzowOCswMTowMM4Abza0"
+          }
+        }
+      }
+    }
+  }
+}

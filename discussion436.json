@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 436,
+        "title": "Boolean features",
+        "body": "Hi,\r\n\r\nI am wondering if there is a way to include Boolean features (i,e, x) in PySR. For example, assume there are 5 categorical features and 2 continuous features, in total 7 features. Is it acceptable to one-hot encode the categorical features and concatenate them with continuous features, and then pass a combination of one-hot and continuous features to PySR?\r\n\r\nThank you so much",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @AKHCE,\r\n\r\nThere is no one-fits-all solution, it will really depend on your problem and what you want. At the end of the day, all calculations will be done using continuous scalars. But indeed you can map categorical/boolean problems into that space without much issue, so boolean problems and categorical problems are totally doable.\r\n\r\nThere are two things to consider:\r\n1. Accuracy. If you just want accuracy I would try all possible strategies: leaving it as categorical (1, 2, 3, etc)., one-hot, other mappings or combinations.\r\n2. Interpretability. This is entirely dependent on the problem and what you would find interpretable.\r\n\r\nCategorical mappings would definitely work if the equation makes sense. For example, for months, you might choose January=1, February=2, and so on. But you could also create a mapping to \"phases\" of the year by turning it into two features:\r\n\r\n$$\\text{month} \\rightarrow \\left( \\sin(\\frac{2\\ \\pi\\ \\text{month}}{12}),\\cos(\\frac{2\\ \\pi\\ \\text{month}}{12}) \\right)$$\r\nwhere $\\text{month} \\in 1\\ldots 12$. This would cause December and January to be close together in any equation without losing each month having a unique number, and avoid having a large jump from 12 to 1.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-09-30T00:34:17Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wOS0zMFQwMTozNDoxNyswMTowMM4AbRbh"
+          }
+        }
+      }
+    }
+  }
+}

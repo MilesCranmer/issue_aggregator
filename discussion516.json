@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 516,
+        "title": "How to simplify each tree after generation?",
+        "body": "Sometimes, SymbolicRegression.jl generates something like `unary_op(constant)` and such expressions are not simplified. Is there any way to enforce simplifying after each tree generation?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Sorry, I missed this for some reason. The simplification should happen regularly but it is a separate step. You actually don't want to simplify *every* step because it can prevent certain expressions from being found which are one hop away. e.g., `unary_op(constant)` might become `unary_op(constant + x)`. But if you simplify beforehand it wouldn't be able to necessary get there.",
+              "createdAt": "2024-01-17T23:45:08Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMS0xN1QyMzo0NTowOCswMDowMM4AfI73"
+          }
+        }
+      }
+    }
+  }
+}

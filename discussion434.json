@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 434,
+        "title": "n-th root for negative values, for odd n",
+        "body": "Hi!\r\n\r\nI am trying to add to regressor, a custom function calculating 5th root, 7th root and 11th root. \r\n\r\nI tried the following commands:\r\n\r\n_unary_operators=[\"sqrt\", \"square\", \"cbrt\", \"cube\", \r\n                            \"inv(x)=1/x\",\r\n                            \"nroot5(x)=x^(1/5)\",\"nroot7(x)=x^(1/7)\",\"nroot11(x)=x^(1/11)\"],_\r\n\r\n_extra_sympy_mappings={\"inv\": lambda x: 1 / x, \r\n                          \"nroot5\": lambda x: sympy.Pow(x,1/5), \r\n                          \"nroot7\": lambda x: sympy.Pow(x,1/7), \r\n                          \"nroot11\": lambda x: sympy.Pow(x,1/11)},_\r\n\r\nUnfortunately, I've got the following error:\r\n\r\nRuntimeError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: The operator `nroot5` is not well-defined over the real line, as it threw the error `UndefVarError` when evaluating the input -100.0. You can work around this by returning NaN for invalid inputs. For example, `safe_log(x::T) where {T} = x > 0 ? log(x) : T(NaN)`.\r\n\r\nn-th root for the odd values should work for negative input. Please help me, what I am doing wrong?\r\n\r\nThank you in advance for your help!\r\n\r\nWith best regards,\r\n\r\nRoman\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @romanszewczyk,\r\n\r\nThanks for the question. In PySR all operators need to handle any real-valued input. So because in Julia, custom powers require the base to be non-negative, you should instead write: `x >= 0 ? x^(1//5) : -(-x)^(1//5)` as the operator (the `//` creates a rational number). And for operators which are invalid for negatives, you can just return a NaN like `x >= 0 ? x^(1//4) : typeof(x)(NaN)`.\r\n\r\nCheers,\r\nMiles ",
+              "createdAt": "2023-09-20T19:26:41Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wOS0yMFQyMDoyNjo0MSswMTowMM4Aa8Ll"
+          }
+        }
+      }
+    }
+  }
+}

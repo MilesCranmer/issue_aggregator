@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 444,
+        "title": "Python variables in julia custom loss function",
+        "body": "Hi,\r\n\r\nI am trying to create a custom loss function based on lower and upper bounds of the dataset. I have these bounds in a python variable, but I am not sure how to use this variable in the julia loss function or whether it would be even possible. My current implementation (with some omissions) is as follows:\r\n\r\n```\r\nupper_bounds = np.max(y,axis=0)\r\nlower_bounds = np.min(y, axis=0)\r\n\r\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10)\r\n\r\nmodel = PySRRegressor(\r\n    niterations=100,  # < Increase me for better results\r\n    binary_operators=[\"+\", \"*\", '-', '/'],\r\n    unary_operators=[\r\n        \"cos\",\r\n        \"sin\",\r\n    ],\r\n    procs=5,\r\n    populations=30,\r\n    model_selection=\"best\",\r\n    maxsize = 15,\r\n    ncyclesperiteration = 10000,\r\n    nested_constraints={\"sin\": {\"sin\": 0, \"cos\": 0}, \"cos\": {\"sin\": 0, \"cos\": 0}},\r\n    weight_optimize = 0.001,\r\n    turbo = True,\r\n    progress = True,\r\n    loss=\"\"\"\r\n        function bounded_loss(x, y, lower_bounds, upper_bounds)\r\n        loss = abs(x - y)\r\n        for i in 1:{num_features}\r\n            if x[i] < lower_bounds[i]\r\n                loss += 1 * (lower_bounds[i] - x[i])^2\r\n            elseif x[i] > upper_bounds[i]\r\n                loss += 1 * (x[i] - upper_bounds[i])^2\r\n            end\r\n        end\r\n        return loss\r\n    end\r\n    \"\"\"\r\n```\r\n\r\nThe parameters I want to use in the custom loss function are lower_bounds and upper_bounds. Any help would be greatly appreciated!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @AndrewHutani,\r\n\r\nThis is definitely possible. However `loss` expects elementwise loss only (e.g., `loss=\"my_loss(prediction, target) = (prediction - target)^2\"` for a single scalar `prediction` and single scalar `target`). Instead you should use `full_objective`. The example of this is here: https://astroautomata.com/PySR/api/#the-objective. Do you want to try with that and see if you can get it to work?\r\n\r\nTo get your Python lower and upper bounds into the loss, I would do something with [string interpolation](https://peps.python.org/pep-0498/) and just put them into the string like:\r\n\r\n```python\r\nfull_objective=f\"\"\"\r\n    function eval_loss(tree, dataset, options)\r\n        lower_bounds = [{\", \".join(map(str, np.min(y, axis=0)))}]\r\n        upper_bounds = [{\", \".join(map(str, np.max(y, axis=0)))}]\r\n        prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n        if !flag\r\n            return eltype(dataset.X)(Inf)\r\n        end\r\n        return sum((prediction .- dataset.y) .^ 2) / dataset.n\r\n    end\r\n\"\"\"\r\n```\r\n\r\n(But modifying the final line with the `sum` to use your custom loss)\r\n\r\nCheers!\r\nMiles",
+              "createdAt": "2023-10-17T15:10:40Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMC0xN1QxNjoxMDo0MCswMTowMM4Ab3hv"
+          }
+        }
+      }
+    }
+  }
+}
