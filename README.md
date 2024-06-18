@@ -1,3 +1,5 @@
+# GitHub Issue Aggregator
+
 Some scripts to convert all discussions and issues on a GitHub repository into JSON files so you can put them in a vector database.
 
 ### Background
