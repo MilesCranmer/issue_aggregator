@@ -31,6 +31,6 @@ def get_issue [post_type: string, issue_number: int] {
     } else {
         let filename = $"($post_type)($issue_number).json"
         echo $"Saving to ($filename)"
-        $contents | save $filename
+        $contents | save -f $filename
     }
 }
