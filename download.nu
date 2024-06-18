@@ -1,4 +1,14 @@
-def get_issue [post_type: string, issue_number: int] {
+def get_issue [
+    -t: string,
+    -n: int,
+    -r: string,
+    -u: string
+] {
+    let post_type = $t
+    let issue_number = $n
+    let repo = $r
+    let user = $u
+
     let cmd = $"
         query\($owner: String!, $repo: String!, $issueNumber: Int!\) {
             repository\(owner: $owner, name: $repo\) {
@@ -23,7 +33,7 @@ def get_issue [post_type: string, issue_number: int] {
             }
         }
     "
-    let result = gh api graphql -F owner='MilesCranmer' -F repo='PySR' -F $"issueNumber=($issue_number)" -f $"query=($cmd)" | complete
+    let result = gh api graphql -F $"owner=($user)" -F $"repo=($repo)" -F $"issueNumber=($issue_number)" -f $"query=($cmd)" | complete
     let exit_code = $result.exit_code
     let contents = $result.stdout | from json
     if ($exit_code != 0) {
@@ -34,3 +44,7 @@ def get_issue [post_type: string, issue_number: int] {
         $contents | save -f $filename
     }
 }
+
+# Usage:
+# > source download.nu
+# > get_issue -t "issue" -n 123 -r "PySR" -u "MilesCranmer"
