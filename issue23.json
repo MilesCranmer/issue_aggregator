@@ -1,0 +1,97 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 23,
+        "title": "Can we control the number of digits after the decimal point of a constant ?",
+        "body": "",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Do you mean for printing equations, or the precision of numbers themselves (e.g., 32-bit vs 64-bit)?\r\n\r\nIf for printing, do you mean pysr format (during the loop), sympy format (e.g., `pysr.best()`), latex format (`pysr.best_latex()`)?\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2021-01-07T16:29:37Z"
+            },
+            {
+              "author":
+              {
+                "login": "nice-mon"
+              },
+              "body": "What I mean is that if the number of digits after the decimal point of the control constant is 3 during the optimization process, you don't need to make the effective digit selection at the end of the optimization, which reduces the error. So I want to know if this idea can be realized. Thanks!",
+              "createdAt": "2021-01-09T07:42:12Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Could you give me an example of what you mean by \"effective digit selection\"? During the equation search, every constant is a binary representation of a number - a [32-bit floating point number](https://en.wikipedia.org/wiki/Single-precision_floating-point_format). The number of digits recorded (in scientific notation) is 23 bits long. This isn't reduced during or after training - the full constants are returned by PySR.",
+              "createdAt": "2021-01-09T23:18:56Z"
+            },
+            {
+              "author":
+              {
+                "login": "nice-mon"
+              },
+              "body": "I know what you mean , thanks. I mean like this. For example, I get an equation like f(x) = 0.31883663*x1/(2.2189825*x0+1.6280622) by PySR. But, I need to simplify it when I use it. In the end I use the equation like f(x) = 0.32*x1/(2.22*x0+1.63). However, errors will be generated in my simplification process, and the accuracy will be reduced when using equations to make predictions. So I want to merge this simplified process with the regression process. In this way, the regression process will automatically minimize the simplified error as much as possible.",
+              "createdAt": "2021-01-11T12:57:18Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Ah, I see what you mean! Sorry it took me a while to understand. This is an interesting question; I will think about this more see what I can do. I think this should be easy to implement!\r\n\r\nScientific notation is okay, right? I.e., you want to limit the number of digits in the notation:\r\n\r\n1.03 * 10^-x\r\n^^^ = 3 digits\r\n\r\nwhere x is some integer.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2021-01-11T18:48:34Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "My one concern is that this might make the optimization surface quite bumpy for the Nelder-Mead search of constants. i.e., if the # of digits is, say, 2, and the optimizer varies the true underlying constant varies from 1.0 to 1.1, the optimizer won't see any changes until it finally arrives at 1.1 (assuming it doesn't stop before after it detects the optimization surface is flat). So it might be very difficult to optimize the constants with this.\r\n\r\nAlso, since floating points use base-2 rather than base-10, this might just be infeasible altogether, as the true underlying digits represented in base-10 will be different...\r\n\r\nWhy do you need to simplify it the equation when you use it? Are you simplifying it for aesthetics?\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2021-01-11T22:12:27Z"
+            },
+            {
+              "author":
+              {
+                "login": "nice-mon"
+              },
+              "body": "At the beginning, I simplifying it for aesthetics and want to make the equation look more concise. haha .Later, I realized that simplify would cause errors. If it is difficult to integrate simplification into the optimization process, then I will give up this idea. ",
+              "createdAt": "2021-01-13T13:23:54Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Ah, I see, thanks. Indeed I think this will make the optimization much more difficult for the GP and especially the NelderMead constant optimization.\r\n\r\nI think what will work best is that you use PySR normally, then afterwards, you take the symbolic form, and optimize the constants manually using something like `scipy.optimize.minimize()`, which will then let you declare any transformations you want to the constants, such as rounding to a number of digits.\r\n\r\nHow does this sound?\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2021-01-18T02:36:15Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Closing for now; let me know if you have followup questions,\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2021-01-29T13:12:46Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOLeIrkA=="
+          }
+        }
+      }
+    }
+  }
+}

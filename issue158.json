@@ -1,0 +1,65 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 158,
+        "title": "AMD CPU limitation",
+        "body": "**Describe the bug**\r\nAMD CPU produces significantly worse performance than Intel CPUs in the \"Simple PYSR Example\" from  [pysr_demo.ipynb](https://github.com/MilesCranmer/PySR/blob/master/examples/pysr_demo.ipynb).  AMD appears limited to utilize one core while Intel can utilize all cores. \r\n\r\n**Additional context**\r\nTested CPU / OS:\r\n- Ryzen 5900x (12 cores / 24 threads): 6% CPU usage (using 1 core, 1x baseline)\r\n- i5 2020 macbook pro (4 cores / 8 threads): 60% CPU usage (using all cores, 2.1 x faster than the AMD)\r\n- i5 6600k windows 10 desktop (4 cores / 4 threads): 80% CPU usage (using all cores,1.2 x faster than the AMD)\r\n\r\n Running the PyTorch trainer In [12], with gpus=0 utilizes all CPU cores on all systems tested.\r\n\r\n**Version (please complete the following information):**\r\n- OS: macOS 12.4, intel (OK), Windows 10, intel (OK), Windows 11, AMD (Problem)\r\n- Version: PYSR 0.9.3\r\n- Python 3.9 venv in pycharm 2022.1.3\r\n\r\n- Does the bug appear with the latest version of PySR? \r\nYes\r\n\r\n**Configuration**\r\n- What are your PySR settings?\r\nExactly the Simple PySR example found in [pysr_demo.ipynb](https://github.com/MilesCranmer/PySR/blob/master/examples/pysr_demo.ipynb)\r\n\r\n```python\r\ndefault_pysr_params = dict(\r\n    populations=30,\r\n    procs=4,\r\n    model_selection=\"best\",\r\n)\r\n# Learn equations\r\nmodel = PySRRegressor(\r\n    niterations=30,\r\n    binary_operators=[\"plus\", \"mult\"],\r\n    unary_operators=[\"cos\", \"exp\", \"sin\"],\r\n    **default_pysr_params\r\n)\r\n\r\nmodel.fit(X, y)\r\n```\r\n\r\n- What dataset are you running on? \r\n```python\r\n# Dataset\r\nnp.random.seed(0)\r\nX = 2 * np.random.randn(100, 5)\r\ny = 2.5382 * np.cos(X[:, 3]) + X[:, 0] ** 2 - 2\r\n```\r\n\r\n**Error message**\r\nNo message, just performance loss on the AMD chip.\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @mtaylorDW,\r\n\r\nThanks for posting this. What version of Julia are you using? In the command line can you run:\r\n```bash\r\njulia --threads=auto -e 'println(Threads.nthreads())'\r\n```\r\nThis will say how many cores Julia can use. It could be that the Julia version is not compiled for the AMD chip or something. ",
+              "createdAt": "2022-07-06T20:43:49Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "By the way, since there are 8 threads available on your macbook pro, I would set `procs=8`.\r\n\r\n(the default setting for `procs` will automatically use the maximum number of cores).",
+              "createdAt": "2022-07-06T21:00:03Z"
+            },
+            {
+              "author":
+              {
+                "login": "mtaylorDW"
+              },
+              "body": "Hi @MilesCranmer , thanks for getting back so soon.  I'm running **julia 1.7.3** on both and it sees **24** threads on the AMD and 8 on the intel MBP.\r\n",
+              "createdAt": "2022-07-06T21:17:36Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "As a quick fix, if you set `multithreading=False`, it will use multiprocessing instead, which is almost guaranteed to fix this, and give you the same performance as on other machines. Windows seems to have issues with the multithreading backend of PySR for some reason. ",
+              "createdAt": "2022-07-06T21:20:48Z"
+            },
+            {
+              "author":
+              {
+                "login": "mtaylorDW"
+              },
+              "body": "Thanks @MilesCranmer , `multithreading=False` gave a 2-3x increase in cpu utilization on the AMD machine, utilizing 20% of the CPU resources and doubles the MBP's speed in cycles per second.  I was then able to saturate the CPU by cranking up the `population_size` parameter, which previously had no effect.",
+              "createdAt": "2022-07-06T21:56:50Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHORiRk9Q=="
+          }
+        }
+      }
+    }
+  }
+}

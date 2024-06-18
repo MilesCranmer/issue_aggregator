@@ -1,0 +1,97 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 222,
+        "title": "[BUG] Can't re-build PyCall.jl after upgrading Python",
+        "body": "Just documenting this in case others encounter it.\r\n\r\nThis is a weird bug often reported on PyCall.jl where PyCall will somehow cache the location of your old Python binary, and re-building will fail.\r\n\r\n- https://stackoverflow.com/questions/64288845/julia-failure-to-configure-pycall-to-use-a-different-version\r\n- https://github.com/JuliaPy/PyCall.jl/issues/569\r\n- https://stackoverflow.com/questions/50428680/julia-installs-python-2-7-while-python-3-6-is-already-installed\r\n- https://stackoverflow.com/questions/59889778/pycall-unable-to-use-pipenv-version-of-python-initerrorincompatible-libpython\r\n- https://stackoverflow.com/questions/64288845/julia-failure-to-configure-pycall-to-use-a-different-version\r\n\r\n\r\nI downgraded my Python version from 3.11 to 3.10, and tried to do `python -c 'import pysr; pysr.install()'`. This gave me the error:\r\n\r\n\r\n```\r\n┌ Info: PyCall is already installed but not compatible with this Python\r\n└ executable.  Re-building PyCall...\r\n[ Info: Run `Pkg.build(\"PyCall\"; verbose=true)`\r\nERROR: LoadError: The following package names could not be resolved:\r\n * PyCall (not found in project or manifest)\r\nStacktrace:\r\n [1] pkgerror(msg::String)\r\n   @ Pkg.Types ~/.julia/juliaup/julia-1.8.2+0.aarch64/share/julia/stdlib/v1.8/Pkg/src/Types.jl:67\r\n [2] ensure_resolved(ctx::Pkg.Types.Context, manifest::Pkg.Types.Manifest, pkgs::Vector{Pkg.Types.PackageSpec}; registry::Bool)\r\n   @ Pkg.Types ~/.julia/juliaup/julia-1.8.2+0.aarch64/share/julia/stdlib/v1.8/Pkg/src/Types.jl:952\r\n [3] ensure_resolved\r\n   @ ~/.julia/juliaup/julia-1.8.2+0.aarch64/share/julia/stdlib/v1.8/Pkg/src/Types.jl:904 [inlined]\r\n [4] build(ctx::Pkg.Types.Context, pkgs::Vector{Pkg.Types.PackageSpec}; verbose::Bool, kwargs::Base.Pairs{Symbol, Base.TTY, Tuple{Symbol}, NamedTuple{(:io,), Tuple{Base.TTY}}})\r\n   @ Pkg.API ~/.julia/juliaup/julia-1.8.2+0.aarch64/share/julia/stdlib/v1.8/Pkg/src/API.jl:1028\r\n [5] build(pkgs::Vector{Pkg.Types.PackageSpec}; io::Base.TTY, kwargs::Base.Pairs{Symbol, Bool, Tuple{Symbol}, NamedTuple{(:verbose,), Tuple{Bool}}})\r\n   @ Pkg.API ~/.julia/juliaup/julia-1.8.2+0.aarch64/share/julia/stdlib/v1.8/Pkg/src/API.jl:156\r\n [6] #build#99\r\n   @ ~/.julia/juliaup/julia-1.8.2+0.aarch64/share/julia/stdlib/v1.8/Pkg/src/API.jl:144 [inlined]\r\n [7] #build#98\r\n   @ ~/.julia/juliaup/julia-1.8.2+0.aarch64/share/julia/stdlib/v1.8/Pkg/src/API.jl:143 [inlined]\r\n [8] build_pycall()\r\n   @ Main ~/venvs/main/lib/python3.10/site-packages/julia/install.jl:54\r\n [9] top-level scope\r\n   @ ~/venvs/main/lib/python3.10/site-packages/julia/install.jl:108\r\nin expression starting at /Users/mcranmer/venvs/main/lib/python3.10/site-packages/julia/install.jl:73\r\nTraceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\n  File \"/Users/mcranmer/Documents/PySR/pysr/julia_helpers.py\", line 79, in install\r\n    julia.install(quiet=quiet)\r\n  File \"/Users/mcranmer/venvs/main/lib/python3.10/site-packages/julia/tools.py\", line 118, in install\r\n    raise PyCallInstallError(\"Installing\", output)\r\njulia.tools.PyCallInstallError: Installing PyCall failed.\r\n\r\n** Important information from Julia may be printed before Python's Traceback **\r\n\r\nSome useful information may also be stored in the build log file\r\n`~/.julia/packages/PyCall/*/deps/build.log`.\r\n```\r\n\r\nIf I open up Julia, install PyCall.jl into any environment, and write:\r\n\r\n```julia\r\njulia> using PyCall\r\n\r\njulia> PyCall.python\r\n\"/Users/mcranmer/venvs/main/bin/python3.11\"\r\n```\r\n\r\nit gives me the old location of the Python binary! The only one in that folder is now `python3.10` - the `python3.11` was removed. This is even true if I uninstall and re-install PyCall.jl. It will somehow remember the old location, and re-building it will fail. Maybe it expects `PyCall.python` to be unchanged between Python versions?\r\n\r\nThe way I ended up fixing this is to run (inside Julia)\r\n\r\n```julia\r\nusing Pkg\r\nENV[\"PYTHON\"] = \"/Users/mcranmer/venvs/main/bin/python3.10\"\r\npkg\"build PyCall\"\r\n```\r\n\r\nthis successfully re-builds PyCall.jl. But I think ideally this shouldn't be necessary, to lower friction for users. To do this, I think PyJulia should check what Python binary was used to launch it, and, if necessary, reset `ENV` and rebuild.\r\n\r\nFYI @mkitti @stevengj",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "mkitti"
+              },
+              "body": "This is probably due to a stale deps.jl file. We should probably move to a Preferences.jl mechanism for this or again take inspiration from PythonCall.jl.\r\n\r\n",
+              "createdAt": "2022-11-08T18:44:20Z"
+            },
+            {
+              "author":
+              {
+                "login": "mkitti"
+              },
+              "body": "You should be able to locate the deps file via this code.\r\n\r\n```\r\nusing PyCall # repeat if this errors\r\nreaddir(joinpath(dirname(pathof(PyCall)), \"..\", \"deps\"))\r\n```",
+              "createdAt": "2022-11-08T19:37:06Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Maybe this could be checked at `julia.install()`, and, if `deps.jl`'s `python` key doesn't match the calling binary, it gets reset?",
+              "createdAt": "2022-11-08T20:53:01Z"
+            },
+            {
+              "author":
+              {
+                "login": "mkitti"
+              },
+              "body": "This would be much easier to handle via Preferences.jl. We should use that.",
+              "createdAt": "2022-11-08T21:57:39Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "Will 'PySr' run with Julia 1.9?\r\n```\r\n% ipython\r\nPython 3.11.0 | packaged by conda-forge | (main, Oct 25 2022, 06:24:51) [Clang 14.0.4 ]\r\nType 'copyright', 'credits' or 'license' for more information\r\nIPython 8.7.0 -- An enhanced Interactive Python. Type '?' for help.\r\n\r\nIn [1]: import pysr\r\n\r\nIn [2]: pysr.install()\r\n[ Info: Julia version info\r\nJulia Version 1.9.0-rc3\r\nCommit 1853b903282 (2023-04-26 15:51 UTC)\r\nPlatform Info:\r\n  OS: macOS (x86_64-apple-darwin21.4.0)\r\n  uname: Darwin 22.4.0 Darwin Kernel Version 22.4.0: Mon Mar  6 21:00:17 PST 2023; root:xnu-8796.101.5~3/RELEASE_X86_64 x86_64 i386\r\n  CPU: Intel(R) Core(TM) i7-10700K CPU @ 3.80GHz: \r\n                 speed         user         nice          sys         idle          irq\r\n       #1-16  3800 MHz    4265439 s          0 s     764858 s   16874798 s          0 s\r\n  Memory: 128.0 GB (4417.48828125 MB free)\r\n  Uptime: 274568.0 sec\r\n  Load Avg:  7.181640625  7.73876953125  12.20849609375\r\n  WORD_SIZE: 64\r\n  LIBM: libopenlibm\r\n  LLVM: libLLVM-14.0.6 (ORCJIT, skylake)\r\n  Threads: 1 on 16 virtual cores\r\nEnvironment:\r\n  JULIA_DEPOT_PATH_BACKUP = \r\n  JULIA_PROJECT_BACKUP = \r\n  JULIA_LOAD_PATH_BACKUP = \r\n  JULIA_DEPOT_PATH = /Users/davidlaxer/anaconda3/envs/pysr_test/share/julia:/Users/davidlaxer/anaconda3/envs/pysr_test/share/pysr/depot:\r\n  JULIA_PROJECT = @pysr-0.12.3\r\n  JULIA_LOAD_PATH = @:@pysr_test:@stdlib\r\n  JULIA_SSL_CA_ROOTS_PATH_BACKUP = \r\n  JULIA_CONDAPKG_BACKEND_BACKUP = \r\n  JULIA_CONDAPKG_BACKEND = System\r\n  JULIA_CONDAPKG_EXE_BACKUP = \r\n  JULIA_CONDAPKG_EXE = /Users/davidlaxer/anaconda3/bin/conda\r\n  JULIA_DEPOT_PATH_PYSR_BACKUP = /Users/davidlaxer/anaconda3/envs/pysr_test/share/julia:\r\n  TERM = xterm-256color\r\n  PATH = /Users/davidlaxer/.opam/_coq-platform_.2021.02.1/bin:/Users/davidlaxer/.juliaup/bin:/Users/davidlaxer/.cabal/bin:/Users/davidlaxer/.ghcup/bin:/Users/davidlaxer/anaconda3/envs/pysr_test/bin:/Users/davidlaxer/anaconda3/condabin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Users/davidlaxer/.cargo/bin:/Users/jetbrains/.local/bin\r\n  XPC_FLAGS = 0x0\r\n  HOME = /Users/davidlaxer\r\n  JAVA_HOME = :-\r\n  JAVA_LD_LIBRARY_PATH = :-\r\n  CAML_LD_LIBRARY_PATH = /Users/davidlaxer/.opam/_coq-platform_.2021.02.1/lib/stublibs:/Users/davidlaxer/.opam/_coq-platform_.2021.02.1/lib/ocaml/stublibs:/Users/davidlaxer/.opam/_coq-platform_.2021.02.1/lib/ocaml\r\n  OCAML_TOPLEVEL_PATH = /Users/davidlaxer/.opam/_coq-platform_.2021.02.1/lib/toplevel\r\n  PKG_CONFIG_PATH = /Users/davidlaxer/.opam/_coq-platform_.2021.02.1/lib/pkgconfig:\r\n  CONDA_BACKUP_CPPFLAGS = -D_FORTIFY_SOURCE=2 -isystem /Users/davidlaxer/anaconda3/include\r\n  CONDA_BACKUP_CFLAGS = -march=core2 -mtune=haswell -mssse3 -ftree-vectorize -fPIC -fPIE -fstack-protector-strong -O2 -pipe -isystem /Users/davidlaxer/anaconda3/include\r\n  CONDA_BACKUP_LDFLAGS = -Wl,-pie -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs -Wl,-rpath,/Users/davidlaxer/anaconda3/lib -L/Users/davidlaxer/anaconda3/lib\r\n  CONDA_BACKUP_LDFLAGS_LD = -pie -headerpad_max_install_names -dead_strip_dylibs -rpath /Users/davidlaxer/anaconda3/lib -L/Users/davidlaxer/anaconda3/lib\r\n  CONDA_BACKUP_DEBUG_CFLAGS = -march=core2 -mtune=haswell -mssse3 -ftree-vectorize -fPIC -fPIE -fstack-protector-strong -O2 -pipe -Og -g -Wall -Wextra -isystem /Users/davidlaxer/anaconda3/include\r\n  CONDA_BACKUP_CMAKE_PREFIX_PATH = :/Users/davidlaxer/anaconda3\r\n  CONDA_BACKUP_FFLAGS = -march=core2 -mtune=haswell -ftree-vectorize -fPIC -fstack-protector -O2 -pipe -isystem /Users/davidlaxer/anaconda3/include\r\n  CONDA_BACKUP_FORTRANFLAGS = -march=core2 -mtune=haswell -ftree-vectorize -fPIC -fstack-protector -O2 -pipe -isystem /Users/davidlaxer/anaconda3/include\r\n  CONDA_BACKUP_DEBUG_FFLAGS = -march=core2 -mtune=haswell -ftree-vectorize -fPIC -fstack-protector -O2 -pipe -isystem /Users/davidlaxer/anaconda3/include\r\n  CONDA_BACKUP_DEBUG_FORTRANFLAGS = -march=core2 -mtune=haswell -ftree-vectorize -fPIC -fstack-protector -O2 -pipe -isystem /Users/davidlaxer/anaconda3/include\r\n  CONDA_JL_HOME_BACKUP = \r\n  CONDA_JL_HOME = /Users/davidlaxer/anaconda3/envs/pysr_test\r\n[ Info: Julia executable: /Users/davidlaxer/anaconda3/envs/pysr_test/share/julia/juliaup/julia-1.9.0-rc3+0.x64.apple.darwin14/bin/julia\r\n[ Info: Trying to import PyCall...\r\n┌ Info: PyCall is already installed but not compatible with this Python\r\n└ executable.  Re-building PyCall...\r\n[ Info: Run `Pkg.build(\"PyCall\"; verbose=true)`\r\nERROR: LoadError: The following package names could not be resolved:\r\n * PyCall (not found in project or manifest)\r\nStacktrace:\r\n  [1] pkgerror(msg::String)\r\n    @ Pkg.Types ~/anaconda3/envs/pysr_test/share/julia/juliaup/julia-1.9.0-rc3+0.x64.apple.darwin14/share/julia/stdlib/v1.9/Pkg/src/Types.jl:69\r\n  [2] ensure_resolved(ctx::Pkg.Types.Context, manifest::Pkg.Types.Manifest, pkgs::Vector{Pkg.Types.PackageSpec}; registry::Bool)\r\n    @ Pkg.Types ~/anaconda3/envs/pysr_test/share/julia/juliaup/julia-1.9.0-rc3+0.x64.apple.darwin14/share/julia/stdlib/v1.9/Pkg/src/Types.jl:995\r\n  [3] ensure_resolved\r\n    @ ~/anaconda3/envs/pysr_test/share/julia/juliaup/julia-1.9.0-rc3+0.x64.apple.darwin14/share/julia/stdlib/v1.9/Pkg/src/Types.jl:946 [inlined]\r\n  [4] build(ctx::Pkg.Types.Context, pkgs::Vector{Pkg.Types.PackageSpec}; verbose::Bool, kwargs::Base.Pairs{Symbol, Base.TTY, Tuple{Symbol}, NamedTuple{(:io,), Tuple{Base.TTY}}})\r\n    @ Pkg.API ~/anaconda3/envs/pysr_test/share/julia/juliaup/julia-1.9.0-rc3+0.x64.apple.darwin14/share/julia/stdlib/v1.9/Pkg/src/API.jl:1052\r\n  [5] build(pkgs::Vector{Pkg.Types.PackageSpec}; io::Base.TTY, kwargs::Base.Pairs{Symbol, Bool, Tuple{Symbol}, NamedTuple{(:verbose,), Tuple{Bool}}})\r\n    @ Pkg.API ~/anaconda3/envs/pysr_test/share/julia/juliaup/julia-1.9.0-rc3+0.x64.apple.darwin14/share/julia/stdlib/v1.9/Pkg/src/API.jl:156\r\n  [6] #build#85\r\n    @ ~/anaconda3/envs/pysr_test/share/julia/juliaup/julia-1.9.0-rc3+0.x64.apple.darwin14/share/julia/stdlib/v1.9/Pkg/src/API.jl:144 [inlined]\r\n  [7] build\r\n    @ ~/anaconda3/envs/pysr_test/share/julia/juliaup/julia-1.9.0-rc3+0.x64.apple.darwin14/share/julia/stdlib/v1.9/Pkg/src/API.jl:144 [inlined]\r\n  [8] #build#84\r\n    @ ~/anaconda3/envs/pysr_test/share/julia/juliaup/julia-1.9.0-rc3+0.x64.apple.darwin14/share/julia/stdlib/v1.9/Pkg/src/API.jl:143 [inlined]\r\n  [9] build\r\n    @ ~/anaconda3/envs/pysr_test/share/julia/juliaup/julia-1.9.0-rc3+0.x64.apple.darwin14/share/julia/stdlib/v1.9/Pkg/src/API.jl:143 [inlined]\r\n [10] build_pycall()\r\n    @ Main ~/anaconda3/envs/pysr_test/lib/python3.11/site-packages/julia/install.jl:54\r\n [11] top-level scope\r\n    @ ~/anaconda3/envs/pysr_test/lib/python3.11/site-packages/julia/install.jl:108\r\nin expression starting at /Users/davidlaxer/anaconda3/envs/pysr_test/lib/python3.11/site-packages/julia/install.jl:73\r\n---------------------------------------------------------------------------\r\nPyCallInstallError                        Traceback (most recent call last)\r\nCell In[2], line 1\r\n----> 1 pysr.install()\r\n\r\nFile ~/PySR/pysr/julia_helpers.py:84, in install(julia_project, quiet, precompile)\r\n     81 if precompile == False:\r\n     82     os.environ[\"JULIA_PKG_PRECOMPILE_AUTO\"] = \"0\"\r\n---> 84 julia.install(quiet=quiet)\r\n     85 Main, init_log = init_julia(julia_project, quiet=quiet, return_aux=True)\r\n     86 io_arg = _get_io_arg(quiet)\r\n\r\nFile ~/anaconda3/envs/pysr_test/lib/python3.11/site-packages/julia/tools.py:118, in install(julia, color, python, quiet)\r\n    116     return\r\n    117 elif returncode != 0:\r\n--> 118     raise PyCallInstallError(\"Installing\", output)\r\n    120 if not quiet:\r\n    121     print(file=sys.stderr)\r\n\r\nPyCallInstallError: Installing PyCall failed.\r\n\r\n** Important information from Julia may be printed before Python's Traceback **\r\n\r\nSome useful information may also be stored in the build log file\r\n`~/.julia/packages/PyCall/*/deps/build.log`.\r\n\r\n\r\nIn [3]: quit\r\n\r\n```",
+              "createdAt": "2023-05-05T19:12:26Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Yes, it works for me. Just follow the instructions here: https://github.com/MilesCranmer/PySR/issues/257",
+              "createdAt": "2023-05-05T19:22:00Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "Works for me now.  Thanks!",
+              "createdAt": "2023-05-05T19:50:47Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Cool. Yes I would really like to have that bug automatically solved by PySR, but I'm not sure how to do it so far.",
+              "createdAt": "2023-05-05T22:44:08Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Self-repair added by #363, so closing this. (Will re-open if any other issues)",
+              "createdAt": "2023-07-04T16:45:43Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOYJdMcw=="
+          }
+        }
+      }
+    }
+  }
+}

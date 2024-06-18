@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 121,
+        "title": "[BUG] Specifying `variable_names`",
+        "body": "Specifying variable names (e.g., `variable_names = ['N','P']` when `X` has two columns) leads to subsequent problems.  Although the HoF is produced and exported with the appropriate substitutions of `x0` and `x1`, running `model.predict`, for example, \r\n```\r\nX = 2 * np.random.randn(100, 2)\r\ny = 2 * np.cos(X[:, 1]) + X[:, 0] ** 2 - 2\r\n\r\nmodel = PySRRegressor(variable_names = ['N','P'])\r\nmodel.fit(X, y)\r\nmodel.predict\r\n```\r\nresults in\r\n\r\n> bound method PySRRegressor.predict of PySRRegressor.equations = None\r\n\r\n\r\n\r\nand `model.equations` returns nothing.\r\n\r\nIn contrast, \r\n```\r\nmodel = PySRRegressor()\r\nmodel.fit(X, y)\r\nmodel.predict\r\n```\r\nreturns results as expected.\r\n\r\n- macOS\r\n- PySR 0.7.9\r\n\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks for raising this @marknovak! I looked into this and it is not an issue for general variable names; this is actually very subtle edge case which happens when you call one variable `N`. It is great you found it because I am sure `N` would be a common variable name, I had simply never tested it.\r\n\r\nIn general, `variable_names` work fine and are unit-tested. For example, if you specify `variable_names=[\"N1\", \"P\"]`, your code will work fine as is.\r\n\r\nThe issue is specifically due to calling one of the variables `N`. Apparently, this is due to the presence of a function with the same name `N` within SymPy (i.e., `from sympy import N`). I never import such a function from SymPy explicitly, but it seems like SymPy's own `lambdify` function, which turns the equation into a function, has internally imported this function!\r\n\r\nWill look into solving this. For now I might just add an error when the user specifies a variable name as `N` to be more clear about why this won't work. What do you think?\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2022-04-05T02:31:36Z"
+            },
+            {
+              "author":
+              {
+                "login": "marknovak"
+              },
+              "body": "Wow.  That would have taken me _forever_ to figure out (had I even tried).  Nicely done.  (And thanks for the quick reply on this Issue too.)",
+              "createdAt": "2022-04-05T02:54:20Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I have an explicit assertion check for this now against all sympy functions... should make this error easier to solve!",
+              "createdAt": "2022-08-19T21:15:08Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOSMh3qw=="
+          }
+        }
+      }
+    }
+  }
+}

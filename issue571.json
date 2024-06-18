@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 571,
+        "title": "[BUG]: PyTorch module does not preserve dimensions of input tensor",
+        "body": "### What happened?\n\n### The issue\r\n\r\nThe current `_SingleSymPyModule.forward(self, X)` method flattens input column vectors (dim=2).\r\n\r\nIf we have a column vector `x`  with shape=`(L, 1)` (dim=2) as input, then the expected behavior is for the output `y` of a module to also have the same shape (and dim). Currently `y` has shape `(L, )`\r\n\r\nBesides a matter of consistency, the flattening may not technically matter for single vectors, but as soon as one has downstream modules that expect a certain shape, there's a problem.  Indeed, I found the issue with a multivariate `_SingleSymPyModule`, which takes its inputs from 2 other such modules. As the code expects a matrix of column vectors as feature inputs, an error is thrown, as the second dimension no longer exists due to the flattening in upstream `_SingleSymPyModule`s. But this of course is not limited to compositions of this type of module.\r\n\r\nSpecifically, on line 184 of the `export_torch` module:\r\n\r\n```python\r\nsymbols = {symbol: X[:, i] for i, symbol in enumerate(self.symbols_in)}\r\n```\r\n\r\nThe extracted `X[:, i]` has dimension 1. This means that` _SingleSymPyModule` itself expects column vector features, but because of upstream flattening of `X` by another `_SingleSymPyModule`,  we get the error below:\r\n\r\n### Error\r\n\r\n```python\r\nFile [...]/pysr/export_torch.py:184, in <dictcomp>(.0)\r\n    182 if self._selection is not None:\r\n    183     X = X[:, self._selection]\r\n--> 184 symbols = {symbol: X[:, i] for i, symbol in enumerate(self.symbols_in)}\r\n    185 return self._node(symbols)\r\n\r\nIndexError: too many indices for tensor of dimension 1\r\n```\r\n\r\n### Suggestion for a fix\r\n\r\nIf one assumes inputs are always matrices of features as columns, then a simple fix is:\r\n\r\n```python\r\nsymbols = {symbol: X[:, i].unsqueeze(dim=-1) for i, symbol in enumerate(self.symbols_in)}\r\n```\r\nwhich adds an extra dimension after the last shape index, so (L, ) becomes (L, 1).\r\nThen, the subsequent evaluation `self._node(symbols)` preserves the shape.\r\n\r\nAlternatively,\r\n\r\n```python\r\nsymbols = {symbol: torch.index_select(X, dim=1, index=torch.tensor([0], dtype=torch.int32)) \r\n                    for i, symbol in enumerate(self.symbols_in)}\r\n```\r\n\r\n `torch.index_select` returns a \"tensor has the same number of dimensions as the original tensor.\"\r\nthough this might be overkill given the above assumption. I'm not exactly fluent in PyTorch tensor manipulations, but the first solution seems adequate here. \r\n\r\nThe existing `TestTorch` tests pass with both solutions.\n\n### Version\n\n0.17.2\n\n### Operating System\n\nLinux\n\n### Package Manager\n\npip\n\n### Interface\n\nOther (specify below)\n\n### Relevant log output\n\n_No response_\n\n### Extra Info\n\nThe issue does not depend on the interface.",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

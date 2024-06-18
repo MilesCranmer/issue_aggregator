@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 408,
+        "title": "Silence warnings for Optim.jl",
+        "body": "The latest Optim.jl generates warnings when NaN is encountered during optimization: https://github.com/JuliaNLSolvers/Optim.jl/releases/tag/v1.7.7\r\n\r\nThis results in PySR & SymbolicRegression.jl generating tons of such warnings... So would be great if this could be turned off, as it should not be shown to the user.\r\n\r\nx-ref https://github.com/JuliaNLSolvers/Optim.jl/pull/1046 https://github.com/MilesCranmer/SymbolicRegression.jl/issues/255",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Closed by #564",
+              "createdAt": "2024-03-24T23:41:33Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOeDjbYw=="
+          }
+        }
+      }
+    }
+  }
+}

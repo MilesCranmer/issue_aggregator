@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 94,
+        "title": "[Feature] PySRSequenceRegressor",
+        "body": "To define a symbolic regression model predict recurrent relations in sequences, I want to create a `PySRSequenceRegressor` (see #88 for scikit-learn API) that will automatically set this up for the user given a sequence `X`.\r\n\r\nThis would require basically no core modifications. It's just a preprocessing step. This could also be used to model any sort of fixed step size time series data, including differential equations (although the learned symbolic model would just be single-step prediction; not rollouts), so I think this would be a nice addition.\r\n\r\nThe required arguments for this would be: `history_length` which tells the data preprocessing how many historical features to allocate a single datapoint for it to predict the next step.\r\n\r\nThe user would be allowed to pass a 1D array (single sequence) or a 3D array (batch of sequences with multiple features each). This will not allow for 2D arrays as input since this is ambiguous with regard to batching vs multi-feature. Passing a 2D array will raise an error telling the user to pass a 3D array, and give the expected axis configuration. \r\n\r\nA 3D array as input will raise a warning letting the user know which axis is being interpreted as batch/feature. This warning could be silenced with a flag.\r\n\r\nThe user could also use `PySRRegressor` and do the preprocessing themselves.\r\n\r\n(cc @patrick-kidger @kazewong, in case of interest)",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "falknerdominik"
+              },
+              "body": "Hello,\r\n\r\nCould this be currently implemented? If yes can you specify how the preprocessing would look like (I might be interested to try this on data I currently work on).",
+              "createdAt": "2024-02-21T15:35:48Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOdKUPKw=="
+          }
+        }
+      }
+    }
+  }
+}

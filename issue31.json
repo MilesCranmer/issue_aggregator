@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 31,
+        "title": "Progress bar in Jupyter Notebooks",
+        "body": "Not sure if this is possible in the current setup, but would be nice to have a progress bar display inside the jupyter notebooks.\r\n\r\nTo implement the multi-line progress bar, the SymbolicRegression.jl backend basically will print several ANSI escape sequences to erase lines. The multi-line escape sequences don't work in Jupyter.\r\n\r\nI think to get this working, I think I need to \r\n1. Use tqdm on the Python side (and manually loop through it), and\r\n2. Change the mechanism for reading in the output of SymbolicRegression.jl to actually parse some structured log files (and perhaps parse the equations file into sympy and print that). So basically the loop printing in PySR will be pure-Python.",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 254,
+        "title": "[Plot for Iterations/Generations with RMSE ]",
+        "body": "Do you have a feature to show a plot between iterations with RMSE?\r\nWe have checked the dir(model), and we couldn't find it. \r\nIf you don't have it, could you probably make that in the next pysr version?\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Good idea. I don't have time to add it right now, but if you want to give it a shot, a PR would be welcome! \r\n\r\nIt would be easier to add this on the Julia side. Here is where the equations are printed to a file: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/de0e51c89ae1a88cfc5a616a9d101b7a4d331dcb/src/SymbolicRegression.jl#L755-L766\r\n\r\nyou could probably add some code to append to a file over time, so that you can plot it, either live or at the end of training.",
+              "createdAt": "2023-01-23T13:45:15Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "This will be added by https://github.com/MilesCranmer/SymbolicRegression.jl/pull/277. The new issue #581 is set up for tracking it, so let's move there.",
+              "createdAt": "2024-03-25T00:25:39Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOeDklww=="
+          }
+        }
+      }
+    }
+  }
+}

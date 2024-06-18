@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 354,
+        "title": "[Feature]: Non-simplifying rules",
+        "body": "### Feature Request\n\nIt might be useful to explore adding expression transformation rules which do not simplify the expression, but rather transform it to a more complex expression which is otherwise identical. This would let you explore the space of expressions without reducing the loss.",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

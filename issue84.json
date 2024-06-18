@@ -1,0 +1,57 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 84,
+        "title": "[Feature] Precompilation",
+        "body": "I think it would be great to precompile some parts of SymbolicRegression.jl to reduce the startup time of PySR. I think this could help startup time quite significantly.\r\n\r\nTutorial: https://julialang.org/blog/2021/01/precompile_tutorial/",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Another thing to try would be PyJulia. Then much of the Julia backend would get cached, if Python stays open between commands. \r\n\r\nThe main reason I haven't used PyJulia so far is because of installation issues I've personally experienced (which therefore would likely be experienced by many users who have never used Julia). Another reason is I'm not sure how it would handle distributed computing - where it seems better to launch Julia from the command line normally (which is how PySR works).",
+              "createdAt": "2021-11-29T22:33:40Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Update. This seems to be working. I have the current draft version in the `pyjulia` branch. This should mean you can get faster startup time on second call, since you don't need to recompile the Julia backend every single launch - it will just cache the SymbolicRegression.jl from the previous `pysr` call.\r\n\r\nEdit: confirmed that there is a much faster startup time.",
+              "createdAt": "2022-01-10T18:27:22Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "PyJulia is working extremely well, even with distributed computing(!). While PyJulia doesn't even officially support this, it seems to work because the backend handles all distributed processes internally.\r\n\r\nI will likely switch the entirety of PySR to PyJulia in a future version. In addition to the reduced startup time from repeat searches, another major advantage is I can finally have state-saving abilities, and store the equations directly in a Python object rather than in a csv file.",
+              "createdAt": "2022-01-14T09:35:45Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "This is fixed with v0.7+",
+              "createdAt": "2022-02-12T23:22:31Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOPdgJvQ=="
+          }
+        }
+      }
+    }
+  }
+}

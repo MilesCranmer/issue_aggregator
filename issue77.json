@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 77,
+        "title": "How to exclude translational constants from the learning process?",
+        "body": "Hi Miles Cranmer, \r\n\r\nThank you again for developing this useful tool.\r\n\r\nI have a question to ask about a parameter setting. Is there a way for me to exclude transnational constants from the PySR learning process completely, so that the optimised expressions do not contain any constant associated with the addition or subtraction operators? I read up the documentation but I could not figure out how to do this.\r\n\r\nThank you for your help!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @jstan15,\r\n\r\nThanks, glad to hear you are finding it useful!\r\n\r\nCurrently there is no functionality for this type of constraint. The only constraints available are (1) setting the max complexity of an equation, and (2) setting an operator-specific max complexity, as explained here: https://pysr.readthedocs.io/en/latest/docs/options/#constraining-operator-complexity. \r\n\r\nThis particular type of constraint is probably too specific to include in the general package, but if you want, you could add it manually in this function: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/d2dda8785b23bc37dcb68651683cd32d2ff537f8/src/CheckConstraints.jl#L49. If your constraint is violated, return false, otherwise, return true. This requires working directly on the equation data structure (defined [here](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/d2dda8785b23bc37dcb68651683cd32d2ff537f8/src/Equation.jl#L5-L20)); you can see some examples for how to do this in this file: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/master/src/EquationUtils.jl.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2021-09-15T23:27:49Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "(Then, pass the “julia_project” argument to PySR to point to a local copy of the backend)",
+              "createdAt": "2021-09-16T12:58:41Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHONuN8WA=="
+          }
+        }
+      }
+    }
+  }
+}

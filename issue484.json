@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 484,
+        "title": "[Feature]: fixsize",
+        "body": "### Feature Request\n\nIs the user able to fix the size of the generated expressions, or only the max size? If so, can fixsize be added as an optional feature?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hey @edfink234,\r\n\r\nOnly the max size can be specified, as expressions of a particular size need to be iteratively \"built up\" from smaller expressions.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-12-14T18:51:05Z"
+            },
+            {
+              "author":
+              {
+                "login": "edfink234"
+              },
+              "body": "Thank you for the reply. Is there a paper or something where it is documented how the expressions are built in PySR? I was looking through the Julia code yesterday and saw a function that seems to generate a random expression that has a parameter for the length of the expression, [here](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/93b1b26296811e8a3713b509ec52cfe44634dc08/src/MutationFunctions.jl#L228C1-L238). Could this function in principle be used to generate fixed size expressions, or are they not valid (no rules for appending random ops)?\r\n\r\nSorry if the question is unwelcome 😅.",
+              "createdAt": "2023-12-15T09:16:54Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHObrfOPA=="
+          }
+        }
+      }
+    }
+  }
+}

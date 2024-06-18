@@ -1,0 +1,65 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 74,
+        "title": "[Feature] Units in equations",
+        "body": "Each of my features has units [kg, m, N, ...], but the output equations don't take units into account. Most output equations fail an unit check even if setting the units of constants as required. This feature would allow defining units of each X and y feature, probably in SI, and only allow equations which pass an unit check. Any constants could still have arbitrary units.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @euhruska,\r\nThis is a good question. But, constants in an equation will have units too, so dimensional analysis isn't possible when you are simultaneously searching for unknown constants. And, one can always \"post-process\" any equations to add constants which correct unit mismatches, so it is a bit of an ambiguous situation. Thoughts?\r\nCheers,\r\nMiles",
+              "createdAt": "2021-09-14T05:58:46Z"
+            },
+            {
+              "author":
+              {
+                "login": "euhruska"
+              },
+              "body": "The post-process would increase the complexity of some equations, but not others, automating this might be complicated. Without post-processing it could just exclude equations which obviously fail an dimensional analysis, as in only operations of the equation without constants would be analyzed. For example, any place where 2 inputs with different units are added fail the dimension analysis.",
+              "createdAt": "2021-09-16T17:44:41Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I see what you mean. Indeed it might be interesting to try! I don't have bandwidth for this right now, but if you want to give it a try, there is https://github.com/PainterQubits/Unitful.jl which could be used for adding units to computations in the backend: https://github.com/MilesCranmer/SymbolicRegression.jl.\r\n\r\nIt might be preferable to have a custom unit structure within SymbolicRegression.jl, just like the custom equation structure made evaluation significantly faster, but I think Unitful.jl could be a good starting point and it might be just as fast. The advantage of it would be that it automatically does unit propagation in julia calculations, which would be useful if a user defines a custom operator and wants units to work.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2021-09-16T17:56:40Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thinking more about this though, I think it would take quite a bit of work since several structural changes need to be made. I think the overall (value / time) ratio might be quite low compared to other potential improvements, such as improving the overall equation search algorithm: one thing I think would be a really useful would be to implement a smart feature selection step based on feature importance given the current equation's prediction errors.",
+              "createdAt": "2021-09-16T18:11:30Z"
+            },
+            {
+              "author":
+              {
+                "login": "euhruska"
+              },
+              "body": "Agree",
+              "createdAt": "2021-09-16T18:16:16Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHONudoEw=="
+          }
+        }
+      }
+    }
+  }
+}

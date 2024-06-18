@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 10,
+        "title": "Bug: hall of fame not saving?",
+        "body": "For some reason, at least on master, the hall of fame seems to refresh between iterations. Good equations found earlier during the search are removed from the hall of fame. \r\n\r\nHere are some ideas to investigate:\r\n\r\n- [x] Reproducible on earlier commits? **(no)**\r\n- [x] Is the hall of fame not being copied during migration? I.e., during migration of the hall of fame, **(not issue)**\r\n- [x] Is this issue dependent on OS? **(no)**\r\n- [ ] Is this issue dependent on `procs` used? \r\n- [ ] Is the hall of fame not being saved between cycles? \r\n- [ ] Are there potential race conditions anywhere?\r\n- [ ] Try removing all `@inbounds`? Perhaps its overwriting a different array?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "So commit 683071f4895a5c589439e6e31e5ee9f61e9def7a introduced this. Only on master.",
+              "createdAt": "2020-10-02T04:23:22Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Okay so I learned two things about why this occured. And implemented my other changes I had done before the undo.\r\n\r\nThe first: the hall of fame was actually being saved correctly, and did not change. However, the dominating part of the hall of fame (the equations which are more accurate than all simpler equations) was being calculated wrong, hence was not being displayed in entirety at every n cycles.\r\n\r\nThe second: -fast-math removes the NaNs and other errors that are used in the code to flag for when an equation has an error during calculation (e.g., 1/0). Instead, -fast-math turns these into regular floats and returns. This made the MSE comparisons incorrect for some equations resulting in some equations in the hall of fame not being shown when they should have been.",
+              "createdAt": "2020-10-02T07:32:01Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOKeByAw=="
+          }
+        }
+      }
+    }
+  }
+}

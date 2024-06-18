@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 280,
+        "title": "[Feature] Should tell the user to use `pysr.install(julia_project)`",
+        "body": "PySR should tell the user to use `pysr.install(julia_project=...)` if they try to use a custom SymbolicRegression.jl project folder and fail to get it working. The current message of just \"use `pysr.install`\" doesn't seem helpful.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Fixed by #535 ",
+              "createdAt": "2024-02-12T09:02:59Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOc4epSg=="
+          }
+        }
+      }
+    }
+  }
+}

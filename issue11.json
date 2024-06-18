@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 11,
+        "title": "Bug: \"ERROR: LoadError: InexactError: trunc(Int32, 2.172351299e9)\"",
+        "body": "I saw this bug this morning and it is now solved in `0.3.18`.\r\n\r\nThis bug is when PySR tries to calculate the age of an equation. It seems that the offset I am using for \"birthdate\" of an equation, equal to `1e3*(time() - 1.6e9)`, and put into an Integer variable (so there is millisecond precision between equations), has actually now maxed out 32-bit integers. I have changed the precision to 64-bit and this issue is fixed.\r\n\r\nI'm sorry for this bug; please update your binaries when you use PySR next, with:\r\n```\r\npip install --upgrade pysr\r\n```",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "anicola"
+              },
+              "body": "Haha awesome! Thanks a lot @MilesCranmer! I was just trying to figure out where this came from :-) ",
+              "createdAt": "2020-10-08T16:57:55Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOKhAc3g=="
+          }
+        }
+      }
+    }
+  }
+}

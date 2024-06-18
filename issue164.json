@@ -1,0 +1,65 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 164,
+        "title": "[Feature] 1D integration mode",
+        "body": "Since the PySR backend now has fast autodiff set up, it seems like the obvious next step is to set up PySR to solve 1D integrals via genetic algorithms. I think the only change would be the loss function - which would use `eval_diff_tree_array`. \r\n\r\nPerhaps it would make sense to create a separate class with a limited number of features, to host this functionality. ",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "foxtran"
+              },
+              "body": "Hello!\r\n\r\nAm I right that this issue is about something like `y = \\int f(X(t)) dt` where `f(..)` is some regression?",
+              "createdAt": "2024-01-01T23:03:21Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Yep! Exactly.",
+              "createdAt": "2024-01-02T06:18:36Z"
+            },
+            {
+              "author":
+              {
+                "login": "foxtran"
+              },
+              "body": "> I think the only change would be the loss function - which would use eval_diff_tree_array.\r\n\r\nFrom my point of view, it requires to update `equation_search` in SymbolicRegression.jl to accept `X::AbstractVector{AbstractMatrix{T}}` and `Y::AbstractVector{AbstractMatrix{T}}` with corresponding `weights::AbstractVector{AbstractMatrix{T}}` for numerical integration... ",
+              "createdAt": "2024-01-02T17:09:26Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Oh maybe you mean something different. The idea I had in mind can already be done with the current `equation_search` by passing in a custom loss function and flattened `X` array which is then unpacked by the custom loss function. For example, see the implementation in this thread: https://github.com/MilesCranmer/PySR/discussions/374. The idea for a 1D integration \"mode\" is to basically set this up automatically, somehow. Does that make more sense?",
+              "createdAt": "2024-01-03T06:27:30Z"
+            },
+            {
+              "author":
+              {
+                "login": "foxtran"
+              },
+              "body": "> Oh maybe you mean something different. \r\n\r\nProbably... It is just from specific of my dataset in which I have a set of integrals which has different number of points.\r\n\r\nAt final, with custom loss function, I did something like this: \r\n```julia\r\nobjective = #\"\"\"\r\nusing DataFrames\r\n\r\nfunction my_custom_objective(tree, dataset::Dataset{T,L}, options) where {T,L}\r\n\r\n    t = string(tree);\r\n    if occursin(\"x1\", t) || occursin(\"x2\", t)\r\n      return L(Inf)\r\n    end\r\n\r\n    point_pred, flag = eval_tree_array(tree, dataset.X, options)\r\n    !flag && return L(Inf)\r\n\r\n    diffs = dataset.X[2,:] .* (point_pred .- dataset.y)\r\n\r\n    df = DataFrame(ID = dataset.X[1,:], D = diffs)\r\n    res_df = combine(groupby(df, :ID), :D => sum)\r\n    diffs = res_df[!, :D_sum]\r\n\r\n    return sum(diffs .^ 2) / length(diffs)\r\nend\r\n#\"\"\"\r\n```\r\n\r\nIn first two columns, I encoded ID of integrals and weights for numerical integration and I made an integration in such strange way via DafaFrames :)\r\nUnfortunately, batching does not work there.",
+              "createdAt": "2024-01-03T11:34:44Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOb8W2sw=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 384,
+        "title": "Default time series too long",
+        "body": "In the example notebook, the time series is too long, meaning that the cosines disappear from the aggregations step. So the default should be like length 10 or something.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Fixed.",
+              "createdAt": "2023-07-20T03:08:55Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOYe7D2g=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 150,
+        "title": "Example for considering discontinuous switches (IF and >, <) operators",
+        "body": "Hi,\r\n\r\nFirst of all, I love this package, it's wonderful! :-)\r\n\r\nI am trying to find an expression that describes my data where a discontinuous switching mechanism is an operator I'd like to include. Does there exist an example somewhere that I can adapt? I tried specifying \"IF\" and \">\" as binary operators  but received errors from the Julia backend. How do I allow for equations that discontinuously switch along the lines of if(x_1 > const,.,.) or if(x_1>=x_2,.,.) ?\r\n\r\nMoreover, in the plotting example [https://astroautomata.com/PySR/#/examples](url), I believe there is a call to the `predict` method missing. Should it not be `model.predict(X)` rather than `model(X)`? Otherwise, Python complains that `model` is not callable.\r\n\r\nThank you so much!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks! Good question. \r\n\r\nI've done this in the past and I've used the following (**edit: see fixed version in post below**):\r\n```python\r\nbinary_operators=[..., \"conditional(x, y) = (x >= 0) ? y : 0\"],\r\nextra_sympy_mappings={\r\n    \"conditional\": lambda x, y: sympy.Piecewise((0, x < 0), (y, True)),\r\n},\r\n```\r\nsince PySR only allows binary/unary operators. This binary operator will be equal to `y` if `x >= 0`, and `0` otherwise. The algorithm could compose this to have more complex conditional logic.\r\n\r\nThe `conditional(x, y) = (x >= 0) ? y : 0` gives the Julia definition of the operator (used during the search), and `{\"cons\": lambda x, y: sympy.Piecewise((0, x < 0), (y, True)),}` gives the sympy definition of the operator (used for `.predict` and for display). See https://docs.julialang.org/en/v1/manual/control-flow/#man-conditional-evaluation for explanation of the operator `... ? ... : ...`\r\n\r\n\r\n---\r\n\r\nRegarding plotting, good catch! That should indeed be `model.predict`.",
+              "createdAt": "2022-06-06T18:15:04Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "(Let me know if you have any other questions)",
+              "createdAt": "2022-06-07T19:56:10Z"
+            },
+            {
+              "author":
+              {
+                "login": "jsimons8"
+              },
+              "body": "Hi, thank you so much for your kind response.\r\n\r\nI had to make a small modification to avoid a Julia error. The code as written produced a Julia error saying `Float32` was expected while an `Int64` was supplied. What fixed it was `conditional(xf0, yf0) = (xf0 >= 0f0) ? yf0 : 0f0`. From the documentation, appending `f0`  forces everything to Julia's `Float32` type and resulted in the code being happy. Note that setting `precision=64` did not fix the problem because there was still a mismatch between floating point numbers and integers in such case.\r\n\r\nAgain, thank you so much!",
+              "createdAt": "2022-06-08T12:46:32Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Ah, so to fix this, here is what you should do instead:\r\n```\r\n“conditional(x::T, y::T) where {T<:Real} = (x >= 0) ? y : T(0)”\r\n```\r\nthis “T” here indicates the type of the input, and so this function is a template function for any real-numbered input. The T(0) will convert 0 to the same type as the input whatever that type is. \r\n",
+              "createdAt": "2022-06-08T13:17:32Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHORIojuw=="
+          }
+        }
+      }
+    }
+  }
+}

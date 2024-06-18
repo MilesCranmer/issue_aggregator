@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 261,
+        "title": "Update the method  run_on_problem() in FeynmanProblems.py to use the new PySRRegressor Interface",
+        "body": "Currently, run_on_problem() uses the deprectated pysr() interface and pysr.best() does not work.\r\nUpgrade run_on_problem() to use the PySRRegressor Interface, model.fit() and get_best() function.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hey @dbl001,\r\nI was actually thinking about deleting the feynman problems as I didn't think anybody was using it (including myself). Has it been useful for you? If so you happen to have some time to upgrade it to the new PySRRegressor interface?\r\nBest,\r\nMiles",
+              "createdAt": "2023-02-04T20:49:42Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "I just started using it.\r\nI got this working...\r\n```\r\n def run_on_problem(problem, verbosity=0, multiprocessing=True):\r\n    \"\"\"\r\n    Takes in a problem and returns a tuple: (equations, best predicted equation, actual equation)\r\n    \"\"\"\r\n    from time import time\r\n\r\n    starting = time()\r\n    model = PySRRegressor()\r\n    model.fit(problem.X, problem.y)\r\n    timing = time() - starting\r\n    others = {\"time\": timing, \"problem\": problem}\r\n    if not multiprocessing: \r\n        others[\"equations\"] = model.equations_\r\n    return str(PySRRegressor.get_best(model)), problem.form, others\r\n\r\n```",
+              "createdAt": "2023-02-04T20:52:35Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOVHNgsQ=="
+          }
+        }
+      }
+    }
+  }
+}

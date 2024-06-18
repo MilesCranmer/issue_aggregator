@@ -1,0 +1,65 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 260,
+        "title": "[BUG] Impossible to stop early on Jupyter",
+        "body": "Right now it seems impossible to stop early within Jupyter notebooks. If one enters a search that takes a long time, the only way to quit is to restart the Jupyter kernel entirely. How might we be able to get early stopping working in Jupyter, through PyCall.jl? Ideally, hitting the stop button should be enough. However, hitting `<ctl-c>` in any PyJulia call does not work.\r\n\r\nWould any of you happen to have ideas for implementing this; @mkitti @ngam @marius311?\r\n\r\nA MWE is:\r\n\r\n```\r\nfrom julia import Main as jl\r\njl.eval(\"sleep(20)\")\r\n```\r\n\r\nthis cannot be stopped early inside IPython/Jupyter. It only can be stopped early within Python itself.\r\n\r\nMaybe something like releasing the GIL after calling Julia... But that seems a bit dangerous.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "marius311"
+              },
+              "body": "I forget if this is Julia specific or Jupyter, but there's a different behavior if you click stop once vs. 5 times in succession within a couple of seconds. Does the latter work?",
+              "createdAt": "2023-01-31T21:57:13Z"
+            },
+            {
+              "author":
+              {
+                "login": "mkitti"
+              },
+              "body": "We would need to make sure the interrupt signal gets propagated. Does this work properly if we are running a Julia kernel directly?",
+              "createdAt": "2023-02-01T00:04:58Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Clicking stop quickly in succession does not seem enough to break out of the Julia call, unfortunately. @mkitti do you mean would <Ctl-C> stop the usual symbolic regression search directly from Julia REPL? In which case the answer is yes.\r\n\r\nI wonder whether this behavior is seen in libraries which make lengthy and synchronous python calls to C++ backends? And if so, how they deal with it… Maybe it’s different because it is CPython and all.",
+              "createdAt": "2023-02-01T00:47:15Z"
+            },
+            {
+              "author":
+              {
+                "login": "mkitti"
+              },
+              "body": "I mean does interrupt work correctly from a Jupyter IJulia kernel? https://github.com/JuliaLang/IJulia.jl",
+              "createdAt": "2023-02-01T01:41:25Z"
+            },
+            {
+              "author":
+              {
+                "login": "ngam"
+              },
+              "body": "> We would need to make sure the interrupt signal gets propagated\r\n\r\nI guess by this, @mkitti means the interrupt signal must pass through the interface without vanishing. It seems that it vanishes somehow. I am not familiar with the codebase of PyCall :( \r\n\r\n\r\n> I mean does interrupt work correctly from a Jupyter IJulia kernel? https://github.com/JuliaLang/IJulia.jl\r\n\r\nThat will be besides the point because the MWE above is in the Python REPL...",
+              "createdAt": "2023-02-01T03:53:25Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOVCCeJA=="
+          }
+        }
+      }
+    }
+  }
+}

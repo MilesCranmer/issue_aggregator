@@ -1,0 +1,177 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 239,
+        "title": "[BUG] *Windows SystemError: <PyCall.jlwrap on basic example*",
+        "body": "I have done a fresh installation on windows (with pip) and I am running the basic example provided in the Introduction. I am getting a JULIA error. Thanks in advance for any help!\r\n\r\n**Version:**\r\n- Julia version [1.8.3]\r\n- Python version [3.10.6]\r\n- PySR version [0.11.11]\r\n\r\n**Error message**\r\n\r\nC:\\tools\\Anaconda3\\envs\\env_ai\\lib\\site-packages\\pysr\\sr.py:1257: UserWarning: Note: it looks like you are running in Jupyter. The progress bar will be turned off.\r\n  warnings.warn(\r\nTraceback (most recent call last):\r\n\r\n  File \"C:\\tools\\Anaconda3\\envs\\env_ai\\lib\\site-packages\\spyder_kernels\\py3compat.py\", line 356, in compat_exec\r\n    exec(code, globals, locals)\r\n\r\n  File \"c:\\users\\gorth\\untitled0.py\", line 25, in <module>\r\n    model.fit(X, y)\r\n\r\n  File \"C:\\tools\\Anaconda3\\envs\\env_ai\\lib\\site-packages\\pysr\\sr.py\", line 1792, in fit\r\n    self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n\r\n  File \"C:\\tools\\Anaconda3\\envs\\env_ai\\lib\\site-packages\\pysr\\sr.py\", line 1652, in _run\r\n    self.raw_julia_state_ = SymbolicRegression.EquationSearch(\r\n\r\nSystemError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: SystemError: opening file \"hall_of_fame_2022-12-17_011150.694.csv\": Invalid argument\r\nStacktrace:\r\n  [1] systemerror(p::String, errno::Int32; extrainfo::Nothing)\r\n    @ Base .\\error.jl:176\r\n  [2] #systemerror#80\r\n    @ .\\error.jl:175 [inlined]\r\n  [3] systemerror\r\n    @ .\\error.jl:175 [inlined]\r\n  [4] open(fname::String; lock::Bool, read::Nothing, write::Nothing, create::Nothing, truncate::Bool, append::Nothing)\r\n    @ Base .\\iostream.jl:293\r\n  [5] open(fname::String, mode::String; lock::Bool)\r\n    @ Base .\\iostream.jl:356\r\n  [6] open(fname::String, mode::String)\r\n    @ Base .\\iostream.jl:355\r\n  [7] open(::SymbolicRegression.var\"#48#77\"{Options{typeof(loss), Int64, 0.86, 10}, Vector{PopMember{Float32}}, SymbolicRegression.CoreModule.DatasetModule.Dataset{Float32}}, ::String, ::Vararg{String}; kwargs::Base.Pairs{Symbol, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})\r\n    @ Base .\\io.jl:382\r\n  [8] open\r\n    @ .\\io.jl:381 [inlined]\r\n  [9] _EquationSearch(::SymbolicRegression.CoreModule.ProgramConstantsModule.SRThreaded, datasets::Vector{SymbolicRegression.CoreModule.DatasetModule.Dataset{Float32}}; niterations::Int64, options::Options{typeof(loss), Int64, 0.86, 10}, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing)\r\n    @ SymbolicRegression C:\\Users\\gorth\\.julia\\packages\\SymbolicRegression\\37l4B\\src\\SymbolicRegression.jl:751\r\n [10] EquationSearch(datasets::Vector{SymbolicRegression.CoreModule.DatasetModule.Dataset{Float32}}; niterations::Int64, options::Options{typeof(loss), Int64, 0.86, 10}, parallelism::String, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing)\r\n    @ SymbolicRegression C:\\Users\\gorth\\.julia\\packages\\SymbolicRegression\\37l4B\\src\\SymbolicRegression.jl:383\r\n [11] EquationSearch(X::Matrix{Float32}, y::Matrix{Float32}; niterations::Int64, weights::Nothing, varMap::Vector{String}, options::Options{typeof(loss), Int64, 0.86, 10}, parallelism::String, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing, multithreaded::Nothing)\r\n    @ SymbolicRegression C:\\Users\\gorth\\.julia\\packages\\SymbolicRegression\\37l4B\\src\\SymbolicRegression.jl:320\r\n [12] #EquationSearch#21\r\n    @ C:\\Users\\gorth\\.julia\\packages\\SymbolicRegression\\37l4B\\src\\SymbolicRegression.jl:345 [inlined]\r\n [13] invokelatest(::Any, ::Any, ::Vararg{Any}; kwargs::Base.Pairs{Symbol, Any, NTuple{8, Symbol}, NamedTuple{(:weights, :niterations, :varMap, :options, :numprocs, :parallelism, :saved_state, :addprocs_function), Tuple{Nothing, Int64, Vector{String}, Options{typeof(loss), Int64, 0.86, 10}, Nothing, String, Nothing, Nothing}}})\r\n    @ Base .\\essentials.jl:731\r\n [14] _pyjlwrap_call(f::Function, args_::Ptr{PyCall.PyObject_struct}, kw_::Ptr{PyCall.PyObject_struct})\r\n    @ PyCall C:\\Users\\gorth\\.julia\\packages\\PyCall\\ygXW2\\src\\callback.jl:32\r\n [15] pyjlwrap_call(self_::Ptr{PyCall.PyObject_struct}, args_::Ptr{PyCall.PyObject_struct}, kw_::Ptr{PyCall.PyObject_struct})\r\n    @ PyCall C:\\Users\\gorth\\.julia\\packages\\PyCall\\ygXW2\\src\\callback.jl:44>\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Does that file `hall_of_fame_2022-12-17_011150.694.csv` exist? Are there any weird permissions for that file or that directory?",
+              "createdAt": "2022-12-17T11:01:32Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Does the error appear if you run it from Python directly, rather than Jupyter?",
+              "createdAt": "2022-12-17T11:02:10Z"
+            },
+            {
+              "author":
+              {
+                "login": "strifinopoulos"
+              },
+              "body": "So I am running from Spyder actually, I am not sure why it thinks that I am running it from Jupyter.\r\n\r\nEvery run generates hall_of_fame_*.csv , hall_of_fame_*.csv.bkup and hall_of_fame_*.pkl files at the directory of execution. Inside the csv there are 9 results (the last three have losses of ~3).\r\n\r\nToday I tried to run the script from a python shell and I got the same error, but this time the csv file contains results up to loss of E-13 basically finding the result. It doesn't print though the result in the shell.",
+              "createdAt": "2022-12-17T19:18:21Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "What are the contents of the csv files? Are they empty? It looks like Julia is basically failing to open the csv file for writing. I think it’s a permission issue, maybe Julia and Python have different permission settings…?",
+              "createdAt": "2022-12-17T22:07:30Z"
+            },
+            {
+              "author":
+              {
+                "login": "strifinopoulos"
+              },
+              "body": "So the results are inside the csv files as well. So practically, I think I do have the results, but only if I run with the shell and not on Spyder. The error appears in both cases though. What kind of permission issue could it be? not sure how to check Julia's settings  (it's already in the PATH)\r\n\r\n",
+              "createdAt": "2022-12-19T21:06:28Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Interesting. I am confused why it is having trouble opening the file then... It almost looks like the first time it opens the file and writes to it, it's fine, because the file doesn't exist. But the second time it opens the file, it complains...\r\n\r\n```\r\nJULIA: SystemError: opening file \"hall_of_fame_2022-12-17_011150.694.csv\": Invalid argument\r\nStacktrace:\r\n[1] systemerror(p::String, errno::Int32; extrainfo::Nothing)\r\n@ Base .\\error.jl:176\r\n```\r\nIt's so strange that it says \"invalid argument\" here. Maybe the version of Julia which is actually being called is an earlier version, which is missing one of the parameters of the `open` command?\r\n\r\nMaybe try running the Julia example directly: https://github.com/MilesCranmer/SymbolicRegression.jl/#quickstart and see if that works or not? ",
+              "createdAt": "2022-12-19T22:00:38Z"
+            },
+            {
+              "author":
+              {
+                "login": "strifinopoulos"
+              },
+              "body": "Indeed! It is a Julia issue. Maybe downgrade to an earlier working version? \r\n\r\n![julia](https://user-images.githubusercontent.com/25750661/208590407-962bb344-cca1-4400-9349-f9b485564db5.png)\r\n",
+              "createdAt": "2022-12-20T05:27:18Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hm, I guess the precompilation experiences the same issue, because it attempts to run a small search to find relevant functions to compile.\r\n\r\nEven though the precompilation failed, you should be able to run it normally. Could you try running the example without precompilation?",
+              "createdAt": "2022-12-20T19:37:05Z"
+            },
+            {
+              "author":
+              {
+                "login": "strifinopoulos"
+              },
+              "body": "When I run \"using SymbolicRegression\" I get the same error and I cannot run the rest of the code (I get \"UndefVarError: SymbolicRegression not defined\").",
+              "createdAt": "2022-12-20T19:57:14Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "You can try adding the package with this change: https://discourse.julialang.org/t/how-to-disable-automatic-precompilation-of-packages-in-julia-1-6/57053",
+              "createdAt": "2022-12-20T20:07:32Z"
+            },
+            {
+              "author":
+              {
+                "login": "strifinopoulos"
+              },
+              "body": "I did use ENV[\"JULIA_PKG_PRECOMPILE_AUTO\"]=0, and then Pkg.add(\"SymbolicRegression\") returns \"No Changes to C:\\Users\\gorth\\.julia\\environments\\v1.8\\Projects.toml\" and \"...Manifest.toml\". Then unfortunately I get the same Permission denied error when I try \"using SymbolicRegression\". \r\nSince the code does perform the operation I guess it is ok for now, but hopefully there is a fix at some point (maybe a future version of julia?)",
+              "createdAt": "2022-12-21T22:28:43Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Very strange. Well, worst case, you can always use the docker container until figuring out what went wrong with the permissions?",
+              "createdAt": "2022-12-21T22:53:07Z"
+            },
+            {
+              "author":
+              {
+                "login": "strifinopoulos"
+              },
+              "body": "Yes, for the time being I am relying on that. Thanks!",
+              "createdAt": "2022-12-22T04:00:13Z"
+            },
+            {
+              "author":
+              {
+                "login": "strifinopoulos"
+              },
+              "body": "May I ask if opening the bkup file is done in the very end of the operation? Because a lot of times PySR halts just after one iteration. I am not sure if some internal stopping condition is satisfied or if it is due to this bug.",
+              "createdAt": "2023-02-06T23:28:48Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "It's probably due to the bug. The equation export happens here: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/de0e51c89ae1a88cfc5a616a9d101b7a4d331dcb/src/SymbolicRegression.jl#L755-L766. This occurs at the end of every iteration.\r\n\r\nMy initial idea was that this was a permissions issue in your folder you are running this. i.e., the Julia process doesn't have permission to write to that folder (maybe the way you installed Julia gave it weird permissions settings?). Perhaps it could be something in the filename – does your current working directory have spaces anywhere? e.g., like `\"\\My Documents\\...\"`?",
+              "createdAt": "2023-02-06T23:33:28Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "You could try just loading up PyJulia and seeing if you can do this manually. Does the following code work?\r\n\r\n```python\r\nfrom pysr.julia_helpers import init_julia\r\njl = init_julia()\r\n\r\njl.eval(\"\"\"open(\"hall_of_fame.csv\", \"w\") do io\r\n    println(io, \"Complexity,Loss,Equation\")\r\nend\"\"\")\r\n```\r\nThis will open the file \"hall_of_fame.csv\" in the current directory and try writing to it.\r\n",
+              "createdAt": "2023-02-06T23:36:10Z"
+            },
+            {
+              "author":
+              {
+                "login": "strifinopoulos"
+              },
+              "body": "I actually did not have PyJulia installed (did I miss it in the installation instructions?).  I don't get the error anymore! Thanks a lot!\r\n\r\nPS: I now get an \"OSError: exception: access violation reading 0x0000026E9A4A1000\" when the run is finished, but I think that has to do with utf-8 encoding and it definitely does not have any impact on the execution. ",
+              "createdAt": "2023-02-07T00:08:02Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Weird... Installing PySR on pip or conda should also install PyJulia. All PySR calls to Julia are made using PyJulia, so I am not sure how you were able to run the other parts, or see the errors you saw in the original post (which are printed via PyJulia).\r\n\r\nIf that access violation error gives you any problems please raise a separate issue - that is definitely not expected!",
+              "createdAt": "2023-02-07T00:25:05Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "For the access error, see the workaround in https://github.com/MilesCranmer/PySR/issues/266",
+              "createdAt": "2023-03-27T23:13:38Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOWJJNFQ=="
+          }
+        }
+      }
+    }
+  }
+}

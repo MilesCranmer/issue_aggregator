@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 85,
+        "title": "[Feature] Built-in binary operators",
+        "body": "Apparently binary (number) operators already work: https://github.com/MilesCranmer/SymbolicRegression.jl/issues/58#issuecomment-1003180128, so I would like to implement these as built-in, so that you can simply write \"AND\" and it will register the corresponding binary operator's real-extension.",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

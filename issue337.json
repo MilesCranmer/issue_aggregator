@@ -1,0 +1,89 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 337,
+        "title": "BoundsError in custom eval_tree_array",
+        "body": "### What happened?\n\nI tried to run '_eval_tree_array'  with array that has different dimensions then cX in 'eval_tree_array'\r\n\r\nAnd if i understand correctly after test runs l've got an error ''\n\n### Version\n\n0.18.0\n\n### Operating System\n\nmacOS\n\n### Interface\n\nJupyter Notebook\n\n### Relevant log output\n\n```shell\nBoundsError: attempt to access 1×11 Matrix{Float32} at index [4, 1:11]\n```\n\n\n### Extra Info\n\nmy version of 'eval_tree_array' :\r\n```\nfunction eval_tree_array(\n    tree::Node{T}, cX::AbstractMatrix{T}, operators::OperatorEnum; turbo::Bool=false\n)::Tuple{AbstractVector{T},Bool} where {T<:Number}\n    if turbo\n        @assert T in (Float32, Float64)\n    end\n    r = T.( [6.332061275761631 5.051237472144821 2.7 4.2690748412273125 3.3068111527572905 5.4 4.676537180435969 6.037383539249433 5.727564927611035 3.8183$\n    result, finished = _eval_tree_array(\n        tree, r, operators, (turbo ? Val(true) : Val(false))\n    )\n  \n           \n    @return_on_false finished result\n    @return_on_nonfinite_array result  \n    return result, finished\nend\n```",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Could you share your full code, so I can reproduce it?",
+              "createdAt": "2023-05-25T12:43:35Z"
+            },
+            {
+              "author":
+              {
+                "login": "DenisSvirin"
+              },
+              "body": "I've changed 'eval_tree_array' in the backend:\n```\nfunction eval_tree_array(\n    tree::Node{T}, cX::AbstractMatrix{T}, operators::OperatorEnum; turbo::Bool=false\n)::Tuple{AbstractVector{T},Bool} where {T<:Number}\n    if turbo\n        @assert T in (Float32, Float64)\n    end\n    r =T.( [6.332061275761631 5.051237472144821 2.7 4.2690748412273125 3.3068111527572905 5.4 4.676537180435969 6.037383539249433 5.727564927611035 3.818376618407357 1.9091883092036785])\n    result, finished = _eval_tree_array(\n        tree, r, operators, (turbo ? Val(true) : Val(false))\n    )\n@return_on_false finished result\n    @return_on_nonfinite_array result  \n    return result, finished\nend\n\n```\n\nand to start i use python:\n```\nimport numpy as np\nfrom pysr import PySRRegressor\nr = np.array([ 2.7       ,  3.        ,  3.2       ,  3.4       ,  3.48621994,\n        3.52253473,  3.55884952,  3.59516431,  3.6314791 ,  3.66779389,\n        3.70410868,  3.74042347,  3.77673827,  3.81305306,  4.        ,\n        4.5       ,  5.        ,  5.5       ,  5.73684211,  5.97368421,\n        6.        ,  6.21052632,  6.44736842,  6.68421053,  6.92105263,\n        7.15789474,  7.39473684,  7.63157895,  7.86842105,  8.        ,\n        8.10526316,  8.34210526,  8.57894737,  8.81578947,  9.05263158,\n        9.28947368,  9.52631579,  9.76315789, 10.        , 35.        ]) \ne = np.array([ 20.        ,  -2.3341443 , -10.378765  , -13.874788  ,\n       -14.534859  , -14.705036  , -14.821358  , -14.8896    ,\n       -14.934813  , -14.90294   , -14.857485  , -14.782236  ,\n       -14.681216  , -14.557151  , -13.653582  , -10.439137  ,\n        -7.4652775 ,  -5.1739723 ,  -4.26172661,  -3.58361976,\n        -3.5250227 ,  -3.01341022,  -2.53392988,  -2.1307423 ,\n        -1.79170813,  -1.50661955,  -1.26689299,  -1.06531065,\n        -0.89580319,  -0.78888653,  -0.753267  ,  -0.63341053,\n        -0.53262508,  -0.44787616,  -0.37661211,  -0.31668728,\n        -0.26629742,  -0.22392536,  -0.18829536,   0.        ])\nmodel = PySRRegressor(\n    model_selection=\"best\",\n    niterations=40,\n    binary_operators=[\"+\", \"*\", \"-\", \"^\"],\n    loss=\"loss(x, y) = (x - y)^2\")\nmodel.fit(r.reshape(-1, 1), e)\n``` ",
+              "createdAt": "2023-05-25T13:16:06Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Okay I think I might understand the issue. Does the error come during precompilation for you? Or during the search itself?\r\n\r\nCan you try changing the loss function, rather than the evaluation code?\r\n\r\nSee https://astroautomata.com/PySR/examples/#9-custom-objectives\r\n^ this is how you should do custom objectives, rather than changing the evaluation function itself.",
+              "createdAt": "2023-05-25T14:31:12Z"
+            },
+            {
+              "author":
+              {
+                "login": "DenisSvirin"
+              },
+              "body": "precompilation works fine, it  occurs during search.\n\nOh, then i'll try it this way.",
+              "createdAt": "2023-05-25T15:53:16Z"
+            },
+            {
+              "author":
+              {
+                "login": "DenisSvirin"
+              },
+              "body": "It seems, that everything works fine this way",
+              "createdAt": "2023-05-25T18:21:02Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "So the bug is fixed with this change?",
+              "createdAt": "2023-05-26T14:49:45Z"
+            },
+            {
+              "author":
+              {
+                "login": "DenisSvirin"
+              },
+              "body": "yes, if i do it with full_objective  ",
+              "createdAt": "2023-05-26T15:52:43Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Great! \r\n\r\nIt's probably because there are other pieces of code that rely on `eval_tree_array`. It is a generic function for evaluating an expression and shouldn't be overloaded. `eval_loss` is for these purposes (which is what `full_objective` overrides). ",
+              "createdAt": "2023-05-26T16:18:58Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOXUJV3g=="
+          }
+        }
+      }
+    }
+  }
+}

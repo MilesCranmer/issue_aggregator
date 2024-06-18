@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 335,
+        "title": "[Feature]: Measurement uncertainty",
+        "body": "### Feature Request\r\n\r\nShould use Measurements.jl on the Julia side, and allow [`uncertainties`](https://pythonhosted.org/uncertainties/) array as input.\r\n\r\nLoss function maybe could be Gaussian-Gaussian likelihood? Or KL divergence?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "This is trickier than I thought, for the reason that the tree constants should be a different type than the data…",
+              "createdAt": "2023-05-27T03:17:29Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOXUrDKA=="
+          }
+        }
+      }
+    }
+  }
+}

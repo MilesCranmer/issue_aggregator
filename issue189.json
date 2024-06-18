@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 189,
+        "title": "Export Transformed data with Equation Feature Name",
+        "body": "Hi great project, is there any way to get the transformed dataset back? ",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @firmai,\r\n\r\nCould you be more specific? Do you mean the `model.predict` function?\r\n\r\nBest,\r\nMiles",
+              "createdAt": "2022-09-09T17:37:24Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Closing. Re-open if still interested.\r\nCheers,\r\nMiles",
+              "createdAt": "2023-03-27T23:16:44Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOWJJX6A=="
+          }
+        }
+      }
+    }
+  }
+}

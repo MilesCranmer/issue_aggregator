@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 137,
+        "title": "[Feature] Use Julia for `.predict()` rather than sympy.lambdify",
+        "body": "Rather than requiring a user to set up `extra_sympy_mappings` whenever they define a custom operator, I think the expressions should be evaluated directly in Julia, without needing to convert them. This shouldn't require too many tweaks.\r\n\r\nThe one downside is it would be harder to restore a model from the saved `.csv` file.",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

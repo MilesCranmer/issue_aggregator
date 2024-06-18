@@ -1,0 +1,121 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 27,
+        "title": "ERROR: The following package names could not be resolved/Julia servers out of date",
+        "body": "tl;dr, delete `~/.julia/registries/General` and then run the following commands in Julia:\r\n\r\n```julia\r\nENV[\"JULIA_PKG_SERVER\"] = \"\"\r\nimport Pkg\r\nPkg.update()\r\n```\r\n\r\n---\r\n\r\n(original post)\r\nFYI I pushed v0.4.2 of SymbolicRegression.jl to the registry 15 hours ago, which is required for the latest PySR. However, the registry server is still not updating - which seems like an issue that sometimes happens: https://github.com/JuliaRegistries/General/issues/16777.\r\n\r\nTo get the Julia registry to stay up to date even if the registry server fails, you can use the git version instead. This can be done as follows:\r\n\r\n1. Delete your registry folder `~/.julia/registries/General`\r\n2. Launch Julia.\r\n3. Run the following commands:\r\n```julia\r\nENV[\"JULIA_PKG_SERVER\"] = \"\"\r\nimport Pkg\r\nPkg.update()\r\n```\r\n\r\nThis will install the git version of the registry, which is always up-to-date.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Server seems to have updated. Closing.",
+              "createdAt": "2021-02-04T07:22:31Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Unfortunately appearing again for v0.5.10. I have pinned this issue in case some of the Julia servers are out of date - just follow the above commands to get it working.",
+              "createdAt": "2021-02-26T16:07:22Z"
+            },
+            {
+              "author":
+              {
+                "login": "mkitti"
+              },
+              "body": "For the impatient, I would just do the following to get the freshest release. \r\n```\r\n] add https://github.com/MilesCranmer/SymbolicRegression.jl#master\r\n```\r\nYou can also replace master with a tag or commit hash. For example, you might this instead:\r\n```\r\n] add https://github.com/MilesCranmer/SymbolicRegression.jl#v0.6.0\r\n```\r\n",
+              "createdAt": "2022-02-12T01:28:12Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks!\r\n\r\nI wonder if I should have PySR specify the `Manifest.toml` file (which could indicate the git repo) rather than just the `Project.toml` (which only indicates the project hash)? Then I suppose this would never be an issue - could just point directly to SymbolicRegression.jl.",
+              "createdAt": "2022-02-12T01:37:24Z"
+            },
+            {
+              "author":
+              {
+                "login": "mkitti"
+              },
+              "body": "If this is meant as a library, I would not include the Manifest.toml.\r\n\r\nI typically only include the Manifest.toml for terminal projects that I may want to reproduce exactly.",
+              "createdAt": "2022-02-12T01:45:07Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Oh I meant for the point about including SymbolicRegression.jl based on the git repo URL, rather than the Julia registry. I'm not sure how else to do that, for PySR users, other than to include a fixed Manifest.toml. (is there any way to enforce that in a Project.toml?)",
+              "createdAt": "2022-02-12T19:56:25Z"
+            },
+            {
+              "author":
+              {
+                "login": "mkitti"
+              },
+              "body": "How users install your package is up to them not you,  ultimately. For some, they either have to use specific mirrors or proxies for reliable access in their geographic locations. This is the problem that the pkg server protocol solves by providing a way to mirror and verify packages in a distributed and versioned fashion.\n\nPointing to your specific repository is a secondary option for those who cannot wait for the pkg servers to catch up and who also have reasonable direct access to Github.\n\nSo for the kind of package I think you are providing, I would recommend not including the Manifest.toml.",
+              "createdAt": "2022-02-13T00:31:47Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "> How users install your package is up to them not you, ultimately\r\n\r\nThis would be true if they were using the [Julia API](https://github.com/MilesCranmer/SymbolicRegression.jl), but for PySR, I think this is only true for a handful of power users who know the `julia_project` param. >99% of PySR users have likely never installed a Julia package themselves, since PySR handles the installation of everything under the hood - it's these users I am concerned about over out-of-date registries.\r\n\r\nThe current approach to version control of Julia packages from within Python is to literally generate `Project.toml` in a temp directory, and activate it: https://github.com/MilesCranmer/PySR/blob/1178fa3797c281ba14b96cea837437b85f2c00ab/pysr/sr.py#L340-L358",
+              "createdAt": "2022-02-13T01:02:15Z"
+            },
+            {
+              "author":
+              {
+                "login": "mkitti"
+              },
+              "body": "I'm not sure if I'm following why that is necessary. Couldn't you just run this code?\r\n\r\n```julia\r\nusing Pkg\r\nPkg.activate(; temp=true)\r\nspec = PackageSpec(name = \"SymbolicRegression\", uuid = \"8254be44-1295-4e6a-a16d-46603ac705cb\", version = v\"0.7.7\")\r\nPkg.add(spec)\r\n```\r\n",
+              "createdAt": "2022-02-13T03:44:35Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks, that definitely looks like a cleaner way to do it! (note I will be running this from PyJulia, not Julia)\r\n\r\nQuick question: I found the `url` keyword which looks to allow you to specify a GitHub URL. Just to be clear: that would prevent Julia from checking the registry? I think that would finally eliminate this issue of out-of-date registries on user computers.",
+              "createdAt": "2022-02-13T05:41:03Z"
+            },
+            {
+              "author":
+              {
+                "login": "mkitti"
+              },
+              "body": "Yes, the `url` keyword allows you to refer to any git repository. Also note the `rev` keyword is used for the git revision which could be a commit hash, branch, or tag.",
+              "createdAt": "2022-02-13T06:18:15Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Starting with v0.7.4, #27 will never be an issue again since SymbolicRegression.jl is downloaded directly from the GitHub repo. Unpinning.",
+              "createdAt": "2022-02-13T22:59:57Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOPeW5vA=="
+          }
+        }
+      }
+    }
+  }
+}

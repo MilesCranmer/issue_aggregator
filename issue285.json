@@ -1,0 +1,65 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 285,
+        "title": "[Feature] add formula prior",
+        "body": "For a given input variable `x1, x2, x3, x4` and label `y`, I have a priori that the target formula has the form of `y=f1 (x1, x4)+f2(x2, x3)`, that is, the input variables are grouped, and the formula has a tree form constraint. Can pysr consider supporting this priori? Thanks.\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Check out https://github.com/MilesCranmer/PySR/pull/276 - I think this supports the use case?",
+              "createdAt": "2023-03-24T20:36:22Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "For posterity, here's how you would do it:\r\n\r\n```python\r\nobjective = \"\"\"\r\nfunction my_custom_objective(tree, dataset::Dataset{T}, options) where {T<:Real}\r\n    # Require root node to be binary, so we can split it,\r\n    # otherwise return a large loss:\r\n    tree.degree != 2 && return T(10000)\r\n\r\n    f1 = tree.l\r\n    f2 = tree.r\r\n\r\n    # Evaluate f1:\r\n    f1_value, flag = eval_tree_array(f1, dataset.X, options)\r\n    !flag && return T(10000)\r\n\r\n    # Evaluate f2:\r\n    f2_value, r_flag = eval_tree_array(f2, dataset.X, options)\r\n    !flag && return T(10000)\r\n\r\n    # Impose functional form:\r\n    prediction = f1_value .+ f2_value\r\n\r\n    # See if x2 or x3 in an expression:\r\n    function contains_x2_x3(t)\r\n        if t.degree == 0\r\n            return !t.constant && t.feature in (2, 3)\r\n        elseif t.degree == 1\r\n            return contains_x2_x3(t.l)\r\n        else\r\n            return contains_x2_x3(t.l) || contains_x2_x3(t.r)\r\n        end\r\n    end\r\n\r\n    # See if x1 or x4 in an expression:\r\n    function contains_x1_x4(t)\r\n        if t.degree == 0\r\n            return !t.constant && t.feature in (1, 4)\r\n        elseif t.degree == 1\r\n            return contains_x1_x4(t.l)\r\n        else\r\n            return contains_x1_x4(t.l) || contains_x1_x4(t.r)\r\n        end\r\n    end\r\n\r\n    f1_violating = contains_x2_x3(f1)\r\n    f2_violating = contains_x1_x4(f2)\r\n\r\n    regularization = T(100) * f1_violating + T(100) * f2_violating\r\n\r\n    prediction_loss = sum((prediction .- dataset.y) .^ 2) / dataset.n\r\n    return prediction_loss + regularization\r\nend\r\n\"\"\"\r\n\r\nmodel = PySRRegressor(\r\n    binary_operators=[\"*\", \"+\", \"-\"],\r\n    full_objective=objective\r\n)\r\n```\r\n\r\nIt won't completely constrain the expression to be of that form, because it can be good if the genetic algorithm can explore violating expressions. However the final expressions should be of that desired form, because the regularization should punish it.\r\n\r\nHowever you should also note that the returned expression and printed format will not have the form you specified. You will have to manually parse them into that form. In the future perhaps I could look at adding this but it will be a bit tricky to write it generally.\r\n\r\nAlso, perhaps there's a way to make this easier in the future. e.g., you could just write out your desired functional form... will have to think about how to implement that. For now just write a custom objective like this.",
+              "createdAt": "2023-03-25T00:51:29Z"
+            },
+            {
+              "author":
+              {
+                "login": "GCaptainNemo"
+              },
+              "body": "Thank you very much! The code and explanation are very clear！",
+              "createdAt": "2023-03-25T01:50:27Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Awesome. Also note I just pushed a quick fix to that PR. If you tried it and it didn't work, if you try again it should hopefully work now.\r\n\r\nIn the future I'll make it so you can specify a custom function for printing too.",
+              "createdAt": "2023-03-25T02:33:44Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Let me know if there are any other issues. Cheers,\r\nMiles",
+              "createdAt": "2023-03-27T23:09:54Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOWJJB9w=="
+          }
+        }
+      }
+    }
+  }
+}

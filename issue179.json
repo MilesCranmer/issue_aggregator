@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 179,
+        "title": "Unclear error message when constraints passed as list",
+        "body": "Passing\r\n```python\r\nPySRRegressor(constraints={\"/\": [-1, 9]})\r\n```\r\ngives a strange error:\r\n```\r\nJULIA: ArgumentError: Dict(kv): kv needs to be an iterator of tuples or pairs\r\nStacktrace:\r\n [1] Dict(kv::Matrix{Int64})\r\n   @ Base ./dict.jl:132\r\n [2] build_constraints(una_constraints::Vector{Int64}, bin_constraints::Matrix{Int64}, unary_operators::Tuple{typeof(square), typeof(cube), typeof(cos), typeof(sin), typeof(exp), typeof(slog), typeof(ssqrt)}, binary_operators::Tuple{typeof(+), typeof(-), typeof(*), typeof(/)}, nuna::Int64, nbin::Int64)\r\n```\r\n\r\nThis goes away if `constraints={\"/\": (-1, 9)}`. So, it should be automatically converted to a tuple, or a better error message should be given.",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

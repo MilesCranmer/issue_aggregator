@@ -1,0 +1,57 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 39,
+        "title": "Benchmark / GPlearn",
+        "body": "Can you do a basic comparison between this and gplearn with regards to speed and flexibility?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Great idea. Any specific tests you would be interested in?\r\n\r\nI used to actually use gplearn, but the pure-Python/numpy performance was never enough for any of the problems I work on in my research. The whole reason I wrote PySR was so I could get the SR performance I need for my projects. (Eureqa is still the fastest GA-based option out there, but it's commercialized and online-only now, and without a Python API, which makes experiments hard to run, so I've actually stopped using it in favor of PySR).\r\n\r\nI think a lot of the difference between the packages comes from that DEAP (backend of gplearn) is pure-Python, whereas the entire search here is compiled end-to-end, and is asynchronously distributed. And also a few other optimizations introduced here that are specific to symbolic regression (like the constant tuning), which I'm not sure is available in DEAP.\r\n\r\nI can start by putting this in the README (or a separate repo for benchmarks?), but I'd also eventually like to write this up somewhere!\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2021-03-13T10:46:14Z"
+            },
+            {
+              "author":
+              {
+                "login": "eladmw"
+              },
+              "body": "For a benchmark, I would say : speed, performance, features, and simplicity ",
+              "createdAt": "2021-03-13T20:57:06Z"
+            },
+            {
+              "author":
+              {
+                "login": "LucasPa"
+              },
+              "body": "FIY, I've been using both GPLearn and PySR and in for the cases I considerd PySR was both faster and more accurate. \r\n\r\nI found as well [this paper](https://www.merl.com/publications/docs/TR2023-002.pdf ) that compares PySR and GPLearn and other methods as well.",
+              "createdAt": "2024-05-17T08:15:35Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "This issue is from 2021 so just to mention that nowadays there’s also the PySR paper itself: https://arxiv.org/abs/2305.01582 which does a bunch of benchmarking and other comparison.",
+              "createdAt": "2024-05-17T08:19:49Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOfi70GQ=="
+          }
+        }
+      }
+    }
+  }
+}

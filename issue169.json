@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 169,
+        "title": "[Feature] My wild idea",
+        "body": "I have been thinking about this my idea, might sound stupid:\r\n\r\nI have a circuit (called randles circuit), whose impedance is defined by the function:\r\n```\r\ndef randles(p, f):\r\n    s = 1j * 2*np.pi*f\r\n    Rs = p[0]\r\n    Cdl = p[1]\r\n    Rct = p[2]\r\n    Wct=p[3]\r\n    Zct = Rct + Wct\r\n    Ydl = s*Cdl + 1/Zct\r\n    Z=Rs + 1/Ydl\r\n    return Z\r\n```\r\np represents the parameters, f is the frequencies, 1j represents the complex number so the output Z of the randles function is complex number in C^n but could be written also in R^2n by concatenating the real and the imaginary parts.\r\n\r\nThen I also have some experimental data Zexpt which is also complex and the frequencies f which is real. My loss function is the weighted nonlinear least squares where the weights can be the inverse of the squared absolute value of the impedance\r\n\r\nNow I was wondering _if it is possible_ to use symbolic regression to approach this type of problem in such a way that I search the space of combinations of Rs, Cdl, Rct, Wct to fit any arbitrary impedance data or maybe obtain a set of polynomials in f that approximate the impedance. I tried to do the latter but the results were not encouraging. \r\n\r\nThanks\r\n\r\n```\r\n\r\nmodel = PySRRegressor(\r\n    niterations=40,\r\n    binary_operators=[\"plus\", \"mult\", \"-\", \"/\"],\r\n    unary_operators=[\"inv(x) = 1/x\",],\r\n    model_selection=\"accuracy\",\r\n    populations=300,\r\n    variable_names = list(names),\r\n    # loss=\"loss(x, y) = sum(1/abs(y)^2 * (x-y)^2)\",\r\n\r\n)\r\n```",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 78,
+        "title": "[Feature] Support for minimum and maximum result value",
+        "body": "**Is your feature request related to a problem? Please describe.**\r\nI have a complex equation with 9 independent variables and I'm evaluating a small viewport of it. I only care about the resulting value's integer result. However, if my data is normalized then an integer result wouldn't work, so a much more general solution is a minimum and maximum value. So for an integer 3 I'd just pass in 2.50001 and 3.49999 as the min and max value. If I normalize my data these min and max values would be scaled as well no problem. (Give or take floating point errors).\r\n\r\n**Describe the solution you'd like**\r\nAn option to supply a minimum and maximum value for the result rather than a single \"y\" value. The big picture if I'd expect a simpler resulting equation as my constraints aren't an exact value, but rather a range. Essentially if the algorithm can generate an equation where the result satisfies each row's min and max value constraint then that equation is valid and it can stop executing.\r\n\r\n**Additional context**\r\nCan loss be used to do any of this? Seems like a single weight value wouldn't be enough. Or can you define your result as the minimum value and the weight as the maximum and use the loss function in a clever way?\r\n\r\nI'd also like a feature related to this where computation continues forever until the min/max constraints are satisfied.\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "This seems like hard to have working since the constant optimization implicitly uses gradients. But it doesn't hurt to try.\r\n\r\nYou could try passing this?\r\n```python\r\npysr(...,\r\n     loss=\"myloss(x, y) = (round(x) - y)^2\",\r\n)\r\n```\r\nwhere x will become the raw prediction of the model, y is the dataset. Then whatever expression it finds, it will evaluate the output rounded to the nearest integer value.\r\n\r\nSee the page for `round` here: https://docs.julialang.org/en/v1/base/math/#Base.round-Tuple{Type,%20Any}",
+              "createdAt": "2021-09-28T19:13:30Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Alternatively you could weight the loss differently if it is inside your min/max range or outside. For example:\r\n\r\n```python\r\nloss=\"myloss(x, y) = (abs(x - y) >= 1) * (x-y)^2 + (abs(x - y) < 1) * 0.001 * (x-y)^2\"\r\n```\r\n\r\nThen the loss is basically 0 if x and y are within 1 of eachother, but there is a tiny contribution from `(x-y)^2` which would give the algorithm some gradient information. ",
+              "createdAt": "2021-09-28T19:19:07Z"
+            },
+            {
+              "author":
+              {
+                "login": "sirisian"
+              },
+              "body": "That clears things up a lot for me, and it will probably work for my use case. Just so I'm correct in your last equation I'd use >= 0.5 and < 0.5 for rounding?\r\n\r\n@MilesCranmer Also regarding my last comment (which might be its own issue) about the computation going until a result is found that satisfies the constraints. I noticed in the docs it says one can set ```niterations``` to a large value and watch it. That doesn't tell me when it has produced an equation that satisfies my constraint though easily? (That is stop when an equation returns results between the min/max). Not sure how hard that would be to support.\r\n\r\nAlso side question. Does PySR require input data to be normalized? Other symbolic regression projects I've noticed do not work with large values and requires the user to normalize the data between -1 to 1 more or less for best results. If it does work without normalizing input data I would recommend mentioning that explicitly in the documentation as people coming from other projects might make assumptions.",
+              "createdAt": "2021-09-28T21:27:25Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "> Just so I'm correct in your last equation I'd use >= 0.5 and < 0.5 for rounding?\r\n\r\nOh, oops. Yes 0.5 is correct.\r\n\r\n> That doesn't tell me when it has produced an equation that satisfies my constraint though easily? (That is stop when an equation returns results between the min/max). Not sure how hard that would be to support.\r\n\r\nUnfortunately this isn't implemented yet. If you would like, you could download a local copy of the backend (https://github.com/MilesCranmer/SymbolicRegression.jl) and add it to the loop (requires editing some julia code), and then set the \"julia_project=\" kwargs to the folder holding the repo.\r\n\r\nSpecifically, your code for early exit would need to quit this loop:\r\nhttps://github.com/MilesCranmer/SymbolicRegression.jl/blob/8416a754f72628e24ce8c5f073c103cb2a03c7b2/src/SymbolicRegression.jl#L376\r\nby checking through `hallOfFame` (e.g., `hallOfFame[1][5].score` stores the mean loss of the 5th individual for the 1st output column - you are probably expecting just 1 output column).\r\n\r\n> Does PySR require input data to be normalized? Other symbolic regression projects I've noticed do not work with large values and requires the user to normalize the data between -1 to 1 more or less for best results. \r\n\r\nIt does not. I think it should work for very large values or very small values. Just note that scalar constants in the equation are randomly initialized from N(mu=0, sigma=1). They then grow (or shrink) by multiplicative factors, so could reach an arbitrarily large value in a reasonable number of steps if needed. \r\n\r\nPySR is a variant of classical tournament selection, which is a pretty simple genetic algorithm. It has a few other tricks, like BFGS for doing constant optimization, but nothing like neural networks (yet) or anything which would only work on a predefined domain. The main reason PySR gets good performance is because I spent months optimizing the equation evaluation so the main search loop is very speedy, and also because it is capable of being distributed over a cluster, and more cores can always compensate for a simpler algorithm :)",
+              "createdAt": "2021-09-29T00:55:42Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "This should work now, with [v0.12.1](https://github.com/MilesCranmer/PySR/releases/tag/v0.12.1). See examples here: https://astroautomata.com/PySR/examples/#9-custom-objectives.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-03-27T23:21:03Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOWJJj9Q=="
+          }
+        }
+      }
+    }
+  }
+}

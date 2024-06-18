@@ -1,0 +1,57 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 5,
+        "title": "[Question] Empty list for unary_operators",
+        "body": "Hey,\r\n\r\nIs there a technical reason why `unary_operators` argument cannot be an empty list? When I tried that it failed with:\r\n```\r\nassert len(unary_operators) > 0\r\n```",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "From an algorithmic perspective, it's fine to have no unary operators. I simply have not written/tested the code yet to allow for it. The assert is to prevent errors/undefined behavior from the Julia side. \r\n\r\nAt the minimum, I always use \"neg\" (=negative; though this is redundant as mult(-1.0, ...) is equivalent) so I didn't see the need to add code for empty unary operators. But I can add it if you'd like.",
+              "createdAt": "2020-09-27T23:02:01Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Just let me know if you'd like that added. Closing for now.",
+              "createdAt": "2020-09-27T23:02:35Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Okay so it turns out I wrote the code in such a way that everything is already functional without unary operators! Sorry for that assert statement. I have removed it.",
+              "createdAt": "2020-09-28T00:30:20Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "An empty list for binary_operators works as well, it turns out!",
+              "createdAt": "2020-09-28T00:34:49Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOKbTB0g=="
+          }
+        }
+      }
+    }
+  }
+}

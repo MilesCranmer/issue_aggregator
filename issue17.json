@@ -1,0 +1,145 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 17,
+        "title": "Windows support",
+        "body": "Hi Miles,\r\n\r\nfirst of all, this is awesome. Thanks so much for making this.\r\n\r\nA student I'm working with is trying to run PySR under Windows. Is that in principle supported?\r\n\r\nPySR's dependencies don't seem to have any issues with Windows, but `pysr.pysr` throws a `FileNotFoundError` when accessing `/tmp/.hyperparams_{rand_string}.hl'`. Seems to be because of the different file system structure under Windows. If this is the only issue, how would you feel about using something like [tempfile](https://docs.python.org/3/library/tempfile.html) to generate temporary files in a more OS-independent way?\r\n\r\nI am happy to try this and open a PR once it works.\r\n\r\nCheers,\r\nJohann",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "johannbrehmer"
+              },
+              "body": "I'm testing platform-independent paths at https://github.com/johannbrehmer/PySR/tree/tempfile . That seems to work smoothly under Mac OS, I'm waiting to hear back if it works under Windows as well.",
+              "createdAt": "2020-10-29T18:14:12Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks @johannbrehmer! This is definitely an important issue.\r\n\r\nI helped someone over email solve this; but I didn't hear back if the final change was successful or not. Here is the things we had to change:\r\n\r\n- Changed `/tmp/` to the windows equivalent, I think `%TEMP%`?\r\n   - However, your solution is much better! The `tempfile` package looks great - thanks for bringing this to my attention. I had a quick look through your code and it looks like a great way of implementing it. Feel free to submit a PR.\r\n- The other thing that needs to be changed is `subprocess.Popen` expects a list on POSIX-compliant systems, but a single string instead on windows. So an if-statement on windows would call `command = ' '.join(command)`. \r\n\r\nOther than this, I think we would be good to go on Windows. Let me know if this works for your student!\r\n\r\nThanks again for contributing to PySR!\r\nCheers,\r\nMiles",
+              "createdAt": "2020-10-29T18:21:51Z"
+            },
+            {
+              "author":
+              {
+                "login": "johannbrehmer"
+              },
+              "body": "Hi Miles,\r\n\r\nThanks for your answer! I had no idea that `subprocess.Popen` behaves differently depending on the system. I'll use your proposed solution for that and open a PR.\r\n\r\nCheers,\r\nJohann",
+              "createdAt": "2020-10-29T18:29:01Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Awesome, sounds good!\r\n\r\nActually I just re-read the docs part about this: https://docs.python.org/3/library/subprocess.html#converting-argument-sequence. It might actually auto-convert the list to a string in the most recent version of Python? But we can see if it works!",
+              "createdAt": "2020-10-29T18:33:39Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Also, it might be useful to have a PySR option to turn off the automatic `tempfile` context manager cleanup (for debugging, or running code directly from Julia). It looks like `delete=False` might work for some of the objects?",
+              "createdAt": "2020-10-29T19:33:40Z"
+            },
+            {
+              "author":
+              {
+                "login": "johannbrehmer"
+              },
+              "body": "Running the code with the unmodified `subprocess.Popen(command, ...)` on Windows results in a FileNotFoundError. I haven't tested your `' '.join(command)` solution yet, but I convinced my partner to let me use her Windows laptop later, I hope to work it out then.",
+              "createdAt": "2020-10-29T19:57:31Z"
+            },
+            {
+              "author":
+              {
+                "login": "johannbrehmer"
+              },
+              "body": "Good point about having the option to not delete the temporary folder. Sadly, that doesn't seem to be an option with `tempfile.TemporaryDirectory`. Maybe then we should switch to a set of a few `tempfile.NamedTemporaryFile` objects (which do have a `delete` keyword like you said).",
+              "createdAt": "2020-10-29T20:07:00Z"
+            },
+            {
+              "author":
+              {
+                "login": "johannbrehmer"
+              },
+              "body": "Option A, where the temp files might not be in the same directory: \r\n```\r\n    with \\\r\n        tempfile.NamedTemporaryFile(suffix=f'.hyperparams_{rand_string}.jl', dir=tempdir, delete=delete_tempfiles) as hyperparam_file, \\\r\n        tempfile.NamedTemporaryFile(suffix=f'.dataset_{rand_string}.jl', dir=tempdir, delete=delete_tempfiles) as dataset_file, \\\r\n        tempfile.NamedTemporaryFile(suffix=f'.runfile_{rand_string}.jl', dir=tempdir, delete=delete_tempfiles) as run_file \\\r\n    :\r\n    # ...\r\n```\r\n\r\nOption B, which seems less pythonic:\r\n```\r\ntmpdir = Path(tempfile.mkdtemp(dir=tempdir))\r\n# ...\r\nif delete_tempfiles:\r\n    shutil.rmtree(tmpdir)\r\n```\r\n    ",
+              "createdAt": "2020-10-29T20:16:21Z"
+            },
+            {
+              "author":
+              {
+                "login": "johannbrehmer"
+              },
+              "body": "Option A might not be good for Windows because\r\n\r\n> Whether the name can be used to open the file a second time, while the named temporary file is still open, varies across platforms (it can be so used on Unix; it cannot on Windows NT or later)\r\n\r\n(from the [`tempfile.NamedTemporaryFile` docs](https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile))\r\n",
+              "createdAt": "2020-10-29T20:22:18Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Both look okay to me! Whichever you decide on\r\n\r\nEdit: sorry, didn't mean to close and re-open!",
+              "createdAt": "2020-10-30T00:40:04Z"
+            },
+            {
+              "author":
+              {
+                "login": "johannbrehmer"
+              },
+              "body": "Fun little issue that took me embarrassingly long to figure out: Windows filenames contain backslashes. PySR writes filenames into a Julia script. Backslashes are escape characters in Julia strings. Boom",
+              "createdAt": "2020-10-30T13:46:49Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Awesome! \r\n\r\nBtw, I just googled this and apparently another way to do this in Julia is with the \"raw\" command:\r\n```julia\r\nraw\"C:\\Users\\MyUser\\Folder\\File.jl\"\r\n```",
+              "createdAt": "2020-10-30T15:45:57Z"
+            },
+            {
+              "author":
+              {
+                "login": "johannbrehmer"
+              },
+              "body": "Ah, interesting, that might be even better as long as there are no other `\\n` or similar in these strings (I don't think there are).",
+              "createdAt": "2020-10-30T16:01:00Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks again! Merged #18. ",
+              "createdAt": "2020-10-31T14:49:53Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Update: travis-ci is now doing continuous testing for Windows/macOS as well!",
+              "createdAt": "2020-12-30T04:32:32Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOLNeOAw=="
+          }
+        }
+      }
+    }
+  }
+}

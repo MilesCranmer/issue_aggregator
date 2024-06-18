@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 615,
+        "title": "[Feature]: Supplying initial guess to Symbolic Regression",
+        "body": "### Feature Request\r\n\r\nI am currently trying to use Symbolic Regression as part of an optimization routine. \r\nNow, since I expect the result to be very often very similar from one optimization step to the next, I would like to be able to supply an initial guess or starting point to the Symbolic Regression in order to speed up things. \r\nIs that already possible ? I could not find any such Option in the EquationSearch.\r\n\r\nP.S.: And maybe it would also be possible to suppress printing out the results in each iteration.",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

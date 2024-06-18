@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 163,
+        "title": "[Feature] Consider adding manual hint for initial population",
+        "body": "**Is your feature request related to a problem? Please describe.**\r\nLet's say I have derived an analytic solution dependent on some parameters, while taking the others in -> 0 limit to be able to do so. Now I want to extend the solution for (small?) variation of the parameters assumed 0 previously. In this case it is probably more efficient to provide this initial solution manually and mutate from there, rather then starting with a totally random population. This is not only likely to save time, but also to find solution that converge to the known exact solution for the derived limit, which seems like a positive property.\r\n\r\n**Describe the solution you'd like**\r\nAdditional argument to `fit()` allowing to set the initial solution.\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "One approach to this is provide the analytic solution as an additional _feature_ for PySR, then it can add adjustments to it, or re-scale it, or use it in operators. \r\n\r\nHowever, this wouldn't let PySR modify the internals of the analytic solution (e.g., say it needed to adjust the argument of a `sin(...)` of an analytic solution). So in that case it would definitely help to have this feature.\r\n\r\nPySR lets you start from a previous fit (`warm_start=True`) so you could also manually configure the state (stored in `raw_julia_state_`) to have the analytic solution in the initial population, but that requires some knowledge of the backend. \r\n\r\nBut, yes, it would be great to have this! Will need some modifications to the backend (https://github.com/MilesCranmer/SymbolicRegression.jl) to help randomly generate the population around a particular equation.",
+              "createdAt": "2022-07-08T23:25:52Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHORkydxg=="
+          }
+        }
+      }
+    }
+  }
+}

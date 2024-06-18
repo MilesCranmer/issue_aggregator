@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 70,
+        "title": "PySR could not start julia. Make sure julia is installed and on your $PATH.",
+        "body": "Hello Miles! Ⅰ am trying to apply your PySR to some biological dataset and wish to find some interesting results (something like compact ODE/SDE). But Ⅰ am kind of new to Julia, and when Ⅰ try to run the example, this bug jumps: \"PySR could not start Julia. Make sure Julia is installed and on your $PATH\". Ⅰ looked for some solution (add Julia path to the current workspace?) but Ⅰ still can't solve this problem, would you mind giving a solution? Thanks in advance.\r\n\r\n**Ⅰ am trying to run on Mac, and the Julia version is 1.6 ('/Applications/Julia-1.6.app/Contents/Resources/julia/bin/julia'). **\r\n\r\nAnd also Ⅰ am curious that if PySR will be robust when data is noisy.  \r\n\r\nThank you very much!\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "As a quick fix you can add this to the top of your script:\r\n```\r\nimport os\r\nos.environ[\"PATH\"] += \":/Applications/Julia-1.6.app/Contents/Resources/julia/bin\"\r\n```",
+              "createdAt": "2021-08-13T12:59:34Z"
+            },
+            {
+              "author":
+              {
+                "login": "Ting-TingGao"
+              },
+              "body": "Thank you for replying so quickly! \r\nIt works!  :)",
+              "createdAt": "2021-08-13T14:52:04Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "No problem!",
+              "createdAt": "2021-08-13T16:31:22Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHONY9J2Q=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 367,
+        "title": "[Feature]: SymPy.jl integration",
+        "body": "### Feature Request\n\nRather than making the user define custom `extra_sympy_mappings`, we could potentially take advantage of [SymPy.jl](https://github.com/JuliaPy/SymPy.jl) and automatically generate the sympy operators.\r\n\r\nFurthermore, and this would be more work, we could look at transferring the expressions directly from SymbolicRegression.jl, rather than using a .csv file as a medium.",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

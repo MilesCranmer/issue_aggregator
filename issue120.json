@@ -1,0 +1,65 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 120,
+        "title": "Use of txt versus csv for saving HoF",
+        "body": "I like the #30 `equation_file` option to specify the location and filename of the HoF, and am using it to save to a _txt_ rather than _csv_ file.  The equations in the latter don't preview well on my maxOS machine when there are commas (e.g., from `pow()`), presumably because I have MS Excel installed.\r\n\r\nIs there any reason not to do so?  (The API Reference explicitly mentions _csv_.)",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @marknovak,\r\nThe files are saved as a `.csv`, but the actual formatting uses `|` as the separator, rather than a comma. This is because of, as you mentioned, issues with binary operators also having commas - so `|` is used instead. Does that answer your question?\r\nBest,\r\nMiles",
+              "createdAt": "2022-04-05T02:20:14Z"
+            },
+            {
+              "author":
+              {
+                "login": "marknovak"
+              },
+              "body": "Thanks for the quick reply.\r\nI see that the columns are indeed seperated by `|`, but the equations themselves can contain commas which are causing me problem in the `.csv` format.  But you did answer my question too:  I'm going to use `.txt` to avoid the issue.",
+              "createdAt": "2022-04-05T02:26:52Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Depending on what you are using to preview the file, it should in principle be possible to specify other separators rather than commas. Looking into specifications [here](https://en.wikipedia.org/wiki/Comma-separated_values#General_functionality) and it seems like this is the general answer:\r\n\r\n> many implementations of CSV import/export tools allow other separators to be used; for example, the use of a \"Sep=^\" row as the first row in the *.csv file will cause [Excel](https://en.wikipedia.org/wiki/Microsoft_Excel) to open the file expecting [caret](https://en.wikipedia.org/wiki/Caret_(punctuation)) \"^\" to be the separator instead of comma \",\"\r\n\r\nSo for Excel, I would need to prepend another row with `\"Sep=|\"` at the top in my generated files\r\n\r\nHowever, this might not be general. I see a few general solutions I could look at implementing:\r\n\r\n1. Use commas as separators as expected by most import/export tools, but simply put the equation in quotations to prevent commas within an equation from messing up the columns.\r\n2. Save as a `.txt`, as you suggested, to prevent incorrect imports.\r\n3. Look at if there is a general standard for specifying separator within the `.csv` file itself.\r\n\r\nI think 1. might be the best option; what do you think?",
+              "createdAt": "2022-04-05T02:40:53Z"
+            },
+            {
+              "author":
+              {
+                "login": "marknovak"
+              },
+              "body": "The fact that `csv` stands for comma-separated value makes me think 3. is not a good option.  Although I appreciate that some people might like to view the output split out in a spreadsheet by columns, I find the `|` separator clear and easy enough.  Thus for me, since I'm trying to avoid Excel (incl. that it takes too long to open), just saving to `.txt` is all I want and need.",
+              "createdAt": "2022-04-05T02:52:09Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hey @marknovak I've finally found some time to get this fix done. See https://github.com/MilesCranmer/PySR/pull/176",
+              "createdAt": "2022-08-10T08:53:42Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOSCS85A=="
+          }
+        }
+      }
+    }
+  }
+}

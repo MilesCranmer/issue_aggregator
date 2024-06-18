@@ -1,0 +1,57 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 536,
+        "title": "[Feature]: Warn if better linear model available",
+        "body": "### Feature Request\r\n\r\nI haven't thought this issue all the way through yet, but I thought I'd quickly make a github issue before I don't report it at all. But feel free to close this.\r\n\r\nI have tested a few algorithms on a regression dataset (unfortunately I can't share the dataset, but it shouldn't be too atypical). It turned out that linear models like ElasticNet or [LARS](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LassoLars.html#sklearn.linear_model.LassoLars) worked better than e.g. symbolic regression with PySR. I don't know exactly what to do in this case, but it felt a little silly that a linear model that takes a few miliseconds to train is better than SR which needed an hour of runtime (including some hyperparameter optimization). The dataset only has 7 variables, so it's not an issue of feature selection.\r\n\r\nI guess a linear regression on 7 variables (including intercept) would have a rather high complexity of `2*7 + 1 + 7 = 22` (and would not even be considered with the default `maxsize` of 20), so it would likely never \"win\" against shorter equations in terms of the score?\r\n\r\nOne thing I thought is that one could warn the user that a better linear model is available? The added computational cost would be negligible.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks for the feature request @Maltimore. Indeed this could be something to try. Actually, rather than warning the user, one thing that some SR algorithms do is initialise the fit with the best linear model (or even a polynomial fit), so that could be a very cool thing to try!! Should be pretty easy to set up as well. Take a look at the backend here: https://github.com/MilesCranmer/SymbolicRegression.jl\r\n\r\nThe line that initialises the population is https://github.com/MilesCranmer/SymbolicRegression.jl/blob/feab045092498b018b03fbf83e2cfc32543d9775/src/SymbolicRegression.jl#L709-L715. Should be pretty easy to just replace this with the result of a linear fit, and then evolve from there.\r\n\r\nThe only reason I haven't already done this is I have tried to make PySR/SymbolicRegression.jl completely invariant to the choice of operator, rather than have any specific \"preference\" or special behavior for some. In other words, I have tried to make the operators `+` and `*` no different from if a user defines `myplus(x, y) = x+y` and `mymult(x, y) = x*y`. This is so that it as flexible as possible – and if it _can_ correctly recover a linear relation with this, it shows it is doing it with as little of a prior as possible, purely by evolving it.\r\n\r\nHowever I do realise that the vast majority of people are going to be happy if `+` and `*` _do_ get special priveleges and can have a smart sort of initialisation. Therefore I would be very happy to consider adding something like this!\r\n\r\n\r\nActually a linear regression with 7 variables would be a complexity of 29 (if you are using default options for complexity) – since it is a binary tree with an additional `+` at each branch.\r\n\r\n```julia\r\njulia> using SymbolicRegression: Options, Node, compute_complexity\r\n\r\njulia> options = Options(binary_operators=(+, *));\r\n\r\njulia> x = [Node(Float64; feature=i) for i in 1:7];  # 7 features\r\n\r\njulia> A = ones(Float64, 7); b=one(Float64);\r\n\r\njulia> A' * x + b  # Create expression\r\n((((((((1.0 * x1) + (1.0 * x2)) + (1.0 * x3)) + (1.0 * x4)) + (1.0 * x5)) + (1.0 * x6)) + (1.0 * x7)) + 1.0)\r\n\r\njulia> compute_complexity(A' * x + b, options)\r\n29\r\n```",
+              "createdAt": "2024-01-29T12:57:15Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Also if you can make a working example with a different dataset that you can share, that would be much appreciated. It is very weird that it takes 1 hour to evolve a linear equation, perhaps there is something wrong in the hyperparams. Would love to take a look if you can give me an example.",
+              "createdAt": "2024-01-29T13:01:40Z"
+            },
+            {
+              "author":
+              {
+                "login": "Maltimore"
+              },
+              "body": "Just responding to your last comment, because I didn't make that clear before: I didn't set up the symbolic regression to only evolve linear equations, also a few nonlinear operators were allowed. And I used two-fold cross validation with a 2x2 hyperparameter gridsearch, which all in all means that the SR algorithm was run 8 times I guess. In total that needed roughly an hour to run.\r\nI'll see if I can reproduce it with a toy example dataset.",
+              "createdAt": "2024-01-29T14:41:15Z"
+            },
+            {
+              "author":
+              {
+                "login": "Maltimore"
+              },
+              "body": "I thought a bit about what you said about special privileges of `+` and `*`. I like the approach that you want the SR algorithm to be entirely without prior regarding operators. On the other hand, like you said, an end user probably has a certain expectation of what complexity is and some operators \"feel\" much more complex than others.\r\n\r\nOne idea I just had: keeping the binary `+` and `*` operators unbiased, but creating one special unary (not binary) operator which is just a linear scaling: a combination of a constant `c` times a previous term. And this special unary scaling operator could have a complexity of zero. The reasoning being that a linear scaling just brings a term on the same scale as other terms or as the output variable, and is not really adding complexity (this is a bit hand-wavy but complexity seems to be not easily definable).",
+              "createdAt": "2024-01-30T09:14:23Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOcjnFZA=="
+          }
+        }
+      }
+    }
+  }
+}

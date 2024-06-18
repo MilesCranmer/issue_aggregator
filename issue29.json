@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 29,
+        "title": "Custom loss function",
+        "body": "Hi,\r\n\r\nIs it possible to have the example.py show how to build a custom loss function? I'm still unable to figure out how to do it from the codes.\r\n\r\nThanks!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hey @ythrandir, sure, I can add something to the `example.py`.\r\n\r\nAlso, this made me realize that the docs are not updating. The new docs were supposed to have examples of `loss`, but this is not compiling for some reason. Here is the fixed version! https://pysr.readthedocs.io/en/latest/docs/options/#loss. \r\n\r\nI will add a couple other examples to that section to make it easier to set up.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2021-02-16T16:33:42Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Alright, here's the new loss page! Let me know if you have any other questions.\r\n\r\n<img width=\"767\" alt=\"Screen Shot 2021-02-16 at 11 45 23 AM\" src=\"https://user-images.githubusercontent.com/7593028/108094109-76546580-704c-11eb-8838-bfed4acbcb50.png\">\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2021-02-16T16:46:13Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOLn1PGg=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 494,
+        "title": "[Feature]: Add priori of equation form",
+        "body": "### Feature Request\n\nHi！When I want to find some expressions from my data, I want his form to be specific. For example, I hope that the equation form obtained by pysr is C1 * x1 + ( C2 * x2 / F ), where F is the term to be found, C1 and C2 are constants to be found. This is equivalent to the form of a constrained expression tree, that is, adding a priori. Is it possible for today 's pysr to implement this function ?\r\nThanks！",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @prozhuyi,\r\n\r\nThe current method for doing this is exemplified here: https://astroautomata.com/PySR/examples/#9-custom-objectives. An easier way to do this is being discussed here: https://github.com/MilesCranmer/SymbolicRegression.jl/issues/193. (Help is always appreciated!)\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-12-26T01:23:43Z"
+            },
+            {
+              "author":
+              {
+                "login": "zhuyi-bjut"
+              },
+              "body": "@MilesCranmer Can [SymbolicRegression.jl/issues/193](https://github.com/MilesCranmer/SymbolicRegression.jl/issues/193) be used in pysr ? Is there this module in PySRRegressor ?\r\nSince I want to add constraints like F = f ( x1, x2, x3 ) + g ( x4, x5 ) / f ( x1, x2, x6 ), [examples/ # 9-custom-objectives](https://astroautomata.com/PySR/examples/#9-custom-objectives) does not seem to work.\r\nThanks！",
+              "createdAt": "2024-06-11T15:23:30Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "@zhuyi-bjut this is something in development at the moment. It likely won’t be ready for at the very least a few months. In the meantime I would try the custom objectives and post on the discussions page with any issues you are running into.",
+              "createdAt": "2024-06-12T02:57:31Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOgN2lUw=="
+          }
+        }
+      }
+    }
+  }
+}

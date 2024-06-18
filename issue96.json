@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 96,
+        "title": "[Feature] GH-action based docs",
+        "body": "readthedocs has been frustrating to build docs on - right now it's completely broken and not updating, and there isn't even an error message so I have no idea how to debug it. I also don't like how I have to check another website instead of reading the \"Actions\" tab.\r\n\r\nTherefore, I want to switch to a GitHub-action based docs builder on github-pages, just like for SymbolicRegression.jl. This allows me to have much more control over the docs page as well, and I can actually even integrate it within SymbolicRegression.jl as they will both be under the same domain.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Fixed!\r\n\r\nDocs are live on https://astroautomata.com/PySR/ and being built by GitHub actions.",
+              "createdAt": "2022-02-01T23:33:18Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOPTzEiQ=="
+          }
+        }
+      }
+    }
+  }
+}

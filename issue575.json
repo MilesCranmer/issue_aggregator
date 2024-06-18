@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 575,
+        "title": "[Feature]: Select Julia version at first import.",
+        "body": "### Feature Request\n\nIt would be better if user can choose correct julia version during first time import.\r\nFor instance, i running Pysr on Macbook Air M2, during first time import. Programm automatically select julialang for x64 version instead of aarch64. \r\nEventhough program successfully installed, but it faceing the translation loss from AMD64 to Apple64.\r\n",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

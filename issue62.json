@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 62,
+        "title": "Solver convergence",
+        "body": "Hi Miles,\r\n\r\nThanks for sharing your code. I was trying the example case with some different solver configurations. The calculation is terminated after few 2 iterations. Is this because the calculation is converged? Or am I misunderstanding some of the solver's arguments?\r\n\r\n```\r\nequations = pysr(\r\n    X,\r\n    y,\r\n    procs = 7,\r\n    niterations=1000000,\r\n    populations = 100,\r\n    binary_operators=[\"+\", \"*\", \"/\",\"^\"],\r\n    unary_operators=[\r\n        \"cos\",\r\n        \"exp\",\r\n        \"sin\",  # Pre-defined library of operators (see docs)\r\n        \"inv(x) = 1/x\",  # Define your own operator! (Julia syntax)\r\n    ],\r\n)\r\n```\r\n\r\nprint(best(equations))\r\n\r\n\r\n_______________________________________________________________________\r\nRunning on julia -O3 /tmp/tmp1fl_c9ut/runfile.jl\r\nActivating environment on workers.\r\nImporting installed module on workers...Finished!\r\nCopying definition of inv to workers...Finished!\r\nTesting module on workers...Finished!\r\nTesting entire pipeline on workers...Finished!\r\nStarted!\r\n\r\nCycles per second: 3.560e+02\r\nHead worker occupation: 3.7%\r\nProgress: 1 / 100000000 total iterations (0.000%)\r\n==============================\r\nHall of Fame:\r\n-----------------------------------------\r\nComplexity  Loss       Score     Equation\r\n1           2.476e+01  5.960e-08  1.5915705\r\n3           5.484e+00  7.536e-01  pow(x0, 2.002539)\r\n5           1.902e+00  5.296e-01  (-2.0208373 + pow(x0, 2.0489082))\r\n11          1.791e+00  1.001e-02  ((1.2358671 + pow(x0, 2.002539)) + (-1.6340058 * pow(x3, 0.9758236)))\r\n12          2.172e-02  4.412e+00  ((-1.8855495 + pow(x0, 2.002539)) + (-2.0073733 * sin(-1.6345752 + x3)))\r\n19          8.701e-03  1.307e-01  (((pow(x0 / 1.0015011, 2.002539) + -0.91348684) + ((-0.53229153 + inv(-0.67792857)) * sin(-1.6345752 + x3))) + -1.0524741)\r\n\r\n==============================\r\n\r\nCycles per second: 1.130e+03\r\nHead worker occupation: 3.2%\r\nProgress: 2 / 100000000 total iterations (0.000%)\r\n==============================\r\nHall of Fame:\r\n-----------------------------------------\r\nComplexity  Loss       Score     Equation\r\n1           2.476e+01  5.960e-08  1.5917339\r\n2           2.399e+01  3.134e-02  cos(x3)\r\n3           1.265e+01  6.405e-01  pow(x0, 1.2735958)\r\n4           5.174e+00  8.937e-01  pow(inv(x0), -1.9202919)\r\n5           1.902e+00  1.001e+00  (-2.021261 + pow(x0, 2.0489275))\r\n11          1.878e+00  2.049e-03  (-2.2773557 + (pow(x0, 1.2649873) * (0.22078495 + pow(x0, 0.7385057))))\r\n12          2.172e-02  4.460e+00  ((-1.8855495 + pow(x0, 2.002539)) + (-2.0073733 * sin(-1.6345752 + x3)))\r\n19          8.701e-03  1.307e-01  (((pow(x0 / 1.0015011, 2.002539) + -0.91348684) + ((-0.53229153 + inv(-0.67792857)) * sin(-1.6345752 + x3))) + -1.0524741)\r\n\r\n==============================\r\n-2.0073733*sin(x3 - 1.6345752) + Abs(x0)**2.002539 - 1.8855495\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @Rdfing,\r\n\r\nSorry I missed this. This looks like your execution might have crashed? There's no internal mechanism (yet) for early stopping.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2021-07-12T21:33:22Z"
+            },
+            {
+              "author":
+              {
+                "login": "Rdfing"
+              },
+              "body": "@MilesCranmer,\r\n\r\nI will play with the code more and report if the issue persists.\r\n\r\nThanks,\r\nHaochen",
+              "createdAt": "2021-07-13T00:44:16Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHONF_EVw=="
+          }
+        }
+      }
+    }
+  }
+}

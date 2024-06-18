@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 315,
+        "title": "Using gradients from PySR",
+        "body": "### Discussed in https://github.com/MilesCranmer/PySR/discussions/314\r\n\r\n<div type='discussions-op-text'>\r\n\r\n<sup>Originally posted by **TadeuNP** April 22, 2023</sup>\r\n\r\n@TadeuNP\r\n\r\nHi, \r\n\r\nWhen running SymbolicRegression.jl, I can set enable_autodiff=True and the computation of derivatives will work. However, when using eval_diff_tree_array from PySR, I get the following error: \r\n\r\nRuntimeError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: Found no differential operators. Did you forget to set `enable_autodiff=true` when creating the `OperatorEnum`?\r\n\r\nIs there any of doing it from the PySR?  I can't find any way of introducing this option.\r\n\r\nThanks!</div>",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Indeed this is a bug. I'm making a patch now.",
+              "createdAt": "2023-04-22T21:19:17Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOWodkvg=="
+          }
+        }
+      }
+    }
+  }
+}

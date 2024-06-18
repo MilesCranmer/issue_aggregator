@@ -1,0 +1,193 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 566,
+        "title": "Windows Julia Install - could not load library \"libpcre2-8\" The specified module could not be found. ",
+        "body": "### What happened?\n\nAfter installing PySR on windows, on the first import of the module, the Julia install starts, but fails with this error message:\r\n\r\n> ...\r\n> fatal: error thrown and no exception handler available.\r\n> InitError(mod=:Sys, error=ErrorException(\"could not load library \"libpcre2-8\"\r\n> The specified module could not be found. \"))\r\n> ijl_errorf at C:/workdir/src\\rtutils.c:77\r\n> ...\r\n\r\nI located libpcre2-8 in the virtual environment folder: `...\\venv\\julia_env\\pyjuliapkg\\install\\bin\\libpcre2-8.dll`\r\n\r\nI found [this](https://github.com/JuliaLang/julia/issues/52205) issue on the julia repository, but it has no solution given.\r\n\r\nDoes anyone know of a workaround?\r\n\r\nWould installing julia separately (outside of venv) help?\r\n\n\n### Version\n\n0.17.2\n\n### Operating System\n\nWindows\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n_No response_\n\n### Extra Info\n\n_No response_",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Looks like there is more info here: https://github.com/JuliaLang/julia/issues/52007\r\n\r\nCan you try to install Julia manually with different methods? See here: https://julialang.org/downloads/\r\n\r\n(You should try to install a version of Julia other than 1.10.1 or 1.10.2. Other versions should be good)\r\n\r\nIf you can get Julia working itself, then juliacall should be able to connect to it.",
+              "createdAt": "2024-03-13T12:26:46Z"
+            },
+            {
+              "author":
+              {
+                "login": "tbuckworth"
+              },
+              "body": "Thanks for your swift response.\r\n\r\nI have now downloaded Julia 1.14.5.0 for Windows.\r\n\r\nI can use it independently and it works.\r\n\r\nRunning my script again didn't make any difference, same error thrown.\r\n\r\nI deleted julia_env folder in my venv and have re-run the script (just importing pysr) - still same error thrown.\r\n\r\nI will see if uninstalling and re-installing pysr still has the same problem.\r\n\r\n",
+              "createdAt": "2024-03-13T14:10:34Z"
+            },
+            {
+              "author":
+              {
+                "login": "tbuckworth"
+              },
+              "body": "I tried uninstalling juliacall, juliapkg and pysr, then installed pysr and ran again.\r\n\r\nStill have the same error thrown.",
+              "createdAt": "2024-03-13T14:56:58Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Julia 1.14.5.0 does not exist (1.10.2 is the max version). Could you check the version of Julia you are installing?",
+              "createdAt": "2024-03-13T15:35:03Z"
+            },
+            {
+              "author":
+              {
+                "login": "tbuckworth"
+              },
+              "body": "Sorry for the confusion.\r\n\r\nStrangely, Windows said 1.14.5, but the directory of .julia said 1.10.X, which I have now deleted (not certain which X it was unfortunately). \r\n\r\nI installed 1.6.7 and have run my script again, but the output said that it is installing and using 1.10.0, (I guess 1.6.7 is too old?)\r\n\r\nIt then threw the same error.\r\n\r\nOn the download page, I can only find the options to install 1.10.2, 1.6.7 or the 1.11.0 version.\r\n\r\nI'm not really sure what to try now.",
+              "createdAt": "2024-03-13T15:49:30Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "> I installed 1.6.7 and have run my script again, but the output said that it is installing and using 1.10.0, (I guess 1.6.7 is too old?)\r\n\r\nIt seems like it's simply not finding the Julia you installed, otherwise it wouldn't try to install Julia again. Where did you install it to?",
+              "createdAt": "2024-03-13T16:08:58Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Also see the options here: https://juliapy.github.io/PythonCall.jl/stable/juliacall/#julia-config\r\n\r\nYou can specify the Julia binary location with the environment variable `PYTHON_JULIACALL_BINDIR`. Or you can simply call Python with `python -X juliacall-home=/path/to/julia/folder`.",
+              "createdAt": "2024-03-13T16:10:51Z"
+            },
+            {
+              "author":
+              {
+                "login": "tbuckworth"
+              },
+              "body": "I've tried two things:\r\n\r\n1. Added this to my script:\r\n`os.environ[\"PYTHON_JULIACALL_BINDIR\"] = r\"C:\\Users\\titus\\PycharmProjects\\train-procgen-pytorch\\venv\\julia_env\\pyjuliapkg\\install\\bin\"`\r\n\r\nWhen I run the script, this output appears:\r\n\r\n> [juliapkg] Using Julia 1.10.0 at C:\\Users\\titus\\PycharmProjects\\train-procgen-pytorch\\venv\\julia_env\\pyjuliapkg\\install\\bin\\julia.exe\r\n\r\nBut in the end the same error is thrown.\r\n\r\n2. Added this to my script:\r\n`os.environ[\"PYTHON_JULIACALL_BINDIR\"] = r\"C:\\Users\\titus\\AppData\\Local\\Microsoft\\WindowsApps\"\r\n`\r\nWhich is where I have installed Julia manually.\r\nThen I deleted the `..\\venv\\julia_env\\` folder, uninstalled juliacall, juliapkg, pysr, reinstalled pysr.\r\n\r\nWhen I run the script, this output appears:\r\n\r\n> [juliapkg] Installing Julia 1.10.0 using JuliaUp\r\n> [juliapkg] WARNING: You have Julia 1.10.2 installed but ~1.6.1, ~1.7, ~1.8, ~1.9, =1.10.0, ^1.10.3 is required.\r\n> [juliapkg]   It is recommended that you upgrade Julia or install JuliaUp.\r\n> [juliapkg] Querying Julia versions from https://julialang-s3.julialang.org/bin/versions.json\r\n> [juliapkg] WARNING: About to install Julia 1.10.0 to C:\\Users\\titus\\PycharmProjects\\train-procgen-pytorch\\venv\\julia_env\\pyjuliapkg\\install.\r\n> [juliapkg]   If you use juliapkg in more than one environment, you are likely to have Julia\r\n> [juliapkg]   installed in multiple locations. It is recommended to install JuliaUp\r\n> [juliapkg]   (https://github.com/JuliaLang/juliaup) or Julia (https://julialang.org/downloads)\r\n> [juliapkg]   yourself.\r\n> [juliapkg] Downloading Julia from https://julialang-s3.julialang.org/bin/winnt/x64/1.10/julia-1.10.0-win64.zip\r\n\r\nAnd then the same error results.\r\n\r\nBut I don't believe I do have julia 1.10.2 installed.\r\n\r\nI am currently going through my pc trying to make sure I uninstall/delete all Julia installs/folders to start again",
+              "createdAt": "2024-03-14T14:00:40Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "What is the path to the actual Julia exe application? Not the directory but the full path? (And can you verify you can run Julia normally?)\r\n\r\nif you start julia can you paste the output of `versioninfo()`? It should show a version other than 1.10.2 or 1.10.1 if installed correctly.",
+              "createdAt": "2024-03-14T21:32:48Z"
+            },
+            {
+              "author":
+              {
+                "login": "tbuckworth"
+              },
+              "body": "Julia is here (i get this when i run `where julia`):\r\n\r\n> C:\\Users\\titus\\AppData\\Local\\Microsoft\\WindowsApps\\julia.exe\r\n\r\nBut there is also a location here: \r\n\r\n> C:\\Users\\titus\\.julia\\juliaup\\julia-1.10.2+0.x64.w64.mingw32\\bin\\julia.exe\r\n\r\nand here:\r\n\r\n> C:\\Users\\titus\\.julia\\juliaup\\julia-1.10.0+0.x64.w64.mingw32\\bin\\julia.exe\r\n\r\nIf I run the first one and then versioninfo(), I get\r\n\r\n> Julia Version 1.10.0\r\n> Commit 3120989f39 (2023-12-25 18:01 UTC)\r\n> Build Info:\r\n>   Official https://julialang.org/ release\r\n> Platform Info:\r\n>   OS: Windows (x86_64-w64-mingw32)\r\n>   CPU: 8 × Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz\r\n>   WORD_SIZE: 64\r\n>   LIBM: libopenlibm\r\n>   LLVM: libLLVM-15.0.7 (ORCJIT, icelake-client)\r\n>   Threads: 1 on 8 virtual cores\r\n\r\nOn the second version i get this:\r\n\r\n> Julia Version 1.10.2\r\n> Commit bd47eca2c8 (2024-03-01 10:14 UTC)\r\n> Build Info:\r\n>   Official https://julialang.org/ release\r\n> Platform Info:\r\n>   OS: Windows (x86_64-w64-mingw32)\r\n>   CPU: 8 × Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz\r\n>   WORD_SIZE: 64\r\n>   LIBM: libopenlibm\r\n>   LLVM: libLLVM-15.0.7 (ORCJIT, icelake-client)\r\n> Threads: 1 default, 0 interactive, 1 GC (on 8 virtual cores)\r\n\r\nthe third gives me:\r\n\r\n> Julia Version 1.10.0\r\n> Commit 3120989f39 (2023-12-25 18:01 UTC)\r\n> Build Info:\r\n>   Official https://julialang.org/ release\r\n> Platform Info:\r\n>   OS: Windows (x86_64-w64-mingw32)\r\n>   CPU: 8 × Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz\r\n>   WORD_SIZE: 64\r\n>   LIBM: libopenlibm\r\n>   LLVM: libLLVM-15.0.7 (ORCJIT, icelake-client)\r\n>   Threads: 1 on 8 virtual cores\r\n\r\nIf i run `juliaup remove 1.10.2` i get:\r\n> Error: '1.10.2' cannot be removed because it is currently not installed.\r\n\r\nif i run `juliaup default 1.10.0` i get:\r\n> Configured the default Julia version to be '1.10.0'.\r\n\r\nIf i delete `C:\\Users\\titus\\.julia\\juliaup\\julia-1.10.2+0.x64.w64.mingw32` folder and then uninstall and reinstall pysr, I get the same error, even if i use this\r\n`os.environ[\"PYTHON_JULIACALL_BINDIR\"] = r\"C:\\Users\\titus\\AppData\\Local\\Microsoft\\WindowsApps\"`\r\nor this:\r\n`os.environ[\"PYTHON_JULIACALL_BINDIR\"] = r\"C:\\Users\\titus\\.julia\\juliaup\\julia-1.10.0+0.x64.w64.mingw32\\bin\"`\r\n\r\nEven in my final attempt the output was:\r\n\r\n> [juliapkg] Locating Julia ~1.6.1, ~1.7, ~1.8, ~1.9, =1.10.0, ^1.10.3\r\n> [juliapkg] Using Julia 1.10.0 at C:\\Users\\titus\\.julia\\juliaup\\julia-1.10.0+0.x64.w64.mingw32\\bin\\julia.exe\r\n> [juliapkg] Using Julia project at C:\\Users\\titus\\PycharmProjects\\train-procgen-pytorch\\venv\\julia_env\r\n> [juliapkg] Installing packages:\r\n\r\nIndicating that it was indeed using 1.10.0, but in the end it still had the same error:\r\n\r\n> fatal: error thrown and no exception handler available.\r\n> InitError(mod=:Sys, error=ErrorException(\"could not load library \"libpcre2-8\"\r\n> The specified module could not be found. \"))\r\n> ijl_errorf at C:/workdir/src\\rtutils.c:77\r\n> ijl_load_dynamic_library at C:/workdir/src\\dlload.c:388\r\n> jl_get_library_ at C:/workdir/src\\runtime_ccall.cpp:46\r\n> jl_get_library_ at C:/workdir/src\\runtime_ccall.cpp:38 [inlined]\r\n> ijl_load_and_lookup at C:/workdir/src\\runtime_ccall.cpp:59\r\n> jlplt_pcre2_compile_8_75038.1 at C:\\Users\\titus\\.julia\\juliaup\\julia-1.10.0+0.x64.w64.mingw32\\lib\\julia\\sys.dll (unknown line)\r\n\r\nI've resorted to using WSL, but I'd still like to be able to use windows.\r\n\r\nThanks for your help so far\r\n\r\n\r\n\r\n\r\n",
+              "createdAt": "2024-03-15T16:44:52Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "It's good that Julia actually starts when you run it normally. Make sure to use the 1.10.0 ones and delete the 1.10.2 one. \r\n\r\nNow the remaining issue is why PythonCall.jl cannot actually open that one. For this I'm a bit confused why it's not working on your system but works in other Windows machines (like the GitHub action). Have you looked at the discussion on https://github.com/JuliaLang/julia/issues/52007 which is specific to UWP?\r\n\r\nThis issue seems wider than just PySR so you might also try to post about this issue on the JuliaLang discourse. People are very helpful there and have wide expertise: https://discourse.julialang.org/",
+              "createdAt": "2024-03-15T17:02:08Z"
+            },
+            {
+              "author":
+              {
+                "login": "tbuckworth"
+              },
+              "body": "I have read the #52007 thread, but not found a solution there. I'll look into posting on the JuliaLang discourse. Thanks for your help",
+              "createdAt": "2024-03-19T09:30:50Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Okay, let me know how it goes. Would be useful to link your discourse thread here for posterity.",
+              "createdAt": "2024-03-19T13:04:43Z"
+            },
+            {
+              "author":
+              {
+                "login": "xiongxin9000"
+              },
+              "body": "Hi Miles\r\n\r\nI am facing the same issue,\r\n\r\ncan you please provide more detailed solution. \r\n\r\nThank you. ",
+              "createdAt": "2024-04-24T16:18:18Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "@tbuckworth do you think you could share if you were able to solve it and how you did? \r\n\r\n@xiongxin9000 can you paste detailed system diagnostics and everything you have tried thus far? And also verify you can run normal Julia programs, and also run `from juliacall import jl` within Python. (i.e., no use of PySR itself yet)",
+              "createdAt": "2024-04-24T16:44:52Z"
+            },
+            {
+              "author":
+              {
+                "login": "xiongxin9000"
+              },
+              "body": "Hi Miles,\r\n\r\nThank you for response. I tried reinstalling Julia version 1.9.4 according to this post's answer before. But the error is still there. I can type Julia into Julia's prompt. I tried with `from juliacall import jl` within Python. It gives me the same error without PySR. \r\n\r\n",
+              "createdAt": "2024-04-25T08:00:26Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Okay so this sounds like at the level of juliacall rather than PySR. Which is fine, we can debug it here, but good to know.\r\n\r\nCan you confirm you can run commands within Julia itself? Like if you just start up Julia outside of Python and run stuff.\r\n\r\nIt might also be useful to see if you can run a regexp within Julia itself as this is related to the missing library.\r\n\r\n@cjdoris seems like some users run into this, not sure you know what it’s from? Is it maybe the type of binary being installed?",
+              "createdAt": "2024-04-25T08:54:22Z"
+            },
+            {
+              "author":
+              {
+                "login": "xiongxin9000"
+              },
+              "body": "I tried to run Julia in windows terminal. simple hello world it works,\r\n```\r\njulia> \"Hello World\"\r\n\"Hello World\"\r\n\r\njulia> myregex = r\"^\\s*(?:#|$)\"\r\nr\"^\\s*(?:#|$)\"\r\n\r\njulia> typeof(myregex)\r\nRegex\r\n```\r\n\r\nAnd also the regexp\r\n\r\nThank you \r\nI \r\n\r\n\r\n",
+              "createdAt": "2024-04-25T14:49:41Z"
+            },
+            {
+              "author":
+              {
+                "login": "tbuckworth"
+              },
+              "body": "> @tbuckworth do you think you could share if you were able to solve it and how you did?\r\n> \r\n> @xiongxin9000 can you paste detailed system diagnostics and everything you have tried thus far? And also verify you can run normal Julia programs, and also run `from juliacall import jl` within Python. (i.e., no use of PySR itself yet)\r\n\r\n@MilesCranmer - I ended up installing Ubuntu instead. I didn't get around to posting on the JuliaLang discourse, unfortunately. ",
+              "createdAt": "2024-04-25T15:32:50Z"
+            },
+            {
+              "author":
+              {
+                "login": "JanisErdmanis"
+              },
+              "body": "> Julia is here (i get this when i run where julia):\n\n> C:\\Users\\titus\\AppData\\Local\\Microsoft\\WindowsApps\\julia.exe\n\nWhen applications are launched from WindowsApps folder they by default are sandboxed. It is possible to add exemption in AppxManifest.xml granting full trust privileges for the installation to circumvent the sandboxing where the libpcre error does not occur. Meanwhile someone needs to figure out how to solve the underlying issue with Julia. \n\nI am curios though how did the Julia installation ended up into WindowsApps folder! Is it installed by pip there?\n\n",
+              "createdAt": "2024-06-03T08:02:40Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Seems like @Angelld23 found a workaround on https://github.com/JuliaLang/julia/issues/52007#issuecomment-2173945505. Copying here for visibility:\r\n\r\n```python\r\nimport os import ctypes import glob\r\n\r\n# Path to the bin directory of your Julia installation\r\njulia_bin_path = \"C:\\path\\to\\your\\dll_directory\" # (which is the same as the julia.exe)\r\n\r\n# Add the bin directory to PATH\r\nos.environ[\"PATH\"] += \";\" + julia_bin_path\r\n\r\n# Load each DLL file in the bin directory\r\nfor dll_path in glob.glob(os.path.join(julia_bin_path, \"*.dll\")):\r\n    try:\r\n        ctypes.CDLL(dll_path)\r\n        print(f\"Loaded {dll_path} successfully.\")\r\n    except OSError as e:\r\n        print(f\"Could not load {dll_path}: {e}\")\r\n\r\nfrom pysr import PySRRegressor\r\n```\r\n",
+              "createdAt": "2024-06-17T18:08:58Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOgZTu2A=="
+          }
+        }
+      }
+    }
+  }
+}

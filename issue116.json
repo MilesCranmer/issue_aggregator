@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 116,
+        "title": "[BUG] TaskFailedException due to domain error",
+        "body": "It seems like there are still some domain errors in very rare edge cases (~one in a billion!). This is the traceback:\r\n```julia\r\n    nested task error: TaskFailedException\r\n    Stacktrace:\r\n     [1] wait\r\n       @ ./task.jl:334 [inlined]\r\n     [2] fetch\r\n       @ ./task.jl:349 [inlined]\r\n     [3] (::SymbolicRegression.var\"#60#98\"{Vector{Vector{Task}}, Int64, Int64})()\r\n       @ SymbolicRegression ./task.jl:423\r\n    \r\n        nested task error: DomainError with Inf:\r\n        cos(x) is only defined for finite x.\r\n        Stacktrace:\r\n          [1] cos_domain_error(x::Float32)\r\n            @ Base.Math ./special/trig.jl:97\r\n          [2] cos(x::Float32)\r\n            @ Base.Math ./special/trig.jl:108\r\n          [3] deg1_l1_ll0_eval(tree::Node, cX::Matrix{Float32}, #unused#::Val{1}, #unused#::Val{2}, options::Options{Tuple{typeof(*), typeof(/), typeof(+), typeof(-)}, Tuple{typeof(sin), typeof(cos), typeof(exp), typeof(log_abs)}, L2DistLoss})\r\n            @ SymbolicRegression.../EvaluateEquation.jl ~/miniconda3/envs/pysr/share/julia/packages/SymbolicRegression/Z2pqJ/src/EvaluateEquation.jl:175\r\n          [4] evalTreeArray(tree::Node, cX::Matrix{Float32}, options::Options{Tuple{typeof(*), typeof(/), typeof(+), typeof(-)}, Tuple{typeof(sin), typeof(cos), typeof(exp), typeof(log_abs)}, L2DistLoss})\r\n            @ SymbolicRegression.../EvaluateEquation.jl ~/miniconda3/envs/pysr/share/julia/packages/SymbolicRegression/Z2pqJ/src/EvaluateEquation.jl:31\r\n          [5] deg2_eval(tree::Node, cX::Matrix{Float32}, #unused#::Val{4}, options::Options{Tuple{typeof(*), typeof(/), typeof(+), typeof(-)}, Tuple{typeof(sin), typeof(cos), typeof(exp), typeof(log_abs)}, L2DistLoss})\r\n```\r\nIn principle these should be caught before evaluating the operator (and `inf` loss returned), but it looks like there are some cases where it is not caught. Will need to debug on the Julia side.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Cross posted to https://github.com/MilesCranmer/SymbolicRegression.jl/issues/71 - will focus on the issue there since the bug is on the Julia side.",
+              "createdAt": "2022-02-22T18:49:52Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "This should be fixed with `v0.7.9`",
+              "createdAt": "2022-02-23T15:08:57Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOPoSvPA=="
+          }
+        }
+      }
+    }
+  }
+}

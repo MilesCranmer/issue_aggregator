@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 182,
+        "title": "Сorrelation as a loss function",
+        "body": "Is there any way to use Pearson or Spearman correlation as a loss function?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Not by default - these are the available losses: https://astroautomata.com/SymbolicRegression.jl/dev/losses/. As well as any loss function that can be written as a sum over per-element losses, like `loss=\"myloss(x, y) = abs(x - y)\"` - so long as it is non-negative.\r\n\r\nTo add a more complex loss like a correlation-based loss, you can tweak this function (in Julia - but it's quite similar to Python): https://github.com/MilesCranmer/SymbolicRegression.jl/blob/7b4fecf9e136eb7b3acf29d0669e00e772efff56/src/LossFunctions.jl#L45-L49 to compare `prediction` with `dataset.y`. Both of these are Julia vectors. \r\n\r\nThen, give your path to the local copy of SymbolicRegression.jl to the `julia_project` parameter in `PySRRegressor`. \r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2022-08-30T17:11:39Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "#276 fixes this and allows you to do this.",
+              "createdAt": "2023-03-25T02:36:18Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOWG9LGA=="
+          }
+        }
+      }
+    }
+  }
+}

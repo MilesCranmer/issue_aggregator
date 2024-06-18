@@ -1,0 +1,305 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 236,
+        "title": "Add Support for Arbitrary Precision Arithmetic with BigFloat ",
+        "body": "**Is your feature request related to a problem? Please describe.**\r\nI tried running 'pysr' on a 1,000 row array with 4 integer input variables and one integer output variable - a Goedel Number.\r\n\r\nFrom Mathematica:\r\n```\r\nGoedelNumber[l_List] := Times @@ MapIndexed[Prime[First[#2]]^#1 &, l]\r\n```\r\nE.g. \r\n```\r\nData file:\r\n# 7\t1\t5\t8\t6917761200000\r\n\r\njulia> 2^7*3^1*5^5*7^8\r\n6917761200000\r\n```\r\n\r\nThe model returned:\r\n```\r\nComplexity  Loss       Score     Equation\r\n1           Inf       NaN       0.22984365\r\n\r\n```\r\nI am just learning 'pysr' and maybe it's just 'user error'.  However, Inf and Nan suggest that Goedel numbers may exceed \r\nFloat64.\r\n\r\n<img width=\"1430\" alt=\"Screenshot 2022-12-01 at 8 33 44 AM\" src=\"https://user-images.githubusercontent.com/3105499/205108196-cb0c09d2-ccd6-4a9f-978f-44b3032410ae.png\">\r\n\r\n**Describe the solution you'd like**\r\nNot sure what happened, because the largest Goedel number in the input is: \r\n1.6679880978201e+23\r\n\r\n**Additional context**\r\nI didn't see any parameters to set 'verbose' mode or 'debugging' information.\r\n\r\n[GoedelTableFourParameters.txt](https://github.com/MilesCranmer/PySR/files/10134343/GoedelTableFourParameters.txt)\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Good idea. So far there is only `precision in [16, 32, 64]`, but in principle, BigFloat should be easy to support.\r\n\r\nYou can hack it like this:\r\n\r\n\r\n```python\r\nimport pysr\r\njl = pysr.julia_helpers.init_julia()\r\n\r\n# First, set the precision:\r\njl.setprecision(200)  # 200 bits\r\n\r\n# Define `randn` so it works for BigFloat:\r\njl.eval(\"\"\"\r\n    using Random: AbstractRNG\r\n    \r\n    try\r\n        # In case randn(BigFloat) gets defined in the future\r\n        randn(BigFloat)\r\n    catch e\r\n        if isa(e, MethodError)\r\n            Base.randn(::Type{BigFloat}, args::Integer...) = BigFloat.(randn(Float64, args...))\r\n            Base.randn(rng::AbstractRNG, ::Type{BigFloat}, args::Integer...) = BigFloat.(randn(rng, Float64, args...))\r\n        else\r\n            throw(e)\r\n        end\r\n    end\r\n\"\"\")\r\n```\r\n\r\nThen, you need to edit `pysr/sr.py`, at this line: https://github.com/MilesCranmer/PySR/blob/46fe8c163f147d8447993c80cba4bf0d2f43d461/pysr/sr.py#L1638.\r\nAdd the lines:\r\n\r\n```python\r\nMain.X = Main.eval(\"BigFloat.(X)\")\r\nMain.y = Main.eval(\"BigFloat.(y)\")\r\nif weights is not None:\r\n    Main.weights = Main.eval(\"BigFloat.(weights)\")\r\n```\r\n\r\nI think that should be it. Let me know if it works. I'd also love a pull request if you can figure out a nice way to make this configurable using the `precision` kwarg.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2022-12-01T17:16:15Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "I have tried:\r\ni. custom loss functions\r\nii. various loss functions,\r\niii. different operators\r\niv. larger input file,\r\nv. weights.\r\nbut the output 'loss' value does not decrease.\r\n\r\nCuriously, the loss value is in the order of magnitude of the Goedel Number.\r\n```\r\nmodel = PySRRegressor(\r\n    loss=\"myloss(x::BigFloat, y::BigFloat) =  abs(x - y)\",\r\n    #loss=\"myloss(x::BigFloat, y::BigFloat, w::BigFloat) =  w * abs(x - y)\",\r\n    #loss=\"L1DistLoss()\",\r\n    niterations=10,\r\n    binary_operators=[\"mult\", \"pow\"],\r\n    unary_operators=[\"square\", \"cube\"],\r\n)\r\nmodel.fit(X=input, y=output)\r\n#model.fit(X=input, y=output, weights=weights)\r\n```\r\n\r\n```\r\nCycles per second: 7.410e+01\r\nHead worker occupation: 0.0%\r\nProgress: 17 / 150 total iterations (11.333%)\r\n==============================\r\nHall of Fame:\r\n-----------------------------------------\r\nComplexity  Loss       Score     Equation\r\n1           3.353e+19  6.548e-01  7.445906796448958112542609059634996192301824964176114035162089e+12\r\n5           3.352e+19  1.280e-04  cube(cube(x2 * x3))\r\n\r\n...\r\n\r\nCycles per second: 5.370e+01\r\nHead worker occupation: 0.0%\r\nProgress: 22 / 150 total iterations (14.667%)\r\n==============================\r\nHall of Fame:\r\n-----------------------------------------\r\nComplexity  Loss       Score     Equation\r\n1           3.353e+19  6.548e-01  7.445906796448958112542609059634996192301824964176114035162089e+12\r\n5           3.351e+19  1.419e-04  ((x0 * x3) ^ x1)\r\n6           3.351e+19  1.660e-04  square(-0.376641516035376267002021677399170584976673126220703125 * (x1 ^ x3))\r\n7           3.277e+19  2.230e-02  (((x3 * x1) ^ x2) * x0)\r\n8           2.836e+19  1.445e-01  (((x3 * x1) ^ x2) * cube(x0))\r\n9           2.746e+19  3.234e-02  ((((x3 * x1) ^ x2) * x3) * x0)\r\n\r\n\r\n```\r\nDo you see any mistakes?  \r\nIs there a 'trace' output mode?\r\n[GoedelNumber.ipynb.gz](https://github.com/MilesCranmer/PySR/files/10147338/GoedelNumber.ipynb.gz)\r\n",
+              "createdAt": "2022-12-03T20:36:06Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "It looks like it's going down, because `2.746e19 < 3.35e19`, unless I misunderstand. Maybe it's just hard to find? What's the dataset you're trying to fit?\r\n\r\nNote that you're running with 10 niterations. You could just try increasing that to `1000000` and watching the output and see if it eventually gets something.\r\n\r\nAlso, maybe you could try normalizing it first? i.e., `y = (y - np.average(y))/np.std(y)`.\r\n\r\n",
+              "createdAt": "2022-12-03T22:23:30Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "Thanks!  Here's the data file.\r\n[GoedelTableFourParameters.txt](https://github.com/MilesCranmer/PySR/files/10147697/GoedelTableFourParameters.txt)\r\n",
+              "createdAt": "2022-12-04T02:09:34Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "How did the suggestions work?\r\n\r\nAlso, what is the true relation?",
+              "createdAt": "2022-12-04T02:39:02Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "Currently running.\r\n```\r\nGoedelNumber[l_List] := Product[Prime[i]^l[[i]], {i, Length[l]}]\r\nPrimes: 2, 3, 5, 7, ... raised to input values in data file X0, X1, X2, X3\r\n 7\t1\t5\t8\t6917761200000\r\njulia> 2^7*3^1*5^5*7^8\r\n6917761200000\r\n```\r\nJust restarted:\r\n```\r\nCycles per second: 4.410e+01\r\nHead worker occupation: 0.0%\r\nProgress: 38 / 15000000 total iterations (0.000%)\r\n==============================\r\nHall of Fame:\r\n-----------------------------------------\r\nComplexity  Loss       Score     Equation\r\n1           3.353e+19  6.548e-01  7.4573353679525459137524786825444414833514637971313149029982497e+12\r\n5           3.352e+19  1.280e-04  cube(cube(x2 * x3))\r\n6           3.351e+19  8.297e-05  (cube(-0.416052722554691001288773577471147291362285614013671875 * x3) ^ x2)\r\n7           3.340e+19  3.517e-03  ((x2 ^ x0) * (x3 ^ x0))\r\n9           3.095e+19  3.806e-02  (square(cube(x2 * x0)) * (x3 ^ x1))\r\n10          3.091e+19  1.244e-03  (square(square((x1 * cube(x3)) * x2)) * x0)\r\n13          3.013e+19  8.470e-03  (square(square((x1 * cube(x3)) * x2) * -0.403145459628434787990869381246739067137241363525390625) * square(x0))\r\n```",
+              "createdAt": "2022-12-04T02:46:03Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Just to be clear, it can't find the true relation with those operators, right? Since the true relation would require a `prime` operator?",
+              "createdAt": "2022-12-04T04:05:15Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "My 'myprime_abs' is getting an exception from 'assert_operators_defined_over_reals' in Configure.jl.\r\n```\r\n#myprime_function = \"myprime_abs(x) = prime(rand(1:abs(Int(x))))\"\r\nmyprime_function = \"myprime_abs(x::Integer) = prime(convertInt64, (abs(x)))\"\r\nri = _randint()\r\n\r\nmodel = PySRRegressor(\r\n    loss=\"myloss(x::BigFloat, y::BigFloat) =  abs(x - y)\",\r\n    #loss=\"L1DistLoss()\",\r\n    #niterations=1000000,\r\n    niterations=10,\r\n    #binary_operators=[\"mult\", \"pow\"],\r\n    #unary_operators=[\"square\", \"cube\", myprime_function],\r\n    unary_operators=[myprime_function],\r\n    extra_sympy_mappings={\r\n        \"myprime_abs\" : lambda x: sympy.prime(sympy.Abs(x))\r\n    },\r\n    # No prime inside prime:\r\n    #nested_constraints={\"myprime_abs\": {\"myprime_abs\": 0}},\r\n)\r\nmodel.fit(X=input, y=output)\r\n#model.fit(X=input, y=output, weights=weights)\r\n```\r\nHere's enhanced debugging:\r\n```\r\nJULIA: AssertionError: Your configuration is invalid - one of your operators (BigFloat) (Options(\r\n    # Operators:\r\n        binops=Function[+, *, -, /], unaops=Function[myprime_abs],\r\n    # Loss:\r\n        loss=myloss,\r\n    # Complexity Management:\r\n        maxsize=20, maxdepth=20, bin_constraints=[(-1, -1), (-1, -1), (-1, -1), (-1, -1)], una_constraints=[-1], use_frequency=true, use_frequency_in_tournament=true, parsimony=0.0032, warmup_maxsize_by=0.0, \r\n    # Search Size:\r\n        npopulations=15, ncycles_per_iteration=550, npop=33, \r\n    # Migration:\r\n        migration=true, hof_migration=true, fraction_replaced=0.000364, fraction_replaced_hof=0.035,\r\n    # Tournaments:\r\n        prob_pick_first=0.86, tournament_selection_n=10, topn=12, \r\n    # Constant tuning:\r\n        perturbation_factor=0.076, probability_negate_constant=0.01, should_optimize_constants=true, optimizer_algorithm=BFGS, optimizer_probability=0.14, optimizer_nrestarts=2, optimizer_iterations=8,\r\n    # Mutations:\r\n        mutation_weights=MutationWeights(0.048, 0.47, 0.79, 5.1, 1.7, 0.002, 0.00023, 0.21, 0.0), crossover_probability=0.066, skip_mutation_failures=true\r\n    # Annealing:\r\n        annealing=false, alpha=0.1, \r\n    # Speed Tweaks:\r\n        batching=false, batch_size=5000, fast_cycle=false, \r\n    # Logistics:\r\n        output_file=hall_of_fame_2022-12-06_095936.707.csv, verbosity=1000000000, seed=3844562118, progress=false,\r\n    # Early Exit:\r\n        early_stop_condition=nothing, timeout_in_seconds=nothing,\r\n).operators) (myprime_abs) (BigFloat[-100.0, -97.95918367346939703566022217273712158203125, -95.918367346938765649611013941466808319091796875, -93.877551020408162685271236114203929901123046875, -91.8367346938775455100767430849373340606689453125, -89.7959183673469425457369652576744556427001953125, -87.75510204081632537054247222840785980224609375, -85.71428571428572240620269440114498138427734375, -83.6734693877551052310082013718783855438232421875, -81.632653061224488055813708342611789703369140625, -79.591836734693885091473930515348911285400390625, -77.5510204081632537054247222840785980224609375, -75.5102040816326507410849444568157196044921875, -73.4693877551020477767451666295528411865234375, -71.4285714285714448124053888022899627685546875, -69.387755102040813426356180571019649505615234375, -67.346938775510210462016402743756771087646484375, -65.306122448979607497676624916493892669677734375, -63.26530612244897611162741668522357940673828125, -61.22448979591837314728763885796070098876953125, -59.18367346938774886666578822769224643707275390625, -57.142857142857138796898652799427509307861328125, -55.102040816326535832558874972164630889892578125, -53.06122448979591155193702434189617633819580078125, -51.020408163265301482169888913631439208984375, -48.979591836734698517830111086368560791015625, -46.93877551020407423720826045610010623931884765625, -44.89795918367347127286848262883722782135009765625, -42.857142857142861203101347200572490692138671875, -40.81632653061225113333421177230775356292724609375, -38.77551020408162685271236114203929901123046875, -36.73469387755102388837258331477642059326171875, -34.69387755102041381860544788651168346405029296875, -32.65306122448979664341095485724508762359619140625, -30.612244897959186573643819428980350494384765625, -28.57142857142856229302196879871189594268798828125, -26.53061224489795932868219097144901752471923828125, -24.4897959183673492589150555431842803955078125, -22.4489795918367320837205625139176845550537109375, -20.4081632653061291193807846866548061370849609375, -18.367346938775511944186291657388210296630859375, -16.3265306122448947689917986281216144561767578125, -14.28571428571428469922466319985687732696533203125, -12.24489795918368173488488537259399890899658203125, -10.20408163265305034883567714132368564605712890625, -8.16326530612244738449589931406080722808837890625, -6.12244897959183020930140628479421138763427734375, -4.081632653061234350388986058533191680908203125, -2.0408163265306171751944930292665958404541015625, 0.0, 2.0408163265306171751944930292665958404541015625, 4.081632653061234350388986058533191680908203125, 6.122448979591837314728763885796070098876953125, 8.1632653061224544899232569150626659393310546875, 10.204081632653043243408319540321826934814453125, 12.2448979591836604186028125695884227752685546875, 14.28571428571427759379730559885501861572265625, 16.3265306122448947689917986281216144561767578125, 18.367346938775511944186291657388210296630859375, 20.4081632653061291193807846866548061370849609375, 22.4489795918367320837205625139176845550537109375, 24.4897959183673492589150555431842803955078125, 26.5306122448979664341095485724508762359619140625, 28.571428571428583609304041601717472076416015625, 30.61224489795917946821646182797849178314208984375, 32.653061224489789537983597256243228912353515625, 34.69387755102039960775073268450796604156494140625, 36.73469387755102388837258331477642059326171875, 38.77551020408162685271236114203929901123046875, 40.81632653061225113333421177230775356292724609375, 42.857142857142861203101347200572490692138671875, 44.89795918367347127286848262883722782135009765625, 46.938775510204095553490333259105682373046875, 48.979591836734698517830111086368560791015625, 51.020408163265301482169888913631439208984375, 53.061224489795904446509666740894317626953125, 55.10204081632652872713151737116277217864990234375, 57.142857142857138796898652799427509307861328125, 59.18367346938774886666578822769224643707275390625, 61.22448979591837314728763885796070098876953125, 63.26530612244897611162741668522357940673828125, 65.306122448979607497676624916493892669677734375, 67.346938775510210462016402743756771087646484375, 69.387755102040813426356180571019649505615234375, 71.428571428571416390695958398282527923583984375, 73.4693877551020477767451666295528411865234375, 75.5102040816326507410849444568157196044921875, 77.5510204081632537054247222840785980224609375, 79.591836734693885091473930515348911285400390625, 81.632653061224488055813708342611789703369140625, 83.67346938775511944186291657388210296630859375, 85.71428571428572240620269440114498138427734375, 87.75510204081632537054247222840785980224609375, 89.795918367346956756591680459678173065185546875, 91.83673469387753129922202788293361663818359375, 93.877551020408162685271236114203929901123046875, 95.918367346938765649611013941466808319091796875, 97.95918367346939703566022217273712158203125, 100.0])  is not well-defined over the real line. You can get around this by returning `NaN` for invalid inputs.\r\nStacktrace:\r\n [1] assert_operators_defined_over_reals(T::Type, options::Options{typeof(myloss), Int64, 0.86, 10})\r\n   @ SymbolicRegression ~/anaconda3/envs/ai/share/julia/packages/SymbolicRegression/37l4B/src/Configure.jl:24\r\n [2] test_option_configuration(T::Type, options::Options{typeof(myloss), Int64, 0.86, 10})\r\n   @ SymbolicRegression ~/anaconda3/envs/ai/share/julia/packages/SymbolicRegression/37l4B/src/Configure.jl:44\r\n [3] _EquationSearch(::SymbolicRegression.CoreModule.ProgramConstantsModule.SRThreaded, datasets::Vector{SymbolicRegression.CoreModule.DatasetModule.Dataset{BigFloat}}; niterations::Int64, options::Options{typeof(myloss), Int64, 0.86, 10}, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing)\r\n   @ SymbolicRegression ~/anaconda3/envs/ai/share/julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:438\r\n [4] EquationSearch(datasets::Vector{SymbolicRegression.CoreModule.DatasetModule.Dataset{BigFloat}}; niterations::Int64, options::Options{typeof(myloss), Int64, 0.86, 10}, parallelism::String, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing)\r\n   @ SymbolicRegression ~/anaconda3/envs/ai/share/julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:383\r\n [5] EquationSearch(X::Matrix{BigFloat}, y::Matrix{BigFloat}; niterations::Int64, weights::Nothing, varMap::Vector{String}, options::Options{typeof(myloss), Int64, 0.86, 10}, parallelism::String, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing, multithreaded::Nothing)\r\n   @ SymbolicRegression ~/anaconda3/envs/ai/share/julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:320\r\n [6] #EquationSearch#21\r\n   @ ~/anaconda3/envs/ai/share/julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:345 [inlined]\r\n [7] invokelatest(::Any, ::Any, ::Vararg{Any}; kwargs::Base.Pairs{Symbol, Any, NTuple{8, Symbol}, NamedTuple{(:weights, :niterations, :varMap, :options, :numprocs, :parallelism, :saved_state, :addprocs_function), Tuple{Nothing, Int64, Vector{String}, Options{typeof(myloss), Int64, 0.86, 10}, Nothing, String, Nothing, Nothing}}})\r\n   @ Base ./essentials.jl:731\r\n [8] _pyjlwrap_call(f::Function, args_::Ptr{PyCall.PyObject_struct}, kw_::Ptr{PyCall.PyObject_struct})\r\n   @ PyCall ~/.julia/packages/PyCall/7a7w0/src/callback.jl:32\r\n [9] pyjlwrap_call(self_::Ptr{PyCall.PyObject_struct}, args_::Ptr{PyCall.PyObject_struct}, kw_::Ptr{PyCall.PyObject_struct})\r\n   @ PyCall ~/.julia/packages/PyCall/7a7w0/src/callback.jl:44>\r\n```\r\nAll the other operators in PYRS take reals as input.\r\nhttps://astroautomata.com/PySR/operators/\r\n\r\nHowever, Primes.prime takes an integer input.\r\nHow should this issue in 'assert_operators_defined_over_reals' in Configure.jl. be handled?\r\nPerhaps I have other issues that I'm missing.\r\n```\r\njl = pysr.julia_helpers.init_julia()\r\n\r\nimport sympy\r\n\r\njl.eval(\"using Pkg\")\r\n\r\njl.eval('Pkg.add(\"Primes\")')\r\njl.eval(\"using Primes\")\r\n\r\n# If necessary:\r\njl.eval('Pkg.add(\"SpecialFunctions\")')\r\n\r\njl.eval(\"using SymbolicRegression\")\r\njl.eval('Pkg.add(\"SymbolicRegression\")')\r\njl.eval('ENV[\"JULIA_DEBUG\"] = \"SymbolicRegression\"')\r\n\r\n# First, set the precision:\r\njl.setprecision(200)  # 200 bits\r\n\r\n# Define `randn` so it works for BigFloat:\r\njl.eval(\"\"\"\r\n    using Random: AbstractRNG\r\n    \r\n    try\r\n        # In case randn(BigFloat) gets defined in the future\r\n        randn(BigFloat)\r\n    catch e\r\n        if isa(e, MethodError)\r\n            Base.randn(::Type{BigFloat}, args::Integer...) = BigFloat.(randn(Float64, args...))\r\n            Base.randn(rng::AbstractRNG, ::Type{BigFloat}, args::Integer...) = BigFloat.(randn(rng, Float64, args...))\r\n        else\r\n            throw(e)\r\n        end\r\n    end\r\n\"\"\")\r\njl.eval(\"\"\"\r\n    \r\n    try\r\n        # In case abs(BigFloat) gets defined in the future\r\n        Base.abs(x::BigFloat) = sign(x) * x\r\n    catch e\r\n        if isa(e, MethodError)\r\n            Base.abs(::Type{BigFloat}, args::Integer...) = BigFloat.(abs(Float64, args...))\r\n        else\r\n            throw(e)\r\n        end\r\n    end\r\n\"\"\")\r\n```",
+              "createdAt": "2022-12-06T18:15:18Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "What is happening is your operator is outputting an integer, rather than a BigFloat. You will need to convert back to a BigFloat at the end. Define it like this:\r\n```\r\nmyprime_abs(x::BigFloat) = convert(BigFloat, prime(round(Int, x)))\r\n```",
+              "createdAt": "2022-12-06T19:03:02Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Also, if you want \"myprime_abs\" to show up in the output sympy, follow the tips here: https://github.com/MilesCranmer/PySR/discussions/233. But your solution with `sympy.prime(sympy.Abs(x))` is good too!",
+              "createdAt": "2022-12-06T19:06:36Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "TODO's for me to make this easier to debug are:\r\n\r\n1. Make the error message state: \"Your operator needs to be defined over the real line, and output the same type as input.\"\r\n2. Make the error message not dump a string for options, like `Options(...` - which makes it harder to read.\r\n3. Move #233 into the docs.\r\n\r\nWould that help in the future?",
+              "createdAt": "2022-12-06T19:11:35Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "Sounds good.\r\nI'm still getting the same exception in 'assert_operators_defined_over_reals' in Configure.jl with the recommended code changes:\r\n\r\n```\r\n#myprime_function = \"myprime_abs(x) = prime(rand(1:abs(Int(x))))\"\r\nmyprime_function = \"myprime_abs(x::BigFloat) = Convert(BigFloat, prime(round(Int, x)))\"\r\n\r\nri = _randint()\r\n\r\nmodel = PySRRegressor(\r\n    loss=\"myloss(x::BigFloat, y::BigFloat) =  abs(x - y)\",\r\n    #loss=\"L1DistLoss()\",\r\n    #niterations=1000000,\r\n    niterations=10,\r\n    #binary_operators=[\"mult\", \"pow\"],\r\n    #unary_operators=[\"square\", \"cube\", myprime_function],\r\n    unary_operators=[myprime_function],\r\n    extra_sympy_mappings={\r\n        \"myprime_abs\" : lambda x: sympy.prime(sympy.Abs(x))\r\n    },\r\n    # No prime inside prime:\r\n    #nested_constraints={\"myprime_abs\": {\"myprime_abs\": 0}},\r\n)\r\nmodel.fit(X=input, y=output)\r\n#model.fit(X=input, y=output, weights=weights)\r\n```\r\nHere's the stack trace\r\n/Users/davidlaxer/anaconda3/envs/pysr/lib/python3.9/site-packages/pysr/sr.py:1257: UserWarning: Note: it looks like you are running in Jupyter. The progress bar will be turned off.\r\n  warnings.warn(\r\n/Users/davidlaxer/anaconda3/envs/pysr/lib/python3.9/site-packages/pysr/julia_helpers.py:201: UserWarning: Julia has already started. The new Julia options {'threads': 16} will be ignored.\r\n  warnings.warn(\r\n┌ Warning: You are using multithreading mode, but only one thread is available. Try starting julia with `--threads=auto`.\r\n└ @ SymbolicRegression ~/anaconda3/envs/ai/share/julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:414\r\nmyprime_abs, -100.0\r\n\r\n```\r\n--------------------------------------------------------------------------\r\nRuntimeError                              Traceback (most recent call last)\r\nCell In [13], line 19\r\n      3 ri = _randint()\r\n      5 model = PySRRegressor(\r\n      6     loss=\"myloss(x::BigFloat, y::BigFloat) =  abs(x - y)\",\r\n      7     #loss=\"L1DistLoss()\",\r\n   (...)\r\n     17     #nested_constraints={\"myprime_abs\": {\"myprime_abs\": 0}},\r\n     18 )\r\n---> 19 model.fit(X=input, y=output)\r\n\r\nFile ~/anaconda3/envs/pysr/lib/python3.9/site-packages/pysr/sr.py:1797, in PySRRegressor.fit(self, X, y, Xresampled, weights, variable_names)\r\n   1794     self._checkpoint()\r\n   1796 # Perform the search:\r\n-> 1797 self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n   1799 # Then, after fit, we save again, so the pickle file contains\r\n   1800 # the equations:\r\n   1801 if not self.temp_equation_file:\r\n\r\nFile ~/anaconda3/envs/pysr/lib/python3.9/site-packages/pysr/sr.py:1657, in PySRRegressor._run(self, X, y, mutated_params, weights, seed)\r\n   1651 cprocs = (\r\n   1652     None if parallelism in [\"serial\", \"multithreading\"] else int(self.procs)\r\n   1653 )\r\n   1655 # Call to Julia backend.\r\n   1656 # See https://github.com/MilesCranmer/SymbolicRegression.jl/blob/master/src/SymbolicRegression.jl\r\n-> 1657 self.raw_julia_state_ = SymbolicRegression.EquationSearch(\r\n   1658     Main.X,\r\n   1659     Main.y,\r\n   1660     weights=Main.weights,\r\n   1661     niterations=int(self.niterations),\r\n   1662     varMap=self.feature_names_in_.tolist(),\r\n   1663     options=options,\r\n   1664     numprocs=cprocs,\r\n   1665     parallelism=parallelism,\r\n   1666     saved_state=self.raw_julia_state_,\r\n   1667     addprocs_function=cluster_manager,\r\n   1668 )\r\n   1670 # Set attributes\r\n   1671 self.equations_ = self.get_hof()\r\n\r\nRuntimeError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: AssertionError: Your configuration is invalid - one of your operators (BigFloat) (Options(\r\n    # Operators:\r\n        binops=Function[+, *, -, /], unaops=Function[myprime_abs],\r\n    # Loss:\r\n        loss=myloss,\r\n    # Complexity Management:\r\n        maxsize=20, maxdepth=20, bin_constraints=[(-1, -1), (-1, -1), (-1, -1), (-1, -1)], una_constraints=[-1], use_frequency=true, use_frequency_in_tournament=true, parsimony=0.0032, warmup_maxsize_by=0.0, \r\n    # Search Size:\r\n        npopulations=15, ncycles_per_iteration=550, npop=33, \r\n    # Migration:\r\n        migration=true, hof_migration=true, fraction_replaced=0.000364, fraction_replaced_hof=0.035,\r\n    # Tournaments:\r\n        prob_pick_first=0.86, tournament_selection_n=10, topn=12, \r\n    # Constant tuning:\r\n        perturbation_factor=0.076, probability_negate_constant=0.01, should_optimize_constants=true, optimizer_algorithm=BFGS, optimizer_probability=0.14, optimizer_nrestarts=2, optimizer_iterations=8,\r\n    # Mutations:\r\n        mutation_weights=MutationWeights(0.048, 0.47, 0.79, 5.1, 1.7, 0.002, 0.00023, 0.21, 0.0), crossover_probability=0.066, skip_mutation_failures=true\r\n    # Annealing:\r\n        annealing=false, alpha=0.1, \r\n    # Speed Tweaks:\r\n        batching=false, batch_size=5000, fast_cycle=false, \r\n    # Logistics:\r\n        output_file=hall_of_fame_2022-12-06_111514.776.csv, verbosity=1000000000, seed=3844562118, progress=false,\r\n    # Early Exit:\r\n        early_stop_condition=nothing, timeout_in_seconds=nothing,\r\n).operators) (myprime_abs) (BigFloat[-100.0, -97.95918367346939703566022217273712158203125, -95.918367346938765649611013941466808319091796875, -93.877551020408162685271236114203929901123046875, -91.8367346938775455100767430849373340606689453125, -89.7959183673469425457369652576744556427001953125, -87.75510204081632537054247222840785980224609375, -85.71428571428572240620269440114498138427734375, -83.6734693877551052310082013718783855438232421875, -81.632653061224488055813708342611789703369140625, -79.591836734693885091473930515348911285400390625, -77.5510204081632537054247222840785980224609375, -75.5102040816326507410849444568157196044921875, -73.4693877551020477767451666295528411865234375, -71.4285714285714448124053888022899627685546875, -69.387755102040813426356180571019649505615234375, -67.346938775510210462016402743756771087646484375, -65.306122448979607497676624916493892669677734375, -63.26530612244897611162741668522357940673828125, -61.22448979591837314728763885796070098876953125, -59.18367346938774886666578822769224643707275390625, -57.142857142857138796898652799427509307861328125, -55.102040816326535832558874972164630889892578125, -53.06122448979591155193702434189617633819580078125, -51.020408163265301482169888913631439208984375, -48.979591836734698517830111086368560791015625, -46.93877551020407423720826045610010623931884765625, -44.89795918367347127286848262883722782135009765625, -42.857142857142861203101347200572490692138671875, -40.81632653061225113333421177230775356292724609375, -38.77551020408162685271236114203929901123046875, -36.73469387755102388837258331477642059326171875, -34.69387755102041381860544788651168346405029296875, -32.65306122448979664341095485724508762359619140625, -30.612244897959186573643819428980350494384765625, -28.57142857142856229302196879871189594268798828125, -26.53061224489795932868219097144901752471923828125, -24.4897959183673492589150555431842803955078125, -22.4489795918367320837205625139176845550537109375, -20.4081632653061291193807846866548061370849609375, -18.367346938775511944186291657388210296630859375, -16.3265306122448947689917986281216144561767578125, -14.28571428571428469922466319985687732696533203125, -12.24489795918368173488488537259399890899658203125, -10.20408163265305034883567714132368564605712890625, -8.16326530612244738449589931406080722808837890625, -6.12244897959183020930140628479421138763427734375, -4.081632653061234350388986058533191680908203125, -2.0408163265306171751944930292665958404541015625, 0.0, 2.0408163265306171751944930292665958404541015625, 4.081632653061234350388986058533191680908203125, 6.122448979591837314728763885796070098876953125, 8.1632653061224544899232569150626659393310546875, 10.204081632653043243408319540321826934814453125, 12.2448979591836604186028125695884227752685546875, 14.28571428571427759379730559885501861572265625, 16.3265306122448947689917986281216144561767578125, 18.367346938775511944186291657388210296630859375, 20.4081632653061291193807846866548061370849609375, 22.4489795918367320837205625139176845550537109375, 24.4897959183673492589150555431842803955078125, 26.5306122448979664341095485724508762359619140625, 28.571428571428583609304041601717472076416015625, 30.61224489795917946821646182797849178314208984375, 32.653061224489789537983597256243228912353515625, 34.69387755102039960775073268450796604156494140625, 36.73469387755102388837258331477642059326171875, 38.77551020408162685271236114203929901123046875, 40.81632653061225113333421177230775356292724609375, 42.857142857142861203101347200572490692138671875, 44.89795918367347127286848262883722782135009765625, 46.938775510204095553490333259105682373046875, 48.979591836734698517830111086368560791015625, 51.020408163265301482169888913631439208984375, 53.061224489795904446509666740894317626953125, 55.10204081632652872713151737116277217864990234375, 57.142857142857138796898652799427509307861328125, 59.18367346938774886666578822769224643707275390625, 61.22448979591837314728763885796070098876953125, 63.26530612244897611162741668522357940673828125, 65.306122448979607497676624916493892669677734375, 67.346938775510210462016402743756771087646484375, 69.387755102040813426356180571019649505615234375, 71.428571428571416390695958398282527923583984375, 73.4693877551020477767451666295528411865234375, 75.5102040816326507410849444568157196044921875, 77.5510204081632537054247222840785980224609375, 79.591836734693885091473930515348911285400390625, 81.632653061224488055813708342611789703369140625, 83.67346938775511944186291657388210296630859375, 85.71428571428572240620269440114498138427734375, 87.75510204081632537054247222840785980224609375, 89.795918367346956756591680459678173065185546875, 91.83673469387753129922202788293361663818359375, 93.877551020408162685271236114203929901123046875, 95.918367346938765649611013941466808319091796875, 97.95918367346939703566022217273712158203125, 100.0])  is not well-defined over the real line. You can get around this by returning `NaN` for invalid inputs.\r\nStacktrace:\r\n [1] assert_operators_defined_over_reals(T::Type, options::Options{typeof(myloss), Int64, 0.86, 10})\r\n   @ SymbolicRegression ~/anaconda3/envs/ai/share/julia/packages/SymbolicRegression/37l4B/src/Configure.jl:24\r\n [2] test_option_configuration(T::Type, options::Options{typeof(myloss), Int64, 0.86, 10})\r\n   @ SymbolicRegression ~/anaconda3/envs/ai/share/julia/packages/SymbolicRegression/37l4B/src/Configure.jl:44\r\n [3] _EquationSearch(::SymbolicRegression.CoreModule.ProgramConstantsModule.SRThreaded, datasets::Vector{SymbolicRegression.CoreModule.DatasetModule.Dataset{BigFloat}}; niterations::Int64, options::Options{typeof(myloss), Int64, 0.86, 10}, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing)\r\n   @ SymbolicRegression ~/anaconda3/envs/ai/share/julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:438\r\n [4] EquationSearch(datasets::Vector{SymbolicRegression.CoreModule.DatasetModule.Dataset{BigFloat}}; niterations::Int64, options::Options{typeof(myloss), Int64, 0.86, 10}, parallelism::String, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing)\r\n   @ SymbolicRegression ~/anaconda3/envs/ai/share/julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:383\r\n [5] EquationSearch(X::Matrix{BigFloat}, y::Matrix{BigFloat}; niterations::Int64, weights::Nothing, varMap::Vector{String}, options::Options{typeof(myloss), Int64, 0.86, 10}, parallelism::String, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing, multithreaded::Nothing)\r\n   @ SymbolicRegression ~/anaconda3/envs/ai/share/julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:320\r\n [6] #EquationSearch#21\r\n   @ ~/anaconda3/envs/ai/share/julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:345 [inlined]\r\n [7] invokelatest(::Any, ::Any, ::Vararg{Any}; kwargs::Base.Pairs{Symbol, Any, NTuple{8, Symbol}, NamedTuple{(:weights, :niterations, :varMap, :options, :numprocs, :parallelism, :saved_state, :addprocs_function), Tuple{Nothing, Int64, Vector{String}, Options{typeof(myloss), Int64, 0.86, 10}, Nothing, String, Nothing, Nothing}}})\r\n   @ Base ./essentials.jl:731\r\n [8] _pyjlwrap_call(f::Function, args_::Ptr{PyCall.PyObject_struct}, kw_::Ptr{PyCall.PyObject_struct})\r\n   @ PyCall ~/.julia/packages/PyCall/7a7w0/src/callback.jl:32\r\n [9] pyjlwrap_call(self_::Ptr{PyCall.PyObject_struct}, args_::Ptr{PyCall.PyObject_struct}, kw_::Ptr{PyCall.PyObject_struct})\r\n   @ PyCall ~/.julia/packages/PyCall/7a7w0/src/callback.jl:44>\r\n```\r\n",
+              "createdAt": "2022-12-06T19:20:06Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "btw - I showed 'PYSR' yesterday to a UCSC Pure Math PhD student.  He commented 'this is going to put me out of a job.\r\n;-)",
+              "createdAt": "2022-12-06T19:23:13Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hm, did you restart Python after making that change? Julia has multiple dispatch which means multiple definitions of the same function will persist in the runtime until you exit. Maybe there's a function sitting around that has the old definition.\r\n\r\nAnd, that's awesome to hear! 😎",
+              "createdAt": "2022-12-06T20:03:30Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "The code is running in Jupyter lab... I restarted the Kernel and ran all the code again.  Same 'Assertion' in 'assert_operators_defined_over_reals' in Configure.jl  with input\r\nat myprime_abs, -100.0",
+              "createdAt": "2022-12-06T20:21:09Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "```\r\n% julia \r\nThe latest version of Julia in the `release` channel is 1.8.3+0.x64.apple.darwin14. You currently have `1.8.3+0.x64` installed. Run:\r\n\r\n  juliaup update\r\n\r\nto install Julia 1.8.3+0.x64.apple.darwin14 and update the `release` channel to that version.\r\n               _\r\n   _       _ _(_)_     |  Documentation: https://docs.julialang.org\r\n  (_)     | (_) (_)    |\r\n   _ _   _| |_  __ _   |  Type \"?\" for help, \"]?\" for Pkg help.\r\n  | | | | | | |/ _` |  |\r\n  | | |_| | | | (_| |  |  Version 1.8.3 (2022-11-14)\r\n _/ |\\__'_|_|_|\\__'_|  |  Official https://julialang.org/ release\r\n|__/                   |\r\n\r\njulia> myprime_abs(x::BigFloat) = Convert(BigFloat, prime(round(Int, x)))\r\nmyprime_abs (generic function with 1 method)\r\n\r\njulia> myprime_abs(-100)\r\nERROR: MethodError: no method matching myprime_abs(::Int64)\r\nClosest candidates are:\r\n  myprime_abs(::BigFloat) at REPL[1]:1\r\nStacktrace:\r\n [1] top-level scope\r\n   @ REPL[2]:1\r\n\r\njulia> myprime_abs(10)\r\nERROR: MethodError: no method matching myprime_abs(::Int64)\r\nClosest candidates are:\r\n  myprime_abs(::BigFloat) at REPL[1]:1\r\nStacktrace:\r\n [1] top-level scope\r\n   @ REPL[3]:1\r\n\r\njulia> \r\n\r\n```",
+              "createdAt": "2022-12-06T20:26:56Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Oh, you need to write `convert(BigFloat, ...`, rather than `Convert(BigFloat, ...`. Maybe that's it.",
+              "createdAt": "2022-12-06T20:27:46Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "```\r\n% julia              \r\nThe latest version of Julia in the `release` channel is 1.8.3+0.x64.apple.darwin14. You currently have `1.8.3+0.x64` installed. Run:\r\n\r\n  juliaup update\r\n\r\nto install Julia 1.8.3+0.x64.apple.darwin14 and update the `release` channel to that version.\r\n               _\r\n   _       _ _(_)_     |  Documentation: https://docs.julialang.org\r\n  (_)     | (_) (_)    |\r\n   _ _   _| |_  __ _   |  Type \"?\" for help, \"]?\" for Pkg help.\r\n  | | | | | | |/ _` |  |\r\n  | | |_| | | | (_| |  |  Version 1.8.3 (2022-11-14)\r\n _/ |\\__'_|_|_|\\__'_|  |  Official https://julialang.org/ release\r\n|__/                   |\r\n\r\njulia> myprime_abs(x::BigFloat) = convert(BigFloat, prime(round(Int, x)))\r\nmyprime_abs (generic function with 1 method)\r\n\r\njulia> myprime_abs(-100)\r\nERROR: MethodError: no method matching myprime_abs(::Int64)\r\nClosest candidates are:\r\n  myprime_abs(::BigFloat) at REPL[1]:1\r\nStacktrace:\r\n [1] top-level scope\r\n   @ REPL[2]:1\r\n\r\njulia> myprime_abs(10)\r\nERROR: MethodError: no method matching myprime_abs(::Int64)\r\nClosest candidates are:\r\n  myprime_abs(::BigFloat) at REPL[1]:1\r\nStacktrace:\r\n [1] top-level scope\r\n   @ REPL[3]:1\r\n\r\njulia> \r\n\r\n```",
+              "createdAt": "2022-12-06T20:30:44Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "`10` is an integer, not a BigFloat, so you can't put it into `x::BigFloat`. SymbolicRegression.jl does not input integers though.",
+              "createdAt": "2022-12-06T20:32:04Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "So, create a prime() method which takes BigFloat input?\r\n```\r\njulia> prime(convert(Int, 11))\r\n31\r\n\r\njulia> prime(convert(BigFloat, 11))\r\nERROR: MethodError: no method matching prime(::BigFloat)\r\nClosest candidates are:\r\n  prime(::Type{T}, ::Integer) where T<:Integer at ~/.julia/packages/Primes/auplV/src/Primes.jl:795\r\n  prime(::Integer) at ~/.julia/packages/Primes/auplV/src/Primes.jl:796\r\nStacktrace:\r\n [1] top-level scope\r\n   @ REPL[26]:1\r\n\r\n```",
+              "createdAt": "2022-12-06T20:45:45Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I am saying this:\r\n```\r\n\r\njulia> myprime_abs(x::BigFloat) = convert(BigFloat, prime(round(Int, x)))\r\nmyprime_abs (generic function with 1 method)\r\n\r\njulia> myprime_abs(-100)\r\nERROR: MethodError: no method matching myprime_abs(::Int64)\r\nClosest candidates are:\r\n  myprime_abs(::BigFloat) at REPL[1]:1\r\nStacktrace:\r\n [1] top-level scope\r\n   @ REPL[2]:1\r\n```\r\ndoesn't actually matter, because this:\r\n```\r\njulia> myprime_abs(BigFloat(-100))\r\n```\r\nworks fine, and this is what SymbolicRegression.jl is actually going to use.",
+              "createdAt": "2022-12-06T20:47:37Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "Hmmm... not sure what's going on here:\r\n```\r\njjulia> myprime_abs(x::BigFloat) = convert(BigFloat, prime(round(Int, x)))\r\nmyprime_abs (generic function with 1 method)\r\n\r\njulia> myprime_abs(BigFloat(-100))\r\nERROR: DomainError with -100:\r\n\r\nStacktrace:\r\n [1] prime\r\n   @ ~/.julia/packages/Primes/auplV/src/Primes.jl:795 [inlined]\r\n [2] prime\r\n   @ ~/.julia/packages/Primes/auplV/src/Primes.jl:796 [inlined]\r\n [3] myprime_abs(x::BigFloat)\r\n   @ Main ./REPL[28]:1\r\n [4] top-level scope\r\n   @ REPL[29]:1\r\n\r\n```",
+              "createdAt": "2022-12-06T20:51:25Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Missing the `abs`?",
+              "createdAt": "2022-12-06T20:56:29Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Note also that `prime` isn't defined for `0`, so you'll have to catch it. e.g., \r\n```julia\r\nmyprime_abs(x::BigFloat) = (abs(x) <= 0.5) ? BigFloat(NaN) : convert(BigFloat, prime(round(Int, abs(x))))\r\n```",
+              "createdAt": "2022-12-06T20:59:27Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "Right!\r\n\r\n% myprime_abs(BigFloat(0))\r\nNaN\r\n\r\nIt's training now!  Stay tuned...\r\n\r\nCycles per second: 1.360e+02\r\nHead worker occupation: 0.0%\r\nProgress: 1 / 150 total iterations (0.667%)\r\n==============================\r\nHall of Fame:\r\n-----------------------------------------\r\nComplexity  Loss       Score     Equation\r\n1           3.353e+19  6.548e-01  7.4556707208519275907808763527632477379015835440821884926351654e+12\r\n3           3.353e+19  -5.000e-11  (x1 - -7.4572865599439574279843300324102069260357278880950195573743473e+12)\r\n",
+              "createdAt": "2022-12-06T20:59:53Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Nice! Okay closing this... I'm afraid I can't help much with your specific use-case, but do raise an issue if there is anything you suspect is an obvious bug.",
+              "createdAt": "2022-12-06T21:05:36Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Also, since, e.g., `prime(10000000)` takes a really long time to evaluate, and the package might encounter any integer in `Int64`, you might want to put in an upper bound on the input, e.g., \r\n\r\n```julia\r\nmyprime_abs(x::BigFloat) = (abs(x) <= 0.5 || abs(x) > 1000) ? BigFloat(NaN) : convert(BigFloat, prime(round(Int, abs(x))))\r\n```\r\n\r\nwould limit `x` to [-1000, 1000] \\ [-0.5, 0.5]; otherwise it will throw a NaN",
+              "createdAt": "2022-12-06T21:07:44Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "Right!",
+              "createdAt": "2022-12-06T21:12:32Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Put up a working tutorial for this, since I think it's a nice example! https://astroautomata.com/PySR/examples/#7-julia-packages-and-types",
+              "createdAt": "2022-12-06T22:55:26Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "Nice!  ;-)",
+              "createdAt": "2022-12-07T02:46:50Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "Is your new Toy primes example missing: pysr.install()?\r\nE.g.\r\n```\r\npysr.install()\r\n```\r\nAlso, I had to add:\r\n```\r\njl.eval(\"\"\"\r\n    using Random: AbstractRNG\r\n    \r\n    try\r\n        # In case randn(BigFloat) gets defined in the future\r\n        randn(BigFloat)\r\n    catch e\r\n        if isa(e, MethodError)\r\n            Base.randn(::Type{BigFloat}, args::Integer...) = BigFloat.(randn(Float64, args...))\r\n            Base.randn(rng::AbstractRNG, ::Type{BigFloat}, args::Integer...) = BigFloat.(randn(rng, Float64, args...))\r\n        else\r\n            throw(e)\r\n        end\r\n    end\r\n\"\"\")\r\n```",
+              "createdAt": "2022-12-13T16:38:15Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "BigFloats aren’t used in that example, and on that page it is implicitly assumed that the user already installed PySR.",
+              "createdAt": "2022-12-13T17:30:03Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "BigFloats aren’t used in that example, and on that page it is implicitly assumed that the user already installed PySR.",
+              "createdAt": "2022-12-13T17:30:08Z"
+            },
+            {
+              "author":
+              {
+                "login": "dbl001"
+              },
+              "body": "I got this error running the toy example:\r\n```\r\n/Users/davidlaxer/anaconda3/envs/pysr/lib/python3.9/site-packages/pysr/sr.py:1257: UserWarning: Note: it looks like you are running in Jupyter. The progress bar will be turned off.\r\n  warnings.warn(\r\n/Users/davidlaxer/anaconda3/envs/pysr/lib/python3.9/site-packages/pysr/julia_helpers.py:201: UserWarning: Julia has already started. The new Julia options {'threads': 16} will be ignored.\r\n  warnings.warn(\r\n---------------------------------------------------------------------------\r\nRuntimeError                              Traceback (most recent call last)\r\nCell In [11], line 1\r\n----> 1 model.fit(X, y)\r\n\r\nFile ~/anaconda3/envs/pysr/lib/python3.9/site-packages/pysr/sr.py:1797, in PySRRegressor.fit(self, X, y, Xresampled, weights, variable_names)\r\n   1794     self._checkpoint()\r\n   1796 # Perform the search:\r\n-> 1797 self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n   1799 # Then, after fit, we save again, so the pickle file contains\r\n   1800 # the equations:\r\n   1801 if not self.temp_equation_file:\r\n\r\nFile ~/anaconda3/envs/pysr/lib/python3.9/site-packages/pysr/sr.py:1657, in PySRRegressor._run(self, X, y, mutated_params, weights, seed)\r\n   1651 cprocs = (\r\n   1652     None if parallelism in [\"serial\", \"multithreading\"] else int(self.procs)\r\n   1653 )\r\n   1655 # Call to Julia backend.\r\n   1656 # See https://github.com/MilesCranmer/SymbolicRegression.jl/blob/master/src/SymbolicRegression.jl\r\n-> 1657 self.raw_julia_state_ = SymbolicRegression.EquationSearch(\r\n   1658     Main.X,\r\n   1659     Main.y,\r\n   1660     weights=Main.weights,\r\n   1661     niterations=int(self.niterations),\r\n   1662     varMap=self.feature_names_in_.tolist(),\r\n   1663     options=options,\r\n   1664     numprocs=cprocs,\r\n   1665     parallelism=parallelism,\r\n   1666     saved_state=self.raw_julia_state_,\r\n   1667     addprocs_function=cluster_manager,\r\n   1668 )\r\n   1670 # Set attributes\r\n   1671 self.equations_ = self.get_hof()\r\n\r\nRuntimeError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: MethodError: no method matching randn(::Random.TaskLocalRNG, ::Type{BigFloat})\r\nClosest candidates are:\r\n  randn(::Random.AbstractRNG, ::Type{T}, !Matched::Tuple{Vararg{Int64, N}} where N) where T at ~/.julia/juliaup/julia-1.8.3+0.x64.apple.darwin14/share/julia/stdlib/v1.8/Random/src/normal.jl:235\r\n  randn(::Random.AbstractRNG, ::Type{T}, !Matched::Integer, !Matched::Integer...) where T at ~/.julia/juliaup/julia-1.8.3+0.x64.apple.darwin14/share/julia/stdlib/v1.8/Random/src/normal.jl:238\r\n  randn(::Random.AbstractRNG) at ~/.julia/juliaup/julia-1.8.3+0.x64.apple.darwin14/share/julia/stdlib/v1.8/Random/src/normal.jl:38\r\n  ...\r\nStacktrace:\r\n  [1] randn(#unused#::Type{BigFloat})\r\n    @ Random ~/.julia/juliaup/julia-1.8.3+0.x64.apple.darwin14/share/julia/stdlib/v1.8/Random/src/normal.jl:191\r\n  [2] make_random_leaf\r\n    @ ~/.julia/packages/SymbolicRegression/37l4B/src/MutationFunctions.jl:153 [inlined]\r\n  [3] append_random_op(tree::Node{BigFloat}, options::Options{L2DistLoss, Int64, 0.86, 10}, nfeatures::Int64; makeNewBinOp::Nothing)\r\n    @ SymbolicRegression.MutationFunctionsModule ~/.julia/packages/SymbolicRegression/37l4B/src/MutationFunctions.jl:99\r\n  [4] append_random_op\r\n    @ ~/.julia/packages/SymbolicRegression/37l4B/src/MutationFunctions.jl:82 [inlined]\r\n  [5] gen_random_tree(length::Int64, options::Options{L2DistLoss, Int64, 0.86, 10}, nfeatures::Int64, #unused#::Type{BigFloat})\r\n    @ SymbolicRegression.MutationFunctionsModule ~/.julia/packages/SymbolicRegression/37l4B/src/MutationFunctions.jl:243\r\n  [6] #2\r\n    @ ./none:0 [inlined]\r\n  [7] iterate\r\n    @ ./generator.jl:47 [inlined]\r\n  [8] collect\r\n    @ ./array.jl:787 [inlined]\r\n  [9] #Population#1\r\n    @ ~/.julia/packages/SymbolicRegression/37l4B/src/Population.jl:34 [inlined]\r\n [10] #6\r\n    @ ./none:0 [inlined]\r\n [11] iterate\r\n    @ ./generator.jl:47 [inlined]\r\n [12] collect(itr::Base.Generator{UnitRange{Int64}, SymbolicRegression.SearchUtilsModule.var\"#6#8\"{Int64, Vector{SymbolicRegression.CoreModule.DatasetModule.Dataset{BigFloat}}, Options{L2DistLoss, Int64, 0.86, 10}}})\r\n    @ Base ./array.jl:787\r\n [13] #5\r\n    @ ./none:0 [inlined]\r\n [14] iterate\r\n    @ ./generator.jl:47 [inlined]\r\n [15] collect(itr::Base.Generator{UnitRange{Int64}, SymbolicRegression.SearchUtilsModule.var\"#5#7\"{Int64, Vector{SymbolicRegression.CoreModule.DatasetModule.Dataset{BigFloat}}, Options{L2DistLoss, Int64, 0.86, 10}}})\r\n    @ Base ./array.jl:787\r\n [16] init_dummy_pops\r\n    @ ~/.julia/packages/SymbolicRegression/37l4B/src/SearchUtils.jl:50 [inlined]\r\n [17] _EquationSearch(::SymbolicRegression.CoreModule.ProgramConstantsModule.SRThreaded, datasets::Vector{SymbolicRegression.CoreModule.DatasetModule.Dataset{BigFloat}}; niterations::Int64, options::Options{L2DistLoss, Int64, 0.86, 10}, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing)\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:476\r\n [18] EquationSearch(datasets::Vector{SymbolicRegression.CoreModule.DatasetModule.Dataset{BigFloat}}; niterations::Int64, options::Options{L2DistLoss, Int64, 0.86, 10}, parallelism::String, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing)\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:383\r\n [19] EquationSearch(X::Matrix{BigFloat}, y::Matrix{BigFloat}; niterations::Int64, weights::Nothing, varMap::Vector{String}, options::Options{L2DistLoss, Int64, 0.86, 10}, parallelism::String, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing, multithreaded::Nothing)\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:320\r\n [20] #EquationSearch#21\r\n    @ ~/.julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:345 [inlined]\r\n [21] invokelatest(::Any, ::Any, ::Vararg{Any}; kwargs::Base.Pairs{Symbol, Any, NTuple{8, Symbol}, NamedTuple{(:weights, :niterations, :varMap, :options, :numprocs, :parallelism, :saved_state, :addprocs_function), Tuple{Nothing, Int64, Vector{String}, Options{L2DistLoss, Int64, 0.86, 10}, Nothing, String, Nothing, Nothing}}})\r\n    @ Base ./essentials.jl:731\r\n [22] _pyjlwrap_call(f::Function, args_::Ptr{PyCall.PyObject_struct}, kw_::Ptr{PyCall.PyObject_struct})\r\n    @ PyCall ~/.julia/packages/PyCall/7a7w0/src/callback.jl:32\r\n [23] pyjlwrap_call(self_::Ptr{PyCall.PyObject_struct}, args_::Ptr{PyCall.PyObject_struct}, kw_::Ptr{PyCall.PyObject_struct})\r\n    @ PyCall ~/.julia/packages/PyCall/7a7w0/src/callback.jl:44>\r\n```",
+              "createdAt": "2022-12-13T17:40:47Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Recall that you edited your local copy to convert to BigFloats. Install pysr with `pip install -U pysr` to get the normal one back.",
+              "createdAt": "2022-12-13T17:54:36Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOUGyw5g=="
+          }
+        }
+      }
+    }
+  }
+}

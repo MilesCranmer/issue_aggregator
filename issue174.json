@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 174,
+        "title": "[BUG] Error executing example program on Ubuntu 20.04",
+        "body": "There is an error that prevents the execution of the example program.\r\n\r\n- OS: Ubuntu 20.04\r\n- Julia version 1.4.1\r\n- Python version 3.7.7\r\n- PySR version 0.9.5\r\n- Does the bug still appear with the latest version of PySR? YES\r\n\r\nThe code is the example provided in the README.md of the project. Copy and pasted. I've followed and redone all the installation steps a bunch of times and nothing... :(\r\n\r\nERROR:\r\n\r\n Activating environment at `~/.julia/environments/pysr-0.9.5/Project.toml`\r\n   Updating registry at `~/.julia/registries/General`\r\n   Updating git-repo `https://github.com/JuliaRegistries/General.git`\r\n  Resolving package versions...\r\njulia version requirement for package `SymbolicRegression [8254be44]` not satisfied\r\n   Updating `~/.julia/environments/pysr-0.9.5/Project.toml`\r\n [no changes]\r\n   Updating `~/.julia/environments/pysr-0.9.5/Manifest.toml`\r\n [no changes]\r\n  Resolving package versions...\r\njulia version requirement for package `SymbolicRegression [8254be44]` not satisfied\r\n   Updating `~/.julia/environments/pysr-0.9.5/Project.toml`\r\n [no changes]\r\n   Updating `~/.julia/environments/pysr-0.9.5/Manifest.toml`\r\n [no changes]\r\njulia version requirement for package `SymbolicRegression [8254be44]` not satisfied\r\n   Updating `~/.julia/environments/pysr-0.9.5/Project.toml`\r\n [no changes]\r\n   Updating `~/.julia/environments/pysr-0.9.5/Manifest.toml`\r\n [no changes]\r\n┌ Warning: the implicit keyword argument `filter_modules=(:Base, :SpecialFunctions, :NaNMath)` in `diffrules()` is deprecated and will be changed to `filter_modules=nothing` in an upcoming breaking release of DiffRules (i.e., `diffrules()` will return all rules defined in DiffRules)\r\n│   caller = top-level scope at number.jl:6\r\n└ @ Core ~/.julia/packages/Zygote/DkIUK/src/forward/number.jl:6\r\n┌ Warning: the implicit keyword argument `filter_modules=(:Base, :SpecialFunctions, :NaNMath)` in `diffrules()` is deprecated and will be changed to `filter_modules=nothing` in an upcoming breaking release of DiffRules (i.e., `diffrules()` will return all rules defined in DiffRules)\r\n│   caller = top-level scope at number.jl:14\r\n└ @ Core ~/.julia/packages/Zygote/DkIUK/src/forward/number.jl:14\r\nTraceback (most recent call last):\r\n  File \"/home/bonilla/Desktop/PythonProjects/PhysicsSystemDeepModeling/SR_PySR.py\", line 25, in <module>\r\n    model.fit(X, y)\r\n  File \"/home/bonilla/.local/lib/python3.7/site-packages/pysr/sr.py\", line 1607, in fit\r\n    return self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n  File \"/home/bonilla/.local/lib/python3.7/site-packages/pysr/sr.py\", line 1336, in _run\r\n    Main.eval(\"using SymbolicRegression\")\r\n  File \"/home/bonilla/.local/lib/python3.7/site-packages/julia/core.py\", line 621, in eval\r\n    ans = self._call(src)\r\n  File \"/home/bonilla/.local/lib/python3.7/site-packages/julia/core.py\", line 549, in _call\r\n    self.check_exception(src)\r\n  File \"/home/bonilla/.local/lib/python3.7/site-packages/julia/core.py\", line 604, in check_exception\r\n    .format(exception, src))\r\njulia.core.JuliaError: Exception 'LoadError: LoadError: LoadError: LoadError: syntax: invalid keyword argument syntax \"Fs\"\r\nin expression starting at /home/bonilla/.julia/packages/SymbolicUtils/qulQp/src/polyform.jl:124\r\nin expression starting at /home/bonilla/.julia/packages/SymbolicUtils/qulQp/src/SymbolicUtils.jl:49\r\nin expression starting at /home/bonilla/.julia/packages/SymbolicRegression/LG35p/src/InterfaceSymbolicUtils.jl:3\r\nin expression starting at /home/bonilla/.julia/packages/SymbolicRegression/LG35p/src/SymbolicRegression.jl:103' occurred while calling julia code:\r\nusing SymbolicRegression\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Your Julia version is out-of-date - it should be 1.6 or higher for PySR to work I think.",
+              "createdAt": "2022-08-09T11:58:15Z"
+            },
+            {
+              "author":
+              {
+                "login": "diegobonilla98"
+              },
+              "body": "Yes! That worked. Thank you very much!",
+              "createdAt": "2022-08-10T14:46:18Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOSCsL1g=="
+          }
+        }
+      }
+    }
+  }
+}

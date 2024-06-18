@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 588,
+        "title": "[BUG]: Can't pickle greater: attribute lookup greater on __main__ failed",
+        "body": "### What happened?\n\nmodel.fit fails due to pickle error when using binary operator \"greater\".\r\n\r\nHere is a minimal example:\r\n```\r\nimport numpy as np\r\nfrom pysr import PySRRegressor\r\n\r\nif __name__ == \"__main__\":\r\n    x = np.random.uniform(-1, 1, size=100).reshape((50, 2))\r\n    y = x[:, 1] ** 2\r\n    model = PySRRegressor(\r\n        equation_file=\"symbreg/symbreg.csv\",\r\n        niterations=1,\r\n        binary_operators=[\"greater\"],\r\n        elementwise_loss=\"loss(prediction, target) = (prediction - target)^2\",\r\n    )\r\n    model.fit(x, y)\r\n```\r\n\r\nIf I replace \"greater\" with \"cond\" then no error is thrown. I've tried on different datastets etc., but if 'greater' is used in an equation, then this error is thrown.\r\n\r\nPython=3.8\r\npysr=0.17.2\n\n### Version\n\n0.17.2\n\n### Operating System\n\nLinux\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\nCompiling Julia backend...\r\n[ Info: Started!\r\n0.0%┣                                               ┫ 0/15 [00:00<00:00, -0s/it]Expressions evaluated per second: [.....]. Head worker occupation: 0.0%         Press 'q' and then <enter> to stop execution early.                             Hall of Fame:                                                                   ---------------------------------------------------------------------------------------------------                                                             Complexity  Loss       Score     Equation                                       1           8.819e-02  1.594e+01  y = 0.34869                                   ---------------------------------------------------------------------------------------------------\r\n20.0%┣█████████▏                                    ┫ 3/15 [00:00<00:01, 15it/s]Expressions evaluated per second: [.....]. Head worker occupation: 58.2%. This is high, and will prevent efficient resource usage. Increase `ncyclesperiteration` to reduce load on head worker.                                                Press 'q' and then <enter> to stop execution early.                             Hall of Fame:                                                                   ---------------------------------------------------------------------------------------------------                                                             Complexity  Loss       Score     Equation                                       1           8.819e-02  1.594e+01  y = 0.34869                                   9           6.944e-02  2.989e-02  y = greater(0.7405, greater(greater(0.7405, x₁), greater(-0.71...                                                                                               281, x₁)))                                    19          6.928e-02  2.238e-04  y = greater(greater(greater(greater(-0.40062, -1.2073), greate...                                                                                               r(x₀, x₀)), 0.7405), greater(greater(0.7405, greater(x₁, 0.695...                                                                                               09)), greater(-0.71281, x₁)))                 ---------------------------------------------------------------------------------------------------\r\nTraceback (most recent call last):\r\n  File \"/home/titus/PycharmProjects/train-procgen-pytorch/venv/lib/python3.8/site-packages/pysr/sr.py\", line 1112, in _checkpoint\r\n    pkl.dump(self, f)\r\n_pickle.PicklingError: Can't pickle greater: attribute lookup greater on __main__ failed\n```\n\n\n### Extra Info\n\nSomeone [here](https://www.pythonanywhere.com/forums/topic/27818/) fixed a similar issue with this help:\r\n\r\n> The problem is that you're trying to pickle an object from the module where it's defined. If you move the Nation class into a separate file and import it into your script, then it should work.\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "tbuckworth"
+              },
+              "body": "I updated to pysr==0.18.1, but the problem persists",
+              "createdAt": "2024-03-28T17:49:06Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "That is weird, it seems like `greater` is missing its sympy mapping:\r\n\r\nhttps://github.com/MilesCranmer/PySR/blob/09bfff6a4599244e2653cdebf70885c48ad9d864/pysr/export_sympy.py#L7-L57\r\n\r\nSo you could pass this to `extra_sympy_mappings` of the PySRRegressor, like\r\n\r\n```python\r\nextra_sympy_mappings={\"greater\": lambda x, y: sympy.Piecewise((1.0, x > y), (0.0, True))}\r\n```\r\n\r\nbut ideally we should have it built-in since `greater` is documented as an available operator.",
+              "createdAt": "2024-03-28T18:00:10Z"
+            },
+            {
+              "author":
+              {
+                "login": "tbuckworth"
+              },
+              "body": "Brilliant! That fixed it, thank you",
+              "createdAt": "2024-03-28T20:26:03Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOeMMkQw=="
+          }
+        }
+      }
+    }
+  }
+}

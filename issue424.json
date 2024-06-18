@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 424,
+        "title": "[BUG]: PySR runs well once and then stops after error",
+        "body": "### What happened?\n\nHello, \r\n\r\nI was trying to use PySR and I ran into a problem: I ran it once and the model was able to identify the equation correctly. However, after trying to run my code on other data, nothing happens but the code stops at the following error (see below) \r\n\r\nI am not sure if I am causing this problem or what the problem could be. I am running the code in Python 3.11.0 and Julia 1.8.5. If there is already an issue that would help, then sorry for posting the same question twice. I hope that you can help me in resolving this problem. \r\n\r\nBest wishes, \r\nBartosz\n\n### Version\n\n0.16.3\n\n### Operating System\n\nWindows\n\n### Package Manager\n\npip\n\n### Interface\n\nJupyter Notebook\n\n### Relevant log output\n\n```shell\nUserWarning                               Traceback (most recent call last)\r\nCell In[45], line 19\r\n      1 from pysr import PySRRegressor\r\n      3 model = PySRRegressor(\r\n      4     niterations=40,  # < Increase me for better results\r\n      5     binary_operators=[\"+\", \"*\", \"-\"],\r\n   (...)\r\n     17     progress=False\r\n     18 )\r\n---> 19 model.fit(x_train_ic,x_dot)\r\n\r\nFile ~\\Anaconda3\\envs\\tristan\\Lib\\site-packages\\pysr\\sr.py:1904, in PySRRegressor.fit(self, X, y, Xresampled, weights, variable_names, X_units, y_units)\r\n   1900 seed = random_state.get_state()[1][0]  # For julia random\r\n   1902 self._setup_equation_file()\r\n-> 1904 mutated_params = self._validate_and_set_init_params()\r\n   1906 (\r\n   1907     X,\r\n   1908     y,\r\n   (...)\r\n   1915     X, y, Xresampled, weights, variable_names, X_units, y_units\r\n   1916 )\r\n   1918 if X.shape[0] > 10000 and not self.batching:\r\n\r\nFile ~\\Anaconda3\\envs\\tristan\\Lib\\site-packages\\pysr\\sr.py:1346, in PySRRegressor._validate_and_set_init_params(self)\r\n   1344         parameter_value = 1\r\n   1345     elif parameter == \"progress\" and not buffer_available:\r\n-> 1346         warnings.warn(\r\n   1347             \"Note: it looks like you are running in Jupyter. \"\r\n   1348             \"The progress bar will be turned off.\"\r\n   1349         )\r\n   1350         parameter_value = False\r\n   1351 packed_modified_params[parameter] = parameter_value\r\n\r\nUserWarning: Note: it looks like you are running in Jupyter. The progress bar will be turned off.\n```\n\n\n### Extra Info\n\nThis the minimal example, the x_train_ic is just a time series and x_dot the derivatives of it.\r\n```\r\nfrom pysr import PySRRegressor\r\n\r\nmodel = PySRRegressor(\r\n    niterations=40,  # < Increase me for better results\r\n    binary_operators=[\"+\", \"*\", \"-\"],\r\n    #unary_operators=[\r\n    #    \"cos\",\r\n    #    \"exp\",\r\n    #    \"sin\",\r\n    #    \"inv(x) = 1/x\",\r\n        # ^ Custom operator (julia syntax)\r\n    #],\r\n    #extra_sympy_mappings={\"inv\": lambda x: 1 / x},\r\n    # ^ Define operator for SymPy as well\r\n    loss=\"loss(prediction, target) = (prediction - target)^2\",\r\n    # ^ Custom loss function (julia syntax)\r\n    progress=False\r\n)\r\nmodel.fit(x_train_ic,x_dot)\r\n```",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "When you say run it a second time what do you mean? Could you paste the entire example both runs?\r\n\r\nAlso it doesn’t look like there’s an error here. Is the code maybe still running but just running very slowly? You could see if it is still using the CPU in the task manager for example, or if it actually exited.",
+              "createdAt": "2023-09-13T18:34:50Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOZmiMnQ=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 155,
+        "title": "[Feature] LaTeX table generator ",
+        "body": "Something I often do when using PySR in papers is create a table of all generated equations with their complexities and losses. \r\n\r\nIt would be great if PySR had a feature to do this automatically, with some desired precision of constants, and some sub-selection of equations. \r\n\r\n(It would also be nice if PySR could automatically generate plots of predicted vs true for some subselection of equations.)",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

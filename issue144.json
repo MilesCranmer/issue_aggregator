@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 144,
+        "title": "[BUG] Print statements not appearing in Google Colab",
+        "body": "Printing doesn't work from the Julia side in Google colab. This is fixable with a redirect of `stdout` - I think this can be automatically fixed with this: https://github.com/JuliaPy/pyjulia/issues/498.\r\n\r\nThere's a comment in the redirection function that says ```Invoking `redirect_output_streams()` in terminal IPython terminates the whole Python process```, so the library should be careful about having this automatically configured.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Manually fixed in the jupyter notebook. For a general fix this should be automatically done in PyJulia.",
+              "createdAt": "2022-06-04T20:02:55Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHORFjpVQ=="
+          }
+        }
+      }
+    }
+  }
+}

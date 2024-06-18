@@ -1,0 +1,73 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 30,
+        "title": "Hall of fame files are cluttering up my directories",
+        "body": "Can there be an option to not save the results to disk? Generally saving results to disk is a thing I prefer to be in charge of myself, e.g. using Sacred or similar.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Great question; I should add a temporary file option. Note generally you can set the filename of this csv file to whatever you like with the `equation_file` argument (overwrites by default). Here are some notes on this behaviour:\r\n\r\n- I completely de-couple Python and Julia. Their only communication is via writing files to disk. This is because I found that PyJulia made distributed compute difficult to set up (and perhaps impossible for multi-node), so instead I just have Python basically meta-program a SymbolicRegression.jl program and run Julia on it. (also much easier to sort out `PATH` issues this way).\r\n- Because of this, the Python actually requires the hall of fame csv file to read back the best equations from Julia.\r\n- For all temporary files other than the equations file, I write to a temp directory that is deleted at the end of training (can turn this off with `delete_tempfiles=False`). This is made system independent with the `tempfile` module.\r\n\r\nHowever, for the hall of fame file, I use the current directory by default, and append the datetime so there is a new file for each run. But one can manually set the location with eg `equation_file=\"equations.csv\"`. This will overwrite whatever file is there. You could use Sacred on that filename, maybe?\r\n\r\nSo that's one option. The other option, which I don't have yet, is to make an optional flag to just put the equations file into the same temporary directory so it gets deleted after training.\r\n\r\nThoughts?\r\nCheers,\r\nMiles",
+              "createdAt": "2021-02-23T22:27:55Z"
+            },
+            {
+              "author":
+              {
+                "login": "patrick-kidger"
+              },
+              "body": "Ah, I see; in particular the Python-Julia interop. (Which sounds like no fun at all, I don't envy you.) I think my preferred option would be for a flag that puts the optional file in the same temporary directory.",
+              "createdAt": "2021-02-23T22:33:11Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Sounds good, will add it!",
+              "createdAt": "2021-02-23T22:33:46Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Okay, pushed to master! Will update PyPI soon. Setting `temp_equation_file=True` will now put the hall of fame file into the temporary directory. It will be deleted by default, or you can choose to keep the temp directory with `delete_tempfiles=False`.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2021-02-23T23:01:31Z"
+            },
+            {
+              "author":
+              {
+                "login": "patrick-kidger"
+              },
+              "body": "That was fast! First class support, right there. :D",
+              "createdAt": "2021-02-23T23:03:49Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks! 😄 🚀",
+              "createdAt": "2021-02-23T23:08:07Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOLsO2Og=="
+          }
+        }
+      }
+    }
+  }
+}

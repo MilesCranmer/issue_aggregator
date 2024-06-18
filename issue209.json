@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 209,
+        "title": "Bounding the output function from PySR",
+        "body": "Although I am successfully getting a function for our data - as expected - is there any way I could get an inequality for our data as an output of PySR, as well? Meaning, is there anyway I could bound the data …? E.g. if expected value calculated is <X, then satisfied, otherwise, not.\r\n\r\n\r\nBest,\r\nKhansolo9\r\n\r\nP.S. thoroughly enjoy using this software!",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

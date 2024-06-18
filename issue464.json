@@ -1,0 +1,65 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 464,
+        "title": "Understanding accuracy of expressions",
+        "body": "hello！\r\nIn my recent research, I used pysr to do some symbolic regression tasks. I found that pysr 's loss is even smaller than ANN in some cases. How can I explain this magic of pysr ? Why is the result of low-dimensional expressions better than high-dimensional networks ?\r\nThanks！",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @prozhuyi,\r\n\r\nThanks for this. Yes I also find sometimes symbolic expressions beat neural nets for specific problems. It really has to do with priors over the space of functions. When you train a neural net, there is an implicit prior that the function will be smooth and other properties.\r\n\r\n Symbolic regression imposes a different prior over the space of functions. Sometimes you will have that this prior is superior to the neural net prior, especially if the operators you are using are an efficient basis for describing your field.\r\n\r\ncheers,\r\nMiles",
+              "createdAt": "2023-11-14T08:24:23Z"
+            },
+            {
+              "author":
+              {
+                "login": "zhuyi-bjut"
+              },
+              "body": "I seem to understand ! Thank you for your answer！",
+              "createdAt": "2023-11-14T08:29:11Z"
+            },
+            {
+              "author":
+              {
+                "login": "zhuyi-bjut"
+              },
+              "body": "hello Miles @MilesCranmer \r\n\r\nI recently had another question, which is the ' score ' given by pysr. How is this ' score ' obtained ? Is it obtained by this step ? \r\n               \r\n               `if lastMSE is None:\r\n                    cur_score = 0.0\r\n                else:\r\n                    if curMSE > 0.0:\r\n                        # TODO Move this to more obvious function/file.\r\n                        cur_score = -np.log(curMSE / lastMSE) / (curComplexity - lastComplexity)\r\n                    else:\r\n                        cur_score = np.inf`\r\n\r\nand what is its significance ?\r\nthanks again！\r\n\r\n",
+              "createdAt": "2023-11-16T15:00:00Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Yes, that is the score. It basically is a heuristic that looks for sharp decreases in loss when increasing complexity (traditional metric for \"best\" equation in SR). There are more details on this in the PySR paper: https://arxiv.org/abs/2305.01582",
+              "createdAt": "2023-11-16T22:51:41Z"
+            },
+            {
+              "author":
+              {
+                "login": "tanweer-mahdi"
+              },
+              "body": "Hi @MilesCranmer ,\r\n\r\nIt is a very interesting discussion. Just elaborating your answer a little more and correct me if I am wrong:\r\n\r\nThe ANN assumes a prior over the space of smooth (and other properties) functions whereas Symbolic Regression can allow non-smooth functions as well, which sometimes can be a more suitable prior for a particular problem. \r\n\r\nIs the above statement correct? ",
+              "createdAt": "2023-11-26T23:02:36Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHObOS-0Q=="
+          }
+        }
+      }
+    }
+  }
+}

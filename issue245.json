@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 245,
+        "title": "[BUG] Pickling error on use of ReLU",
+        "body": "I see this error when I try to use the ReLU operator:\r\n```\r\nPicklingError: Can't pickle relu: attribute lookup relu on __main__ failed\r\n```\r\n\r\nseems like it's implemented in a way that can't be pickled. Should be an easy fix.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Looks like `max` and `min` also aren't implemented in the default dictionaries?",
+              "createdAt": "2023-01-05T21:11:20Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Sorry this took me so long to get around to. Fixed with #486 ",
+              "createdAt": "2023-12-14T18:46:00Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHObqZlVA=="
+          }
+        }
+      }
+    }
+  }
+}

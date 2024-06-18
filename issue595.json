@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 595,
+        "title": "[Feature] Should warn if populations < procs",
+        "body": "Sometimes users use fewer populations than processes available. Would be good to warn them if this occurs.",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

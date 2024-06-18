@@ -1,0 +1,81 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 332,
+        "title": "[BUG]: got error:Process finished with exit code -1073741819 （0xC0000005）",
+        "body": "### What happened?\n\nHi, I have successfully installed pysr.But when i run the demo in README, i got an error:\n\n### Version\n\n0.12.3\n\n### Operating System\n\nWindows\n\n### Package Manager\n\nConda\n\n### Interface\n\nOther (specify below)\n\n### Relevant log output\n\n```shell\nprocess finished with exit code -1073741819 （0xC0000005）\n```\n\n\n### Extra Info\n\nI run the script on PyCharm. The script is as below:\r\nimport numpy as np\r\n\r\nX = 2 * np.random.randn(100, 5)\r\ny = 2.5382 * np.cos(X[:, 3]) + X[:, 0] ** 2 - 0.5\r\n\r\nfrom pysr import PySRRegressor\r\n\r\nmodel = PySRRegressor(\r\n    niterations=40,  # < Increase me for better results\r\n    binary_operators=[\"+\", \"*\"],\r\n    unary_operators=[\r\n        \"cos\",\r\n        \"exp\",\r\n        \"sin\",\r\n        \"inv(x) = 1/x\",\r\n        # ^ Custom operator (julia syntax)\r\n    ],\r\n    extra_sympy_mappings={\"inv\": lambda x: 1 / x},\r\n    # ^ Define operator for SymPy as well\r\n    loss=\"loss(prediction, target) = (prediction - target)^2\",\r\n    # ^ Custom loss function (julia syntax)\r\n)\r\n\r\nmodel.fit(X, y)\r\nprint(model)",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Did it finish running and then error? Or was the error before it even started? Are you able to repeat this each time you run?",
+              "createdAt": "2023-05-16T10:32:50Z"
+            },
+            {
+              "author":
+              {
+                "login": "leochen1234321"
+              },
+              "body": "> Did it finish running and then error? Or was the error before it even started? Are you able to repeat this each time you run?\r\n\r\nIt didn't finished and an error occurs. The script has started, it prints \"Started!\". I can repeat the error every time i run the script. ",
+              "createdAt": "2023-05-16T10:52:00Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks. Can you tell me the output of the following command (ran in terminal)?\r\n\r\n```bash\r\njulia -e 'import InteractiveUtils as IU; IU.versioninfo()'\r\n```\r\nthis will give me info about your Julia version and install.",
+              "createdAt": "2023-05-16T11:03:03Z"
+            },
+            {
+              "author":
+              {
+                "login": "leochen1234321"
+              },
+              "body": "> Thanks. Can you tell me the output of the following command (ran in terminal)?\r\n> \r\n> ```shell\r\n> julia -e 'import InteractiveUtils as IU; IU.versioninfo()'\r\n> ```\r\n> \r\n> this will give me info about your Julia version and install.\r\nI got this:\r\nJulia Version 1.7.3\r\nCommit 742b9abb4d (2022-05-06 12:58 UTC)\r\nPlatform Info:\r\nOS: Windows (x86_64-w64-mingw32)\r\nCPU: Intel(R) Xeon(R) W-1250 CPU @ 3.30GHz\r\nWORD_SIZE: 64\r\nLIBM: libopenlibm\r\nLLVM: libLLVM-12.0.1 (ORCJIT, skylake)\r\n",
+              "createdAt": "2023-05-16T11:10:57Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks. Your Julia version is 1.7.3 which I have noted to be a bit unstable on Windows with PyJulia. Could you perhaps upgrade to Julia 1.9.0 (the latest version)? I have observed much greater stability in the unit tests on Windows with recent versions.\r\n\r\nIf your package manager version's latest is 1.7.3, then I recommend using juliaup to install Julia: https://github.com/JuliaLang/juliaup",
+              "createdAt": "2023-05-16T11:12:56Z"
+            },
+            {
+              "author":
+              {
+                "login": "leochen1234321"
+              },
+              "body": "> Thanks. Your Julia version is 1.7.3 which I have noted to be a bit unstable on Windows with PyJulia. Could you perhaps upgrade to Julia 1.9.0 (the latest version)? I have observed much greater stability in the unit tests on Windows with recent versions.\r\n> \r\n> If your package manager version's latest is 1.7.3, then I recommend using juliaup to install Julia: https://github.com/JuliaLang/juliaup\r\n\r\n Thanks.  I use the latest version Julia 1.9.0. It works for me now.",
+              "createdAt": "2023-05-17T11:28:29Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Awesome to hear!",
+              "createdAt": "2023-05-17T12:26:26Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOXHb14A=="
+          }
+        }
+      }
+    }
+  }
+}

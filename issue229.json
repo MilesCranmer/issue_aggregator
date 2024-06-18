@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 229,
+        "title": "[Feature] Install with CLI",
+        "body": "Right now you install SymbolicRegression.jl using `python -c 'import pysr; pysr.install()'`. However, this is a bit of spooky action at a distance, because you can't quite be sure which `pysr` is actually being called. Thus, it would be great if there was a CLI, similar to how testing is done with `python -m pysr.test main`. For example:\r\n\r\n```bash\r\npython -m pysr.install\r\n```\r\n\r\nIf anybody wants to add this, I'd be more than happy to accept a PR!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "w2ll2am"
+              },
+              "body": "Hey, I'm new to this project and community but it looks like a fantastic tool with a huge range of applications! I'm a software engineer with an academic background in Physics and DS/ML. I'm looking to try and make a first contribution to your open source project, and this issue seems like a good contender. \r\n\r\nI just wanted to clarify that the issue involves implementing the following:\r\n1. Create a script that runs `pysr.install()` when  `python -m pysr.install` is run in the console.\r\n2. Create an appropriate test to cover this script.\r\n\r\nPlease do let me know if I've got the right idea to begin working on the issue!",
+              "createdAt": "2023-04-18T16:28:58Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @w2ll2am,\r\n\r\nThanks so much for offering to work on this, sounds great! I confirm your suggested steps, although, thinking about it now, perhaps it might be better to have the CLI be `python -m pysr install` (space rather than dot). You will likely want to add a `__main__.py` file to the source folder, maybe with a [`click`-based CLI](https://click.palletsprojects.com/en/8.1.x/). The CLI options could be the same as the arguments to the `pysr.install()` command.\r\n\r\nCheers!\r\nMiles",
+              "createdAt": "2023-04-18T17:03:06Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Fixed from #298 ",
+              "createdAt": "2023-07-27T19:05:53Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOYpoBtw=="
+          }
+        }
+      }
+    }
+  }
+}

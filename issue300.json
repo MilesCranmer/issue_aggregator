@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 300,
+        "title": "[Feature]: Plotting utilities",
+        "body": "### Feature Request\r\n\r\nIt would be useful to have some default plot utilities. These could go into `pysr.contrib.plot`, and could have different user-contributed plotting scripts. \r\n\r\nOne I usually like to do is error vs complexity, with a log scale for both. I then label a few select points with LaTeX'd equations. It would be cool if there was a utility function to do this automatically.\r\n\r\nIf anybody is interested in adding some plotting utils, I would warmly welcome a PR!\r\n\r\nSlightly related to #126 although that one is specifically automatic plotting. This one would be optional.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "w2ll2am"
+              },
+              "body": "I would be interested in helping add this. Do you have a preference of how this might be implemented E.g. specific colour maps in seaborn, only using pure MatPlotLib? \r\n\r\nAlso I just to clarify I would start by adding two graphs initially:\r\n1. The data plotted on the same graph as the fitted function. As described in [#126](https://github.com/MilesCranmer/PySR/issues/126). If so how best could I plot multiple independent variables for a given funciton?   \r\n2. Error vs complexity with a log scale of the symbolic regression. Equations for significant points added as labels to the points e.g. minimum error. ",
+              "createdAt": "2023-10-31T11:50:17Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I think both of these are good ideas! I wonder if it could actually be done interactively, rather than statically? Sort of like Eureqa used to do before it became proprietary:\r\n![IMG_0240](https://github.com/MilesCranmer/PySR/assets/7593028/3e595cbf-207e-4f0f-b2af-2f3eea9101d3)\r\n\r\nNot the whole interface obviously, but maybe different equations plotted together, which would let you highlight their predictions by clicking them? Would be nice to have it JavaScript based (like plotly.js) so it’s universally compatible.",
+              "createdAt": "2023-11-12T14:41:11Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOa7bh9Q=="
+          }
+        }
+      }
+    }
+  }
+}

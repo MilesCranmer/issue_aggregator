@@ -1,0 +1,57 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 151,
+        "title": "[Feature] Thresholding numerical constants",
+        "body": "First off, thanks for a really great package! I'm definitely a fan of this for many reasons, but a nice transparent package to suggest an interpretable model instead of a blackbox? Instant fan!\r\n\r\n**Is your feature request related to a problem? Please describe.**\r\nIn my current attempts to use PySR, I mostly use inputs which are already dimensionless so that numerical values in models should probably near unity (unless there's an interesting factor I've missed, which is always a possibility). \r\n\r\nFor example, in a particular test case, I am finding a suggested model of \r\n\r\n> '2.5387976 \\\\cdot 10^{-9} x_{1} + \\\\frac{0.00049017137 x_{1}}{x_{0}}'\r\n\r\nwhereas the correct model would have been\r\n\r\n>'\\\\frac{0.0005 x_{1}}{x_{0}}'\r\n\r\nI understand that I can always take this suggested model and do optimization to find the coefficients a bit more clearly after the fact.\r\n\r\n**Describe the solution you'd like**\r\nA more preferable approach would be the ability to add conditions for constants so that they are dropped out by thresholding. More specifically, I'm imagining an option to add a threshold for the magnitude of the constants so that constants which are below the threshold are dropped or zero-ed out after each iteration (or cycle per iteration?).\r\n\r\nIn the test above, then the term with the constant '2.5387976 \\\\cdot 10^{-9}' would get dropped and the resulting suggested model would look like\r\n\r\n > ' \\\\frac{0.00049017137 x_{1}}{x_{0}}'\r\n\r\n**Additional context**\r\nI thinking about this in the way that SINDy and its variants have something like sequential thresholding, or in these cases where a user might have already pre-processed the data so that a model which is probably correct would have constants near unity.\r\n\r\nThanks in advance!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @iamcalvinlau,\r\n\r\nThanks for the interesting question, and happy to hear you are enjoying the package! This is not built-in, but here is one suggestion. This line of the backend code: \r\nhttps://github.com/MilesCranmer/SymbolicRegression.jl/blob/a9e696d513a791f48b18389f5e23830d90d32414/src/EvaluateEquation.jl#L145-L149 evaluates a leaf node and returns an array containing the value. This leaf node could be a constant (`if tree.constant`) or variable.\r\n\r\nYou could basically tweak the constant line to constrain the constant value to be close to unity. For example:\r\n\r\n```julia\r\n    if tree.constant\r\n        original_constant = tree.val\r\n        adjusted_constant = 1 + 0.1 * tanh(original_constant)\r\n        return (fill(convert(T, adjusted_constant), n), true)\r\n    else\r\n        return (cX[tree.feature, :], true)\r\n    end\r\n```\r\n\r\nSo, I have made it so that the constant is always between 0.9 and 1.1, by passing it through the tanh function (which is built-in).\r\n\r\nThen, give PySR the argument `julia_project=\"<location of .../SymbolicRegression.jl/ >` to point to your custom backend.\r\n\r\nYou also need to modify this line: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/a9e696d513a791f48b18389f5e23830d90d32414/src/Equation.jl#L155\r\nwith the same transform to `tree.val`, so that it gives the correct equation back to PySR (and prints it correctly!).\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2022-06-15T00:10:59Z"
+            },
+            {
+              "author":
+              {
+                "login": "iamcalvinlau"
+              },
+              "body": "Hi Miles,\r\n\r\nThanks for the suggestions!\r\n\r\nI ended up doing something like this (tied to parsimony because I was ~~lazy~~ being efficient, and shown here in case anyone wants to see the ugly way I did it) \r\n\r\n(EvaluateEquation.jl)    \r\n\r\n```\r\n        n_sigdigits = round(Int, 1-log10(options.parsimony))\r\n        adjusted_constant = round(original_constant, sigdigits=n_sigdigits)\r\n        threshold = options.parsimony * 1e-2\r\n        if( abs(original_constant) < threshold )\r\n                adjusted_constant = 0.0\r\n        end\r\n        return (fill(convert(T, adjusted_constant), n), true)\r\n```\r\n\r\n(Equation.jl)\r\n```\r\n            original_constant = tree.val\r\n            n_sigdigits = round(Int, 1-log10(options.parsimony))\r\n            adjusted_constant = round(original_constant, sigdigits=n_sigdigits)\r\n            threshold = options.parsimony * 1e-2\r\n            if( abs(original_constant) < threshold )\r\n                adjusted_constant = 0.0\r\n            end\r\n            return string(adjusted_constant)\r\n```\r\n\r\nIn the end, I was getting nicely printed equations of the right form, but I also realized that it was counting the complexity of the terms with coefficients of zero value. \r\n\r\nMore specifically, I was finding equations of the form\r\n\r\n>'0.0 x_{1} + \\frac{0.000490 x_{1}}{x_{0}}'\r\n\r\nbut it was still counting that first term on the left term as part of the overall complexity.\r\n\r\nSorry for the add-on question, but do you have a suggestion on how to make the complexity calculation not take those terms into account?\r\n\r\nThanks!\r\n--Calvin",
+              "createdAt": "2022-06-15T18:00:18Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi Calvin,\r\n\r\nGreat that you got it to work!\r\n\r\nRegarding not counting 0's, here are two hacks:\r\n\r\n1. Complexity is computed by this function: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/a9e696d513a791f48b18389f5e23830d90d32414/src/EquationUtils.jl#L76. You want to tweak it to not count a constant if it is 0 by changing this line:\r\nhttps://github.com/MilesCranmer/SymbolicRegression.jl/blob/a9e696d513a791f48b18389f5e23830d90d32414/src/EquationUtils.jl#L89\r\nto return `0` if `tree.val` (or your processed version of `tree.val`) is 0. \r\n2. You could add something in `simplify_tree` (https://github.com/MilesCranmer/SymbolicRegression.jl/blob/a9e696d513a791f48b18389f5e23830d90d32414/src/SimplifyEquation.jl#L96) to automatically delete part of a tree if it is `0.0` multiplied by something. This requires a bit of work though.\r\n\r\n\r\nHowever, in general, if you run it long enough and with enough `populations`, it should automatically get rid of terms which don't improve the accuracy of an expression. So you shouldn't in principle need either of these options.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2022-06-15T22:17:53Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "(`options.complexity_mapping.constant_complexity` is by default 1, but you could re-define it with `complexity_of_constants=...` passed to PySR)",
+              "createdAt": "2022-06-15T22:20:08Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHORPaK1g=="
+          }
+        }
+      }
+    }
+  }
+}

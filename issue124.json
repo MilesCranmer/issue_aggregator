@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 124,
+        "title": "[Feature] Differential Operators",
+        "body": "This will be primarily tracked in the SymbolicRegression.jl repo: https://github.com/MilesCranmer/SymbolicRegression.jl/issues/89.\r\n\r\nI think the PySR frontend would need to use a map from variable name to differential operator, so that a user could pass a pandas array with column names, and specify the differential operators using the same names.\r\n\r\nThis could look like, for example: `unary_operators=[\"Dx(1)\", \"Dx(2)\"]` to specify differential operators with respect to `x1` and `x2`, respectively.",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

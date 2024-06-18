@@ -1,0 +1,57 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 207,
+        "title": "[BUG] *Installation difficulties on Windows 10, Py3.9*",
+        "body": "**Describe the bug**\r\n\r\nFacing issues while installing pysr through \r\n\r\nimport pysr\r\npysr.install()\r\n\r\n**julia.tools.PyCallInstallError: Precompiling PyCall failed.**\r\nFatal Python error: init_import_size: Failed to import the site module\r\n\r\n**Version (please include the following information):**\r\n- OS: Windows (x86_64-w64-mingw32)\r\n      Microsoft Windows [Version 10.0.19042.2130]\r\n- Julia version: Version 1.8.2 (2022-09-29)\r\n- Python version: Python 3.9.13\r\n- PySR version: (0.11.4)\r\n- Does the bug still appear with the latest version of PySR?: Yes\r\n\r\n**Configuration**\r\n- What are your PySR settings? \r\n- What dataset are you running on?: No dataset\r\n- If possible, please share a minimal code example that produces the error.\r\n\r\n**Error message**\r\n```\r\nJulia Version 1.8.2\r\nCommit 36034abf26 (2022-09-29 15:21 UTC)\r\nPlatform Info:\r\n  OS: Windows (x86_64-w64-mingw32)\r\n      Microsoft Windows [Version 10.0.19042.2130]\r\n  CPU: Intel(R) Core(TM) i7-8850H CPU @ 2.60GHz:\r\n                 speed         user         nice          sys         idle          irq\r\n       #1-12  2592 MHz   10071994            0      7263058    161157713       326495  ticks\r\n  Memory: 15.723960876464844 GB (6015.3671875 MB free)\r\n  Uptime: 14874.625 sec\r\n  Load Avg:  0.0  0.0  0.0\r\n  WORD_SIZE: 64\r\n  LIBM: libopenlibm\r\n  LLVM: libLLVM-13.0.1 (ORCJIT, skylake)\r\n  Threads: 1 on 12 virtual cores\r\nEnvironment:\r\n  JULIA_PROJECT = @pysr-0.11.4\r\n  HOMEDRIVE = C:\r\n  HOMEPATH = \\Users\\nakk116\r\n  PATH = C:\\JCP\\symreg\\Scripts;C:\\Program Files (x86)\\Google\\Chrome\\Application;C:\\windows\\system32;C:\\windows;C:\\windows\\System32\\Wbem;C:\\windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\windows\\System32\\OpenSSH\\;C:\\Program Files (x86)\\DVC (Data Version Control);C:\\Program Files\\Git\\cmd;C:\\Users\\nakk116\\AppData\\Local\\Microsoft\\WindowsApps;;C:\\Users\\nakk116\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Users\\nakk116\\AppData\\Local\\Programs\\Julia-1.8.2\\bin\r\n  PATHEXT = .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC\r\n  PSMODULEPATH = C:\\Program Files\\WindowsPowerShell\\Modules;C:\\windows\\system32\\WindowsPowerShell\\v1.0\\Modules\r\n│    ArgumentError: Package PyCall [438e738f-606a-5dbb-bf0a-cddfbfd45ab0] is required but does not seem to be installed:\r\n│     - Run `Pkg.instantiate()` to install all recorded dependencies.\r\n│ \r\n│    Stacktrace:\r\n│     [1] _require(pkg::Base.PkgId)\r\n│       @ Base .\\loading.jl:1306\r\n│     [2] _require_prelocked(uuidkey::Base.PkgId)\r\n│       @ Base .\\loading.jl:1200\r\n│     [3] macro expansion\r\n│       @ .\\lock.jl:223 [inlined]\r\n│     [4] require(uuidkey::Base.PkgId)\r\n│       @ Base .\\loading.jl:1195\r\n│     [5] top-level scope\r\n│       @ C:\\JCP\\symreg\\Lib\\site-packages\\julia\\install.jl:36\r\n│     [6] include(mod::Module, _path::String)\r\n│       @ Base .\\Base.jl:419\r\n│     [7] exec_options(opts::Base.JLOptions)\r\n│       @ Base .\\client.jl:303\r\n│     [8] _start()\r\n│       @ Base .\\client.jl:522\r\n└ @ Main C:\\JCP\\symreg\\Lib\\site-packages\\julia\\install.jl:38\r\n[ Info: Installing PyCall...\r\n  Installing known registries into `C:\\Users\\nakk116\\.julia`\r\n    Updating registry at `C:\\Users\\nakk116\\.julia\\registries\\General.toml`\r\n   Resolving package versions...\r\n   Installed Parsers ──────── v2.4.2\r\n   Installed VersionParsing ─ v1.3.0\r\n   Installed Conda ────────── v1.7.0\r\n   ...\r\n  [83775a58] + Zlib_jll v1.2.12+3\r\n  [8e850b90] + libblastrampoline_jll v5.1.1+0\r\n  [8e850ede] + nghttp2_jll v1.48.0+0\r\n    Building Conda ─→ `C:\\Users\\nakk116\\.julia\\scratchspaces\\44cfe95a-1eb2-52ea-b672-e2afdf69b78f\\6e47d11ea2776bc5627421d59cdcc1296c058071\\build.log`\r\n    Building PyCall → `C:\\Users\\nakk116\\.julia\\scratchspaces\\44cfe95a-1eb2-52ea-b672-e2afdf69b78f\\53b8b07b721b77144a0fbbbc2675222ebf40a02d\\build.log`\r\nPrecompiling project...\r\n  8 dependencies successfully precompiled in 8 seconds. 4 already precompiled.\r\n\r\n**Precompiling PyCall...\r\nFatal Python error: init_import_size: Failed to import the site module**\r\nPython runtime state: initialized\r\nTraceback (most recent call last):\r\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.9_3.9.3568.0_x64__qbz5n2kfra8p0\\lib\\site.py\", line 73, in <module>\r\n    import os\r\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.9_3.9.3568.0_x64__qbz5n2kfra8p0\\lib\\os.py\", line 29, in <module>  \r\n    from _collections_abc import _check_methods\r\n  File \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.9_3.9.3568.0_x64__qbz5n2kfra8p0\\lib\\_collections_abc.py\", line 12, in <module>\r\n    GenericAlias = type(list[int])\r\nTypeError: 'type' object is not subscriptable\r\nTraceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\n  File \"C:\\JCP\\symreg\\lib\\site-packages\\pysr\\julia_helpers.py\", line 78, in install\r\n    julia.install(quiet=quiet)\r\n  File \"C:\\JCP\\symreg\\lib\\site-packages\\julia\\tools.py\", line 127, in install\r\n    raise PyCallInstallError(\"Precompiling\")\r\njulia.tools.PyCallInstallError: Precompiling PyCall failed.\r\n```\r\n** Important information from Julia may be printed before Python's Traceback **\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Are you installing from pip or conda?  (My guess is pip?)",
+              "createdAt": "2022-10-18T22:25:52Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Do you see this error anywhere else? It doesn't look like it is caused by PySR, but from some issue with your Python environment. See https://stackoverflow.com/q/65670259/2689923\r\n\r\nSee this section of the errror:\r\n```\r\natal Python error: init_import_size: Failed to import the site module\r\nPython runtime state: initialized\r\nTraceback (most recent call last):\r\nFile \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.9_3.9.3568.0_x64__qbz5n2kfra8p0\\lib\\site.py\", line 73, in\r\nimport os\r\nFile \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.9_3.9.3568.0_x64__qbz5n2kfra8p0\\lib\\os.py\", line 29, in\r\nfrom _collections_abc import _check_methods\r\nFile \"C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.9_3.9.3568.0_x64__qbz5n2kfra8p0\\lib_collections_abc.py\", line 12, in\r\nGenericAlias = type(list[int])\r\nTypeError: 'type' object is not subscriptable\r\n```\r\nLooks like this part of the Python install is broken?",
+              "createdAt": "2022-10-18T22:29:22Z"
+            },
+            {
+              "author":
+              {
+                "login": "J-You"
+              },
+              "body": "Hi, @ganatma , this error can also be reproduced on my windows system. could you pls tell me how do you fix it?",
+              "createdAt": "2023-11-17T01:23:00Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Presumably fixed by #535 ",
+              "createdAt": "2024-02-12T09:04:30Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOc4exmg=="
+          }
+        }
+      }
+    }
+  }
+}

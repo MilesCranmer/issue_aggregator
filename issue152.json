@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 152,
+        "title": "[BUG] *Error during installation step (python -c 'import pysr; pysr.install()' )",
+        "body": "**Describe the bug**\r\nWhen running the 3rd installation step for Windows: python -c \"import pysr; pysr.install()\",\r\nI get the error message sequence:\r\n\r\nTraceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\n  File \"C:\\Users\\jc_fe\\anaconda3\\lib\\site-packages\\pysr\\__init__.py\", line 2, in <module>\r\n    from .sr import (\r\n  File \"C:\\Users\\jc_fe\\anaconda3\\lib\\site-packages\\pysr\\sr.py\", line 16, in <module>\r\n    from sklearn.utils.validation import (\r\nImportError: cannot import name '_check_feature_names_in' from 'sklearn.utils.validation' (C:\\Users\\jc_fe\\anaconda3\\lib\\site-packages\\sklearn\\utils\\validation.py)\r\n\r\njc_fe is my user, of course.\r\n\r\nWhen checking the contents of validation.py I really can't find _check_feature_names_in  there.\r\nThe sr.py contains:\r\n   from sklearn.utils.validation import (\r\n       _check_feature_names_in,\r\n       check_is_fitted,\r\n   )\r\n\r\nand in validation.py I am able to find:\r\n    @_deprecate_positional_args\r\n    def check_is_fitted(estimator, attributes=None, *, msg=None, all_or_any=all):\r\n        \"\"\"Perform is_fitted validation for estimator.\r\nbut there is no reference to  _check_feature_names_in\r\n\r\n**Version (please complete the following information):**\r\n- OS: Windows\r\n- Version 11\r\n- Does the bug appear with the latest version of PySR? Yes, installed today\r\n\r\n**Configuration**\r\n- What are your PySR settings? No idea since this fails at installation - if I also try to run the simple example code shown for this project I get the same error\r\n- What dataset are you running on? This happens before any run.\r\n\r\n**Error message**\r\nSee traceback above; key error message is: \r\nImportError: cannot import name '_check_feature_names_in' from 'sklearn.utils.validation' (C:\\Users\\jc_fe\\anaconda3\\lib\\site-packages\\sklearn\\utils\\validation.py)\r\n\r\nIf the error is \"Couldn't find equation file...\", this error indicates something\r\nwent wrong with the backend. Please scroll up and copy \r\nthe output of Julia, rather than the output of python.\r\n\r\n**Additional context**\r\nI just followed the (Windows) steps for the installation and as per above it fails on the third one.\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Update scikit-learn with: `pip install -U scikit-learn`. That function was only added for sklearn > 1.0",
+              "createdAt": "2022-06-22T23:15:52Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I just added `scikit-learn >= 1.0.0` to the pip requirements so this shouldn't appear for others in the future.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2022-06-23T01:15:53Z"
+            },
+            {
+              "author":
+              {
+                "login": "Carlos-Fernands"
+              },
+              "body": "Thank you - upgrading sklearn to 1.1.1 fixed it\r\n",
+              "createdAt": "2022-06-23T10:15:36Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHORWS-qA=="
+          }
+        }
+      }
+    }
+  }
+}

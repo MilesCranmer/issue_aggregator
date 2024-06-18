@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 626,
+        "title": "Unable to run 2nd last cell",
+        "body": "<img width=\"482\" alt=\"issue\" src=\"https://github.com/MilesCranmer/PySR/assets/58954022/7d02af4f-866f-41ad-b318-7bf8fb404196\">\r\n\r\nI was trying to run this segment at the end. It first gave me a warning \"It seems you are running in jupyter......\". Then I skipped the warning and resumed it after which it gave me the error shown in the given figure. Can you please help me to solve this issue.\r\n\r\nThanks in advance\r\nShubham",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "`g_input` needs to be transposed ",
+              "createdAt": "2024-05-19T22:39:28Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOflM1IA=="
+          }
+        }
+      }
+    }
+  }
+}

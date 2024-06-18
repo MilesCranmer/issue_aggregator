@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 581,
+        "title": "[Feature]: TensorBoard support",
+        "body": "### Feature Request\n\nJust to track https://github.com/MilesCranmer/SymbolicRegression.jl/pull/277 on the PySR side. We can have another install on the Julia side in `pysr/julia_extensions.py` for TensorBoard and Wandb.",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

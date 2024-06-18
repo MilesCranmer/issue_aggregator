@@ -1,0 +1,209 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 201,
+        "title": "[BUG] conda version breaking",
+        "body": "Edit: If you are seeing issues with the conda version, try updating PySR with `conda update pysr`. The new version fixes an issue related to automatic updating of Julia packages.\r\n\r\n---\r\n\r\nThe conda-forge jobs which test `conda install -c conda-forge pysr` are currently breaking. This is even with repeat attempts: https://github.com/MilesCranmer/PySR/actions/workflows/CI_conda_forge.yml.\r\nThe error:\r\n```\r\nImportError: \r\n    Required dependencies are not installed or built.  Run the following code in the Python REPL:\r\n```\r\n\r\nI find this strange, since underlying feedstock has not changed in the meantime, and it seems like the julia feedstock hasn't been updated recently either. \r\n\r\nFYI @mkitti @ngam. I will try to look into this a bit later today. ",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Seems like I can install it locally just fine, so I guess it is specifically an issue with the CI? Perhaps the latest GitHub action for `miniforge` is doing something weird.",
+              "createdAt": "2022-10-07T23:08:59Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Tried with the regular miniconda install, and still seems broken. Here's the action log: https://github.com/MilesCranmer/PySR/actions/workflows/CI_conda_forge.yml\r\n\r\nand here's the GitHub action: https://github.com/MilesCranmer/PySR/blob/fix-conda-forge/.github/workflows/CI_conda_forge.yml.\r\n\r\nIt just runs `conda create -n test -c conda-forge pysr` but can't seem to locate the Julia deps... I'm not sure what's going wrong. ",
+              "createdAt": "2022-10-09T23:10:41Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "@mkitti @ngam does the conda install of PySR still work for you? It seemed to work when I tried it, but now I'm a bit suspicious that it was trying to use the existing Julia depot.",
+              "createdAt": "2022-10-09T23:14:30Z"
+            },
+            {
+              "author":
+              {
+                "login": "ngam"
+              },
+              "body": "When I run the stuff in your workflow file, it errors with this:\r\n\r\n```\r\nconda activate test && python -m unittest test.test && python -m unittest test.test_env\r\nE\r\n======================================================================\r\nERROR: test (unittest.loader._FailedTest)\r\n----------------------------------------------------------------------\r\nImportError: Failed to import test module: test\r\nTraceback (most recent call last):\r\n  File \"/home/ngam/.Mambaforge-Linux-x86_64/envs/test/lib/python3.10/unittest/loader.py\", line 154, in loadTestsFromName\r\n    module = __import__(module_name)\r\nModuleNotFoundError: No module named 'test.test'\r\n```\r\n\r\nbut `import pysr` works fine...",
+              "createdAt": "2022-10-09T23:34:50Z"
+            },
+            {
+              "author":
+              {
+                "login": "ngam"
+              },
+              "body": "I could reproduce now:\r\n\r\n```\r\n(test) ngam@m142:~$ python -c 'from pysr.sr import init_julia; init_julia()'\r\nWARNING: method definition for dpeekbyte at /home/ngam/.Mambaforge-Linux-x86_64/envs/test/share/pysr/depot/packages/Parsers/34hDN/src/utils.jl:199 declares type variable T but does not use it.\r\n(test) ngam@m142:~$ \r\n(test) ngam@m142:~$ python -c 'import numpy as np; from pysr import PySRRegressor; X = np.random.randn(100,1); y = X[:, 0]**3; PySRRegressor().fit(X, y).predict(X)'\r\nWARNING: method definition for dpeekbyte at /home/ngam/.Mambaforge-Linux-x86_64/envs/test/share/pysr/depot/packages/Parsers/34hDN/src/utils.jl:199 declares type variable T but does not use it.\r\n  Activating project at `~/.Mambaforge-Linux-x86_64/envs/test/share/pysr/depot/environments/pysr-0.11.2`\r\n     Cloning git-repo `https://github.com/MilesCranmer/SymbolicRegression.jl`\r\n     Cloning git-repo `https://github.com/JuliaParallel/ClusterManagers.jl`\r\n   Resolving package versions...\r\nTraceback (most recent call last):\r\n  File \"/home/ngam/.Mambaforge-Linux-x86_64/envs/test/lib/python3.10/site-packages/pysr/sr.py\", line 1465, in _run\r\n    _add_sr_to_julia_project(Main, io_arg)\r\n  File \"/home/ngam/.Mambaforge-Linux-x86_64/envs/test/lib/python3.10/site-packages/pysr/julia_helpers.py\", line 217, in _add_sr_to_julia_project\r\n    Main.eval(f\"Pkg.add([sr_spec, clustermanagers_spec], {io_arg})\")\r\n  File \"/home/ngam/.Mambaforge-Linux-x86_64/envs/test/lib/python3.10/site-packages/julia/core.py\", line 621, in eval\r\n    ans = self._call(src)\r\n  File \"/home/ngam/.Mambaforge-Linux-x86_64/envs/test/lib/python3.10/site-packages/julia/core.py\", line 549, in _call\r\n    self.check_exception(src)\r\n  File \"/home/ngam/.Mambaforge-Linux-x86_64/envs/test/lib/python3.10/site-packages/julia/core.py\", line 603, in check_exception\r\n    raise JuliaError(u'Exception \\'{}\\' occurred while calling julia code:\\n{}'\r\njulia.core.JuliaError: Exception 'expected package `GPUArraysCore [46192b85]` to be registered' occurred while calling julia code:\r\nPkg.add([sr_spec, clustermanagers_spec], io=stderr)\r\n\r\nThe above exception was the direct cause of the following exception:\r\n\r\nTraceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\n  File \"/home/ngam/.Mambaforge-Linux-x86_64/envs/test/lib/python3.10/site-packages/pysr/sr.py\", line 1745, in fit\r\n    self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n  File \"/home/ngam/.Mambaforge-Linux-x86_64/envs/test/lib/python3.10/site-packages/pysr/sr.py\", line 1468, in _run\r\n    raise ImportError(_import_error_string(julia_project)) from e\r\nImportError: \r\n    Required dependencies are not installed or built.  Run the following code in the Python REPL:\r\n\r\n        >>> import pysr\r\n        >>> pysr.install()\r\n    \r\n        Tried to activate project pysr-0.11.2 but failed.\r\n(test) ngam@m142:~$ \r\n\r\n```",
+              "createdAt": "2022-10-09T23:37:19Z"
+            },
+            {
+              "author":
+              {
+                "login": "ngam"
+              },
+              "body": "The only thing that changed in the past few days was updating to julia 1.8.2 ",
+              "createdAt": "2022-10-09T23:40:01Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "(I think the first error is because the `python -m unittest test.test` needs to be run from the root folder)\r\n\r\nThis other issue is interesting:\r\n```\r\njulia.core.JuliaError: Exception 'expected package `GPUArraysCore [46192b85]` to be registered' occurred while calling julia code:\r\n```\r\nIs this because the shipped depot doesn't contain this package, and an updated package version requests it?\r\n",
+              "createdAt": "2022-10-09T23:54:24Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I wonder if this is caused by PySR's default behavior being to update the Julia project... Maybe that should be disabled for the conda version?",
+              "createdAt": "2022-10-09T23:58:52Z"
+            },
+            {
+              "author":
+              {
+                "login": "ngam"
+              },
+              "body": "I am not sure, but this is not being picked up by build: https://dev.azure.com/conda-forge/feedstock-builds/_build/results?buildId=581454&view=logs&j=d0d954b5-f111-5dc4-4d76-03b6c9d0cf7e&t=d0d954b5-f111-5dc4-4d76-03b6c9d0cf7e",
+              "createdAt": "2022-10-10T00:06:09Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I think this is because the new build is now including GPUArraysCore in the depot, so everything is fine now? However, whenever a new dependency is introduced, the same error will come up since the default PySR behavior is to update the Julia project - and that new dependency won't be in the depot until we re-render it.\r\n\r\nI'll set `update=False` on conda versions of PySR to fix this. Is there a way to check, within PySR itself, whether it is installed as the pip version or the conda version?\r\n\r\n---\r\n\r\nedit: Here's screenshot of GPUArraysCore being included now:\r\n<img width=\"958\" alt=\"Screen Shot 2022-10-09 at 8 13 38 PM\" src=\"https://user-images.githubusercontent.com/7593028/194785902-cd9d6939-ed61-446a-b162-862464537860.png\">\r\n",
+              "createdAt": "2022-10-10T00:08:36Z"
+            },
+            {
+              "author":
+              {
+                "login": "ngam"
+              },
+              "body": "Do you allow it to update from where? Shouldn't a version be completely static (at least for pysr and SymbolicRegression.jl)?\r\n\r\nI am not sure how to tell if pysr came from conda-forge vs pypi...  ",
+              "createdAt": "2022-10-10T00:18:30Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "> Shouldn't a version be completely static (at least for pysr and SymbolicRegression.jl)?\r\n\r\nI think so too (in hindsight). Right now it does an update (with `Pkg.resolve()`) every time `fit` is called:\r\n\r\nhttps://github.com/MilesCranmer/PySR/blob/134a0cdb767f63c586e2a4e9c4ebad37ce4a39f5/pysr/sr.py#L1469-L1473\r\n\r\nShould I just set `update=False` as the default?\r\n\r\n(Note for myself... If `update=False`, would people need to re-run `pysr.install()` if `pysr` is updated through pip? I think otherwise, the right env wouldn't be created.)",
+              "createdAt": "2022-10-10T00:27:57Z"
+            },
+            {
+              "author":
+              {
+                "login": "ngam"
+              },
+              "body": "Ah! I see now...\r\n\r\n> (Note for myself... If update=False, would people need to re-run pysr.install() if pysr is updated through pip? I think otherwise, the right env wouldn't be created.)\r\n\r\nWhat we can do is emit some sort of a env var or something for PySR to know this is the modified conda-forge build. That way, you can only modify the behavior for the installation from conda-forge. ",
+              "createdAt": "2022-10-10T00:32:11Z"
+            },
+            {
+              "author":
+              {
+                "login": "ngam"
+              },
+              "body": "> Should I just set update=False as the default?\r\n\r\nGenerally yes; it is safest to target a very specific set of dependencies and not let them update frequently. I would expect the change from version 1.1.1 to 1.1.2 will also update the deps though, so figuring out a way to do that would be good... but I am not sure. \r\n\r\nThis is an interesting case!",
+              "createdAt": "2022-10-10T00:34:29Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Will do - I will just set `update=False`. I think this is better even for pip. The worst would be if a user is running something, and some dependency breaks everything (without them even updating it explicitly), and suddenly their code doesn't work without them knowing why. I am guessing some conda PySR users unfortunately experienced this, so having `update=False` would prevent this in the future.",
+              "createdAt": "2022-10-10T00:41:42Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Indeed, with https://github.com/conda-forge/pysr-feedstock/pull/55 merged, the conda builds are now working again: https://github.com/MilesCranmer/PySR/actions/runs/3216137165/jobs/5257733071. The only meaningful difference is that the depot was re-built, and now GPUArraysCore is included.",
+              "createdAt": "2022-10-10T00:42:56Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "By the way, any idea how to remove the warning printouts from the conda version?\r\ne.g.,\r\n```\r\nWARNING: method definition for dpeekbyte at /home/ngam/.Mambaforge-Linux-x86_64/envs/test/share/pysr/depot/packages/Parsers/34hDN/src/utils.jl:199 declares type variable T but does not use it.\r\n```\r\nI don't see this with a normal installation of Julia.",
+              "createdAt": "2022-10-10T00:53:56Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "@ngam do you think you could run a quick test for me on your machine? In your (currently-broken) version of PySR, could you run this command?\r\n```bash\r\npython -c 'import numpy as np; from pysr import PySRRegressor; X = np.random.randn(100,1); y = X[:, 0]**3; PySRRegressor(update=False).fit(X, y).predict(X)'\r\n```\r\nI just want to make sure that `update=False` will prevent this type of issue from happening in the future.",
+              "createdAt": "2022-10-10T01:09:28Z"
+            },
+            {
+              "author":
+              {
+                "login": "ngam"
+              },
+              "body": "I was going to ask YOU about these warnings. I have no idea how they are being produced... ",
+              "createdAt": "2022-10-10T01:10:14Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "It seems like Julia is being initialized with some of the `warn` flags still active. My bet is that the conda activate file sets a few env variables that turn warnings on (maybe for debugging, but they were never removed?)?",
+              "createdAt": "2022-10-10T01:16:00Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Maybe the `julia-feedstock` repo is the cause of this, actually?",
+              "createdAt": "2022-10-10T01:19:15Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "@ngam I realized these warning messages are just from new versions of Julia - they print out at the pre-compilation step. (I see them even when running pure Julia.)\r\n\r\nIf PySR is using a custom Julia depot, is there anything that would prevent precompilation from being cached? ",
+              "createdAt": "2022-10-11T16:01:08Z"
+            },
+            {
+              "author":
+              {
+                "login": "mkitti"
+              },
+              "body": "Each depot has its own `compiled` folder. Changing depots means changing precompilation caches.",
+              "createdAt": "2022-10-11T20:18:00Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOTAJlJA=="
+          }
+        }
+      }
+    }
+  }
+}

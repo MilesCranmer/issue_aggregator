@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 196,
+        "title": "[BUG] SymbolicRegressions.jl is not installed into julia_project",
+        "body": "**Describe the bug**\r\n\r\nDue to following lines, SymbolicRegressions.jl does not get installed into an environment indicated by the `julia_project` argument of `pysr.install`. `is_shared` is always false when `julia_project` is not `None`.\r\n\r\nhttps://github.com/MilesCranmer/PySR/blob/b6ac303316bf72dbf49f29418c519e6dd2f120d9/pysr/julia_helpers.py#L89-L91\r\n\r\nIt's not clear to me why SymbolicRegressions.jl should only be installed into a shared environment. I think this may just be left over logic when it was being installed into a temporary directory. My thought is that we should remove the if statement.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "mkitti"
+              },
+              "body": "Also this would be nice if we checked if the first character is `@` and marked it as `is_shared` in that case.",
+              "createdAt": "2022-09-21T20:00:08Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "> It's not clear to me why SymbolicRegressions.jl should only be installed into a shared environment. I think this may just be left over logic when it was being installed into a temporary directory. My thought is that we should remove the if statement.\r\n\r\nThe other use-case for the `julia_project` is to point to a development version of SymbolicRegression.jl. If we remove that if statement, then we get this error:\r\n```julia\r\n    Updating registry at `~/.julia/registries/General.toml`\r\nERROR: package `SymbolicRegression [8254be44]` has same name or UUID as the active project\r\nStacktrace:\r\n [1] pkgerror(msg::String)\r\n   @ Pkg.Types /Applications/Julia-1.8.app/Contents/Resources/julia/share/julia/stdlib/v1.8/Pkg/src/Types.jl:67\r\n [2] add(ctx::Pkg.Types.Context, pkgs::Vector{Pkg.Types.PackageSpec}; preserve::Pkg.Types.PreserveLevel, platform::Base.BinaryPlatforms.Platform, kwargs::Base.Pairs{Symbol, Base.TTY, Tuple{Symbol}, NamedTuple{(:io,), Tuple{Base.TTY}}})\r\n   @ Pkg.API /Applications/Julia-1.8.app/Contents/Resources/julia/share/julia/stdlib/v1.8/Pkg/src/API.jl:268\r\n [3] add(pkgs::Vector{Pkg.Types.PackageSpec}; io::Base.TTY, kwargs::Base.Pairs{Symbol, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})\r\n   @ Pkg.API /Applications/Julia-1.8.app/Contents/Resources/julia/share/julia/stdlib/v1.8/Pkg/src/API.jl:156\r\n [4] add(pkgs::Vector{Pkg.Types.PackageSpec})\r\n   @ Pkg.API /Applications/Julia-1.8.app/Contents/Resources/julia/share/julia/stdlib/v1.8/Pkg/src/API.jl:145\r\n [5] #add#26\r\n   @ /Applications/Julia-1.8.app/Contents/Resources/julia/share/julia/stdlib/v1.8/Pkg/src/API.jl:143 [inlined]\r\n [6] add(pkg::Pkg.Types.PackageSpec)\r\n   @ Pkg.API /Applications/Julia-1.8.app/Contents/Resources/julia/share/julia/stdlib/v1.8/Pkg/src/API.jl:143\r\n [7] top-level scope\r\n   @ REPL[3]:1\r\n```\r\n\r\n> Also this would be nice if we checked if the first character is @ and marked it as is_shared in that case.\r\n\r\nThis is a good idea! Will add.",
+              "createdAt": "2022-09-22T02:14:19Z"
+            },
+            {
+              "author":
+              {
+                "login": "mkitti"
+              },
+              "body": "> The other use-case for the `julia_project` is to point to a development version of SymbolicRegression.jl. If we remove that if statement, then we get this error:\r\n\r\nI'm a bit confused about what you're trying to do that causes this. It sounds like you set `julia_project = \"/path/to/SymbolicRegression.jl\"`. Then, yes trying to add SymbolicRegression.jl to it's own environment would cause the above error.\r\n\r\nTo avoid this, I might check `Pkg.project().uuid == Base.UUID(\"8254be44-1295-4e6a-a16d-46603ac705cb\")`. In that case though, `ClusterManagers.jl` may not be available.\r\n\r\nThe other path would be to create a `pysr.julia_helpers.develop` function that does the following.\r\n1. Creates and activates a temporary environment\r\n2. `Pkg.develop(\"/path/to/SymbolicRegression.jl\")`\r\n3. `Pkg.add(\"ClusterMangagers\")`",
+              "createdAt": "2022-09-22T06:42:05Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOSsefAQ=="
+          }
+        }
+      }
+    }
+  }
+}

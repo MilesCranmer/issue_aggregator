@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 15,
+        "title": "Recursive feature selection",
+        "body": "I think something that may give a large algorithmic performance is recursive feature selection. Here is the idea:\r\n\r\n1. Hold \"next-mutation\" feature importances for every equation separately.\r\n2. Start these at uniform importances.\r\n3. Randomly choose to update the feature importances for an equation each iteration, with low probability.\r\n4. To calculate the next-mutation feature importances, get the residual between the current equation's prediction and the target dataset. Use XGBoost.jl to predict the residual using the features. Use the trained XGBoost model to determine feature importance.\r\n5. Every time one performs a mutation that involves selecting a new feature, the random selection would be weighted by the equation's current recorded feature importances. I think this will help the model when there are a large number of features.\r\n\r\nOn a more general note, I think it could be interesting to look at the gradients of an equation with respect to each subtree. Perhaps that could provide information on which subtree to mutate next, and with what operation.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "verdverm"
+              },
+              "body": "You might find these links interesting to improving SR (they are my own research)\r\n\r\n- https://github.com/verdverm/pypge\r\n- https://github.com/verdverm/go-pge\r\n\r\nThe second has my original paper which has some optimizations for reducing the search space, applicable to both GP & PGE based SR.\r\n\r\nI have a hunch that RL + PGE could produce some better decision making.",
+              "createdAt": "2020-12-13T03:53:28Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks Tony!! I've actually read your PGE paper several times over the years and really like the approach! PyPGE was one of the packages I tried when I was searching for an alternative to Eureqa. Would be awesome to have the algorithm integrated with the API in PySR somehow, even if it's just re-using the `pysr(...)` API to call different algorithms.\r\n\r\nPySR's internal algorithm right now is a fairly simple regularized evolution search (with annealing + separate constant optimization), so I would also be really interested to introduce some internal hook to call more complex algorithms as types of \"mutations\" inside the internal loop!",
+              "createdAt": "2020-12-13T04:36:40Z"
+            },
+            {
+              "author":
+              {
+                "login": "verdverm"
+              },
+              "body": "You might look into the island model, the pareto selection optimizations, and find the highest cycle RNG you can. They all help with premature optimization, the biggest problem with GP.\r\n\r\nIs there a non-linear regression package in Python?",
+              "createdAt": "2020-12-13T08:20:37Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOLFgeyA=="
+          }
+        }
+      }
+    }
+  }
+}

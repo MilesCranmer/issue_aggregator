@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 402,
+        "title": "[Feature]: Support for Complex Data in PySR",
+        "body": "### Feature Request\n\nHello PySR maintainers,\r\n\r\nI'm considering using PySR and have encountered a need to work with complex data. Can the current version of PySR handle complex data? If not, would it be possible to add this functionality?\r\n\r\nAdding support for complex data would benefit users in various scientific fields and could expand PySR's applicability.\r\n\r\nThank you for considering this feature request.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @frank-ccc,\r\n\r\nComplex data is already supported 🙂 See https://astroautomata.com/PySR/examples/#8-complex-numbers\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-08-09T14:01:48Z"
+            },
+            {
+              "author":
+              {
+                "login": "frank-ccc"
+              },
+              "body": "This is great!",
+              "createdAt": "2023-08-09T14:03:15Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOY59iAA=="
+          }
+        }
+      }
+    }
+  }
+}

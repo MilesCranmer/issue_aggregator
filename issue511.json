@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 511,
+        "title": "[BUG]: PySR can not rediscover X^2",
+        "body": "### What happened?\n\nHaving the following python-script:\r\n```python\r\nimport numpy as np\r\n\r\nX = 8 * np.random.randn(1000, 1)\r\ny = X[:,0] ** 2\r\n\r\nfrom pysr import PySRRegressor\r\n\r\nmodel = PySRRegressor(\r\n    niterations=100,\r\n    binary_operators=[\"+\", \"^\"],\r\n    unary_operators=[\r\n        \"cos\",\r\n        \"exp\",\r\n    ],\r\n    maxsize=7,\r\n    constraints={\"^\": (-1, -1)},\r\n)\r\n\r\nmodel.fit(X, y)\r\n\r\nprint(model)\r\nprint(\"Final:\")\r\nprint(model.sympy())\r\n```\r\n\r\nwhere `y = X **2`.\r\n\r\nAt the final I see the following output:\r\n```\r\nHall of Fame:                                                                                                                                                                                                                                 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- Complexity  Loss       Score     Equation                                                                                                                                                                                                     1           7.994e+03  1.594e+01  y = 63.22                                                                                                                                                                                                   2           7.994e+03  -0.000e+00  y = exp(4.1467)                                                                                                                                                                                            5           5.622e+03  1.173e-01  y = (53.282 + (1.3179 ^ x₀))                                                                                                                                                                                7           5.348e+03  2.495e-02  y = ((0.77453 ^ x₀) + (1.3268 ^ x₀))                                                                                                                                                                        --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- PySRRegressor.equations_ = [----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- --------   pick         score                              equation       loss  complexity---------------------------------------------------------------------------------------------------------------------------------------------------\r\n\t0        0.000000e+00                             63.220303  7993.6216           1\r\n\t1        7.505985e-08                         exp(4.146681)  7993.6210           2\r\n\t2  >>>>  1.173225e-01        (53.282116 + (1.3179121 ^ x0))  5621.9380           5\r\n\t3        2.495187e-02  ((0.7745277 ^ x0) + (1.326789 ^ x0))  5348.2676           7\r\n]\r\nFinal:\r\n1.3179121**x0 + 53.282116\r\n```\r\n\r\nSomewhat, PySR does not try (or try, but I did not notice it) to produce something like `x**Constant`, so, at final I have:\r\n```\r\ny = 1.3179121**x0 + 53.282116\r\n```\n\n### Version\n\n0.16.8\n\n### Operating System\n\nmacOS\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n_No response_\n\n### Extra Info\n\n_No response_",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "foxtran"
+              },
+              "body": "Looks like it is not a proper place where this bug is. With the following Julia script, the same problem is:\r\n```julia\r\nusing SymbolicRegression\r\nusing MLJ\r\nX = 8randn(1000, 1)\r\ny = @. X[:, 1]^2 - 2\r\n\r\nmodel = SRRegressor(\r\n    binary_operators=[+, ^],\r\n    unary_operators=[exp, cos],\r\n    niterations=40\r\n)\r\nmach = machine(model, X, y)\r\nfit!(mach)\r\n\r\nr = report(mach)\r\nr.equations[r.best_idx]\r\n```\r\noutput:\r\n```\r\n((0.7841441981843509 ^ (x₁ + -3.7374866510975324)) + (exp(x₁ + 27.319351179464586) ^ 0.12208411287569956))\r\n```",
+              "createdAt": "2024-01-02T09:25:11Z"
+            },
+            {
+              "author":
+              {
+                "login": "foxtran"
+              },
+              "body": "The problem arises because in X negative numbers may occur and, in such case, pow(negate, Real) gives complex number, but the SR is running in Real mode. ",
+              "createdAt": "2024-01-02T11:19:26Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Ah yeah that looks like the issue. It simply can't find **_exactly_** 2.0000, because even 1.9999 would produce imaginary output, thus creating `NaN` output and infinite loss – so it would have to randomly guess `2.0000` by pure luck. There are a bunch of solutions:\r\n\r\n1. Use `*` instead of `^`.\r\n2. Give the model `abs` as a unary operator, so you make `abs(x)^1.9999` a valid outcome, making it easier to find x^2.\r\n3. Define a custom operator `abs_pow(x, y) = abs(x) ^ y` (if in Python: in `binary_operators` as a string, and also with `extra_sympy_mappings={\"abs_pow\": lambda x, y: abs(x) ** y}`.\r\n4. Cast the input to imaginary numbers (e.g., `+ 0j` in python or ` + 0im` in Julia), so that `-1 ^ 1.5` is a valid result, and so the model can descend smoothly towards `-1 ^ 2`.\r\n5. I'm assuming this isn't what you want but you could just use `square` which is one of the unary operators",
+              "createdAt": "2024-01-03T05:43:41Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOb8BVbQ=="
+          }
+        }
+      }
+    }
+  }
+}

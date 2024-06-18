@@ -1,0 +1,137 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 561,
+        "title": "[BUG]: Encounter segmentation faults in running the toy example on RHEL machines",
+        "body": "### segmentation faults\r\n\r\nHi, I installed pysr with \"conda create -n sr -c conda forge pysr\", and then I was trying to run a script of the following toy example\r\n`import numpy as np`\r\n`from pysr import *`\r\n`X = 2 * np.random.randn(100, 5)`\r\n`y = 2 * np.cos(X[:, 3]) + X[:, 0] ** 2 - 2`\r\n`model = PySRRegressor(binary_operators=[\"+\", \"-\", \"*\", \"/\"])`\r\n`model.fit(X, y)`\r\n`print(model)`\r\nWhen I ran the script for the first time, the juliapkg installed the dependences as well. However, no matter how many times I ran the script, the running always encountered the segmentation faults. The installation and running were implemented on other RHEL machines too, but the running still failed.\r\n\r\n### Version\r\n\r\n0.17.1\r\n\r\n### Operating System\r\n\r\nLinux\r\n\r\n### Package Manager\r\n\r\nConda\r\n\r\n### Interface\r\n\r\nScript (i.e., `python my_script.py`)\r\n\r\n### Relevant log output\r\n\r\n```shell\r\n[110388] signal (11.1): Segmentation fault\r\nin expression starting at none:2\r\ninitialize_env at /workspace/srcdir/gcc-13.2.0/libgomp/env.c:2062\r\n_dl_init at /lib64/ld-linux-x86-64.so.2 (unknown line)\r\ndl_open_worker at /lib64/ld-linux-x86-64.so.2 (unknown line)\r\n_dl_catch_error at /lib64/ld-linux-x86-64.so.2 (unknown line)\r\n_dl_open at /lib64/ld-linux-x86-64.so.2 (unknown line)\r\ndlopen_doit at /lib64/libdl.so.2 (unknown line)\r\n_dl_catch_error at /lib64/ld-linux-x86-64.so.2 (unknown line)\r\n_dlerror_run at /lib64/libdl.so.2 (unknown line)\r\ndlopen at /lib64/libdl.so.2 (unknown line)\r\nijl_load_dynamic_library at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/dlload.c:365\r\n#dlopen#3 at ./libdl.jl:117\r\ndlopen at ./libdl.jl:116 [inlined]\r\ndlopen at ./libdl.jl:116\r\njfptr_dlopen_51541.1 at /home/jin2/bin/anaconda3/envs/sr/julia_env/pyjuliapkg/install/lib/julia/sys.so (unknown line)\r\n_jl_invoke at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/gf.c:2894 [inlined]\r\nijl_apply_generic at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/gf.c:3076\r\n__init__ at /home/jin2/bin/anaconda3/envs/sr/julia_env/pyjuliapkg/install/share/julia/stdlib/v1.10/CompilerSupportLibraries_jll/src/CompilerSupportLibraries_jll.jl:62\r\n_jl_invoke at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/gf.c:2894 [inlined]\r\nijl_apply_generic at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/gf.c:3076\r\njl_apply at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/julia.h:1982 [inlined]\r\njl_module_run_initializer at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/toplevel.c:76\r\nrun_module_init at ./loading.jl:1134\r\nregister_restored_modules at ./loading.jl:1122\r\n_include_from_serialized at ./loading.jl:1067\r\n_require_search_from_serialized at ./loading.jl:1581\r\n_require at ./loading.jl:1938\r\n__require_prelocked at ./loading.jl:1812\r\njfptr___require_prelocked_80777.1 at /home/jin2/bin/anaconda3/envs/sr/julia_env/pyjuliapkg/install/lib/julia/sys.so (unknown line)\r\n_jl_invoke at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/gf.c:2894 [inlined]\r\nijl_apply_generic at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/gf.c:3076\r\njl_apply at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/julia.h:1982 [inlined]\r\njl_f__call_in_world at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/builtins.c:831\r\n#invoke_in_world#3 at ./essentials.jl:926 [inlined]\r\ninvoke_in_world at ./essentials.jl:923 [inlined]\r\n_require_prelocked at ./loading.jl:1803\r\nmacro expansion at ./loading.jl:1790 [inlined]\r\nmacro expansion at ./lock.jl:267 [inlined]\r\n__require at ./loading.jl:1753\r\njfptr___require_80742.1 at /home/jin2/bin/anaconda3/envs/sr/julia_env/pyjuliapkg/install/lib/julia/sys.so (unknown line)\r\n_jl_invoke at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/gf.c:2894 [inlined]\r\nijl_apply_generic at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/gf.c:3076\r\njl_apply at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/julia.h:1982 [inlined]\r\njl_f__call_in_world at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/builtins.c:831\r\n#invoke_in_world#3 at ./essentials.jl:926 [inlined]\r\ninvoke_in_world at ./essentials.jl:923 [inlined]\r\nrequire at ./loading.jl:1746\r\njfptr_require_80739.1 at /home/jin2/bin/anaconda3/envs/sr/julia_env/pyjuliapkg/install/lib/julia/sys.so (unknown line)\r\n_jl_invoke at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/gf.c:2894 [inlined]\r\nijl_apply_generic at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/gf.c:3076\r\njl_apply at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/julia.h:1982 [inlined]\r\ndo_call at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/interpreter.c:126\r\neval_value at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/interpreter.c:223\r\neval_stmt_value at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/interpreter.c:174 [inlined]\r\neval_body at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/interpreter.c:617\r\neval_body at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/interpreter.c:544\r\njl_interpret_toplevel_thunk at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/interpreter.c:775\r\njl_toplevel_eval_flex at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/toplevel.c:934\r\njl_toplevel_eval_flex at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/toplevel.c:877\r\nijl_toplevel_eval_in at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/toplevel.c:985\r\nijl_eval_string at /cache/build/builder-amdci5-1/julialang/julia-release-1-dot-10/src/jlapi.c:117\r\nffi_call_unix64 at /home/jin2/bin/anaconda3/envs/sr/lib/python3.10/lib-dynload/../../libffi.so.8 (unknown line)\r\nffi_call_int at /home/jin2/bin/anaconda3/envs/sr/lib/python3.10/lib-dynload/../../libffi.so.8 (unknown line)\r\n_call_function_pointer at /usr/local/src/conda/python-3.10.13/Modules/_ctypes/callproc.c:916 [inlined]\r\n_ctypes_callproc at /usr/local/src/conda/python-3.10.13/Modules/_ctypes/callproc.c:1262\r\nPyCFuncPtr_call at /usr/local/src/conda/python-3.10.13/Modules/_ctypes/_ctypes.c:4221\r\n_PyObject_MakeTpCall at python (unknown line)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\nunknown function (ip: 0x56069e53986f)\r\nPyEval_EvalCode at python (unknown line)\r\nunknown function (ip: 0x56069e5409b9)\r\nunknown function (ip: 0x56069e4a6a92)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\nunknown function (ip: 0x56069e4a60a7)\r\n_PyObject_CallMethodIdObjArgs at python (unknown line)\r\nunknown function (ip: 0x56069e3d7260)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\nunknown function (ip: 0x56069e53986f)\r\nPyEval_EvalCode at python (unknown line)\r\nunknown function (ip: 0x56069e5409b9)\r\nunknown function (ip: 0x56069e4a6a92)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\nunknown function (ip: 0x56069e4a60a7)\r\n_PyObject_CallMethodIdObjArgs at python (unknown line)\r\nunknown function (ip: 0x56069e3d7260)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\nunknown function (ip: 0x56069e53986f)\r\nPyEval_EvalCode at python (unknown line)\r\nunknown function (ip: 0x56069e5409b9)\r\nunknown function (ip: 0x56069e4a6a92)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\n_PyFunction_Vectorcall at python (unknown line)\r\nunknown function (ip: 0x56069e4a60a7)\r\n_PyObject_CallMethodIdObjArgs at python (unknown line)\r\nunknown function (ip: 0x56069e3d7260)\r\n_PyEval_EvalFrameDefault at python (unknown line)\r\nunknown function (ip: 0x56069e53986f)\r\nPyEval_EvalCode at python (unknown line)\r\nunknown function (ip: 0x56069e569d19)\r\nunknown function (ip: 0x56069e565122)\r\nunknown function (ip: 0x56069e3fc4d0)\r\n_PyRun_SimpleFileObject at python (unknown line)\r\n_PyRun_AnyFileObject at python (unknown line)\r\nPy_RunMain at python (unknown line)\r\nPy_BytesMain at python (unknown line)\r\n__libc_start_main at /lib64/libc.so.6 (unknown line)\r\nunknown function (ip: 0x56069e52cd10)\r\nAllocations: 2907 (Pool: 2899; Big: 8); GC: 0\r\n```\r\n\r\n\r\n### Extra Info\r\n\r\n_No response_",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "This is very likely due to loading an incompatible shared library on your system. Usually there is some `/lib64/libc.so` that is very old and getting loaded by Python first. (I also see this on my institute RHEL)\r\n\r\nThe workaround is to force a modern libc to get loaded first.",
+              "createdAt": "2024-03-06T13:40:12Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Can you try the solutions posted in https://github.com/MilesCranmer/PySR/issues/347? In particular you can try to do:\r\n\r\n```julia\r\nLD_PRELOAD=/path/to/modern/libstdc++.so.6 python my_script.py\r\n```\r\n\r\nwhere `/path/to/modern/libstdc++.so.6` is some version of libstdc++.so.6 that you can find with \r\n\r\n```bash\r\nfor lib in $(find $CONDA_PREFIX -iname \"*.so\"); do echo $lib; ldd $lib | grep libstdc++; done;\r\n```\r\n\r\nAlso, if possible, is there any way you can create something I can reproduce your error in? Otherwise I am in the dark about the cause of this.\r\n\r\nMaybe like a docker container with RHEL that you are able to reproduce the error inside, and therefore I can run?",
+              "createdAt": "2024-03-06T19:16:56Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Here's a working docker file based on RHEL. So it's at least not a universal RHEL issue, probably some old library somewhere that Python is picking up. The following dockerfile (based on RHEL 8) seems to work fine:\r\n\r\n```dockerfile\r\nFROM redhat/ubi8-minimal:8.9-1108.1706795067\r\n\r\nRUN microdnf install -y python3.11 python3.11-pip\r\n\r\nRUN python3.11 -m pip install pysr==0.17.1\r\n\r\n# Install Julia pre-requisites:\r\nRUN python3.11 -c 'import pysr'\r\n\r\n# PySR run:\r\nCMD [\"python3.11\", \"-c\", \"import pysr; pysr.PySRRegressor().fit([[1]], [1])\"]\r\n```\r\n\r\nBuild with\r\n\r\n```bash\r\ndocker build -t pysr -f Dockerfile .\r\n```\r\n\r\nand test with\r\n\r\n```bash\r\ndocker run --rm -it pysr\r\n```\r\n",
+              "createdAt": "2024-03-06T19:42:55Z"
+            },
+            {
+              "author":
+              {
+                "login": "ganfisher"
+              },
+              "body": "> Can you try the solutions posted in #347? In particular you can try to do:\r\n> \r\n> ```julia\r\n> LD_PRELOAD=/path/to/modern/libstdc++.so.6 python my_script.py\r\n> ```\r\n> \r\n> where `/path/to/modern/libstdc++.so.6` is some version of libstdc++.so.6 that you can find with\r\n> \r\n> ```shell\r\n> for lib in $(find $CONDA_PREFIX -iname \"*.so\"); do echo $lib; ldd $lib | grep libstdc++; done;\r\n> ```\r\n> \r\n> Also, if possible, is there any way you can create something I can reproduce your error in? Otherwise I am in the dark about the cause of this.\r\n> \r\n> Maybe like a docker container with RHEL that you are able to reproduce the error inside, and therefore I can run?\r\n\r\nThank you very much, Miles. I have checked the version of GLIBCXX for the conda environment, and it seems to be 3.4.30. I think the version is new enough to support most applications. As for your docker scheme, I will try it if possible. Since I will use pysr on our clusters, the deployment based on docker may be troublesome.\r\n![image](https://github.com/MilesCranmer/PySR/assets/72131770/f98be9c8-ec98-4d03-af5a-20ed69d9b7ea)",
+              "createdAt": "2024-03-07T12:04:30Z"
+            },
+            {
+              "author":
+              {
+                "login": "ZehaoJin"
+              },
+              "body": "I am facing the same error. PySr used to work perfectly fine, but since I upgraded PySR to newest version 2 days ago, `import pysr` will cause that error. I have no idea from which release of PySR starts to have this issue, but seems like one of the updates breaks pysr on certain machines.",
+              "createdAt": "2024-03-08T11:27:20Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hm, very strange. It might be worth cross-posting this issue to https://github.com/JuliaPy/PythonCall.jl/issues.\r\n\r\n@cjdoris do you know why this might be happening with JuliaCall but not PyJulia (previous package used by PySR)?",
+              "createdAt": "2024-03-08T15:17:20Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "It seems like this might be the issue to track: https://github.com/JuliaPy/PythonCall.jl/issues/464",
+              "createdAt": "2024-03-08T15:20:07Z"
+            },
+            {
+              "author":
+              {
+                "login": "ZehaoJin"
+              },
+              "body": "[172407 segmentation fault (core dumped) python #470](https://github.com/JuliaPy/PythonCall.jl/issues/470) This one sounds relavent too. `segmentation fault (core dumped) ` is the exact error I am getting after import pysr.",
+              "createdAt": "2024-03-08T15:21:50Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "It sounds like it might be a Julia bug: https://github.com/JuliaLang/julia/pull/53643 which is being patched as we speak 🎉 ",
+              "createdAt": "2024-03-08T15:23:02Z"
+            },
+            {
+              "author":
+              {
+                "login": "ganfisher"
+              },
+              "body": "> It sounds like it might be a Julia bug: [JuliaLang/julia#53643](https://github.com/JuliaLang/julia/pull/53643) which is being patched as we speak 🎉\r\n\r\nI agree. That may be the most possible cause, since the error message contains no information directly related to pysr.",
+              "createdAt": "2024-03-08T15:37:22Z"
+            },
+            {
+              "author":
+              {
+                "login": "ZehaoJin"
+              },
+              "body": "Are we just waiting for Julia's next release and hopefully the issue will be resolved?",
+              "createdAt": "2024-03-11T11:08:41Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "A temporary workaround would be to downgrade Julia to 1.10.0. You can do this by modifying `pysr/juliapkg.json` to have:\r\n\r\n```json\r\n{\r\n    \"julia\": \"=1.10.0\",\r\n```\r\n\r\nand then reinstalling. Can you check if that solves it? If it does I can make a special branch that people can `pip install git+...` on.",
+              "createdAt": "2024-03-11T11:27:13Z"
+            },
+            {
+              "author":
+              {
+                "login": "ZehaoJin"
+              },
+              "body": "This trick seems to work! I got no errors now.",
+              "createdAt": "2024-03-11T12:04:27Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I skip those broken Julia versions here: https://github.com/MilesCranmer/PySR/pull/565, fixing this issue. This is not actually a bug in Julia, but rather in libgomp – 1.10.1 and 1.10.2 are compiled against that broken libgomp.\r\n\r\nThe issue should be fixed (verify it installs any Julia except 1.10.1 and 1.10.2). If not please let me know.",
+              "createdAt": "2024-03-11T23:32:37Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOdpd1eA=="
+          }
+        }
+      }
+    }
+  }
+}

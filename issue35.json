@@ -1,0 +1,81 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 35,
+        "title": "Allow `y` to be vector-valued?",
+        "body": "It would be nice to allow `y` to be vector valued, essentially as a (parallelised?) shortcut for something like the following:\r\n\r\n```python\r\nexpressions = []\r\nfor index in range(y.shape[-1]):\r\n    yi = y[:, index]\r\n    expression_i = pysr.pysr(x, yi)\r\n    expressions.append(expression_i)\r\n```\r\n\r\nThis links to (and is actually motivated by) my suggestion in #32: `as_pytorch` could then return a single `SymPyModule` wrapping a list of all `expressions`, rather than returning several `SymPyModules` for each one, which would then have to be composed together in the above for loop.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Definitely agree. Actually it could be even nicer to just have the SymbolicRegression.jl backend loop over each y-component and return a list of equations at each complexity. Will think more about this.",
+              "createdAt": "2021-03-04T19:59:52Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Just added capabilities for multi-output (and multiple equations returned). SymbolicRegression.jl will now return a list of equations for each output. \r\n\r\nThis should be simple enough to set up for just importing into PySR. The trickier part is the JAX and PyTorch backend! I'm not sure how to approach - whether to continue outputting a different Torch/JAX model for each equation, or try to merge? It's probably overcomplicated to merge...",
+              "createdAt": "2021-05-26T20:28:10Z"
+            },
+            {
+              "author":
+              {
+                "login": "patrick-kidger"
+              },
+              "body": "Is the PyTorch backend (you mean exporting via `sympytorch`?) actually available? I don't see it based on a quick glance through the code.\r\n\r\nFor sympytorch at least it's possible to pass multiple equations to the `SymPyModule`, i.e. vector values are automatically supported.",
+              "createdAt": "2021-05-30T12:03:13Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "The PyTorch backend hasn't been implemented yet; it's next on my todo list!\r\n\r\nThat is nice that vector equations are supported! It doesn't assume the equations are all the same, but for different parameter choices, right? They can be completely different equations?",
+              "createdAt": "2021-05-30T20:25:41Z"
+            },
+            {
+              "author":
+              {
+                "login": "patrick-kidger"
+              },
+              "body": "Yep, completely different equations.",
+              "createdAt": "2021-05-30T20:33:09Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Actually on second thought I'm not sure it will work due to the API of PySR: it will output a list of equations for each feature of `y`. When JAX/Torch export is turned on, it will generate a separate function/module for each expression. But I think the user will want to filter equations for each feature of `y` separately before making a choice of equation, and then fusing them.\r\nI don't see an easy way to do this otherwise? I also don't know if there'd be a speedup since the expressions are assumed to be different, and no operations are re-used?",
+              "createdAt": "2021-05-30T21:45:47Z"
+            },
+            {
+              "author":
+              {
+                "login": "patrick-kidger"
+              },
+              "body": "Hmm. I see your point. Perhaps only offer an export as SymPy, and just document that there are external libraries to convert SymPy into PyTorch/JAX. Then the end user can do whatever they like to select their sympy expression from the various possibilities.",
+              "createdAt": "2021-05-31T03:23:51Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOMrtd5g=="
+          }
+        }
+      }
+    }
+  }
+}

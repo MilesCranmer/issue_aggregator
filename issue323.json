@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 323,
+        "title": "PySR paper is out!",
+        "body": "This is long-overdue but I finally finished a methods paper describing the algorithm in PySR and SymbolicRegression.jl. You can find it here: https://github.com/MilesCranmer/pysr_paper and the arXiv here: https://arxiv.org/abs/2305.01582. \r\n\r\nI consider this paper to be a \"v1,\" based on an older version of the codebase. I would like to write additional papers in the future describing major updates, and I plan to invite any significant open-source contributors to be co-authors!",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

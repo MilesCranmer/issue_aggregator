@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 157,
+        "title": "AMD CPU limited to 1 proc.",
+        "body": "My desktop PC has an AMD CPU (Ryzen 5900x) with 12 cores and 24 threads.  My code only utilizes 6-7% of the total CPU resources, about 1 core.  I have repeated the test, disabling multithreading using **proc=0** and get an almost identical result in terms of speed.  Increasing populations, population values, using batching or batch size have not made a difference.\r\n\r\nrunning **multiprocessing.cpu_count()** returns **24** so python can see the cores.  Running the example jupyter notebook yields the same result for the simple test code, but uses all of the cores when evaluating the machine learning section (GPU disabled, CPU only).  The issue persists for both Jupyter, and pycharm.\r\n\r\nI have tested the same code on the following:\r\n\r\n- i5 2020 macbook pro (4 cores / 8 threads): 60% CPU usage (using all cores, 2.1 x faster than the AMD)\r\n- i5 6600k windows 10 desktop (4 cores / 4 threads): 80% CPU usage (using all cores,1.2 x faster than the AMD)\r\n\r\nI don't think it's a BIOS or OS issue since other applications can load up my CPU to 100% if needed on the AMD system.\r\n\r\nIs it possible the Julia code is compiled with some intel-only flags?\r\n\r\nI am using the latest 64-bit version of Julia.\r\n\r\n````python\r\nimport numpy as np\r\nfrom pysr import PySRRegressor\r\nfrom matplotlib import pyplot as plt\r\nimport seaborn as sns\r\nimport pandas as pd\r\n\r\nmodel = PySRRegressor(\r\n    model_selection=\"best\",  # Result is mix of simplicity+accuracy\r\n    niterations=1000,\r\n    binary_operators=[\"+\", \"*\",\"/\",\"-\"],\r\n    unary_operators=[\r\n        \"exp\",\r\n       # \"inv(x) = 1/x\",\r\n        # ^ Custom operator (julia syntax)\r\n    ],\r\n   # extra_sympy_mappings={\"inv\": lambda x: 1 / x},\r\n    # ^ Define operator for SymPy as well\r\n    loss=\"loss(x, y) = (x - y)^2\",\r\n    # ^ Custom loss function (julia syntax)\r\n)\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I assume #158 is a duplicate, so will close this one.",
+              "createdAt": "2022-07-06T21:02:17Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHORiOrug=="
+          }
+        }
+      }
+    }
+  }
+}

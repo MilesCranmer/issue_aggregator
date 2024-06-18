@@ -1,0 +1,57 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 451,
+        "title": "[BUG]: PySR currently incompatible with Python 3.12",
+        "body": "Until the PR at https://github.com/JuliaPy/pyjulia/pull/538 is merged, PySR is currently incompatible with Python 3.12. This is due to a breaking change in the way Python allowed PyJulia to overload the import function (like `from julia import SymbolicRegression`). It seems to be an easy patch though, luckily.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "PaulGersberg"
+              },
+              "body": "Also incompatible with 3.11.6\r\npython -m pysr install \r\n`Traceback (most recent call last):\r\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\r\n  File \"<frozen runpy>\", line 88, in _run_code\r\n  File \"C:\\Users\\pgersber\\AppData\\Local\\miniconda3\\Lib\\site-packages\\pysr\\__main__.py\", line 4, in <module>\r\n    _cli(prog_name=\"pysr\")\r\n  File \"C:\\Users\\pgersber\\AppData\\Local\\miniconda3\\Lib\\site-packages\\click\\core.py\", line 1157, in __call__\r\n    return self.main(*args, **kwargs)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\pgersber\\AppData\\Local\\miniconda3\\Lib\\site-packages\\click\\core.py\", line 1078, in main\r\n    rv = self.invoke(ctx)\r\n         ^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\pgersber\\AppData\\Local\\miniconda3\\Lib\\site-packages\\click\\core.py\", line 1688, in invoke\r\n    return _process_result(sub_ctx.command.invoke(sub_ctx))\r\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\pgersber\\AppData\\Local\\miniconda3\\Lib\\site-packages\\pysr\\julia_helpers.py\", line 283, in _julia_version_assertion\r\n    if not is_julia_version_greater_eq(version=(1, 6, 0)):\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\pgersber\\AppData\\Local\\miniconda3\\Lib\\site-packages\\pysr\\julia_helpers.py\", line 147, in is_julia_version_greater_eq\r\n    juliainfo = _load_juliainfo()\r\n                ^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\pgersber\\AppData\\Local\\miniconda3\\Lib\\site-packages\\pysr\\julia_helpers.py\", line 25, in _load_juliainfo\r\n    juliainfo = JuliaInfo.load(julia=\"julia\")\r\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\pgersber\\AppData\\Local\\miniconda3\\Lib\\site-packages\\julia\\juliainfo.py\", line 87, in load\r\n    raise subprocess.CalledProcessError(\r\nsubprocess.CalledProcessError: Command '['julia', '-e', '...']' returned non-zero exit status 1.`",
+              "createdAt": "2023-11-06T09:33:19Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @PaulGersberg,\r\nThat looks like a different issue. The 3.12 incompatibility is specifically related to how imports work in PyJulia (which was introduced in 3.12.0, but not earlier).\r\nCheers,\r\nMiles",
+              "createdAt": "2023-11-06T09:39:30Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Fixed with PyJulia 0.6.2: https://github.com/JuliaPy/pyjulia/releases/tag/v0.6.2",
+              "createdAt": "2023-12-30T22:25:33Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Fixed by #535 (for good this time)",
+              "createdAt": "2024-02-12T09:06:33Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOc4e89Q=="
+          }
+        }
+      }
+    }
+  }
+}

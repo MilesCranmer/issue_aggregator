@@ -1,0 +1,121 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 154,
+        "title": "[BUG] Procs parameter seems to be ignored",
+        "body": "**Describe the bug**\r\nI have 16 threads (8 cores) , but although I've been playing with the procs parameter I never seem to be using more than a fixed number (2, given the ~12.5% of CPU I mostly get). \r\n\r\nI ran the code in the README.md file and all runs OK; I added the procs parameter to the first example, with values 1,2,4,8,16 and this makes no difference whatsoever in terms of the CPU usage - always the same ~12.5% (2 threads/1 core). They all take about the same time, roughly 20-21 seconds.\r\n\r\nThe second piece of code includes procs = 4 but again the CPU usage is the same as before (above).\r\n\r\n**Version (please complete the following information):**\r\n- OS: Windows\r\n- Version 11\r\n- Does the bug appear with the latest version of PySR? Yes, installed yesterday\r\n\r\n**Configuration**\r\n- What are your PySR settings? Just those in the examples in the README file",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "What Julia version, Python version, PySR version?\r\n\r\nDoes the result change if you set `multithreading=False` in `PySRRegressor`? This will switch to a different backend for parallel processing so this would be helpful to debug it.",
+              "createdAt": "2022-06-23T20:31:51Z"
+            },
+            {
+              "author":
+              {
+                "login": "Carlos-Fernands"
+              },
+              "body": "Julia version = 1.7.3\r\nPython version = 3.8.8\r\nPySR version =  0.9.3\r\n\r\nAdding multithreading=False does make a difference and I can see the CPU finally increase in use.\r\nWith procs = 2 I can see the 2 instances of Julia Programming Language running, and so on.\r\nThe funny thing is that I can't see linear improvements: 6 cores takes about the same time as 4, for example. 8 cores takes more time than 4.\r\nCould there be some caching at play? Or that this code really does not benefit from multi-cores? (Which looks unlikely.)\r\n\r\nFrom my tests procs is really related to the actual number of physical cores, not to the number of logical processors (as I was expecting, from how sklearn works).\r\nWhy? Because if I set procs to a number greater than my 8 cores:  \r\n  1- the code crashes on some Julia calls\r\n  2- the environment related to PySRRegressor becomes unstable and even re-running with a lower, valid, number for procs it continues to crash. I had to shutdown the whole session and restart.\r\n\r\nI would suggest for the PySR code to check the number assigned to procs and if greater than the physical number of cores present either stop and issue an error message or issue a warning, setting procs to the max possible and continue.\r\n\r\nAdding multithreading=False to the second piece of code again \"helps\", as I can see the CPU jumping from ~12% to about 55%, like in the first case (with procs = 8, when I would expect CPU about 100%,  )\r\n ",
+              "createdAt": "2022-06-23T21:16:06Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks, that test is really helpful. So something about your configuration is not setting up Julia to be multi-threaded, but multi-processing works.\r\n\r\nWhat operating system are you using? I wonder if the environment variable for Julia on your system is different. The env variable is normally `JULIA_NUM_THREADS`.",
+              "createdAt": "2022-06-23T23:11:16Z"
+            },
+            {
+              "author":
+              {
+                "login": "Carlos-Fernands"
+              },
+              "body": "I am running Windows 11 Home (version 21H2, build 22000.739)\r\nAnd I don't seem to have an environment variable called JULIA_NUM_THREADS or similar.\r\nIn the environment variables the only reference to Julia is as part of the path:  ...\\Julia-1.7.3\\bin\r\n\r\nSo I set it, with JULIA_NUM_THREADS = 14 (just to be safe as I've seen other very \"efficient\" processes freezing the computer when using threads = max possible).\r\n\r\nI had to restart Anaconda because it didn't seem to pick up the new variable immediately .\r\n\r\nAfter that, setting procs = 14 and removing  multithreading=False,...\r\nThe first piece of code reduced from 1' 20''  to 20''.\r\nIn the second more complex example again I saw the processor going from the previous ~50% to about 65% - not the 80-90% I was expecting, but still better.\r\n\r\nIn both cases I did not see instances of \"Julia Programming Language\" task as before, but just a Python instance doing all the work.\r\n\r\nSo, yes,  I think the absence of that environment variable was the problem - thank you!.\r\n\r\nIn the installation process I remember being asked if I wanted access just for myself (i.e. my account) or for all users in the computer - I answered just me and now I am wondering if this was why that env. variable was not set (although both things should be totally independent). When I have time I'll reinstall the whole thing for all users and check if something changed about this.\r\n\r\nNext step: GPU support would be nice:) ",
+              "createdAt": "2022-06-24T09:48:12Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I am a bit confused, because `JULIA_NUM_THREADS` should be set within PySR automatically: https://github.com/MilesCranmer/PySR/blob/6ed57c829fe606e5a7b3d63880477e0f7dbb3af4/pysr/sr.py#L1304. I wonder why this is not working on your system? Maybe it's because it's windows...?",
+              "createdAt": "2022-06-25T22:04:03Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Can you try doing this again without the env variable, and trying to call `os.environ[\"JULIA_NUM_THREADS\"] = str(self.procs)` manually?",
+              "createdAt": "2022-06-25T22:06:24Z"
+            },
+            {
+              "author":
+              {
+                "login": "Carlos-Fernands"
+              },
+              "body": "When you say manually, I assume this  means running that line included in the Python code?",
+              "createdAt": "2022-06-25T22:36:41Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Correct",
+              "createdAt": "2022-06-26T01:56:21Z"
+            },
+            {
+              "author":
+              {
+                "login": "Carlos-Fernands"
+              },
+              "body": "After adding the line    \r\n**os.environ[\"JULIA_NUM_THREADS\"] = str(self.procs)**\r\n\r\nimmediately before \r\n**model = PySRRegressor(**\r\n\r\nI get:\r\n**NameError: name 'self' is not defined**\r\n\r\nI then changed this by:\r\n- replacing **self** with **model**\r\n- moving the line to before the fit()\r\nResults were as the original ones : no multi-threading\r\n\r\nI then set multithreading=False and, as before, more than one core was used.\r\n\r\nSo, that line is not really doing anything as it is.\r\nCould there be  another way of using the **self**?  ",
+              "createdAt": "2022-06-26T12:59:36Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Don’t use `self.procs`, just write the number of procs you want…",
+              "createdAt": "2022-06-26T19:57:00Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Anyways it sounds like this issue was solved on your OS by setting JULIA_NUM_THREADS globally, so I will close this. \r\ncheers,\r\nMiles",
+              "createdAt": "2022-06-26T20:01:45Z"
+            },
+            {
+              "author":
+              {
+                "login": "Carlos-Fernands"
+              },
+              "body": "Tried that too - no difference.\r\nAnyway, sorted, thanks.\r\n\r\n",
+              "createdAt": "2022-06-26T20:04:29Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHORYliXw=="
+          }
+        }
+      }
+    }
+  }
+}

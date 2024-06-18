@@ -1,0 +1,65 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 639,
+        "title": "[BUG]: Piecewise not in torch_mappings",
+        "body": "### What happened?\n\nafter fitting a pysr module with \"greater\" as a binary operator, exporting to torch failed with the following error:\r\n\r\n`KeyError: 'Function Piecewise was not found in Torch function mappings.Please add it to extra_torch_mappings in the format, e.g., {sympy.sqrt: torch.sqrt}.'\r\n`\r\n\r\nI've seen that in #433 Piecewise was added to the mappings, so I'm surprised to see this error.\r\n\r\n\r\nI did attempt to fix myself, but it didn't work out:\r\nI've tried adding mappings such as: \r\n\r\n`{sympy.Piecewise: lambda x, y: torch.where(x[1], x[0], y[0])}`\r\n\r\nbut then the same error arises for `sympy.functions.elementary.piecewise.ExprCondPair` and then `sympy.logic.boolalg.BooleanTrue`\r\n\r\nin the end, I added\r\n```\r\nextra_torch_mappings = {\r\n        sympy.Piecewise: lambda x, y: torch.where(x[1], x[0], y[0]),\r\n        sympy.functions.elementary.piecewise.ExprCondPair: tuple,\r\n        sympy.logic.boolalg.BooleanTrue: torch.BoolTensor,\r\n        \"greater\": lambda x, y: torch.where(x > y, 1.0, 0.0),\r\n    }\r\n```\r\n\r\nBut even this produced the following error:\r\n\r\n`KeyError: 'Function ITE was not found in Torch function mappings.Please add it to extra_torch_mappings in the format, e.g., {sympy.sqrt: torch.sqrt}.'\r\n`\r\n\r\nHopefully, I am missing something obvious?\n\n### Version\n\n0.18.4\n\n### Operating System\n\nLinux\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n_No response_\n\n### Extra Info\n\n_No response_",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "tbuckworth"
+              },
+              "body": "I just realised that #433 is a pull request, so I copied the code and used it to add the mappings manually. \r\nHowever, I'm still getting the error:\r\n`KeyError: 'Function ITE was not found in Torch function mappings.Please add it to extra_torch_mappings in the format, e.g., {sympy.sqrt: torch.sqrt}.'`",
+              "createdAt": "2024-06-03T09:49:53Z"
+            },
+            {
+              "author":
+              {
+                "login": "tbuckworth"
+              },
+              "body": "I've added this mapping, which seems to circumvent the error, but I haven't fully tested it yet:\r\n```\r\ndef if_then_else(*conds):\r\n    a, b, c = conds\r\n    return torch.where(a, torch.where(b, True, False), torch.where(c, True, False))\r\n```\r\n\r\n`extra_torch_mappings = {sympy.logic.boolalg.ITE: if_then_else}`\r\n",
+              "createdAt": "2024-06-03T10:19:43Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Nice! Yeah that should be added to the GitHub pull request. Feel free to suggest that on the PR via the review system and you will be credited as a coauthor of the PR.",
+              "createdAt": "2024-06-03T11:12:19Z"
+            },
+            {
+              "author":
+              {
+                "login": "tbuckworth"
+              },
+              "body": "Thanks! I'll add a review comment on the PR.\r\n\r\nThere was another error with `piecewise`, when cond is a float (1.), but I fixed it by replacing `cond` with `cond.bool()`:\r\n\r\n```\r\noutput += torch.where(\r\n                    cond.bool() & ~already_used, expr, torch.zeros_like(expr)\r\n                )\r\n                already_used = already_used | cond.bool()\r\n```\r\n\r\nNow, as long as I use a single batch dimension, it works, but multiple batch dimensions fail.\r\n\r\nI believe this is due to export_torch.py, where _SingleSymPyModule.forward is:\r\n\r\n```\r\n            def forward(self, X):\r\n                if self._selection is not None:\r\n                    X = X[:, self._selection]\r\n                symbols = {symbol: X[:, i] for i, symbol in enumerate(self.symbols_in)}\r\n                return self._node(symbols)\r\n```\r\n\r\nif `X[:,` is replaced with `X[...,` then i believe it will work. This is a separate issue though, I suppose\r\n\r\n\r\n",
+              "createdAt": "2024-06-03T11:53:10Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "(Just leaving it open until that PR is closed, since there are still some TODO items)",
+              "createdAt": "2024-06-03T16:15:48Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOf-OL9A=="
+          }
+        }
+      }
+    }
+  }
+}

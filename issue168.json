@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 168,
+        "title": "[BUG] module 'sympy.core.core' has no attribute 'numbers'",
+        "body": "**Describe the bug**\r\nA clear and concise description of what the bug is.\r\nCan't install\r\nDid \r\n```bash\r\nconda install -c conda-forge pysr\r\npython -c 'import pysr; pysr.install()'\r\n```\r\ngot\r\n```\r\nTraceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\n  File \"/Users/katherinepaseman/anaconda3/lib/python3.8/site-packages/pysr/__init__.py\", line 12, in <module>\r\n    from .export_jax import sympy2jax\r\n  File \"/Users/katherinepaseman/anaconda3/lib/python3.8/site-packages/pysr/export_jax.py\", line 52, in <module>\r\n    sympy.core.numbers.Half: \"(lambda: 0.5)\",\r\nAttributeError: module 'sympy.core.core' has no attribute 'numbers'\r\n```\r\n\r\n**Version:**\r\n- OS: [e.g. macOS] - Running MacOS versions 13.4\r\n- Does the bug still appear with the latest version of PySR? - yes\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks. It looks like the `sympy` version might be a bit older. Could you try `conda update sympy`?",
+              "createdAt": "2022-07-26T19:19:30Z"
+            },
+            {
+              "author":
+              {
+                "login": "paseman"
+              },
+              "body": "Thanks for the prompt reply.\r\nDid conda update sympy\r\nthen\r\npython -c 'import pysr; pysr.install()' \r\nSystems has been stuck about 15 minutes after printing out\r\n(base) katherinepaseman@Bills-MacBook-Pro-3 Pysr % python -c 'import pysr; pysr.install()'             \r\n[ Info: Julia version info\r\nJulia Version 1.6.5\r\nCommit 9058264a69* (2021-12-19 12:30 UTC)\r\nPlatform Info:\r\n  OS: macOS (x86_64-apple-darwin13.4.0)\r\n  uname: Darwin 21.5.0 Darwin Kernel Version 21.5.0: Tue Apr 26 21:08:22 PDT 2022; root:xnu-8020.121.3~4/RELEASE_X86_64 x86_64 i386\r\n  CPU: Intel(R) Core(TM) i9-9980HK CPU @ 2.40GHz: \r\n                 speed         user         nice          sys         idle          irq\r\n       #1-16  2400 MHz      63120 s          0 s      45605 s    2510451 s          0 s\r\n       \r\n  Memory: 64.0 GB (30091.30859375 MB free)\r\n  Uptime: 16370.0 sec\r\n  Load Avg:  7.0849609375  3.90478515625  2.82763671875\r\n  WORD_SIZE: 64\r\n  LIBM: libopenlibm\r\n  LLVM: libLLVM-11.0.1 (ORCJIT, skylake)\r\nEnvironment:\r\n  JULIA_DEPOT_PATH_BACKUP = \r\n  JULIA_PROJECT_BACKUP = \r\n  JULIA_LOAD_PATH_BACKUP = \r\n  JULIA_DEPOT_PATH = /Users/katherinepaseman/anaconda3/share/julia:\r\n  JULIA_SSL_CA_ROOTS_PATH_BACKUP = \r\n  JULIA_SSL_CA_ROOTS_PATH = /Users/katherinepaseman/anaconda3/ssl/cacert.pem\r\n  XPC_FLAGS = 0x0\r\n  TERM = xterm-256color\r\n  HOME = /Users/katherinepaseman\r\n  PATH = /Users/katherinepaseman/anaconda3/bin:/Users/katherinepaseman/anaconda3/condabin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/git/bin\r\n  PYTHONPATH = /Users/katherinepaseman/Documents/projects/py:/Users/katherinepaseman/Documents/projects/py/Analyst:\r\n  JULIA_DEPOT_PATH_BACKUP = \r\n  JULIA_LOAD_PATH_BACKUP = \r\n  JULIA_DEPOT_PATH = /Users/katherinepaseman/anaconda3/share/julia:\r\n  JULIA_SSL_CA_ROOTS_PATH_BACKUP = \r\n  JULIA_SSL_CA_ROOTS_PATH = /Users/katherinepaseman/anaconda3/ssl/cacert.pem\r\n[ Info: Julia executable: /Users/katherinepaseman/anaconda3/bin/julia\r\n[ Info: Trying to import PyCall...\r\n┌ Error: `import PyCall` failed\r\n│   exception =\r\n│    ArgumentError: Package PyCall [438e738f-606a-5dbb-bf0a-cddfbfd45ab0] is required but does not seem to be installed:\r\n│     - Run `Pkg.instantiate()` to install all recorded dependencies.\r\n│    \r\n│    Stacktrace:\r\n│     [1] _require(pkg::Base.PkgId)\r\n│       @ Base ./loading.jl:1012\r\n│     [2] require(uuidkey::Base.PkgId)\r\n│       @ Base ./loading.jl:936\r\n│     [3] top-level scope\r\n│       @ ~/anaconda3/lib/python3.8/site-packages/julia/install.jl:36\r\n│     [4] include(mod::Module, _path::String)\r\n│       @ Base ./Base.jl:384\r\n│     [5] exec_options(opts::Base.JLOptions)\r\n│       @ Base ./client.jl:285\r\n│     [6] _start()\r\n│       @ Base ./client.jl:485\r\n└ @ Main ~/anaconda3/lib/python3.8/site-packages/julia/install.jl:38\r\n[ Info: Installing PyCall...\r\n  Installing known registries into `~/anaconda3/share/julia`\r\n┌ Error: curl_multi_socket_action: 8\r\n└ @ Downloads.Curl /Users/runner/miniforge3/conda-bld/julia_1641439054055/work/usr/share/julia/stdlib/v1.6/Downloads/src/Curl/utils.jl:36\r\n\r\n\r\n",
+              "createdAt": "2022-07-26T20:17:14Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOR0iIew=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 454,
+        "title": "[Feature]: How can I use GPU to accelerate training, like deep learning?",
+        "body": "### Feature Request\n\nHow can I use GPU to accelerate training, like deep learning? and can partial derivative correlation regression be used for data related to partial differential equations?How can I use GPU to accelerate training, like deep learning? and can partial derivative correlation regression be used for data related to partial differential equations?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @guoaiBB,\r\n\r\nThe backend would have to some changes before it would support CUDA natively.\r\n\r\nI think basically it would need to be able to store symbolic expressions as some CUDA arrays in a new `Node{T}`-like type that subtypes `AbstractNode`: https://github.com/SymbolicML/DynamicExpressions.jl/blob/master/src/Equation.jl. It might be a lot of work FYI.\r\n\r\nBut, if you're just using CUDA for array evaluation, then it shouldn't be so bad. It might already work (on the Julia side of things). Take a look at https://github.com/JuliaGPU/CUDA.jl.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-11-03T01:26:03Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Closing in favor of https://github.com/SymbolicML/DynamicExpressions.jl/issues/31",
+              "createdAt": "2023-11-12T14:32:00Z"
+            },
+            {
+              "author":
+              {
+                "login": "guoaiBB"
+              },
+              "body": "Thank you very much.I have some questions at the moment.\r\n I am recently using pysr to perform regression on data where the input x,\r\ny, z output is temperature.\r\nHowever, the data volume is relatively large, with 300k rows of data, and\r\nthe fitting effect is not very good. Could you please give me some advice?\r\nIn addition, I would like to ask whether pysr can perform regression on\r\npartial differential operators, such as data simulated by cfd that solves\r\nns equations.\r\nThank you very much again\r\n\r\nMiles Cranmer ***@***.***> 于2023年11月12日周日 22:32写道：\r\n\r\n> Closed #454 <https://github.com/MilesCranmer/PySR/issues/454> as\r\n> completed.\r\n>\r\n> —\r\n> Reply to this email directly, view it on GitHub\r\n> <https://github.com/MilesCranmer/PySR/issues/454#event-10934653418>, or\r\n> unsubscribe\r\n> <https://github.com/notifications/unsubscribe-auth/BDVHEOUYHE4BC3IKHSLP6YLYEDMWVAVCNFSM6AAAAAA6ZDP2E2VHI2DSMVQWIX3LMV45UABCJFZXG5LFIV3GK3TUJZXXI2LGNFRWC5DJN5XDWMJQHEZTINRVGM2DCOA>\r\n> .\r\n> You are receiving this because you were mentioned.Message ID:\r\n> ***@***.***>\r\n>\r\n",
+              "createdAt": "2023-11-12T15:17:28Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @guoaiBB,\r\n\r\nIf it's okay with you, could you post your questions separately? Generally I try to keep one topic per issue/discussion so it's easier for people to find if they search it.\r\n\r\nFor this question in particular, it's good if you could initially check the tuning advice page (https://astroautomata.com/PySR/tuning/) as well as the forums (https://github.com/MilesCranmer/PySR/discussions). If you can't find an answer there then feel free to post a new discussion for help.\r\n\r\n(300k rows is too large for PySR; you generally only need 5k max)\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-11-12T15:34:07Z"
+            },
+            {
+              "author":
+              {
+                "login": "guoaiBB"
+              },
+              "body": "Thanks for the tip!\r\n\r\nMiles Cranmer ***@***.***> 于2023年11月12日周日 23:34写道：\r\n\r\n> Hi @guoaiBB <https://github.com/guoaiBB>,\r\n>\r\n> If it's okay with you, could you post your questions separately? Generally\r\n> I try to keep one topic per issue/discussion so it's easier for people to\r\n> find if they search it.\r\n>\r\n> For this question in particular, it's good if you could initially check\r\n> the tuning advice page (https://astroautomata.com/PySR/tuning/) as well\r\n> as the forums (https://github.com/MilesCranmer/PySR/discussions). If you\r\n> can't find an answer there then feel free to post a new discussion for help.\r\n>\r\n> (300k rows is too large for PySR; you generally only need 5k max)\r\n>\r\n> Cheers,\r\n> Miles\r\n>\r\n> —\r\n> Reply to this email directly, view it on GitHub\r\n> <https://github.com/MilesCranmer/PySR/issues/454#issuecomment-1807161324>,\r\n> or unsubscribe\r\n> <https://github.com/notifications/unsubscribe-auth/BDVHEOQLE6QCUOXZTQXWE4DYEDT7VAVCNFSM6AAAAAA6ZDP2E2VHI2DSMVQWIX3LMV43OSLTON2WKQ3PNVWWK3TUHMYTQMBXGE3DCMZSGQ>\r\n> .\r\n> You are receiving this because you were mentioned.Message ID:\r\n> ***@***.***>\r\n>\r\n",
+              "createdAt": "2023-11-12T15:39:46Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOa7cegA=="
+          }
+        }
+      }
+    }
+  }
+}

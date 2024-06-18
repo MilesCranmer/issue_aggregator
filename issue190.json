@@ -1,0 +1,57 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 190,
+        "title": "[Feature] latex_table best row indicator",
+        "body": "For latex_table(), it would be helpful if the table indicated which row is the optimal equation (according to whichever model_selection criterion was chosen).  This is something I could work on for you, if desired. I would need to know what visual indicator you would prefer. An arrow on the left pointing to the row, like in the training output? A box surrounding the row? A highlight? etc. Thanks.\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks for the posting and the offer! I need to think more about this. Since the \"pick\" column is so simple, I'm not sure if it makes sense to keep internal, or let the user could add manually to tables in their preferred format - some people might prefer an arrow, while others might prefer to bold the entire row. I also am cautious of making the score seem like some robust metric; in reality one should pick an equation, manually, with a combination of factors. What do you think?\r\n\r\nMaybe one solution is to let the user pass an arbitrary dataframe containing additional columns, and the LaTeX table would be generated with those?\r\n\r\nCheers!\r\nMiles",
+              "createdAt": "2022-09-12T00:51:45Z"
+            },
+            {
+              "author":
+              {
+                "login": "EverettGrethel"
+              },
+              "body": "Over the weekend I wrote a version where it can display an index column and a column where equations corresponding to a certain metric have a symbol denoted (for example \"*\" is for the \"best\" metric) and a key in the table footnote. I set it up such that the user has display options which they can enable via function arguments to latex_table. I think this is along the lines of your idea to give the user the ability to pass data frames to be added as columns, though that would be an additional feature. I edited the get_best function to allow one to pass a string argument of the desired metric to use, which is then used to find the equation corresponding to it. If someone has a custom metric, then maybe they would need to pass the metric's name and the equation itself. I'll make a pull request so that you can test it out. The symbol representation is a rudimentary idea; I did it because I thought it would be useful to be able to display which equations correspond to different metrics for comparison. For example, it can currently display which equations correspond to \"accuracy\", \"best\", and \"score\", in the same table, or if one equation corresponds to multiple metrics then it will append symbols. \r\n\r\nAs a side note: what makes the score (being negative log loss) not robust? I'm not familiar with symbolic regression literature so if you have any recommendations on how to assess what metric to use, it would be appreciated. ",
+              "createdAt": "2022-09-13T14:21:51Z"
+            },
+            {
+              "author":
+              {
+                "login": "EverettGrethel"
+              },
+              "body": "@MilesCranmer Any updates?",
+              "createdAt": "2022-10-11T17:17:43Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hey, sorry for the late reply. I thought a bit more about this but I'm still not 100% sure what the best option is.\r\n\r\nI do think most of the fine-tuning of the table should simply be done in LaTeX manually by the user - the less complexity handled by PySR the better. I was even initially cautious about adding `latex_table` at all, but since it is so tedious to generate it by hand, I finally added it. I definitely think it would be useful if one could add a user-specified column of data to the printout, since that is fairly arduous to add manually, but I'm not sure if something like an indicator for best equation should be added - that seems like something the user should do by hand, and then indicate on their table by themselves. What do you think?\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2022-10-11T17:54:25Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOS__6cg=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 551,
+        "title": "Update Head Worker Occupation Warning",
+        "body": "Just a minor thing I noticed in my output that might want to be updated.\r\n\r\nWith the renaming of `ncyclesperiteration` to `ncycles_per_iteration`, the error message for high head worker occupation should probably be updated, as it still references `ncyclesperiteration`. Here is the warning I got in my run (with `ncycles_per_iteration` provided to `PySRRegressor`)\r\n\r\n\"Head worker occupation: 22.1%. This is high, and will prevent efficient resource usage. Increase `ncyclesperiteration` to reduce load on head worker.\"",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Good catch! Thanks. (Happy to take a PR; will get to this hopefully soon otherwise)",
+              "createdAt": "2024-02-22T22:15:51Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Okay I fixed it with https://github.com/MilesCranmer/SymbolicRegression.jl/commit/e028cb1d5c60816972aee76270ed60a78b300a2c. Just need to have the new backend version propagate.",
+              "createdAt": "2024-02-22T23:54:36Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Fixed in #564.",
+              "createdAt": "2024-03-24T23:41:54Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOeDjbxA=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 37,
+        "title": "Error when selecting some operators",
+        "body": "Hi!\r\n\r\nI've been trying to use a variety of operators and for some of them I get an error. For example if I run:\r\n\r\n```\r\nequations = pysr(X, y, niterations=100,\r\n    binary_operators=[\"plus\", \"mult\", \"div\", \"sub\", \"pow\"],\r\n    unary_operators=[\r\n      \"cos\", \"sin\", \"asinh\", \"gamma\"\r\n      ])\r\n```\r\nI get\r\n```\r\nRunning on julia -O3 /tmp/tmpsva4rkch/runfile.jl\r\nCouldn't find equation file!\r\n```\r\n\r\nIf I remove the \"gamma\" from the operator list then this works fine. I get the same error if I use the operator \"acosh\". I believe these functions. I'm not sure why this is happening since acosh is just a core Julia function whereas gamma is in SpecialFunctions.jl. I also confirmed that a colleague got the same error on a different system. Any thoughts? ",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @tedwards2412,\r\n\r\nSorry about these errors, I don't test the special functions right now but I should definitely add some. Indeed it looks like gamma, lgamma, erf, erfc, and beta are not being correctly exported by the backend. Fixing this now.\r\n\r\nFor why `acosh` does not work, this is a different issue. The backend assumes that all operators are defined over the real line, but `acosh(x)` is not actually defined for `x<1`, so I will need to add a wrapper that will map (-infty, infty) to [1, infty) (similar things are done for sqrt, log, etc. to map to positive numbers). The simplest wrapper would be to pass a function like:\r\n```python\r\nunary_operators=[\"my_acosh(x)=acosh(abs(x)+1)\"]\r\n```\r\nto PySR. But I can set something up like this by default.\r\n\r\nBy the way, sorry there isn't a more helpful error message here. The backend tests all operators for being defined over the real line before starting the search, so I'm not sure why it's not giving a more helpful error message regarding this... are you running in a jupyter notebook by any chance? If you use `procs=0` (serial computation), it should be easier to debug since the errors will happen on the head worker. \r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2021-03-06T09:23:39Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Okay I've gotten these working; let me know if you encounter any problems.\r\n\r\nThese required some modifications, e.g., `gamma` I removed the singularities at 0, -1, -2, etc., and just return 0 close to those points.\r\n\r\n`acosh` -> `acosh_abs` = acos(abs(x) + 1)\r\n\r\n`atanh` -> `atanh_clip` = atanh(mod(x+1, 2) - 1)\r\n\r\n`asinh` is left as is.\r\n\r\nThese will be available in PySR 0.5.16.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2021-03-06T11:31:29Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Updated to pip. Let me know if you have any other problems.\r\n\r\nBy the way - I took out `asin` and `acos` operators for now. It's unclear to me the best way to implement domain wraps for them, so I think I'll leave this up to the user to implement their own choice of clip/modulus.\r\n\r\nCheers!\r\nMiles",
+              "createdAt": "2021-03-07T11:24:47Z"
+            },
+            {
+              "author":
+              {
+                "login": "tedwards2412"
+              },
+              "body": "Great! Thanks for all the fixes. These all work as expected now. You're right, I was running on a Jupyter notebook. I'll try using procs=0.",
+              "createdAt": "2021-03-08T09:21:20Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOLz5JKg=="
+          }
+        }
+      }
+    }
+  }
+}

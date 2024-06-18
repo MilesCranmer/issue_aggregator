@@ -1,0 +1,89 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 422,
+        "title": "[BUG]: Dimensional constraint not being applied.",
+        "body": "### What happened?\n\nHi! I'm experimenting with dimensional constraints and finding non-expected behaviour. \r\n\r\nWhen initializing the model I set \"dimensional_constraint_penalty=10**5\" and \"select_k_features=8\". \r\nThen when fitting the model I'm using a pandas data frame (with 8 columns) and using as X_units: [\"mol\",\"V\",\"nm\",\"nm\",\"J / V^2 / nm\",\"mol / nm^3\",\"J\"] and setting as y_units [\"J / V\"].\r\n\r\nThe first 2 equations found by the model have, as expected, a 10000 penalty to the loss, and they have the wrong units ([nm] and [nm]+[J / V ^ 2]. The next equation is a constant and does not have the 10000 penalty loss. All following equations also do not have the 10000 penalty loss even though they are not in units J / V (which in SI units should be A*s).\r\n\r\nThe same is happening when setting the units to be J / V ^ 2 for instance. Is this the expected behaviour, or am I missing something? The function chosen, with a loss of 0.8, is not dimensionally consistent with itself, and is not even close to J/V. \r\n\r\nThank you  \r\n\n\n### Version\n\n0.16.3\n\n### Operating System\n\nWindows\n\n### Package Manager\n\npip\n\n### Interface\n\nJupyter Notebook\n\n### Relevant log output\n\n_No response_\n\n### Extra Info\n\nThis is what I'm using to run, the data here is random, just so it could be run, in my actual code I'm using real data.\r\n```\r\nradius = 0.58 \r\nlenght = 2.8 \r\npi = 3.1415\r\ne0 = 2.15 \r\nrho = 33.3 \r\n\r\nx = np.random.rand(1000,2)\r\n\r\nX = pd.DataFrame(x,columns=[\"ns\",\"voltage\"])\r\nX[\"radius\"] = radius\r\nX[\"lenght\"] = lenght\r\nX[\"e0\"] = e0\r\nX[\"rho\"] = rho\r\nX[\"kbt\"] = 1\r\n\r\nerror = np.random.rand(1000,2)\r\nY = np.random.rand(1000,2)\r\n\r\nmodel.fit(X, y,weights=weights,X_units=[\"mol\",\"V\",\"nm\",\"nm\",\"J / V^2 / nm\",\"mol / nm^3\",\"J\"],y_units=[\"J / V\"])\r\n\r\n```",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hm, I wonder if the `select_k_features` is not applying the selection mask to the `X_units` and `y_units`... Does it work without that set?",
+              "createdAt": "2023-09-06T10:51:51Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Also, I would consider lowering the `dimensional_constraint_penalty`. Sometimes when it is too harsh of a penalty, it prevents the search from exploring efficiently.",
+              "createdAt": "2023-09-06T10:55:56Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hm, it looks like I indeed remembered to apply the selection mask to the units as well:\r\nhttps://github.com/MilesCranmer/PySR/blob/57dd7d2f9a2b214599e482cd7335ab0e815e8f1c/pysr/sr.py#L1541-L1543",
+              "createdAt": "2023-09-06T11:13:42Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Actually maybe I misunderstood the problem. It could already be working but maybe the output is unclear. Could you describe:\r\n\r\n> The function chosen, with a loss of 0.8, is not dimensionally consistent with itself, and is not even close to J/V.\r\n\r\nwhat you mean here with an example? Note that any constants found during the search actually have their own units. The string `[⋅]` basically means it can take on any units that make the equation work. (I'd consider adding an option to remove this \"wildcard dimensions\" functionality if you want)",
+              "createdAt": "2023-09-06T11:18:01Z"
+            },
+            {
+              "author":
+              {
+                "login": "SrGonao"
+              },
+              "body": "> Also, I would consider lowering the `dimensional_constraint_penalty`. Sometimes when it is too harsh of a penalty, it prevents the search from exploring efficiently.\r\n\r\nThanks for the tip, I will try it, I had put it to such high value because it is the one suggested in the example of dimensional, but I guess in that case it was so high because the values were also very high. \r\n\r\n\r\n> Actually maybe I misunderstood the problem. It could already be working but maybe the output is unclear. Could you describe:\r\n> \r\n> > The function chosen, with a loss of 0.8, is not dimensionally consistent with itself, and is not even close to J/V.\r\n> \r\n> what you mean here with an example? Note that any constants found during the search actually have their own units. The string `[⋅]` basically means it can take on any units that make the equation work. (I'd consider adding an option to remove this \"wildcard dimensions\" functionality if you want)\r\n\r\nI was thinking about exactly that, that maybe this was not a bug, but just a misunderstanding from my part about the functionality.  From what I gathered, there is no way to get the individual units of each constant term, which could be important. \r\n\r\nAbout your suggestion, the removal of the wildcard, or at least a way to distinguish between unitless constants and constants with units (by having them have a chosen complexity for instance), would be very applicable.  Maybe I'm misunderstanding the algorithm backstage, but if you can have any constant be any unit then it seems that it will most likely bypass the unit search (maybe in my case it was more pressing, because some of my variables were indeed constants).\r\n\r\nThis means that clearly this was not a bug, but just a misunderstanding of my part. ",
+              "createdAt": "2023-09-06T20:43:36Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Right, as an example, the expression:\r\n\r\n```julia\r\n\"y[m s⁻² kg] = (M[kg] * 2.6353e-22[⋅])\"\r\n```\r\n\r\nis actually dimensionally consistent, because the `⋅`, when solved, can take on the units of `m s⁻²`.\r\n\r\nHowever, the expression:\r\n\r\n```julia\r\n\"y[m s⁻² kg] = (M[kg] * 2.6353e-22[⋅] + m[kg])\"\r\n```\r\nwould not be dimensionally consistent, because there does not exist any such units inserted into the `⋅` that could make this expression work.\r\n\r\n---\r\n\r\nSo, you may be asking: why not show units in the `⋅` instead of just leaving it blank (and having the user figure it out afterwards)? The reason is basically that I found it is much faster to check dimensional consistency this way. If we were to solve exactly what units should be used in each `⋅`, it would be a bit slower (not to mention sometimes there are multiple solutions). The reason is: dimensional check, you basically just have to trace from leaves of the expression upwards, recording if there is a \"wildcard\" dimension or not. But for getting the specific units, you would have to first trace from leaves to root, and then from root to leaves to fill in the units.\r\n\r\nSince we need to very rapidly evaluate dimensional consistency, the tradeoff just did not seem worth it, compared to the user figuring out the units afterwards.\r\n\r\nBut maybe there is a fast way to do it, and we could display the units instead of `⋅`. The dimensional analysis portion of code was fairly recent and I'm open to suggestions/changing it!\r\n\r\nYou can see the dimensional analysis code here:\r\n\r\nhttps://github.com/MilesCranmer/SymbolicRegression.jl/blob/5c95478d8a01f2c6b6b54da26615c07fb6d3aee1/src/DimensionalAnalysis.jl\r\n\r\nFor example, the code for addition and subtraction operators is given here (`op` is either `+` or `-`)\r\n\r\n```julia\r\n@eval function $(op)(l::W, r::W) where {Q,W<:WildcardQuantity{Q}}\r\n        l.violates && return l\r\n        r.violates && return r\r\n        if same_dimensions(l, r)\r\n            return W($(op)(l.val, r.val), l.wildcard && r.wildcard, false)\r\n        elseif l.wildcard && r.wildcard\r\n            return W(\r\n                constructor_of(Q)($(op)(ustrip(l), ustrip(r)), typeof(dimension(l))),\r\n                true,\r\n                false,\r\n            )\r\n        elseif l.wildcard\r\n            return W($(op)(constructor_of(Q)(ustrip(l), dimension(r)), r.val), false, false)\r\n        elseif r.wildcard\r\n            return W($(op)(l.val, constructor_of(Q)(ustrip(r), dimension(l))), false, false)\r\n        else\r\n            return W(one(Q), false, true)\r\n        end\r\n    end\r\n```\r\n\r\nYou can see there are five branches (after first checking if either the left or right argument is already dimensionally invalid):\r\n\r\n1. Both left and right have the same dimensionality => the expression is valid AND any wildcard units are propagated upwards to the parent expression (so they can be consumed later).\r\n2. Otherwise, we check if both left and right have a wildcard unit => the expression is valid AND the wildcard unit is propagated.\r\n3. Otherwise, we check if the left has a wildcard => expression is valid, no wildcard unit propagated. This **consumes** the wildcard unit (basically a point that sets the unit of the constant. Maybe we could fill in the unit with a pointer here...).\r\n4. Similar, but for right argument.\r\n5. Invalid expression, as not dimensionally consistent and there is no wildcard.\r\n",
+              "createdAt": "2023-09-07T12:56:36Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "The type used for \"wildcard\" quantities is this one:\r\n\r\n```julia\r\n\"\"\"\r\n    WildcardQuantity{Q<:AbstractQuantity}\r\n\r\n\r\nA wrapper for a `AbstractQuantity` that allows for a wildcard feature, indicating\r\nthere is a free constant whose dimensions are not yet determined.\r\nAlso stores a flag indicating whether an expression is dimensionally consistent.\r\n\"\"\"\r\nstruct WildcardQuantity{Q<:AbstractQuantity}\r\n    val::Q\r\n    wildcard::Bool\r\n    violates::Bool\r\nend\r\n```\r\n\r\n`Q` is a quantity-like type. The quantity objects are from the units package [DynamicQuantities.jl](https://github.com/SymbolicML/DynamicQuantities.jl), but this `WildcardQuantity` is defined in SymbolicRegression.jl",
+              "createdAt": "2023-09-07T13:01:01Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Also, as a quick and dirty way to avoid learned constants, you can use `complexity_of_constants=100`. Then constants are prohibitively expensive so the search will avoid them.",
+              "createdAt": "2023-09-07T13:09:37Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOZe5ssw=="
+          }
+        }
+      }
+    }
+  }
+}

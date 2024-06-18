@@ -1,0 +1,121 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 379,
+        "title": "[Feature]: Ensure constant optimization for output formulas",
+        "body": "### Feature Request\n\nHi, thanks for developing the helpful tool. \r\nI thought that constants in hall-of-fame formulas have always been optimized. However, I found it is not the case. This happens even after I set `optimize_probability=1.0`. For example, one resulting formula on my data was \r\n`52.16375*x2*(x14 + 0.2914053*x24)/x0**2, loss=219.1645146`\r\nAnd it had been listed in \"Hall of Fame\" for multiple iterations before the symbolic regression process finished. I wrote some code to optimize the constant `a,b` in `lambda x: a*x[2]*(x[14] + b*x[24])/x[0]**2` using BFGS in `scipy.optimize.minimize` , with initial position `[52.16375, 0.2914053]`, `maxiter = 8`, and the same loss function as symbolic regression. I got a better set of constants: \r\n`68.0186345*x2*(x14 + 0.1651678*x24)/x0**2, loss=217.6017091`\r\nI think this is because of the age-based regularization. Although constants are optimized after each iteration (when  `optimize_probability=1.0`), the hall-of-fame formula may have been removed out of the population without being optimized. \r\nHence, I suggest an option to re-optimize the constants for the hall-of-fame formulas after the symbolic regression process. Although users may implement this in a similar way as [Discussion #255](https://github.com/MilesCranmer/PySR/discussions/255), I think it is more convenient to incorporate this feature. \r\n\r\n\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks for the detailed note on this, it is quite helpful!\r\n\r\nJust to double check: when the probability of optimizing is 1.0, this issue goes away? In other words, you mean it’s because the constants did not get optimized?\r\n\r\nOr, if not, have you tried the other optimization hyperparameters? Maybe it is the specific optimizer used (BFGS with 3 steps) rather than the evolutionary strategy itself?",
+              "createdAt": "2023-07-12T06:18:11Z"
+            },
+            {
+              "author":
+              {
+                "login": "Nithouson"
+              },
+              "body": "This issue does not go way when probability of optimization is 1.0. The case I report happened when optimize_probability=1.0.\r\n\r\nIf I understand right, the default constant optimizer in PySR is BFGS, and the number of iterations is 8 (which I didn't change in PySR). I used the same setting on the output formula and found improvement, so I suspect this formula had not been optimized by PySR. Otherwise PySR would find a better set of constants, too. ",
+              "createdAt": "2023-07-12T06:43:46Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "What is the default optimizer in SciPy?",
+              "createdAt": "2023-07-12T07:00:09Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "This is the function optimization call: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/0f47c6baf783b436ccecd5e635f692516c92d963/src/ConstantOptimization.jl#L29 (Julia code). It would be insightful to see whether it actually gets stuck at those incorrect constants, or if it does actually find them with enough steps.",
+              "createdAt": "2023-07-12T07:56:03Z"
+            },
+            {
+              "author":
+              {
+                "login": "Nithouson"
+              },
+              "body": "The optimize.minimize() function in SciPy supports multiple optimizers. If not specified, the software would choose one of BFGS, L-BFGS-B, SLSQP, depending on whether or not the problem has constraints or bounds. \r\nIn the case I reported, I specified BFGS to align with PySR. ",
+              "createdAt": "2023-07-12T07:58:59Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hm, so if the optimizer is the same, and if there is a 100% chance of optimization occurring, then what could make up the difference?\r\n\r\nDo you have a full MWE (ie code) of this issue?\r\n\r\nNote that there is `deterministic=True, random_state=0, multithreading=False, procs=0` for reproducible debugging.",
+              "createdAt": "2023-07-12T14:17:40Z"
+            },
+            {
+              "author":
+              {
+                "login": "Nithouson"
+              },
+              "body": "I cannot make my data public currently, but I will try to work out a reproducible code of this issue with synthetic data. \r\n\r\nI suspect this issue is caused by the age-based regularization. PySR optimizes the constants after one iteration, which contains multiple rounds of population evolution. The oldest expression is replaced at each round of evolution. Thus, the hall-of-fame formula may have been removed out of the population when an iteration finishes, thus does not get optimized.",
+              "createdAt": "2023-07-14T05:46:30Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hm, it *should* be copied when saved to the hall of fame. ie, there shouldn’t be a data race. But if there is then we need to fix it.",
+              "createdAt": "2023-07-17T21:54:52Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Yeah, mutations always occur on a copied tree: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/727493db3e9c5f17335313fc56f2612b7c82bc32/src/Mutate.jl#L100\r\n\r\nSo not sure what’s going on. If you follow up with a MWE I can have a look.",
+              "createdAt": "2023-07-17T22:43:36Z"
+            },
+            {
+              "author":
+              {
+                "login": "Nithouson"
+              },
+              "body": "Here is a reproducible script where the constants in output formulas are not optimal.\r\n\r\n```\r\nfrom pysr import PySRRegressor\r\nimport numpy as np\r\nfrom scipy import optimize\r\n\r\nnp.random.seed(130801)\r\nX = np.abs(np.random.randn(1000, 5)) + 1.0\r\ny = 13.0801 * (1 + 0.4 * np.random.randn(1000)) * X[:, 2] ** 1.5617 * X[:, 3] / X[:, 0] ** 1.7554\r\n\r\nmodel = PySRRegressor(\r\n    niterations=100,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\", \"^\"],\r\n    unary_operators=[\"exp\", \"log\"],\r\n    complexity_of_operators={\"exp\": 2, \"log\": 2},\r\n    loss=\"loss(prediction, target) = abs(prediction - target)\",\r\n    optimize_probability=1.0,  # ensure constant optimization after each iteration\r\n    deterministic=True,\r\n    random_state=0,\r\n    multithreading=False,\r\n    procs=0,\r\n)\r\n\r\nmodel.fit(X, y)\r\ndf = model.equations_\r\nprint(df['sympy_format'][7], df['loss'][7])\r\n# (x2**0.8403867/x0)**1.7233436*(x3*(x2 + 12.663361) - x4) 8.56536\r\n\r\n\r\ndef L1_loss(theta):\r\n    a, b, c = theta\r\n    expr = lambda x: (x[2]**a/x[0])**b*(x[3]*(x[2] + c) - x[4])\r\n    return sum([abs(y[i]-expr(X[i])) for i in range(len(y))])/len(y)\r\n\r\n\r\ninit_param = [0.8403867, 1.7233436, 12.663361]\r\nprint(L1_loss(init_param))  # 8.565360387966996\r\nres = optimize.minimize(L1_loss, np.asarray(init_param), method=\"BFGS\",\r\n                        options={\"disp\": True, \"maxiter\":8})\r\nprint(res.x, res.fun)\r\n# [ 0.84992441  1.71813267 12.65474661] 8.562296280088715\r\n```\r\n\r\nIn this example, constants in most output equations (other than this with id=7)  seem to be OK. On my real dataset, however, constants in most equations can be further improved, and the discrepancy in loss values is more notable. ",
+              "createdAt": "2023-08-01T11:53:57Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks for putting in the time to make this, it is quite helpful!\r\n\r\nI guess now we need to rule out various causes:\r\n\r\n1. Is it the case that the optimization simply does not occur as frequently as it should, as you suspect? Or, is it instead:\r\n2. The optimization routine used in the search differs in such a way that it finds non-optimal constants?\r\n\r\nThe other difference between scipy.optimize and the Julia backend is the use of a backtracking line search ([here](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/1ab9e303dbfe654762b87a59b9f09e0cba19cf09/src/ConstantOptimization.jl#L63))\r\n\r\n```julia\r\n            algorithm = Optim.BFGS(; linesearch=LineSearches.BackTracking())\r\n```\r\n\r\nthis backtracking is used to deal with non-linearities and discontinuities in potential expressions. But it is possible that it is resulting in non-optimal constants in some cases.\r\n\r\nTo really test (2) we could simply see if calling Optim.jl with these settings differs from scipy in the constants it finds.",
+              "createdAt": "2023-08-01T12:09:12Z"
+            },
+            {
+              "author":
+              {
+                "login": "Nithouson"
+              },
+              "body": "Currently I assume the difference comes from the optimization routine (cause 2) . One possibility is that the default `optimizer_iterations=8` is inadequate for convergence (finding the optimal constants). It may be the different settings of BFGS algorithm as well, as you pointed out. \r\nI think I have misunderstood the workflow of PySR previously. The Hall of Fame is updated at the end of each iteration, which happens after the ‘simplify and optimize‘ operation. Hence, if we set `optimize_probability=1.0`, every equation in the Hall of Fame should have been optimized (although the number of iterations may be inadequate). If this is correct, cause 1 should not happen.\r\nIncrease `optimizer_iterations` may produce better constant optimization results, yet it largely increases the running time. Hence I request to add an option which optimize the constants in the final Hall of Fame before PySR exits, possibly with more  iterations than the parameter `optimizer_iterations` used in the expression searching process. \r\nBesides, I'm sorry that I cannot test or debug Julia codes for now, as I am not familiar with the language. ",
+              "createdAt": "2023-08-02T07:24:24Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOYwrE2A=="
+          }
+        }
+      }
+    }
+  }
+}

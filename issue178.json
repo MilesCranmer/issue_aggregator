@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 178,
+        "title": "[BUG] Loading from pickle file fails when .csv is moved",
+        "body": "When loading a pickle file, it seems to use the original pathname of the csv file, rather than converting the pickle filename to a csv extension.",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

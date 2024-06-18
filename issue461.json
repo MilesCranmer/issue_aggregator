@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 461,
+        "title": "[Feature]: Self-contained install/user interface",
+        "body": "### Feature Request\n\n\r\nI am looking around to try out a few symbolic regression packages.  it would be nice to be able to give it a few data points and see what packages can do.\r\n\r\nI would also love to ask my students to play with it.\r\n\r\nalas, this only works if the set-up is easy --- a webapp (probably not feasible, because you need a lot of CPU), or a binary app.  many students run macos these days, too.\r\n\r\njust a feature suggestion...\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks @iwelch, indeed I think a web app or self-contained desktop app would be awesome to have.\r\n\r\nThe closest thing to it is the interactive API here: https://astroautomata.com/PySR/interactive-docs/. But at the end of the day it still requires one to run some Python code (see examples here: https://astroautomata.com/PySR/examples/).\r\n\r\nI wonder if there is some scikit-learn graphical user interface that already exists? Surely it would be popular. Since PySR is scikit-learn compatible it can probably just plug in.",
+              "createdAt": "2023-11-12T14:30:38Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOa7bYGA=="
+          }
+        }
+      }
+    }
+  }
+}

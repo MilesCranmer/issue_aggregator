@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 264,
+        "title": "Add Constant(s) Declaration to the PySRRegressor?",
+        "body": "I experimented with PySR on Feynman equation 76 (e.g. q*v/(2*pi*r)) to see if it could 'learn' the constant 'Pi'?\r\nWith the full data file but only 1,000 rows PySR generated:\r\n```\r\nimport numpy as np\r\nfeynmanTable =np.loadtxt(\"/Users/davidlaxer/AI-Feynman/example_data/example_II.34.2a.txt\")\r\ninput = feynmanTable[:,:3]\r\noutput = feynmanTable[:,-1]\r\n\r\nmodel = PySRRegressor(\r\n    loss=\"loss(x, y) = (x - y)^2\",\r\n    #loss=\"L1DistLoss()\",\r\n    niterations=1000,\r\n    #niterations=10,\r\n    binary_operators=[\"+\", \"*\", \"^\", \"-\", \"/\"],\r\n    unary_operators=[\"sin\", \"cos\", \"square\", \"log\", \"exp\", \"sqrt\", \"abs\"],\r\n    extra_sympy_mappings={},\r\n)\r\nmodel.fit(X=input[:1000], y=output[:1000])\r\n\r\n...\r\nPySRRegressor.equations_ = [\r\n\t   pick      score                                           equation  \\\r\n\t0         0.000000                                         0.56806177   \r\n\t1         0.232499                                   (1.3781261 / x2)   \r\n\t2         0.333228                                    (sqrt(x0) / x2)   \r\n\t3         0.314004                           ((x0 / x2) * 0.47050688)   \r\n\t4  >>>>  15.328202                    ((0.15915495 / (x2 / x1)) * x0)   \r\n\t5         0.063520  ((0.38872972 / abs((x2 / -0.40942314) / x1)) *...   \r\n\t6         0.033199  abs((abs(abs(0.17996888) / (x2 / x1)) * x0) / ...   \r\n\t\r\n\t           loss  complexity  \r\n\t0  1.959071e-01           1  \r\n\t1  1.230565e-01           3  \r\n\t2  8.818312e-02           4  \r\n\t3  6.441921e-02           5  \r\n\t4  3.126860e-15           7  \r\n\t5  2.584335e-15          10  \r\n\t6  2.418315e-15          12  \r\n]\r\n\r\n```\r\nWith the feynman_problem.py interface:\r\n```\r\nmodel = PySRRegressor(loss=\"loss(x, y) = (x - y)^2\",\r\n    niterations=1000,\r\n    binary_operators=[\"+\", \"*\", \"^\", \"-\", \"/\"],\r\n    unary_operators=[\"sin\", \"cos\", \"square\", \"log\", \"exp\", \"sqrt\", \"abs\"],\r\n    extra_sympy_mappings={},)\r\n    model.fit(problem.X, problem.y)\r\n...\r\nproblem = problem_list[74]\r\nproblem\r\nFeynman Equation: II.34.2a|Form: q*v/(2*pi*r)\r\n\r\nrun_on_problem(problem)\r\n...\r\nCycles per second: 6.180e+04\r\nHead worker occupation: 2.1%\r\nProgress: 14908 / 15000 total iterations (99.387%)\r\n==============================\r\nHall of Fame:\r\n-----------------------------------------\r\nComplexity  Loss       Score     Equation\r\n1           1.443e+02  4.228e-07  5.0480013\r\n2           1.433e+02  7.515e-03  sqrt(x1)\r\n3           6.734e+01  7.548e-01  (x0 / x2)\r\n4           6.425e+01  4.697e-02  exp(4.2469196 - x2)\r\n5           5.363e+01  1.808e-01  ((1.2044919 ^ x0) / x2)\r\n6           2.026e+01  9.733e-01  abs(x1 / (x2 + -0.32283887))\r\n7           5.886e-13  2.303e+01  (((x0 * 0.15915494) / x2) * x1)\r\n18          3.238e-13  5.434e-02  abs((abs(abs(abs(abs(abs(abs(x0) * -0.39923882))) * -0.39864594)) / abs(abs(x2))) * x1)\r\n\r\n\r\n('complexity                                                      18\\n\r\nloss                                                           0.0\\n\r\nscore                                                     0.054342\\n\r\nequation         abs((abs(abs(abs(abs(abs(abs(x0) * -0.39923882...\\n\r\nsympy_format     0.159154934683391*Abs(x1*Abs(Abs(Abs(Abs(Abs(A...\\nl\r\nambda_format    PySRFunction(X=>0.159154934683391*Abs(x1*Abs(A...\\n\r\nName: 7, dtype: object',\r\n 'q*v/(2*pi*r)',\r\n {'time': 467.58346700668335,\r\n  'problem': Feynman Equation: II.34.2a|Form: q*v/(2*pi*r)})\r\n```\r\nI know I can add the number Pi as an additional column to the input data file.\r\nDo you think there would be any advantage(s) do allowing constants to be specified in the PySRRegressor?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I like that idea! Feel free to make a PR. Maybe something of the following form?\r\n\r\n```python\r\nmodel = PySRRegressor(\r\n    complexity_of_constants=100  # to prevent PySR finding scalars\r\n)\r\n\r\nmodel.fit(X, y, constants={\"pi\": 3.14, \"one\": 1, \"two\": 2})\r\n```\r\n\r\nIf not I could eventually work on this but might take some time.\r\n\r\nI think when passing `constants` like this, they would basically be added as additional columns to the input data `X`. Previously you would have to manually add columns to `X` with the constant value and set the `variable_names`.",
+              "createdAt": "2023-02-09T19:38:22Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOVOtnCQ=="
+          }
+        }
+      }
+    }
+  }
+}

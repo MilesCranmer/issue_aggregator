@@ -1,0 +1,97 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 183,
+        "title": "[BUG] min binary function raises errors during prediction",
+        "body": "**Describe the bug**\r\nWhen I use \"min\" and \"max\" in my binary operators, fitting goes well but prediction raises an error.\r\n\r\n**Version (please include the following information):**\r\n- OS: ubuntu 20.04\r\n- Julia version 1.8.0\r\n- Python version 3.8\r\n- PySR version 0.10.1\r\n- Does the bug still appear with the latest version of PySR? Yes\r\n\r\n**Configuration**\r\n```\r\nimport numpy as np\r\nfrom pysr import PySRRegressor\r\n\r\ndata_x = np.random.randint(-100, 100, (200, 2))\r\ndata_y = np.minimum(data_x[:,0], 8)\r\n\r\nmodel = PySRRegressor(\r\n    model_selection=\"best\",  # Result is mix of simplicity+accuracy\r\n    niterations=40,\r\n    binary_operators=[\r\n        \"min\", \"max\"\r\n    ],\r\n    unary_operators=[\r\n    ],\r\n    extra_sympy_mappings={\r\n    },\r\n    # ^ Define operator for SymPy as well\r\n    loss=\"loss(x, y) = (x - y)^2\",\r\n    warm_start=False,\r\n)\r\nprint('Fitting data')\r\nmodel.fit(data_x, data_y)\r\nprint(model)\r\nprint(model.get_best())\r\n\r\nprint(model.predict(data_x))\r\n\r\n```\r\n\r\n**Error message**\r\nValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()\r\n\r\nHappens in predict() call. The fit result is correct.\r\n\r\n\r\n**Additional context**\r\nI tried adding {'min': np.minimum}, or  {'min': min}, or {'min': sympy.Min} to extra_sympy_mappings. None worked.\r\n\r\nI found a workaround : \r\n\r\n```\r\nfor row in data_x: \r\n    model.predict(row)\r\n```\r\nNot very satisfying though.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "gdelab"
+              },
+              "body": "Thanks for the amazing package by the way !",
+              "createdAt": "2022-08-31T16:22:51Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @gdelab,\r\n\r\nThanks for posting. I didn't that `min` and `max` would work out of the box, so it is cool that they do!\r\n\r\nI wonder if the reason these don't work at the prediction step is because `min` is already a defined function in python, so `sympy` just tries to interpret it as that, regardless of what you set for `extra_sympy_mappings`. One thing you could try is using a different name for the functions:\r\n```python\r\nmodel = PySRRegressor(\r\n    binary_operators=[\r\n        \"mmin(x, y) = min(x, y)\",\r\n        \"mmax(x, y) = max(x, y)\",\r\n    ],\r\n    extra_sympy_mappings={\"mmin\": sympy.Min, \"mmax\": sympy.Max}\r\n)\r\n```\r\nLet me know if this works. Everything else looks fine though.\r\n\r\nCheers,\r\nMiles\r\n \r\n",
+              "createdAt": "2022-08-31T17:22:35Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Actually, wait. I just looked and sympy seems to be doing it's job. If you look at `model.sympy(i)` where `i` is the row of the equation, you can see that it's correctly parsed to sympy!\r\n\r\nI think the reason it doesn't work in the predict stage is because sympy's lambdify function does not have a numpy mapping for `np.minimum` yet. In other words, this is a sympy bug.\r\n\r\nI'll think of a hack around this...",
+              "createdAt": "2022-08-31T17:35:00Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "So I did something similar here: https://github.com/MilesCranmer/PySR/issues/150\r\n\r\nYou can hack this with the `sympy.Piecewise` function, which does correctly map to numpy equivalents. To use this:\r\n```python\r\nmodel = PySRRegressor(\r\n    binary_operators=[\r\n        \"min\", \"max\"\r\n    ],\r\n    extra_sympy_mappings={\r\n        \"min\": lambda x, y: sympy.Piecewise((x, x < y), (y, True)),\r\n        \"max\": lambda x, y: sympy.Piecewise((y, x < y), (x, True)),\r\n    }\r\n)\r\n```\r\n\r\nThis correctly uses `model.predict`!",
+              "createdAt": "2022-08-31T17:39:22Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Would you be interested in submitting a PR to add `min` and `max` to the default sympy mappings library? i.e., here:\r\nhttps://github.com/MilesCranmer/PySR/blob/dc1a4e7301384c59b7c89758b517f09b74a62a10/pysr/sr.py#L40-L78",
+              "createdAt": "2022-08-31T17:41:33Z"
+            },
+            {
+              "author":
+              {
+                "login": "gdelab"
+              },
+              "body": "Thanks for the thourough answer. Yes, sure for the PR !",
+              "createdAt": "2022-09-01T08:09:26Z"
+            },
+            {
+              "author":
+              {
+                "login": "tanweer-mahdi"
+              },
+              "body": "@MilesCranmer thanks for your amazing answer! What is the status of this PR? I looked into the current default sympy mappings but couldn't find them implemented!",
+              "createdAt": "2023-11-23T02:51:40Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Yeah I don’t think it has been submitted yet. You’re more than welcome to if you want!",
+              "createdAt": "2023-11-23T11:51:20Z"
+            },
+            {
+              "author":
+              {
+                "login": "tanweer-mahdi"
+              },
+              "body": "@MilesCranmer I cannot seem to find that `sympy_mappings` dictionary in the master branch. Looks like the code blob you shared has not been merged either. Do you want me to create all of these mappings? ",
+              "createdAt": "2023-11-24T00:15:30Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHObMeB_w=="
+          }
+        }
+      }
+    }
+  }
+}

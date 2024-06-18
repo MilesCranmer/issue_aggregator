@@ -1,0 +1,73 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 82,
+        "title": "RuntimeError: Couldn't find equation file! The equation search likely exited before a single iteration completed.",
+        "body": "Not sure what happened.  I was running this code fine, although the regression was not producing the ground truth result.\r\n```\r\nimport numpy as np\r\nfrom pysr import pysr, best\r\n\r\nY = np.random.rand(1000,1) * 100\r\nL = 116 * (Y / 100)**(1/3) - 16\r\n\r\n# Learn equations\r\nequations = pysr(\r\n    Y,\r\n    L,\r\n    niterations=25,\r\n    binary_operators=[\"+\",\"-\", \"*\", \"/\",\"pow\"],\r\n    variable_names =['Y'],\r\n)  # Define your own operator! (Julia syntax)\r\n\r\n...  # (you can use ctl-c to exit early)\r\n\r\nprint(best(equations))\r\n```\r\n\r\nModified it to be `niterations=50` and got the following \r\n`RuntimeError: Couldn't find equation file! The equation search likely exited before a single iteration completed.`\r\n\r\nModified it back to `niterations=25` but I still get the error\r\n\r\nTraceback is \r\n```\r\nFileNotFoundError                         Traceback (most recent call last)\r\n/usr/local/Caskroom/miniconda/base/lib/python3.8/site-packages/pysr/sr.py in get_hof(equation_file, n_features, variable_names, output_jax_format, output_torch_format, selection, extra_sympy_mappings, extra_jax_mappings, extra_torch_mappings, multioutput, nout, **kwargs)\r\n   1000         else:\r\n-> 1001             all_outputs = [pd.read_csv(str(equation_file) + \".bkup\", sep=\"|\")]\r\n   1002     except FileNotFoundError:\r\n\r\n/usr/local/Caskroom/miniconda/base/lib/python3.8/site-packages/pandas/io/parsers.py in read_csv(filepath_or_buffer, sep, delimiter, header, names, index_col, usecols, squeeze, prefix, mangle_dupe_cols, dtype, engine, converters, true_values, false_values, skipinitialspace, skiprows, skipfooter, nrows, na_values, keep_default_na, na_filter, verbose, skip_blank_lines, parse_dates, infer_datetime_format, keep_date_col, date_parser, dayfirst, cache_dates, iterator, chunksize, compression, thousands, decimal, lineterminator, quotechar, quoting, doublequote, escapechar, comment, encoding, dialect, error_bad_lines, warn_bad_lines, delim_whitespace, low_memory, memory_map, float_precision, storage_options)\r\n    609 \r\n--> 610     return _read(filepath_or_buffer, kwds)\r\n    611 \r\n\r\n/usr/local/Caskroom/miniconda/base/lib/python3.8/site-packages/pandas/io/parsers.py in _read(filepath_or_buffer, kwds)\r\n    461     # Create the parser.\r\n--> 462     parser = TextFileReader(filepath_or_buffer, **kwds)\r\n    463 \r\n\r\n/usr/local/Caskroom/miniconda/base/lib/python3.8/site-packages/pandas/io/parsers.py in __init__(self, f, engine, **kwds)\r\n    818 \r\n--> 819         self._engine = self._make_engine(self.engine)\r\n    820 \r\n\r\n/usr/local/Caskroom/miniconda/base/lib/python3.8/site-packages/pandas/io/parsers.py in _make_engine(self, engine)\r\n   1049         # error: Too many arguments for \"ParserBase\"\r\n-> 1050         return mapping[engine](self.f, **self.options)  # type: ignore[call-arg]\r\n   1051 \r\n\r\n/usr/local/Caskroom/miniconda/base/lib/python3.8/site-packages/pandas/io/parsers.py in __init__(self, src, **kwds)\r\n   1866         # open handles\r\n-> 1867         self._open_handles(src, kwds)\r\n   1868         assert self.handles is not None\r\n\r\n/usr/local/Caskroom/miniconda/base/lib/python3.8/site-packages/pandas/io/parsers.py in _open_handles(self, src, kwds)\r\n   1361         \"\"\"\r\n-> 1362         self.handles = get_handle(\r\n   1363             src,\r\n\r\n/usr/local/Caskroom/miniconda/base/lib/python3.8/site-packages/pandas/io/common.py in get_handle(path_or_buf, mode, encoding, compression, memory_map, is_text, errors, storage_options)\r\n    641             # Encoding\r\n--> 642             handle = open(\r\n    643                 handle,\r\n\r\nFileNotFoundError: [Errno 2] No such file or directory: 'hall_of_fame_2021-11-12_131554.354.csv.bkup'\r\n\r\nDuring handling of the above exception, another exception occurred:\r\n\r\nRuntimeError                              Traceback (most recent call last)\r\n<ipython-input-1-975c7ae50776> in <module>\r\n      6 \r\n      7 # Learn equations\r\n----> 8 equations = pysr(\r\n      9     Y,\r\n     10     L,\r\n\r\n/usr/local/Caskroom/miniconda/base/lib/python3.8/site-packages/pysr/sr.py in pysr(X, y, weights, binary_operators, unary_operators, procs, loss, populations, niterations, ncyclesperiteration, alpha, annealing, fractionReplaced, fractionReplacedHof, npop, parsimony, migration, hofMigration, shouldOptimizeConstants, topn, weightAddNode, weightInsertNode, weightDeleteNode, weightDoNothing, weightMutateConstant, weightMutateOperator, weightRandomize, weightSimplify, perturbationFactor, timeout, extra_sympy_mappings, extra_torch_mappings, extra_jax_mappings, equation_file, verbosity, progress, maxsize, fast_cycle, maxdepth, variable_names, batching, batchSize, select_k_features, warmupMaxsizeBy, constraints, useFrequency, tempdir, delete_tempfiles, julia_optimization, julia_project, user_input, update, temp_equation_file, output_jax_format, output_torch_format, optimizer_algorithm, optimizer_nrestarts, optimize_probability, optimizer_iterations, tournament_selection_n, tournament_selection_p, denoise, Xresampled, precision, multithreading)\r\n    476     _set_globals(**kwargs)\r\n    477 \r\n--> 478     equations = get_hof(**kwargs)\r\n    479 \r\n    480     if delete_tempfiles:\r\n\r\n/usr/local/Caskroom/miniconda/base/lib/python3.8/site-packages/pysr/sr.py in get_hof(equation_file, n_features, variable_names, output_jax_format, output_torch_format, selection, extra_sympy_mappings, extra_jax_mappings, extra_torch_mappings, multioutput, nout, **kwargs)\r\n   1001             all_outputs = [pd.read_csv(str(equation_file) + \".bkup\", sep=\"|\")]\r\n   1002     except FileNotFoundError:\r\n-> 1003         raise RuntimeError(\r\n   1004             \"Couldn't find equation file! The equation search likely exited before a single iteration completed.\"\r\n   1005         )\r\n```",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hey @aforsythe, sorry for the late response. Am at the end of my internship and in a bit of crunch time.\r\n\r\nSo, this error just indicates that the python frontend couldn't find the output of the backend. This likely means the Julia backend crashed. What was the other output? The julia output will help me debug this.\r\nThanks!\r\n-Miles",
+              "createdAt": "2021-11-19T20:20:24Z"
+            },
+            {
+              "author":
+              {
+                "login": "liuzd2017"
+              },
+              "body": "how to solve this problem\r\n？\r\n",
+              "createdAt": "2021-12-31T07:14:58Z"
+            },
+            {
+              "author":
+              {
+                "login": "jzsmoreno"
+              },
+              "body": "Hi! @MilesCranmer, I think the output of Julia is the following:\r\n\r\n```\r\nERROR: LoadError: InexactError: trunc(Int32, 4.1416199449e10)\r\nStacktrace:\r\n```",
+              "createdAt": "2022-01-05T21:02:57Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "@jzsmoreno do you have a script where I can reproduce this?",
+              "createdAt": "2022-01-07T01:34:01Z"
+            },
+            {
+              "author":
+              {
+                "login": "jzsmoreno"
+              },
+              "body": "Hi @MilesCranmer \n\nI run the example.py I don't know if you remember me, but I already have an issue with PySR. I updated the version and I updated Julia packages. Also I have to install in Julia SymbolycRegression. I erase the folder General and I update again. So the previous error that I have, is already solved. But now I have this error. That's why I commented this.",
+              "createdAt": "2022-01-07T02:10:27Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @jzsmoreno,\r\nRight, I see that the issue is unresolved now, sorry. Let's move back to that one (#67).\r\nCheers,\r\nMiles",
+              "createdAt": "2022-01-10T18:38:24Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOPCenLw=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 289,
+        "title": "Distributed PySR not working on PBS cluster",
+        "body": "Hello Miles,\r\nthank you for you excelent work. I am interested in searching SR models in many fields of my research and in the past I used Eureqa (https://link.springer.com/article/10.1007/s10710-010-9124-z). Recently, I use your PySR (e.g. https://www.mdpi.com/2075-1680/11/9/463). I read your tips for the running PySR on the cluster and I tried it also on our cluster Barbora (https://www.it4i.cz/en) BUT there are many errors:\r\n1. Permission denied for: .julia/environments/v1.8/Project.toml - solved by export JULIA_DEPOT_PATH,JULIA_PROJECT and JULIA_LOAD_PATH to the local dir in scratch\r\n2. I couldn't run: pysr.install() from Python - solved by installing manualy directly in Julia by import Pkg; Pkg.add(\"SymbolicRegression\") \r\n3. Now, I got this error which I couldn't resolve (I don't have any experiencies with Julia):\r\n\r\nError launching workers\r\nErrorException(\"\")\r\nActivating environment on workers.\r\nImporting installed module on workers...Finished!\r\nTesting module on workers...Finished!\r\nTesting entire pipeline on workers...Finished!\r\nTraceback (most recent call last):\r\n  File \"/home/myname/myscript.py\", line 49, in <module>\r\n    model.fit(X, y)\r\n  File \"/apps/all/Python/3.10.8-GCCcore-12.2.0/lib/python3.10/site-packages/pysr/sr.py\", line 1834, in fit\r\n    self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n  File \"/apps/all/Python/3.10.8-GCCcore-12.2.0/lib/python3.10/site-packages/pysr/sr.py\", line 1694, in _run\r\n    self.raw_julia_state_ = SymbolicRegression.EquationSearch(\r\nRuntimeError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: MethodError: reducing over an empty collection is not allowed; consider supplying `init` to the reducer\r\n\r\nPlease, do you have any tips to solve this error? What am I doing wrong? \r\nThank you in advance!\r\nBest regards,\r\nRenata\r\n\r\nVersion:\r\nOS: Red Hat Enterprise Linux 8.4 (Ootpa)\r\nJulia 1.8.5\r\nPython 3.10.8\r\nPySR 0.12.1\r\n\r\nI used this option settings - inspired by your advice:\r\nmodel = PySRRegressor(\r\n    niterations=500000, \r\n    population_size=108,\r\n    binary_operators=[\"+\", \"*\",\"/\",\"^\",\"-\"],\r\n    unary_operators=[\"abs\",\"cos\",\"log\",\"exp\",\"sin\"],\r\n    loss='L1DistLoss()',\r\n    procs=36,cluster_manager='pbs',\r\n    ncyclesperiteration=5000,turbo=True,\r\n    maxdepth=7,parsimony=0.0001,weight_optimize=0.001,adaptive_parsimony_scaling=1000,\r\n    nested_constraints={\"sin\": {\"sin\": 0, \"cos\": 0}, \"cos\": {\"sin\": 0, \"cos\": 0}}\r\n    )\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @praksovar,\r\n\r\nEverything looks good to me in your options.\r\n\r\n1. Can you share the full error message? If it is long perhaps you could put it in a gist.github.com?\r\n2. Is `procs=36` the number of cores over your entire allocation? Or is it the number of cores per node? (It should be # of cores over entire allocation. i.e., num_nodes * num_cores_per_node). \r\n3. How are you launching this script - from the head node, or once per node? (It should just be launched from the head node; Julia will be able to create workers across the allocation)\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-04-05T14:30:46Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @praksovar,\r\n\r\nJust wanted to ping you on this. Please provide more details if possible so I can help fix it.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-05-29T17:22:32Z"
+            },
+            {
+              "author":
+              {
+                "login": "praksovar"
+              },
+              "body": "Hi Miles,\r\nThank you for you reply. \r\nThe error which I asked you previously was solved by our support. The code is running correctly BUT only on 15-16 cores from the total 36 cores, 50% loads.\r\nI am using one node with 36 cores (ncpus=36). \r\n\r\nThe settings are as follows:\r\nmodel = PySRRegressor(\r\n    niterations=50000, \r\n    population_size=216,\r\n    binary_operators=[\"+\", \"*\",\"/\",\"^\",\"-\"],\r\n    unary_operators=[\"exp\", \"log\",'abs'],\r\n    loss='L1DistLoss()',\r\n    multithreading=True,\r\n    procs=36,cluster_manager=\"pbs\",ncyclesperiteration=5000,turbo=True,\r\n    maxdepth=7,parsimony=0.0001,weight_optimize=0.001,adaptive_parsimony_scaling=1000\r\n)\r\n\r\nSo, I used your example which I ran in Python with PySR and also in Julia with SymbolicRegression.jl on our cluster. I found that Julia runs 36 cores whereas Python only 15-16 cores. \r\nPython:\r\nX = np.random.random((5, 100))\r\ny = 2 * cos(X[4, :]) + X[1, :]** 2- 2\r\nmodel = PySRRegressor(binary_operators=[\"+\", \"*\",\"/\",\"^\",\"-\"],unary_operators=[\"cos\", \"exp\"],population_size=540,niterations=400,ncyclesperiteration=5000,turbo=True, multithreading=True)\r\nmodel.fit(X.T,y)\r\n\r\nJulia:\r\nX = randn(Float32, 5, 100)\r\ny = 2 * cos.(X[4, :]) + X[1, :] .^ 2 .- 2\r\noptions = SymbolicRegression.Options(\r\n           binary_operators=[+, *, /, -],\r\n           unary_operators=[cos, exp],\r\n           npopulations=540,ncyclesperiteration=5000,turbo=true)\r\nhall_of_fame = EquationSearch(\r\n           X, y, niterations=40, options=options,\r\n           parallelism=:multithreading\r\n       )\r\n\r\nDo you have any idea why?\r\nThank you.\r\nCheers, Renata\r\n\r\n\r\n\r\n",
+              "createdAt": "2023-05-30T10:30:34Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @praksovar,\r\n\r\nSorry for the late reply. The issue is that you are using `multithreading=True`. You need to have `multithreading=False` for multiprocessing mode to be enabled.\r\n\r\nLikewise in the pure Julia mode, you need to use `parallelism=:multiprocessing, addprocs_function=addprocs_pbs`, rather than `parallelism=:multithreading`. \r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-06-12T16:05:35Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOXqFimg=="
+          }
+        }
+      }
+    }
+  }
+}
