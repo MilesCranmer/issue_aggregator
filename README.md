@@ -2,7 +2,7 @@ Some scripts to convert all discussions and issues on a GitHub repository into J
 
 ### Background
 
-[PySR](https://github.com/MilesCranmer/PySR) has a lot of discussions threads. I often will attempt to link relevant ones for frequently-asked questions. But as there are 650+ threads, it's hard to search through them manually. So I made this.
+[PySR](https://github.com/MilesCranmer/PySR) has a lot of discussions threads. I often will try to point users to relevant ones, but as there are 650+ threads, it's hard to search through them manually. So I made this to help.
 
 ### Usage
 
@@ -32,3 +32,7 @@ for i in 1..1000 {
     }
 }
 ```
+
+### Examples
+
+You can see all the threads as of June 18, 2024 for PySR stored in the `threads` directory. Basically I will just start a vector database on this folder, and efficiently search through and aggregate the threads with an LLM.
