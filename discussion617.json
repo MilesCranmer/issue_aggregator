@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 617,
+        "title": "Use Python Class inside a custom loss function.",
+        "body": "I have a slightly unconventional use case for PySR. Essentially, I want to utilize the genetic algorithm (GA) to optimize complex processes whose input is a 1D trajectory in time (or similar). An example of this could be finding a charging trajectory that charges a battery in the shortest possible time. Here's how I plan to use Symbolic Regression to solve this problem using a custom loss function:\r\n\r\n```\r\n# Define the loss function as a string of Julia code\r\ncustom_loss = \"\"\"\r\n\r\nusing PythonCall\r\nmymodule = pyimport(\"BatterySIM\")\r\n\r\nfunction custom_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    predictions, completed = eval_tree_array(tree, dataset.X, options)\r\n    if !completed\r\n        return L(Inf)\r\n    end\r\n    \r\n    # Code that should be run in python\r\n    time = mymodule(np.array(predictions, dtype=np.float32)).time()\r\n\r\n    loss = pyconvert(Float32, loss_value)\r\n    \r\n    return L(loss)\r\nend\r\n\"\"\"\r\n```\r\n\r\nHere, BatterySIM is an example for a class that runs the simulation of a physical system in Python. I have run these simulations across individual CPU cores using embarrassingly parallel computation. \r\n\r\nI wrote a custom loss function to test this which calls a python class that evaluates the RMSE between the sampled expression and the ground truth curve store as an attribute inside the class. Every time a python class is called inside the custom loss function, the kernel restarts. \r\n\r\nAny help or suggestion on this are highly appreciated. @MilesCranmer, if this peaks your interest, we can discuss this further.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Sounds cool, are there any issues you’ve run into? Or just starting it?",
+              "createdAt": "2024-05-03T08:36:18Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNS0wM1QwOTozNjoxOCswMTowMM4AjfTz"
+          }
+        }
+      }
+    }
+  }
+}

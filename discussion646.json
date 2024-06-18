@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 646,
+        "title": "Get the score/loss associated with ground truth equations.",
+        "body": "Hi,\r\n\r\nThanks for the great work! I was wondering if there is a way to get the loss/score value associated with a known ground truth equation. For example i ran search using PySr however i found that it didn't find the correct equation, so i wanted to see the score value given to the ground truth equation that i have access to. This might be useful as i would want to know if the search couldn't find a equation with higher score or my complexity definition were bad which resulted in lower score for the ground truth equation. ",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 596,
+        "title": "Extract a function with parameters after fitting (Julia)",
+        "body": "I am trying to reproduce https://docs.kidger.site/diffrax/examples/symbolic_regression/ on the Julia end. Specifically this part\r\n\r\n```py\r\nsymbolic_fn = Stack([sympy2jax.SymbolicModule(expr) for expr in best_expressions])\r\nsymbolic_model = eqx.tree_at(lambda m: m.func.mlp, model, symbolic_fn)  # noqa: F821\r\noptim = optax.adam(fine_tuning_lr)\r\nopt_state = optim.init(eqx.filter(symbolic_model, eqx.is_inexact_array))\r\n```\r\n\r\nAfter fitting, is there an API which I can use to extract a function and parameters that can be fine-tuned?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "`AbstractExpressionNode{T}` implements `Optim.optimize` if this is what you are looking for?\r\n\r\nhttps://github.com/SymbolicML/DynamicExpressions.jl/blob/4bd83e97d23ebb3fbde57f720b0265c5ecc33881/ext/DynamicExpressionsOptimExt.jl#L84-L113\r\n\r\nSo if you have a function that takes an expression tree like `Node{T}`, you can directly use `Optim.optimize` on it. I'm not sure this answers your question though, could you be more specific?",
+              "createdAt": "2024-04-12T20:39:47Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Sounds super cool!! \r\n\r\nHere's a bit more info in the form of an example:\r\n\r\n```julia\r\njulia> using SymbolicRegression, MLJBase\r\n\r\njulia> X = randn(100, 5);\r\n\r\njulia> y = @. cos(X[:, 1] * 2.1 - 0.5) + 0.2 * X[:, 3] * X[:, 2];\r\n\r\njulia> model = SRRegressor(binary_operators=[+, -, *, /], unary_operators=[cos], niterations=100);\r\n\r\njulia> mach = machine(model, X, y);\r\n\r\njulia> fit!(mach, verbosity=0);\r\n\r\njulia> equations = report(mach).equations\r\n8-element Vector{DynamicExpressions.EquationModule.Node{Float64}}:\r\n 0.05336346662643239\r\n x₁ * 0.21680232405649386\r\n cos(x₁ * 2.0617285536753673)\r\n cos((x₁ * 2.035173184625832) + -0.5033370794240668)\r\n cos((x₁ * -2.0106626799718876) - -0.4949017834844345) - 0.04205315632795699\r\n cos((0.009450215065161867 / x₁) - (x₁ + (x₁ - 0.5057275123455831)))\r\n cos(-0.499999999947676 - (x₁ * -2.09999999993789)) + (x₃ * (x₂ * 0.19999999996546464))\r\n ((((x₃ - cos(0.20000000003991894)) + cos(0.20000000003991894)) * 0.20000000003991894) * x₂) + cos(-0.4999999999840714 - (x₁ * -2.100000000063916))\r\n\r\njulia> best = equations[end-1]\r\ncos(-0.499999999947676 - (x₁ * -2.09999999993789)) + (x₃ * (x₂ * 0.19999999996546464))\r\n\r\njulia> constants = filter(node -> node.degree == 0 && node.constant, best)\r\n3-element Vector{DynamicExpressions.EquationModule.Node{Float64}}:\r\n -0.499999999947676\r\n -2.09999999993789\r\n 0.19999999996546464\r\n\r\njulia> foreach(constants) do constant\r\n           constant.val *= 2\r\n       end\r\n\r\njulia> best\r\ncos(-0.999999999895352 - (x₁ * -4.19999999987578)) + (x₃ * (x₂ * 0.3999999999309293))\r\n```\r\n\r\nSo you can see we doubled all the values.\r\n\r\nWe can then do\r\n\r\n```julia\r\njulia> best(X', mach.fitresult.options)\r\n```\r\nto evaluate it. Note the `X'`, because MLJ assumes [row, feature] while SymbolicRegression uses [feature, row] internally.\r\n\r\nA lot of the Base operations on collections are implemented for `Node` types so it's easy to walk through the expression trees: https://symbolicml.org/DynamicExpressions.jl/dev/utils/",
+              "createdAt": "2024-04-12T20:51:34Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNC0xMlQyMTo1MTozNCswMTowMM4Aitua"
+          }
+        }
+      }
+    }
+  }
+}

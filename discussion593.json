@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 593,
+        "title": "New PySR Installation",
+        "body": "Hello,\r\n\r\nI have been trying to install PySR for over a day now and I have now troubleshooted this issue on 2 separate Windows machines (just in case). I am not sure what else to do.\r\n\r\nRundown:\r\nI am using latest Spyder through Anaconda, Python 3.11.7 and IPython 8.20.0. I have trubleshooted using the pip and conda commands separately, both result in the same issues.\r\n\r\n**_Issue 1)._** The first time importing pysr Julia is automatically installed if doesn't already exist:\r\n\r\n```\r\n[juliapkg] Locating Julia ~1.6.7, ~1.7, ~1.8, ~1.9, =1.10.0\r\n[juliapkg] Querying Julia versions from https://julialang-s3.julialang.org/bin/versions.json\r\n[juliapkg] WARNING: About to install Julia 1.10.0 to C:\\Users\\kok26\\AppData\\Local\\anaconda3\\julia_env\\pyjuliapkg\\install.\r\n[juliapkg]   If you use juliapkg in more than one environment, you are likely to have Julia\r\n[juliapkg]   installed in multiple locations. It is recommended to install JuliaUp\r\n[juliapkg]   (https://github.com/JuliaLang/juliaup) or Julia (https://julialang.org/downloads)\r\n[juliapkg]   yourself.\r\n[juliapkg] Downloading Julia from https://julialang-s3.julialang.org/bin/winnt/x64/1.10/julia-1.10.0-win64.zip\r\n             downloaded 0.2 MB of 164.5 MB\r\n             downloaded 2.8 MB of 164.5 MB\r\n             downloaded 16.3 MB of 164.5 MB\r\n             downloaded 29.0 MB of 164.5 MB\r\n             downloaded 41.6 MB of 164.5 MB\r\n             downloaded 56.3 MB of 164.5 MB\r\n             downloaded 79.3 MB of 164.5 MB\r\n             downloaded 105.2 MB of 164.5 MB\r\n             downloaded 128.0 MB of 164.5 MB\r\n             downloaded 146.4 MB of 164.5 MB\r\n             download complete\r\n[juliapkg] Verifying download\r\nTraceback (most recent call last):\r\n\r\n  File ~\\AppData\\Local\\anaconda3\\Lib\\site-packages\\spyder_kernels\\py3compat.py:356 in compat_exec\r\n    exec(code, globals, locals)\r\n\r\n  File c:\\phd\\year 3\\turb mix\\pysr\\pysr_sct.py:4\r\n    from pysr import PySRRegressor\r\n\r\n  File ~\\AppData\\Local\\anaconda3\\Lib\\site-packages\\pysr\\__init__.py:4\r\n    from .julia_import import jl, SymbolicRegression  # isort:skip\r\n\r\n  File ~\\AppData\\Local\\anaconda3\\Lib\\site-packages\\pysr\\julia_import.py:38\r\n    from juliacall import Main as jl  # type: ignore\r\n\r\n  File ~\\AppData\\Local\\anaconda3\\Lib\\site-packages\\juliacall\\__init__.py:251\r\n    init()\r\n\r\n  File ~\\AppData\\Local\\anaconda3\\Lib\\site-packages\\juliacall\\__init__.py:158 in init\r\n    CONFIG['exepath'] = exepath = juliapkg.executable()\r\n\r\n  File ~\\AppData\\Local\\anaconda3\\Lib\\site-packages\\juliapkg\\deps.py:303 in executable\r\n    resolve()\r\n\r\n  File ~\\AppData\\Local\\anaconda3\\Lib\\site-packages\\juliapkg\\deps.py:241 in resolve\r\n    exe, ver = find_julia(compat=compat, prefix=STATE['install'], install=True, upgrade=True)\r\n\r\n  File ~\\AppData\\Local\\anaconda3\\Lib\\site-packages\\juliapkg\\find_julia.py:87 in find_julia\r\n    install_julia(info, prefix)\r\n\r\n  File ~\\AppData\\Local\\anaconda3\\Lib\\site-packages\\juliapkg\\install_julia.py:131 in install_julia\r\n    buf = download_julia(f)\r\n\r\n  File ~\\AppData\\Local\\anaconda3\\Lib\\site-packages\\juliapkg\\install_julia.py:167 in download_julia\r\n    raise Exception(f'SHA-256 hash does not match, got {sha256actual}, expecting {sha256}')\r\n\r\nException: SHA-256 hash does not match, got ab596910ff0077c27e966bf1b4da0929d5b71ee569b7bde5b98de39751fbb685, expecting dc6e566772a0eed89df1bc63892802b1cb4ad92a2aacafa5e0e2be7a8cd93883\r\n```\r\n\r\nHowever, as seen above, it fails after Julia is downloaded. I checked the hashes on Julia website and the one that it 'got' doesn't seem to exist, whereas the one that it's 'excpeceting' is for the 1.10.0 version.\r\n\r\n**_Issue 2)._** To solve the 1st issue, I installed Julia manually. Following that, few packages are installed and after that I get the following fatal errors:\r\n![image](https://github.com/MilesCranmer/PySR/assets/165842597/ab4bcd03-0461-42e2-b67d-0c8ec4299717)\r\nI have tried this with Julia 1.10.2 (didn't work because it's not supported), 1.10.0 and 1.9.4. I get the same errors with both versions.\r\n\r\n\r\n\r\nWhat should I do?\r\n\r\nThank you in advance.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks for posting. It seems to be related to PythonCall.jl rather than PySR so could you make a bug report? Specifically to this repo: https://github.com/JuliaPy/PythonCall.jl/issues\r\n\r\nGood idea installing it manually. Can you verify you can start up Julia and run some hello world program? If that works, it could simply be PythonCall can’t find it. You can set the Julia folder explicitly with some environment variables: https://juliapy.github.io/PythonCall.jl/stable/juliacall/#julia-config. Basically do `os.environ[\"PYTHON_JULIACALL_BINDIR\"] = \"/your/path/to/julia/folder\"` before importing PySR.",
+              "createdAt": "2024-04-03T01:48:12Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNC0wM1QwMjo0ODoxMiswMTowMM4AiTFL"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 525,
+        "title": "Working with pre-compilation",
+        "body": "I'm having issues with pre-compilation not working causing me to re-compile every time I run, which is super slow.\r\nI'm getting a warning:\r\n`.....Compiling Julia backend...\r\n/home/usr/.local/lib/python3.10/site-packages/pysr/julia_helpers.py:217: UserWarning: Your system's Python library is static (e.g., conda), so precompilation will be turned off. For a dynamic library, try using `pyenv` and installing with `--enable-shared`: https://github.com/pyenv/pyenv/blob/master/plugins/python-build/README.md#building-with---enable-shared.`\r\n\r\nCould this be improved?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @AKAL4nka,\r\n\r\nThe issue is in the use of a Python binary which has a static `libpython` (such as the one installed by conda), so PyJulia can't make use of Julia's precompilation artifacts. **However, do note that if you simply keep the same Python instance open, the second time you run `model.fit`, it won't need to do the compilation again.** The compilation is only the first call to `model.fit` in Python.\r\n\r\nI recommend using autoreload https://ipython.org/ipython-doc/3/config/extensions/autoreload.html if you are working on a python library – it will automatically load changes to python code – so you don't need to keep restarting it.\r\n\r\nAlternatively, if you are open to helping, there is information here about eliminating this issue altogether: https://github.com/JuliaPy/pyjulia/issues/496 – which would let you actually use the precompilation on static libpython. I think it won't be too bad to get it through (depending on your software dev background); it just needs someone to actually do it!\r\n\r\nAlternatively, the other option is to switch to `juliacall` rather than `pyjulia` for calling Julia code. This won't be too hard to do, the main issue is just that there's no conda-forge feedstock of juliacall yet so people wouldn't be able to get PySR on conda.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2024-01-16T20:38:11Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "@AKAL4nka on the latest version of PySR this will no longer be an issue.",
+              "createdAt": "2024-02-17T14:06:23Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMi0xN1QxNDowNjoyMyswMDowMM4Agbbs"
+          }
+        }
+      }
+    }
+  }
+}

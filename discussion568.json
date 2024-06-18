@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 568,
+        "title": "Physics-informed PySR",
+        "body": "Hi,\r\nI am wondering if anyone has tried to find an analytical approximate solution for a PDE using PySR. I mean, it seems feasible to apply a similar methodology to PINNs for PySR; specifically, in each iteration in PySR, the error of each equation proposed by PySR is computed through the sum of errors associated with the PDE, BC, and IC. I think this approach can be called Physics-Informed PySR. I am curious, have you known/come across any study about Physics-Informed PySR?\r\nAny idea/viewpoint is much appreciated,\r\nThanks",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "pukpr"
+              },
+              "body": "I'm sure it can be done. In Eureqa, it was possible to express the following\r\n\r\n$\\frac{{d^2 f(t)}}{{d t^2 }} + \\omega^2 f(t) = F(t)$\r\n\r\nThe built-in function D is a derivative (2 means 2nd derivative), and sma is a smoothing averager. soi is a time-series data\r\n\r\n![image](https://github.com/MilesCranmer/PySR/assets/2855758/691aeef0-3c99-479c-92fe-22be51d38032)\r\n\r\n",
+              "createdAt": "2024-03-18T17:05:07Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks @pukpr and sorry for late reply @AKHCE!\r\n\r\nYou should check out https://github.com/MilesCranmer/PySR/discussions/401 for how to do this, which basically finds $f(x_1, x_2, ...)$ such that\r\n$$\\frac{\\partial f(x_1, x_2, ...)}{\\partial x_1} = y.$$\r\n\r\nNote that there is no built-in second-order autodiff, only first-order. (My hope is that Enzyme.jl will eventually give us this for free). A temporary workaround would be to use finite difference approximation for second-order.\r\n\r\nAlso check out: https://github.com/MilesCranmer/PySR/discussions/299 https://github.com/MilesCranmer/PySR/discussions/414 https://github.com/MilesCranmer/PySR/discussions/447 https://github.com/MilesCranmer/PySR/discussions/548.",
+              "createdAt": "2024-03-18T19:56:57Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMy0xOFQxOTo1Njo1NyswMDowMM4AhsY8"
+          }
+        }
+      }
+    }
+  }
+}

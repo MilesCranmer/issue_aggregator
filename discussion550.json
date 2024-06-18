@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 550,
+        "title": "Transform str expression into tree",
+        "body": "Is there any function, that allows to convert expression in a string form (ex:`(x+3)` ) into a tree form, suitable for hall of fame?\n\nor May be there is another way to insert some function into a hall of fame ?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Sorry, missed this one!\r\n\r\nYes:\r\n\r\n```python\r\nfrom pysr import jl  # Julia Main namespace\r\nfrom pysr import PySRRegressor\r\nfrom pysr import SymbolicRegression as SR  # Backend library\r\n\r\n# Create `.julia_options_`:\r\nmodel = PySRRegressor(verbosity=0, max_evals=1)\r\nmodel.fit([[1]], [1])\r\noptions = model.julia_options_\r\n\r\n# Define operators for creating trees:\r\njl.options = options  # Store `options` in Julia namespace\r\njl.seval(\"@extend_operators options\")  # Declare available operators\r\n\r\nx1 = SR.Node(jl.Float32, feature=1) # If x is the first column (index 0 in Python)\r\n# Store x1 in Julia namespace:\r\njl.x1 = x1\r\n# Create equation from string:\r\neqn = jl.seval(\"x1 + 1\")\r\n```\r\n\r\nThe `+` operator here gets mapped into an integer based on the operators defined in `options`. You declare this mapping when you call `@extend_operators options`.\r\n\r\nTo verify this is the correct equation, you can look at:\r\n\r\n```python\r\nSR.string_tree(eqn, options)\r\n```\r\n\r\nwhich you can see is `x1 + 1.0`.\r\n\r\nTo get the `PopMember`, you can create it as follows:\r\n\r\n```python\r\nscore = ...\r\nloss = ...\r\nSR.PopMember(eqn, jl.Float32(score), jl.Float32(loss), options)\r\n```\r\n\r\nwhich you can put in the hall of fame.",
+              "createdAt": "2024-03-19T15:44:39Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMy0xOVQxNTo0NDozOSswMDowMM4Ahu1o"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 524,
+        "title": "Implementing discrete variables",
+        "body": "All,\r\n\r\nIn mathematics you can have terms that include the factorial (example: Poisson distribution) or discrete exponents (example: Taylor expansion), and so on. Sometimes you know or suspect that a solution should include a discrete term.\r\n\r\nFor example, to implement the factorial, you could Include the gamma function, combining with nested constraints and porperly define the complexity of constants and variables.\r\n\r\nHowever, would it be possible to somehow tell PYSR to consider discrete values for a certain variable while others may be continous?\r\n\r\nRegards,\r\nFrank",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "You have a few options. Also check out the following discussion: https://github.com/MilesCranmer/PySR/discussions/469 and https://github.com/MilesCranmer/PySR/discussions/485.\r\n\r\nFirst, the easiest is to write down custom operators that simply map their input to integers before calculation (just make sure they map back to the same type after - using `convert(typeof(x), ...)`). For example, \r\n\r\n```python\r\n    # Define for Julia (for the search)\r\n    unary_operators=[\"fact(x) = convert(typeof(x), factorial(round(Int, x)))\"],\r\n    # Define for SymPy (for exporting to Python)\r\n    extra_sympy_operators={\"fact\": lambda x: sympy.factorial(sympy.ceiling(x - 0.5))}\r\n```\r\n\r\nwould define a factorial that rounds its input to the nearest integer. So that when PySR has continuous values for the constants, it maps them to integers when evaluating.\r\n\r\nThere is an example of this here: https://astroautomata.com/PySR/examples/#7-julia-packages-and-types for discovering a prime number relationship.\r\n\r\nAnother option is if you know the constants are going to be drawn from a fairly small set of integers (like, say, 1-10), or well-known constants (e.g., pi) you could simply define these as additional features. \r\n\r\nFor example:\r\n\r\n```python\r\nX = np.random.randn(100, 3)  # Your dataset, say\r\nvariable_names = [\"a\", \"b\", \"c\"]  # Your regular variable names\r\n\r\nfor i in range(1, 11):\r\n    X = np.append(X, np.ones((100, 1)) * i)\r\n    variable_names.append(f\"_{i}\")  # Give the variable name like _1 for 1, _2 for 2, etc.\r\n\r\n\r\n# Prevent it from finding regular constants, so it can only use the passed variables:\r\nmodel.complexity_of_constants = 100\r\n\r\nmodel.fit(X, y, variable_names=variable_names)\r\n```\r\n\r\n",
+              "createdAt": "2024-01-16T16:59:12Z"
+            },
+            {
+              "author":
+              {
+                "login": "fpmw"
+              },
+              "body": "Hello Miles,\r\n\r\nFor values > 21, the Julia function **factorial** complains about not being able to find a bigger value in a lookup table. The suggestion is to use the function **big** in combination with **factorial**. After some playing and tweaking I added the following to the **unary_operators** and it seems to work. However, I noticed that if you leave out the upperlimit in the defitinition below, compiling the backend takes forever. As if the Julia compiler tries to create an unbounded lookup table if no upper limit was given. But that's me guessing. So, my conclusion is to use some upper limit. I my case 1000 is more than enough.\r\n\r\n\"myfac(x::T) where {T} = x < 0 || x > 1000 ? T(NaN) : T(factorial(big(convert(Int, round(x)))))\"\r\n\r\nwith the following added to extra_sympy_mappings (import sympy as sp):\r\n\r\n\"myfac\":        lambda x: factorial(sp.ceiling(x - 0.5)),\r\n\r\nRegards,\r\nFrank",
+              "createdAt": "2024-01-18T11:54:42Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMS0xOFQxMTo1NDo0MiswMDowMM4AfKOy"
+          }
+        }
+      }
+    }
+  }
+}

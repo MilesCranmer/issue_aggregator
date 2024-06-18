@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 554,
+        "title": "SLURM Increasing CPU Usage Efficiency",
+        "body": "Hi, trying to tune my `pysr` code on slurm, and just want to know if there are any tweaks I can do to increase CPU usage efficiency. I'm running a whole node job with 32 cores. Only 23% of CPU time was used. Head worker occupation was 6.9%. The start of the .sh file and my defined `PySRRegressor` shown below.\r\n\r\nAre there any things in `PySRRegressor` that I can tweak that might increase the CPU usage?\r\n\r\n```bash\r\n#!/bin/bash\r\n#SBATCH --time=00-01:00:00\r\n#SBATCH --mem=0\r\n#SBATCH --ntasks-per-node=32\r\n```\r\n\r\n```python\r\nmodel = PySRRegressor(\r\n    model_selection=\"accuracy\",\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\", \"^\"],\r\n    unary_operators=[\"sin\", \"log\"],\r\n    constraints={'^':(-1,1)},\r\n    nested_constraints={'sin':{'sin':0}},\r\n    niterations=10000000,\r\n    ncycles_per_iteration=10000,\r\n    maxsize=35,\r\n    timeout_in_seconds=loop_length_in_seconds,\r\n    turbo=True,\r\n    procs=32,\r\n    cluster_manager=\"slurm\",\r\n    populations=96,\r\n    multithreading=False,\r\n    verbosity=1\r\n)\r\n```",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "First, just to check, make sure to not launch the script 32 times on the node. This might be happening when you do `--ntasks-per-node=32`. It should just be launched once with `procs=32`. i.e., this will create new processes from within PySR, not like MPI where if you run the script from 32 processes, they will communicate with eachother.\r\n\r\nAlso, if it is only a single node, you don't need to use slurm cluster manager; you can just use regular distributed computing with `cluster_manager=None`.\r\n\r\nIf everything is good above, the next thing to try is increase the population size. The default is about 30. I would go up to 300. That should let each worker work for much longer without communicating with the head worker.\r\n\r\nAdditional tweaks to try would be to increase `weight_optimize`, maybe to 0.01?\r\n\r\n\r\n\r\n",
+              "createdAt": "2024-02-27T15:20:25Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMi0yN1QxNToyMDoyNSswMDowMM4Ag1O0"
+          }
+        }
+      }
+    }
+  }
+}

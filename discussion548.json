@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 548,
+        "title": "PySR for Cumulative Distribution Functions",
+        "body": "Hello @MilesCranmer and PySR community,\r\n\r\nI am using PySR to fit cumulative distribution functions (CDFs) which requires me to impose some constraints on the fit. Firstly, predicted probabilities must lie between 0 and 1, and secondly, the function must always be increasing.\r\n\r\nCould you please offer some advice on how to enforce these constraints within the algorithm? I think the best way to do this might be to create a custom loss function in Julia but I am less familiar with the Julia programming language.\r\n\r\nAny advice would be greatly appreciated!\r\n\r\nMany thanks,\r\nStrath\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Maybe like this? It only checks the points you pass for monotonicity though; maybe that's enough? I guess you could always pass more points if needed.\r\n\r\n```python\r\nfrom pysr import jl, PySRRegressor\r\n\r\njl.seval(\"using Zygote\")  # Need to load package for gradient calculations\r\n\r\nloss_function = \"\"\"\r\nfunction cdf_loss(tree::Node, dataset::Dataset{T,L}, options::Options) where {T,L}\r\n    X = dataset.X\r\n    y = dataset.y\r\n\r\n    y_pred, grad, completed = eval_grad_tree_array(tree, X, options; variable=true)\r\n\r\n    if !completed\r\n        return convert(L, 1e9)\r\n    end\r\n\r\n    loss = convert(L, sum((y_pred .- y).^2) / length(y))\r\n    is_monotonic = all(grad .>= 0)\r\n    min_val = minimum(y_pred)\r\n    max_val = maximum(y_pred)\r\n\r\n    if !is_monotonic\r\n        # Add some penalty:\r\n        loss += convert(L, 1e3)\r\n    end\r\n\r\n    if min_val < 0 || max_val > 1\r\n        # Add some penalty for not being a CDF:\r\n        loss += convert(L, 1e3)\r\n    end\r\n\r\n    return loss\r\nend\r\n\"\"\"\r\n\r\nmodel = PySRRegressor(\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\"],\r\n    unary_operators=[\"exp\", \"square\"],\r\n    loss_function=loss_function,\r\n    enable_autodiff=True,\r\n)\r\n```\r\n\r\n<details>\r\n<summary>\r\nWith Julia syntax highlighting:\r\n</summary>\r\n\r\n```julia\r\nfunction cdf_loss(tree::Node, dataset::Dataset{T,L}, options::Options) where {T,L}\r\n    X = dataset.X\r\n    y = dataset.y\r\n\r\n    y_pred, grad, completed = eval_grad_tree_array(tree, X, options)\r\n\r\n    if !completed\r\n        return convert(L, 1e9)\r\n    end\r\n\r\n    loss = sum((y_pred .- y).^2) / length(y)\r\n    is_monotonic = all(grad .>= 0)\r\n    min_val = minimum(y_pred)\r\n    max_val = maximum(y_pred)\r\n\r\n    if !is_monotonic\r\n        # Add some penalty:\r\n        loss += convert(L, 1e3)\r\n    end\r\n\r\n    if min_val < 0 || max_val > 1\r\n        # Add some penalty for not being a CDF:\r\n        loss += convert(L, 1e3)\r\n    end\r\n\r\n    return convert(L, loss)\r\nend\r\n```\r\n\r\n</details>",
+              "createdAt": "2024-02-16T22:04:12Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMi0xNlQyMjowNDoxMiswMDowMM4AgakF"
+          }
+        }
+      }
+    }
+  }
+}

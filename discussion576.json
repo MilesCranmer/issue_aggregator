@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 576,
+        "title": "[Feature]: Select Julia version at first import.",
+        "body": "### Feature Request\n\nIt would be better if user can choose correct julia version during first time import.\r\nFor instance, i running Pysr on Macbook Air M2, during first time import. Programm automatically select julialang for x64 version instead of aarch64. \r\nEventhough program successfully installed, but it faceing the translation loss from AMD64 to Apple64.\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "It only downloads Julia if it can't already find it on your system. You can provide the location as follows (see JuliaCall docs here: https://juliapy.github.io/PythonCall.jl/stable/juliacall/#julia-config)\r\n\r\n```python\r\nimport os\r\nos.environ[\"PYTHON_JULIACALL_BINDIR\"] = \"/path/to/julia/binary/folder\"\r\nfrom pysr import PySRRegressor\r\n```\r\n\r\nor by starting Python like this:\r\n\r\n```bash\r\npython -X juliacall-home='/path/to/julia/binary/folder' script.py\r\n```\r\n\r\nJust note that it will still re-download Julia if you have an incompatible version. Right now PySR skips Julia 1.10.1 and 1.10.2 due to a bug in libgomp. So if you had one of those versions, you would need to downgrade to 1.10.0 to avoid redownloading.\r\n",
+              "createdAt": "2024-03-21T04:16:24Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Also, if possible, please submit a bug report to PythonCall.jl: https://github.com/JuliaPy/PythonCall.jl describing your setup. Because it should have downloaded the aarch64 version rather than the x64 one; that seems like a bug.",
+              "createdAt": "2024-03-21T04:18:46Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMy0yMVQwNDoxODo0NiswMDowMM4AhzQW"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 546,
+        "title": "Combine different analytical solutions",
+        "body": "Hello!\r\nI have a problem statement as follows -\r\nThere are multiple datasets formulated when we change input current in a circuit(constant current input). I applied PySR on each dataset to get multiple analytical solutions.\r\nIs there a way to combine these solutions and get a solution as a function of current too?\r\nThanks",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "anubhavkamal"
+              },
+              "body": "@MilesCranmer ",
+              "createdAt": "2024-02-16T06:45:54Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Could you be a bit more specific about what you want to do? Do you want to basically compose the equations together?",
+              "createdAt": "2024-02-16T06:57:52Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMi0xNlQwNjo1Nzo1MiswMDowMM4AgYeu"
+          }
+        }
+      }
+    }
+  }
+}

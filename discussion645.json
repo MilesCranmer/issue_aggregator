@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 645,
+        "title": "Modify the population.",
+        "body": "Hello,\r\n\r\nThank you for your nice package, we are nicely using in real-world problems, in the academia for research.\r\n\r\nIn a previous version, we could change the population during the search, accessing by _raw_julia_state_ using a small function in julia (loaded in Python using jl.eval). Unfortunately, we have updated the version, and in the new version, even though we could change it, after we check and access to _raw_julia_state_ (or julia_state_) nothing is changed.\r\n\r\nLooking the source code, we can see that it is using jl_deserialize for each access, and so we think this is the reason it is not possible to change it.\r\n\r\nThere is a way in which we could access with writtting permissions to the populations?\r\n\r\nThank in advance.",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 641,
+        "title": "\"Custom function my_pow throws MethodError despite NaN handling\"",
+        "body": "## Description\r\nI'm trying to define a custom function `my_pow` in PYSR that should handle negative inputs by returning `NaN`. However, despite various attempts to handle this in the Julia code, PYSR still throws a `MethodError` when the function is evaluated with negative inputs.\r\nI'd like to use PYSR to test the function such that it tries the power of features to the powers of n, which ranges between 3 to 9.\r\n## Code\r\n```python\r\n\r\nimport numpy as np\r\nimport sympy\r\nfrom pysr import PySRRegressor, \r\ndefault_pysr_params = dict(\r\n    populations=80,\r\n    model_selection=\"best\",\r\n)\r\n\r\n\r\n# Generate some data\r\nnp.random.seed(0)\r\nX = np.random.randn(100, 5)\r\ny = np.sum(X**2, axis=1) + 0.1 * np.random.randn(100)\r\n\r\n\r\n# Define a custom power function class\r\nclass my_pow(sympy.Function):\r\n    @classmethod\r\n    def eval(cls, x, n):\r\n        if x.is_negative:\r\n            return sympy.nan\r\n        return x ** n\r\n\r\n\r\n# Learn equations\r\nmodel_p = PySRRegressor(\r\n    niterations=60,\r\n    binary_operators=[\"+\", \"*\",\"/\", \"-\"],\r\n    # unary_operators=[\"my_pow(x::T, n::T) where T = (x >= zero(T)) ? x^clamp(n, 3, 9) : T(NaN)\"],\r\n    # unary_operators=[ \"my_pow(x::T, n::T) where T = abs(x)^clamp(n, 3, 9)\"],\r\n    unary_operators=[\r\n        \"my_pow(x, n) = x >= 0 ? x^(3 + 6 * (n - 0.5)^2) : convert(typeof(x), NaN)\"\r\n    ],    \r\n    extra_sympy_mappings={\"my_pow\": lambda x, n: np.where(x >= 0, x ** (3 + 6 * (n - 0.5)**2), np.nan)},\r\n    parsimony = 6.4e-8,\r\n    **default_pysr_params,\r\n)\r\n\r\nmodel_p.fit(X2, y)\r\n\r\nexplanation :\r\nI use Julia's ternary operator ?: to handle invalid inputs.\r\nx >= 0 ? checks if x is non-negative.\r\nIf x is non-negative, we compute x^(3 + 6 * (n - 0.5)^2).\r\n\r\nThis is a more complex expression that ensures n is always between 3 and 9:\r\n\r\n(n - 0.5)^2 maps any n to a value between 0 and 0.25.\r\n6 * (n - 0.5)^2 maps this to a value between 0 and 6.\r\nAdding 3 gives us a range of 3 to 9.\r\nIf x is negative, we return convert(typeof(x), NaN) to ensure type stability.\r\n\r\nBut I faced the following issue:\r\n```julia\r\n---------------------------------------------------------------------------\r\nJuliaError                                Traceback (most recent call last)\r\n[<ipython-input-26-d46dfbb57121>](https://localhost:8080/#) in <cell line: 24>()\r\n     22 )\r\n     23 \r\n---> 24 model_p.fit(X2, y)\r\n\r\n2 frames\r\n[/usr/local/lib/python3.10/dist-packages/juliacall/__init__.py](https://localhost:8080/#) in __call__(self, *args, **kwargs)\r\n    221             return ValueBase.__dir__(self) + self._jl_callmethod($(pyjl_methodnum(pyjlany_dir)))\r\n    222         def __call__(self, *args, **kwargs):\r\n--> 223             return self._jl_callmethod($(pyjl_methodnum(pyjlany_call)), args, kwargs)\r\n    224         def __bool__(self):\r\n    225             return True\r\n\r\nJuliaError: The operator `my_pow` is not well-defined over the real line, as it threw the error `MethodError` when evaluating the input -100.0. You can work around this by returning NaN for invalid inputs. For example, `safe_log(x::T) where {T} = x > 0 ? log(x) : T(NaN)`.\r\n```\r\n\r\nI would appreciate it if any idea how to fix this issue or other alternatives.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I think it's because you put my_pow in unary operators, but it is actually a binary operator.\r\n\r\n(I guess the error message for such an error should be better)\r\n\r\n---\r\n\r\nAlso your `extra_sympy_mappings` can't use numpy functions – only sympy ones.",
+              "createdAt": "2024-06-05T22:19:32Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0wNVQyMzoxOTozMiswMTowMM4Ak7_5"
+          }
+        }
+      }
+    }
+  }
+}

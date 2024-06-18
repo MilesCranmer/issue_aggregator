@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 547,
+        "title": "Symbolic regression for exchange correlation functionals",
+        "body": "Hi Miles, thanks you for creating this software. I was able to learn a lot about symbolic regression by playing around with this package. I have a question. I am currently working on a problem where I have some electron density descriptors using which I want to learn the exchange correlation energy densities. This is a high-dimensional dataset. Is it possible to use PySR to start with an  equation and evolve from there or specify an equation y = f(s) * g(p) where form of f(s) is known? ",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @ssahoo41,\r\n\r\nGood question. There are a few other discussion threads on \"seeding\" the population if you want to check those out (I don't immediately recall which thread).\r\n\r\nOne simple thing you could is just transform the target to be `y -> y/f(s)` instead? You could also consider whether a custom loss function makes sense: https://astroautomata.com/PySR/examples/#9-custom-objectives\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2024-02-15T21:38:16Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMi0xNVQyMTozODoxNiswMDowMM4AgXus"
+          }
+        }
+      }
+    }
+  }
+}

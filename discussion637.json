@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 637,
+        "title": "Fit equations in particular shape",
+        "body": "Hello everyone,\r\n\r\nI want to fit my equation to be as a sum of two equations, each equation is function of particular variables, for example\r\nmy function = f(x,y) + g(z,u)\r\nMy function is sum of two functions, the first function is function in x, y variables, and the second one is function in z,u variables\r\n\r\nalso other shape like 1/f(x,y) + 1/g(z,u)",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "There's an example here: https://astroautomata.com/PySR/examples/#9-custom-objectives\r\n\r\nAlso see:\r\n- https://github.com/MilesCranmer/PySR/discussions/291\r\n- https://github.com/MilesCranmer/PySR/discussions/465\r\n- https://github.com/MilesCranmer/PySR/discussions/528\r\n- https://github.com/MilesCranmer/PySR/discussions/557\r\n\r\n\r\nOther potentially related:\r\n- https://github.com/MilesCranmer/PySR/discussions/401\r\n",
+              "createdAt": "2024-06-02T22:48:33Z"
+            },
+            {
+              "author":
+              {
+                "login": "kmegahed"
+              },
+              "body": "Hi Miles, thank you  for your swift reply and thorough answers, I read the\r\nlater discussions, especially #557 and applied it in the following function\r\ny = f(x4,x5) * g(x3,x4) + h(x1,x2)\r\nwhere f = 3 * np.sin(X[:, 3] + X[:, 4]), g = np.sin(X[:, 2]*2.0)+X[:, 3] **\r\n2, h = 2.0*X[:, 0]*X[:, 1] ** 2 + X[:, 1]\r\nBut it fail to search for the right function\r\nAny further recommendations would be very appreciated!\r\n\r\nimport numpy as np\r\nfrom pysr import PySRRegressor\r\n\r\n# Create a synthetic dataset\r\nnp.random.seed(0)\r\nX = np.random.rand(100, 5) * 5.0  # 100 samples, 6 features\r\ny = (3 * np.sin(X[:, 3] + X[:, 4])) * (np.sin(X[:, 2]*2.0)+X[:, 3] ** 2)  +\r\n(2.0*X[:, 0]*X[:, 1] ** 2 + X[:, 1] )+ np.random.randn(100) * 0.01  #\r\nTarget variable\r\n# y = f(x4,x5) * g(x3,x4) + h(x1,x2)\r\n# where f = 3 * np.sin(X[:, 3] + X[:, 4]), g = np.sin(X[:, 2]*2.0)+X[:, 3]\r\n** 2, h = 2.0*X[:, 0]*X[:, 1] ** 2 + X[:, 1]\r\n\r\n# Define the custom objective function\r\nobjective = \"\"\"\r\nfunction contains(t, features)\r\n    if t.degree == 0\r\n        return !t.constant && t.feature in features\r\n    elseif t.degree == 1\r\n        return contains(t.l, features)\r\n    else\r\n        return contains(t.l, features) || contains(t.r, features)\r\n    end\r\nend\r\n\r\nfunction my_custom_objective(tree, dataset::Dataset{T,L}, options) where\r\n{T,L}\r\n    tree.degree != 2 && return L(Inf)\r\n    left = tree.l\r\n    right = tree.r\r\n\r\n    left.degree != 2 && return L(Inf)\r\n    bot_left = left.l\r\n    bot_right = left.r\r\n\r\n    bot_left_pred, flag = eval_tree_array(bot_left, dataset.X, options)\r\n    !flag && return L(Inf)\r\n\r\n    bot_right_pred, flag = eval_tree_array(bot_right, dataset.X, options)\r\n    !flag && return L(Inf)\r\n\r\n    right_pred, flag = eval_tree_array(right, dataset.X, options)\r\n    !flag && return L(Inf)\r\n\r\n    prediction = bot_left_pred .* bot_right_pred .+ right_pred\r\n\r\n    right_violating = Int(contains(right, (5,3,4))) + Int(!contains(right,\r\n(1,2))) # h(x1,x2) and apply penalty if contains x3,x4 or x5\r\n    bot_left_violating = Int(contains(bot_left, (1,2))) +\r\nInt(!contains(bot_left, (4,5))) # f(x4,x5) and apply penalty if contains\r\nothers say x1 or x2\r\n    bot_right_violating = Int(contains(bot_right, (1,2,5))) +\r\nInt(!contains(bot_right, (3,4))) # g(x3,x4) and apply penalty if contains\r\nothers say x1 or x2 or x5\r\n\r\n    regularization = L(100) * (right_violating .+ bot_left_violating .+\r\nbot_right_violating)\r\n\r\n    diffs = (prediction .- dataset.y) .^ 2\r\n    pp = (sum(diffs) / length(dataset.y))^ 0.5\r\n    return pp + regularization\r\nend\r\n\r\nmy_custom_objective\r\n\"\"\"\r\n\r\n# Initialize and train the PySRRegressor\r\nmodel = PySRRegressor(\r\n    procs=16,\r\n    maxsize=30,\r\n    maxdepth=7,\r\n    populations=48,\r\n    population_size=65,\r\n    niterations=500,\r\n    ncyclesperiteration=500,\r\n    binary_operators=[\"+\", \"*\", \"-\", \"/\", \"^\"],\r\n    unary_operators=[\"sin\"],\r\n    parsimony=0.05,\r\n    adaptive_parsimony_scaling=1000,\r\n    precision=64,\r\n    loss_function=objective\r\n)\r\n\r\n# Train the model\r\nmodel.fit(X, y)\r\n\r\n# Predict on the test set\r\ny_pred = model.predict(X)\r\nprint(model.equations_)\r\n\r\n\r\nOn Mon, Jun 3, 2024 at 1:48 AM Miles Cranmer ***@***.***>\r\nwrote:\r\n\r\n> See\r\n>\r\n>    - #291 <https://github.com/MilesCranmer/PySR/discussions/291>\r\n>    - #465 <https://github.com/MilesCranmer/PySR/discussions/465>\r\n>    - #528 <https://github.com/MilesCranmer/PySR/discussions/528>\r\n>    - #557 <https://github.com/MilesCranmer/PySR/discussions/557>\r\n>\r\n> Other potentially related:\r\n>\r\n>    - #401 <https://github.com/MilesCranmer/PySR/discussions/401>\r\n>\r\n> —\r\n> Reply to this email directly, view it on GitHub\r\n> <https://github.com/MilesCranmer/PySR/discussions/637#discussioncomment-9641261>,\r\n> or unsubscribe\r\n> <https://github.com/notifications/unsubscribe-auth/ATB6Q46DVJLED5F3RWCLGB3ZFOONNAVCNFSM6AAAAABIVLQKOKVHI2DSMVQWIX3LMV43SRDJONRXK43TNFXW4Q3PNVWWK3TUHM4TMNBRGI3DC>\r\n> .\r\n> You are receiving this because you authored the thread.Message ID:\r\n> ***@***.***>\r\n>\r\n",
+              "createdAt": "2024-06-06T10:10:52Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0wNlQxMToxMDo1MiswMTowMM4Ak9Pm"
+          }
+        }
+      }
+    }
+  }
+}

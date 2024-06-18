@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 557,
+        "title": "Specific functional solutions",
+        "body": "Dear all, \r\n\r\nI hope you are well. I have a question that is related to [this older discussion](https://github.com/MilesCranmer/PySR/discussions/465#discussioncomment-7589400). In there, the loss for the fully factorised solutions worked well, but now I'm looking for a more general approach to impose features in more specific functional forms. \r\n\r\nSay we are trying to find an analytical expression of the form $F(x, y) = f_1 (x) \\cdot ( (1+y^2) +  f_2 (x) \\cdot y)$. With PySR, we want to find solutions for $f_1 (x)$ and $f_2(x)$.\r\n\r\nFollowing the logic of the older post, I started to build more tailored loss functions to favour these expressions. However, this approach does not seem to be working. It goes as follows\r\n\r\n1. Favour that the `tree.degree` is 2 and that the operation is `*`. Penalise heavily otherwise. \r\n2. Favour that `tree.l` ($f_1 (x)$) is only a function of $x$. Penalise heavily otherwise. \r\n3. Favour that `tree.r.degree` ($( (1+y^2) +  f_2 (x) \\cdot y)$) is 2 and the operation is `+`. Penalise heavily otherwise. \r\n4. I keep going in this nested approach, to then impose that `tree.r.l` is what I want it to be ($1 + y^2$), `tree.r.r` is fully factorised and linear in $y$, etc...\r\n\r\nIn summary, I apply constraints to the children nodes. \r\n\r\nI think this approach might not be working because I'm penalising equally the constraints in `tree.l` and the whole set of nested constraints in `tree.r` and its children. Is it, in general, better to penalise heavily what happens in the root node, and then less and less what happens in the children nodes? \r\n\r\nAlso, maybe there's simply a better way to impose these functional forms. \r\n\r\nThanks for any help!\r\n\r\n\r\n------\r\nIf useful for anyone, the loss looks something like this \r\n\r\n```\r\nfunction L3_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    # Check if expression is factorized:\r\n    penalty_term = L(0)\r\n    \r\n    # Make sure root is degree 2:\r\n    if tree.degree != 2\r\n        penalty_term += L(10000)\r\n    else\r\n        # Make sure operator is *\r\n        if options.operators.binops[tree.op] != *\r\n            penalty_term += L(1000)\r\n        else\r\n            # Split the expression into two subexpressions at the root node:\r\n            f1 = tree.l\r\n            rest = tree.r\r\n            # Check if it's factorised:\r\n            y_in_f1 = any(node -> node.degree==0 && node.constant==false && node.feature==1, f1)\r\n            # check_is_sum encodes the set of nested constraints in the right children node\r\n            good_sum = check_is_sum(rest, options)\r\n            is_factorized = !y_in_f1 && good_sum\r\n            penalty_term += is_factorized ? L(0) : L(100)\r\n        end\r\n    end\r\n\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    \r\n    if !flag\r\n        return L(Inf)\r\n    end\r\n    \r\n    return (\r\n        penalty_term \r\n        + sum((prediction .- dataset.y) .^ 2) / length(prediction)\r\n    )\r\n```\r\n\r\n\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "manuel-morales-a"
+              },
+              "body": "An update, in case it's useful for someone else:\r\n\r\nFirst, for the nominal size of the outputs that I'm working with, a loss of 10000 or 1000 was too harsh. Smaller losses were key, and it actually gave PySR a useful indication on the best way of mutating the expression trees. \r\n\r\nSecond, penalising less and less as you go down the tree (be very strict with the first multiplication, a bit less strict with the factorisation of $f_1$ and the sum on the right child, etc) seems to be the correct way of proceeding! Recovering a known, relatively easy couple of functions $f_1$ and $f_2$, has been achieved, as several algebraically equivalent expressions are given in the hall of fome. \r\n\r\nNow, the challenge will be doing so with more challenging functions :)\r\n\r\n",
+              "createdAt": "2024-03-26T14:47:22Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMy0yNlQxNDo0NzoyMiswMDowMM4AiA3f"
+          }
+        }
+      }
+    }
+  }
+}

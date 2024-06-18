@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 647,
+        "title": "Use PythonCall inside custom loss function",
+        "body": "I'm working with @SoumiKDaS1701 trying to customize PySR to constrain aspects of the generated functions like the asymptotic limit or its derivative at long range. In order to do this, we're trying to call sympy inside of a custom loss function using PythonCall which seems like the inverse of how PySR calls into Julia. Here's our code, which looks similar to [this example](https://github.com/MilesCranmer/PySR/discussions/617).\r\n\r\n```python\r\njl.seval(\r\n    \"\"\"\r\n    import Pkg\r\n    Pkg.add(\"DynamicExpressions\")\r\n\r\n    using PythonCall\r\n    using DynamicExpressions: string_tree\r\n\r\n    function my_custom_objective(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n       \r\n       prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n       if !flag\r\n            return L(Inf)\r\n       end\r\n       \r\n       eq_str = string_tree(tree, options)\r\n\r\n       # import and call our python code that uses sympy\r\n       utils = pyimport(\"cheml_pysr.utils\")\r\n       limit1 = utils.eval_function_limit(x_val=0, f=eq_str)\r\n       limit2 = utils.eval_derivative_limit(x_val=0, f=eq_str)\r\n\r\n       lim_loss = abs(0.5 - pyconvert(Float32, limit1))\r\n       deriv_loss = abs(0.25 - pyconvert(Float32, limit2))\r\n\r\n       prediction_loss = sum((prediction .- dataset.y) .^ 2) / dataset.n\r\n\r\n       lambda1 = 10\r\n       lambda2 = 10\r\n       loss = prediction_loss + lambda1*lim_loss + lambda2*deriv_loss\r\n\r\n       return loss\r\n    end\r\n    \"\"\"\r\n)\r\n```\r\n\r\nBoth of us are new to Julia and the interfacing between Python and Julia so we're having some difficulty getting this to work.\r\n\r\nOur immediate issue is getting a segmentation fault which might be related to [this issue](https://github.com/JuliaPy/PythonCall.jl/issues/219)\r\n\r\n```\r\n[26897] signal (11.1): Segmentation fault\r\nin expression starting at none:0\r\nunknown function (ip: 0x50b07b)\r\nPyUnicode_DecodeUTF8 at /export/zimmerman/soumikd/.julia/packages/PythonCall/S5MOg/src/C/pointers.jl:297 [inlined]\r\npystr_fromUTF8 at /export/zimmerman/soumikd/.julia/packages/PythonCall/S5MOg/src/Core/builtins.jl:574 [inlined]\r\npystr_fromUTF8 at /export/zimmerman/soumikd/.julia/packages/PythonCall/S5MOg/src/Core/builtins.jl:575 [inlined]\r\npystr at /export/zimmerman/soumikd/.julia/packages/PythonCall/S5MOg/src/Core/builtins.jl:583 [inlined]\r\nPy at /export/zimmerman/soumikd/.julia/packages/PythonCall/S5MOg/src/Core/Py.jl:139 [inlined]\r\nmacro expansion at /export/zimmerman/soumikd/.julia/packages/PythonCall/S5MOg/src/Core/Py.jl:131 [inlined]\r\npyimport at /export/zimmerman/soumikd/.julia/packages/PythonCall/S5MOg/src/Core/builtins.jl:1444\r\nmy_custom_objective at ./none:15\r\nevaluator at /export/zimmerman/soumikd/.julia/packages/SymbolicRegression/FtJSD/src/LossFunctions.jl:92\r\nunknown function (ip: 0x7feb8fb8f4b0)\r\n\r\n_jl_invoke at /cache/build/builder-amdci4-2/julialang/julia-release-1-dot-10/src/gf.c:2895 [inlined]\r\nijl_apply_generic at /cache/build/builder-amdci4-2/julialang/julia-release-1-dot-10/src/gf.c:3077\r\n#eval_loss#3 at /export/zimmerman/soumikd/.julia/packages/SymbolicRegression/FtJSD/src/LossFunctions.jl:108\r\neval_loss at /export/zimmerman/soumikd/.julia/packages/SymbolicRegression/FtJSD/src/LossFunctions.jl:97 [inlined]\r\n#score_func#5 at /export/zimmerman/soumikd/.julia/packages/SymbolicRegression/FtJSD/src/LossFunctions.jl:164 [inlined]\r\nscore_func at /export/zimmerman/soumikd/.julia/packages/SymbolicRegression/FtJSD/src/LossFunctions.jl:161 [inlined]\r\n#PopMember#2 at /export/zimmerman/soumikd/.julia/packages/SymbolicRegression/FtJSD/src/PopMember.jl:99\r\nPopMember at /export/zimmerman/soumikd/.julia/packages/SymbolicRegression/FtJSD/src/PopMember.jl:88 [inlined]\r\nPopMember at /export/zimmerman/soumikd/.julia/packages/SymbolicRegression/FtJSD/src/PopMember.jl:88 [inlined]\r\n#2 at ./none:0 [inlined]\r\niterate at ./generator.jl:47 [inlined]\r\ncollect at ./array.jl:834\r\n#Population#1 at /export/zimmerman/soumikd/.julia/packages/SymbolicRegression/FtJSD/src/Population.jl:49 [inlined]\r\nPopulation at /export/zimmerman/soumikd/.julia/packages/SymbolicRegression/FtJSD/src/Population.jl:35 [inlined]\r\nmacro expansion at /export/zimmerman/soumikd/.julia/packages/SymbolicRegression/FtJSD/src/SymbolicRegression.jl:765 [inlined]\r\n#54 at /export/zimmerman/soumikd/.julia/packages/SymbolicRegression/FtJSD/src/SearchUtils.jl:116\r\nunknown function (ip: 0x7feb8fb99147)\r\n_jl_invoke at /cache/build/builder-amdci4-2/julialang/julia-release-1-dot-10/src/gf.c:2895 [inlined]\r\nijl_apply_generic at /cache/build/builder-amdci4-2/julialang/julia-release-1-dot-10/src/gf.c:3077\r\njl_apply at /cache/build/builder-amdci4-2/julialang/julia-release-1-dot-10/src/julia.h:1982 [inlined]\r\nstart_task at /cache/build/builder-amdci4-2/julialang/julia-release-1-dot-10/src/task.c:1238\r\nAllocations: 22890647 (Pool: 22860626; Big: 30021); GC: 29\r\nSegmentation fault (core dumped)\r\n```\r\n\r\nWe would appreciate some guidance either on this specific issue or more broadly on how we would go about constraining the functions generated by PySR based on analytical properties.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Does it work if you turn parallelism off? i.e., `numprocs=0, multithreading=false`. (Python doesn't support multithreading, so if you call back into Python, you likely need to avoid parallelism, so the code doesn't violate the GIL https://wiki.python.org/moin/GlobalInterpreterLock)",
+              "createdAt": "2024-06-14T21:07:36Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0xNFQyMjowNzozNiswMTowMM4AlTW-"
+          }
+        }
+      }
+    }
+  }
+}

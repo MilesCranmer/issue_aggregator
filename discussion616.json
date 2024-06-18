@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 616,
+        "title": "Starting from where you left off in the search",
+        "body": "I am currently trying to use Symbolic Regression as part of an optimization routine. \r\nNow, since I expect the result to be very often very similar from one optimization step to the next, I would like to be able to supply an initial guess or starting point to the Symbolic Regression in order to speed up things. \r\nIs that already possible ? I could not find any such Option in the EquationSearch.\r\n\r\nP.S.: And maybe it would also be possible to suppress printing out the results in each iteration.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "You can do warm starts by passing the `saved_state` option to `equation_search`. Make sure to specify `return_state=true` so that `equation_search` actually returns the entire state the first time.\r\n\r\nFor example:\r\n\r\n```julia\r\n\r\nsaved_state = equation_search(X, y; options=options, return_state=true)\r\n\r\n# Continue where it left off:\r\nsaved_state = equation_search(X, y; options=options, return_state=true, saved_state=saved_state)\r\n```\r\n\r\nHowever I might recommend using the `MLJ` interface which does this automatically. The second time you run `fit!(mach)`, it will propagate all expressions forward. (And will recompute the losses based on whatever the current dataset is).\r\n\r\nAlso, in case you were also asking about this, the most relevant other threads:\r\n- https://github.com/MilesCranmer/PySR/discussions/418\r\n- https://github.com/MilesCranmer/PySR/discussions/443\r\n\r\nOther threads that are relevant:\r\n- https://github.com/MilesCranmer/PySR/discussions/557\r\n- https://github.com/MilesCranmer/PySR/discussions/465\r\n- https://github.com/MilesCranmer/PySR/discussions/401\r\n- https://github.com/MilesCranmer/PySR/discussions/380\r\n- https://github.com/MilesCranmer/PySR/issues/339\r\n- https://github.com/MilesCranmer/PySR/discussions/417\r\n\r\n\r\n---\r\n\r\n> P.S.: And maybe it would also be possible to suppress printing out the results in each iteration.\r\n\r\nYou can set this with `verbosity=0`. See https://astroautomata.com/SymbolicRegression.jl/dev/api/ (though there are a lot of options; apologies :))\r\n",
+              "createdAt": "2024-05-02T16:55:54Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNS0wMlQxNzo1NTo1NCswMTowMM4AjeBT"
+          }
+        }
+      }
+    }
+  }
+}

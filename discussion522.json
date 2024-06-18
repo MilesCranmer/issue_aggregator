@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 522,
+        "title": "Confusion with custon operator definition",
+        "body": "def p(i):\r\n    if i < 20.0:\r\n        return sympy.log(27.1285645162762 - 1.42277605519119*i)\r\n    else:\r\n        return float(\"nan\")\r\nmodel = pysr.PySRRegressor(\r\n        turbo=True,\r\n        maxsize=30,\r\n        batching=True,\r\n        warm_start=True,\r\n        model_selection='best',\r\n        niterations=40000,\r\n        precision = 64,\r\n        binary_operators=['+','-','*','/'],\r\n        #unary_operators=['exp', 'log'],\r\n        unary_operators = ['exp', \"fn(x) = log(27.1285645162762 - 1.42277605519119*x)\"],\r\n        extra_sympy_mappings = {\"fn\": lambda x: p(x)},\r\n        nested_constraints = {\"exp\": {\"exp\" : 0}},\r\n        #loss = 'LogitDistLoss()',\r\n        )\r\n        \r\n        \r\n        \r\n       Hello!\r\n       I have defined a custom function of the form shown above but PySR is throwing following error - \r\n       \r\n       RuntimeError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: The operator `fn` is not well-defined over the real line, as it threw the error `DomainError` when evaluating the input 20.408163265306122. You can work around this by returning NaN for invalid inputs. For example, `safe_log(x::T) where {T} = x > 0 ? log(x) : T(NaN)`.\r\n\r\nThe inputs in the dataset is less than 18. Thus, there is no case where the value of log(x) blows to infinity. I am not sure about this 'DomainError'. \r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "\r\n> The inputs in the dataset is less than 18. Thus, there is no case where the value of log(x) blows to infinity. I am not sure about this 'DomainError'.\r\n\r\nKeep in mind it’s going to try many different things as input to your operator; not just the dataset feature itself. Because you have `/` it could also scale your features. So you always want to catch values before they cause a domain error and return NaN instead.\r\n\r\ncheers,\r\nMiles\r\n",
+              "createdAt": "2024-01-15T08:25:34Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMS0xNVQwODoyNTozNCswMDowMM4AfA8f"
+          }
+        }
+      }
+    }
+  }
+}

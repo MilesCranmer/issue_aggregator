@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 549,
+        "title": "Installing and running PySR problems in Jupyter",
+        "body": "Hi I am new to Python and trying to install PySR through Jupyter\r\nSo I installed first Python3 though Anaconda, then downloaded Julia through Juliaup in my user directory\r\nC:\\Users\\Ralph\\.julia. \r\nThis generated a number of subdirectories with the following file included in the juliaup subdirectory :julia-1.10.1+0.x64.w64.mingw32 and pysr 0.16.9 in the environments subdirectory\r\n\r\nI then created a jupyter notebook file where I !pip installed numpy, pandas,sympy and matplotlib\r\nfollowed in a new cell by import pysr; pysr.install -m (install()) as mentioned in the pysr installation document\r\n\r\nI then ran the published test code in the Python default environment and got the following ERROR, furthermore the Kernel seemed to terminate also during the run\r\n\r\n#PYSR data simulation\r\nX = np.linspace(0, 10, 100).reshape(-1, 1)\r\ny = np.sin(X).ravel() + np.random.normal(0, 0.5, X.shape[0])\r\n\r\n# running symbolic regression and show equations\r\nmodel = PySRRegressor(niterations=100, binary_operators=[\"+\", \"-\", \"*\", \"/\"])\r\nmodel.fit(X, y)\r\nprint(model)\r\n    ---------------------------------------------------------------------------\r\n\r\n    NameError                                 Traceback (most recent call last)\r\n\r\n    Cell In[5], line 2\r\n          1 # running symbolic regression and show equations\r\n    ----> 2 model = PySRRegressor(niterations=100, binary_operators=[\"+\", \"-\", \"*\", \"/\"])\r\n          3 model.fit(X, y)\r\n          4 print(model)\r\n    \r\n\r\n    NameError: name 'PySRRegressor' is not defined\r\n\r\nCan someone point out if there was an error in my installation process ?Do I need to use  another way to install pySR, if yes which one exactly  in Jupyter ?\r\nI am running Jupyter in Windows10, \r\n\r\nWhat should the Windows PAth look like after Julia  installation ? to which directory or file should it exactly point to ? \r\nthis is my current Windows user PATH: C:\\Users\\Ralph\\.julia\\juliaup\\julia-1.10.1+0.x64.w64.mingw32\\bin\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Need to add:\r\n\r\n```python\r\nfrom pysr import PySRRegressor\r\n```\r\n\r\nAlso I would recommend installing the updated version of PySR which is 0.17.1",
+              "createdAt": "2024-02-17T14:03:28Z"
+            },
+            {
+              "author":
+              {
+                "login": "ralphcrott"
+              },
+              "body": "Sorry to bother but  I tried the following code in Jupyter (in that order)\r\n!pip install -U pysr   # that seems to work, no error message received\r\nimport pysr; pysr.install -m (install())\r\nfrom pysr import PySRRegressor\r\n\r\nbut got the following error message\r\n----> 2 import pysr; pysr.install -m (install())\r\nNameError: name 'm' is not defined\r\n\r\nPS: my goal is to try PySR on some clinical data to predict the quality of life score (range -0.319 to 1) from a number of clinical determinants in a sample of cancer patients",
+              "createdAt": "2024-02-18T10:06:19Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I recommend starting from the example notebook here: https://github.com/MilesCranmer/PySR/blob/master/examples/pysr_demo.ipynb (i.e., download and use that one) which walks you through how to set it up.\r\n\r\nYou can run it in your browser here: https://colab.research.google.com/github/MilesCranmer/PySR/blob/master/examples/pysr_demo.ipynb",
+              "createdAt": "2024-02-18T16:12:47Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMi0xOFQxNjoxMjo0NyswMDowMM4AgdLh"
+          }
+        }
+      }
+    }
+  }
+}

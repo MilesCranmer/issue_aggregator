@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 534,
+        "title": "Loss function for list of y_pred and y_true",
+        "body": "Hello,\r\n\r\nI have a pretty particular problem where my loss function is not dependent on a single sample from (X, y), but instead requires a set batch of samples. This is because the loss function uses ranking/sorting among a small set of samples (batches of 25).\r\n\r\n### The Data\r\n\r\nI have pre-processed my data heavily to function with this scenario. X is a flattened `[N, 25, 2]` array (=`[N*25, 2]`) and y is a flattened `[N, 25]` array that lists ranks (=`[N*25]`).\r\n\r\n![image](https://github.com/MilesCranmer/PySR/assets/17656709/fe64755f-ab74-4dfb-905e-cde74b8bea03)\r\n\r\n### The loss function\r\n\r\nThis is a Python loss function that works if y_pred was an array:\r\n\r\n```python\r\ndef loss(y_pred, true_ranks):\r\n    # Split y_pred into chunks of 25, get their rank, then shape back into flat array\r\n    pred_ranks = (-y_pred).reshape(-1, 25).argsort(axis=1).reshape(-1)\r\n\r\n    square_errors = (pred_ranks - true_ranks)**2\r\n    return square_errors.mean()\r\n```\r\n\r\nI attempted to translate it to Julia:\r\n\r\n```julia\r\nfunction loss(y_pred, true_ranks)\r\n    # Julia uses 1-based indexing, so we need to add 1 to the true_ranks\r\n    adjusted_true_ranks = true_ranks .+ 1\r\n\r\n    # Reshape y_pred similar to Python's reshape(-1, 25)\r\n    reshaped_y_pred = reshape(y_pred, :, 25)\r\n\r\n    # In Julia, `sortperm` is similar to `argsort` in Python. \r\n    pred_ranks = [sortperm(-row) for row in eachrow(reshaped_y_pred)]\r\n    pred_ranks = reduce(vcat, pred_ranks)  # Flatten the array of arrays\r\n\r\n    # Calculate squared errors\r\n    square_errors = (pred_ranks .- adjusted_true_ranks) .^ 2\r\n\r\n    # Return the mean of the squared errors\r\n    return mean(square_errors)\r\nend\r\n```\r\n\r\n### The problem\r\n\r\nI quickly realized that PySR sends individual scalars to the loss function and not the entire X and y arrays at once.\r\n\r\n### Question\r\n\r\nCan I change PySR to use the entire X and y arrays? Can I access them in a custom objective somehow? Or am I able to use the built in batching feature to solve this?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "zimonitrome"
+              },
+              "body": "Implementing it in full_objective helped :)\r\n\r\n```\r\nfunction eval_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    if !flag\r\n        return L(Inf)\r\n    end\r\n\r\n    # Julia uses 1-based indexing, so we need to add 1 to the true_ranks\r\n    adjusted_true_ranks = dataset.y .+ 1\r\n\r\n    # Reshape y_pred similar to Python's reshape(-1, 25)\r\n    reshaped_y_pred = reshape(prediction, :, 25)\r\n\r\n    # In Julia, `sortperm` is similar to `argsort` in Python. \r\n    pred_ranks = [sortperm(-row) for row in eachrow(reshaped_y_pred)]\r\n    pred_ranks = reduce(vcat, pred_ranks)  # Flatten the array of arrays\r\n\r\n    return sum((pred_ranks .- adjusted_true_ranks) .^ 2) / dataset.n\r\nend\r\n```",
+              "createdAt": "2024-01-26T02:46:00Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMS0yNlQwMjo0NjowMCswMDowMM4AfeoC"
+          }
+        }
+      }
+    }
+  }
+}

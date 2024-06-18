@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 597,
+        "title": "Seeking Methods to Track Loss, Complexity, and Score in PySR Iterations Without Custom SymbolicRegression.jl",
+        "body": "I am using PySR for symbolic regression and need a simpler way to log loss, complexity, and score per iteration without customizing SymbolicRegression.jl. Does anyone have a generalized approach or suggestions for this?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "You can use this strategy: https://github.com/MilesCranmer/PySR/discussions/439#discussioncomment-7330778. But I would actually use more populations, and maybe 2 iterations per run so that migration happens.\r\n\r\nAnd then when I finally finish adding TensorBoard, that would be even easier: https://github.com/MilesCranmer/SymbolicRegression.jl/pull/277\r\n\r\nAlso see progress on a UI in https://github.com/MilesCranmer/PySR/pull/589",
+              "createdAt": "2024-04-13T14:05:53Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNC0xM1QxNTowNTo1MyswMTowMM4AiusF"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 570,
+        "title": "Implementing summation operator in PySR",
+        "body": "Hi,\r\nI am trying to use PySR to get expression for potential energy surface of molecules. My data is pairwise distance matrix and I want to perform summation operation along particular axis i.e. $\\Sigma_j r_{ij}$ where $r_{ij}$ is my pairwise distance matrix. I am new to PySR and can't figure out how to implement $\\Sigma_j$ operator. Any suggestions is greatly appreciated.\r\n\r\nThanks",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Can you do this with a custom objective function that sums along an axis?",
+              "createdAt": "2024-03-15T07:37:09Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMy0xNVQwNzozNzowOSswMDowMM4Ahj2b"
+          }
+        }
+      }
+    }
+  }
+}

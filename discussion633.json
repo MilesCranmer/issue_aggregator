@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 633,
+        "title": "introduce specific expressions in the inital population",
+        "body": "Hi,\r\nI am wondering if we can tell pysr that include specific expressions in the inital population. E.g. assume : I know that three expressions y=x1**2+1, y=x**1.5+2, and y=exp(x1/10)/5 could kinda be close to the final solution, and I am interested that pysr includes these specific epxressions in the initial population. Is there any built-in feature in pysr to address such a request? \r\n\r\nAny advice is much appreciated.  ",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "See:\r\n\r\n- https://github.com/MilesCranmer/PySR/discussions/418\r\n- https://github.com/MilesCranmer/PySR/discussions/443",
+              "createdAt": "2024-06-02T22:50:15Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0wMlQyMzo1MDoxNSswMTowMM4Akx0y"
+          }
+        }
+      }
+    }
+  }
+}

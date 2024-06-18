@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 552,
+        "title": "PySR for Wave Identification",
+        "body": "Hello all,\r\n\r\nI've been working with PySR in an attempt to detect traveling waves within noisy data sets, specifically aiming to model the data using expressions such as  $`Ae^{-\\alpha t} \\cos(\\omega*t - k*t)`$ (allowing also constant terms). Despite some progress, the results have not fully met my expectations. The outcomes are close, but I believe there's potential for improvement.\r\n\r\nA recurring issue is the algorithm's tendency to overfit the data, often resulting in a final expression that deviates from what seems to be an initially more accurate representation. This challenge has made it difficult to accurately capture the dynamics I'm interested in.\r\n\r\nI'm here seeking advice or suggestions on how to refine my approach to achieve better fitting results and reduce the overfitting problem. Below, I've shared a snippet of my code for context. Any feedback on how to improve this process or alternative methods to consider would be greatly appreciated.\r\n\r\nBest,\r\nRodrigo\r\n\r\n```python\r\nimport numpy as np\r\nfrom pysr import PySRRegressor\r\n# Generate synthetic data\r\nX = np.hstack([np.linspace(-1, 1, 100).reshape(-1, 1), np.linspace(0, 10, 100).reshape(-1, 1)]) # [Space, Time]\r\ny = 2.5 * np.cos(3* X[:, 0] - 2 * X[:, 1]) * np.exp(-0.1 * X[:, 1]) - np.sin(X[:, 0] + 3 * X[:, 1]) * np.exp(-0.3 * X[:, 1]) #+ np.random.normal(0,1,1000).reshape(-1, 1) \r\n# Configure PySRRegressor with nested constraints\r\nmodel = PySRRegressor(\r\n    procs=10,\r\n    populations=20,\r\n    niterations=200,  # Adjust the number of iterations as needed\r\n    binary_operators=[\"+\", \"*\"],\r\n    unary_operators=[\"exp\", \"sin\", \"cos\"],\r\n    nested_constraints={\r\n        \"sin\": {\"sin\": 0, \"cos\": 0, \"exp\": 0, '+':1},\r\n        \"cos\": {\"sin\": 0, \"cos\": 0, \"exp\": 0, '+':1},\r\n        \"exp\": {\"sin\": 0, \"cos\": 0, \"exp\": 0, '+':0},\r\n    },\r\n)\r\n# Fit the model\r\nmodel.fit(X, y)\r\n\r\n# Print the best equation found\r\nprint(\"Best equation:\", model)\r\n``` \r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Welcome @rodrigochi!\r\n\r\nHave you tried the tuning tips on https://astroautomata.com/PySR/tuning/? I would start with those. For example, you should not use both `sin` and `cos`, because you can build one out of the other (since you have a `+` available).",
+              "createdAt": "2024-02-22T23:52:34Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMi0yMlQyMzo1MjozNCswMDowMM4AgqhE"
+          }
+        }
+      }
+    }
+  }
+}

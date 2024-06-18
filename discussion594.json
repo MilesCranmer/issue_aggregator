@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 594,
+        "title": "Possible to set weight of features?",
+        "body": "I'm using SR to model a thermodynamical process. \r\nThe input \"X\" is a n-by-m matrix, where there are some feature in \"m\" is very important and should be include in the final equation.\r\nIn the basic SR process, like X(n_samples, n_features), does it possible to set different weight of features in X?\r\nOr does it allow to force include specific feature? \r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "You can write a custom loss function to penalize it if it doesn’t use the variable:\r\n\r\n```julia\r\n\r\nfunction my_loss(tree, dataset::Dataset{T,L}, options) where {T,L}\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    if !flag\r\n        return L(Inf)\r\n    end\r\n    y = dataset.y\r\n    loss = L(sum(i -> abs2(prediction[i] - y[i]), eachindex(y)))\r\n\r\n    # Check if any node in the tree is feature 5 \r\n    # (note that Julia indexes from 1 rather than 0)\r\n    contains_x5 = any(\r\n        node -> (\r\n            node.degree == 0\r\n            && !(node.constant)\r\n            && node.feature == 5\r\n        ),\r\n        tree\r\n    )\r\n    if !(contains_x5)\r\n        # penalty term\r\n        loss += L(1000)\r\n    end\r\n    return loss\r\nend\r\n```\r\n\r\nThen you would pass this to the `loss_function` parameter (in PySR as a string; in Julia as the function name)",
+              "createdAt": "2024-04-04T12:01:50Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNC0wNFQxMzowMTo1MCswMTowMM4AiXZ0"
+          }
+        }
+      }
+    }
+  }
+}

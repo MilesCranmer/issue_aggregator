@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 632,
+        "title": "How to obtain tensor expression of fixed form equation by pysr?",
+        "body": "Hi!\r\nI want to use pysr to train the expressions $f_{1}$, $f_{2}$, $f_{3}$ in the following fluid mechanics tensor equations：\r\n$\\tau_{\\mathrm{ij}}=\\frac{1-f_1(I_{1_{ij}},I_{2_{ij}})}3\\times T_{1_{ij}}+\\frac{f_2(I_{2_{ij}},I_{3_{ij}})}6\\times T_{2_{ij}}+\\frac{1-f_3(I_{3_{ij}},I_{4_{ij}})}3\\times T_{3_{ij}}$\r\nwhere the subscrip i=1,2,3; j=1,2,3; $\\tau,I_1,I_2,I_3,I_4,T_1,T_2,T_3$ are all in the form of a 3×3 tensor matrix.\r\nHow do I get $f_{1}$(expressions about $I_{1_{ij}}$ and $I_{2_{ij}}$) , $f_{2}$ (expressions about $I_{2_{ij}}$ and $I_{3_{ij}}$) , $f_{3}$ (expressions about $I_{3_{ij}}$ and $I_{4_{ij}}$)  from pysr?\r\nMuch appreciated!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi, can you please provide more info about what you've tried and what issues you are facing? Thanks",
+              "createdAt": "2024-06-02T22:52:12Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0wMlQyMzo1MjoxMiswMTowMM4Akx07"
+          }
+        }
+      }
+    }
+  }
+}

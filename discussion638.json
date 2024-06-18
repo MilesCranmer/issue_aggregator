@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 638,
+        "title": "Avoid variables appearing in the exponent position",
+        "body": "How to avoid 0.9735712^x0, where x0 appears at the exponent",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "You could do it with\r\n\r\n```julia\r\nfunction my_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    index_of_exp = 1 # if its the first operator in your list etc\r\n    has_x_in_exp = any(tree) do node\r\n        if node.degree == 1 && node.op == index_of_exp\r\n            subnode = node.l\r\n            return any(subnode) do n\r\n                return n.degree == 0 && !n.constant\r\n            end\r\n        end\r\n        return false\r\n    end\r\n    has_x_in_exp && return L(10_000_000_000)\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    if !flag\r\n        return L(10_000_000)\r\n    end\r\n    return sum(i -> (prediction[i] - dataset.y[i]) ^ 2, eachindex(dataset.y)) / dataset.n\r\nend\r\n```",
+              "createdAt": "2024-06-03T08:08:16Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Also see https://astroautomata.com/PySR/api/#working-with-complexities",
+              "createdAt": "2024-06-03T08:09:13Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0wM1QwOTowOToxMyswMTowMM4Akyrf"
+          }
+        }
+      }
+    }
+  }
+}

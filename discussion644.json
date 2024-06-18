@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 644,
+        "title": "Running SR on a distributed cluster",
+        "body": "We have been SymbolicRegression.jl for our research but have hit a point where the equation search takes too long on a single compute node (with ~16 cores or so). We're now looking into using our distributed computing resources (we have both an MPI cluster as well as a slurm HPC cluster available) and were wondering if you have used SR in such an environment before or might know someone who has? we're hoping to not having to re-invent the wheel for writing the entire orchestration code (copy from slack DM)",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hey Christian,\r\n\r\nYes, I use SR like this in my own work. Basically if you just set `parallelism=:multiprocessing` then you can either:\r\n\r\n1. Pass the process objects explicitly to the procs parameter (whether those procs are on the same node, or multiple nodes, etc.)\r\n2. Or, set, for example, `numprocs=num_nodes * num_cores, addprocs_function=addprocs_slurm` , and SR.jl will try its best to set it up for you\r\n\r\nI usually do the 2nd out of convenience\r\n\r\nJust be sure to launch SR only once, on a single node, from a single task on the slurm job. ClusterManagers.jl will run srun internally for you.",
+              "createdAt": "2024-06-07T10:27:35Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0wN1QxMToyNzozNSswMTowMM4AlARh"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 604,
+        "title": "Some questions when using PySR",
+        "body": "Hi, \r\nI am new to the symbolic regression. I have questions after I used PySR. My object is to discover analytic equations using observational data. I have 12 features and 1 targets. However, I failed to find some useful equations.\r\n\r\nQ1: I try to input 5 or 8 features, but in the final equations, it always only appears 3 same features. Does it indicate my target variables is only influenced by these features. But all features physically could influence the variation of target variable.\r\n\r\nQ2: Another issue is that the complexity of equations are always far small than the `maxsize` parameter (I set max size to 90 but only get equations with no more than 40). I tried to use more complex operator (e.g., tanh, atan, erf), but it did not improved. The result equations are too simple. Is there any solution for this problem?\r\n\r\nQ3: I have more than two billions sample to train the sample, but PySR hardly processes more than 10,000 samples. I set the `batching` to True, but I did not observe obvious difference of the result. Is there any method to process big data? Is there any useful sub-sample method beyond randomly selected?\r\n\r\nQ4: Did the features need to be normalized? I found that normalized feature could result in better equations, but it is hardly to explain the relationship between target variable and normalized features. Any suggestions?\r\n\r\nBest regards,\r\nLu Li ",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 635,
+        "title": "How to add dimensionless constraints - Π theorem",
+        "body": "Hello, how can I use the custom loss function to\r\n(1) obtain the dimension exponential vector of the variable\r\n(2) If I can obtain it, I can add the dimensionless constraint -Π theorem to get the desired dimensionless parameter\r\nI am not very good at writing Julia code, and I always get an error when using Unitful.Dimensions()\r\nI would like to ask you how to do it, thank you\r\n<img width=\"570\" alt=\"屏幕截图_20240602_114149\" src=\"https://github.com/MilesCranmer/PySR/assets/132361044/d9fcb77e-259c-4185-83c7-9dcac22ed5bf\">",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "Alexia369"
+              },
+              "body": "`dimensionless_constants_only= True `\r\nI wonder if this line of code has converged to or found a trend for dimensionless parameters，i guess",
+              "createdAt": "2024-06-02T04:47:39Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0wMlQwNTo0NzozOSswMTowMM4AkwU0"
+          }
+        }
+      }
+    }
+  }
+}
