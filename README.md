@@ -37,4 +37,4 @@ for i in 1..1000 {
 
 ### Examples
 
-You can see all the threads as of June 18, 2024 for PySR stored in the `threads` directory. Basically I will just start a vector database on this folder, and efficiently search through and aggregate the threads with an LLM.
+You can see all the threads as of June 18, 2024 for PySR stored in the `pysr` directory. Basically I will just start a vector database on this folder, and efficiently search through and aggregate the threads with an LLM.
