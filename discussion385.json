@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 385,
+        "title": "Introducing new variables in custom loss function",
+        "body": "Hi Dr. Cranmer (or others),\r\n\r\nFor the PySR custom loss function (loss = \"loss(x,y, w[optional]) = \") we specify in the model, right now it seems \"x\" is the data input while \"y\" is the analytic value found by PySR, and w are any weights the data has (which is optional), though please correct me if I misunderstood the variables (and this could potentially solve my problem).  However, if I'm using PySR to model something very specific (i.e. Poisson likelihood) and have a custom loss function that also depends on other variables ( data x = x(r), where I also want to include r in the loss function), is there a way to do this?  https://astroautomata.com/PySR/options/#loss has some nice examples of loss functions, but not introducing any other variables than the data \"x\" and fit value \"y\".\r\nThank you.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @quasars100,\r\n\r\nThe loss argument is of the form `loss(prediction, target)`. The evaluation used to create the predictions happens automatically using your passed data (a matrix of shape (examples,features)) and the current expression. Let me know if I misinterpreted your question though!\r\n\r\ncheers,\r\nMiles\r\n",
+              "createdAt": "2023-07-18T21:45:58Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Oh wait I think I misunderstood. Do you need weights *and* the radius r? If you only need the radius in the loss function, you can just treat it like `loss(prediction, target, r)=…`, and pass `weights=r`. But if you need both, will be trickier. Let me know.",
+              "createdAt": "2023-07-18T21:49:20Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNy0xOFQyMjo0OToyMCswMTowMM4AYutF"
+          }
+        }
+      }
+    }
+  }
+}

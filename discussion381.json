@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 381,
+        "title": "Plotting the Model",
+        "body": "After running the code, and getting a model that satisfies my demands, I'm trying to create a code that after running the SR completely, automatically plots my model, however the model is in a different language than python. Is there any way to do this automatically?\r\n\r\nEx: The code gave me the following model with \"print(model.sympy())\"\r\n\r\n\"(((20.633257470306607 - tan(cos((20.954950555333898 + ((0.3653416772988837 - (-0.05811945565811366 * cos2(-20.660016915422887 * x0))) - (-0.05811945565811366 * cos2(-20.660016915422887 * x0)))) / exp(x0)) / cube(sqrt(1.0459393285106797)))) / (-755.9790299821428 - tan(square(1.1824902973257656 - (sin((x0 + x0) + x0) + -0.04519784616746775))))) - 20.633257470306607)\"\r\n\r\nhow could i automaticaly plot this function with matplotlib?\r\n\r\n(New to programming and GitHub, if I made any mistakes let me know.)",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hey @Aldirzaum, welcome! Happy to hear you are trying out PySR.\r\n\r\nThere is an example with plotting here: https://astroautomata.com/PySR/examples/#4-plotting-an-expression. Let me know if this works for you.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-07-13T17:54:14Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNy0xM1QxODo1NDoxNCswMTowMM4AYkwl"
+          }
+        }
+      }
+    }
+  }
+}

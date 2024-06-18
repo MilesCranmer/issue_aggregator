@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 165,
+        "title": "Reading too much data in?",
+        "body": "After advice from Miles, I kept my training data way smaller than my original one:\r\n- I had 800K rows of 12 features and reduced that to 2000 rows with 8 features.\r\n\r\nAll good here, except that I never got any model out, despite increasing the maxdepth, iterations, and other parameters.\r\n\r\nThen I tried to increase the 2000 rows to 3000 (and later to 2500, with the same result) and that's where something \"interesting\" happened: I started to get this long traceback error message ending with:\r\n\".....exception: access violation reading 0x00.....\"\r\n\r\nAnd I would have to restart the kernel, sometimes the whole Anaconda environment, because nothing else would work. \r\n\r\nIs there a genuine limitation about that amount of data being used? (> 2000 x 8 items)",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hey @Carlos-Fernands,\r\nSorry for the late reply, I didn't see this for some reason. 2000 rows is fine, I regularly use 5000 rows even on my laptop. It sounds like a bug - try updating Julia and PySR and run it again?\r\nCheers,\r\nMiles",
+              "createdAt": "2022-10-13T01:24:06Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0xMC0xM1QwMjoyNDowNiswMTowMM4AOvsI"
+          }
+        }
+      }
+    }
+  }
+}

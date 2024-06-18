@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 351,
+        "title": "Installation Failure",
+        "body": "hello, I tried to install dependencies in my terminal by running: python3 -m pysr install, but run into this issue. Could anyone give me some help on this one? thanks in advance\r\n![1686903324448](https://github.com/MilesCranmer/PySR/assets/54879699/212c60e5-e87a-48f3-b392-2c426b12c558) \r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "It looks like it couldn’t connect to the download servers. Could you try again? Sometimes GitHub goes down.",
+              "createdAt": "2023-06-16T08:50:48Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNi0xNlQwOTo1MDo0OCswMTowMM4AXoYR"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 125,
+        "title": "Conditional branches of expressions",
+        "body": "Here's how you can search for conditional branches of expressions (including if statements) using PySR:\r\n```python\r\nPySRRegressor(\r\n    binary_operators=[..., \"cond(x::T, y::T) where {T} = x >= T(0) ? y : T(0)\"],\r\n    ...\r\n    extra_sympy_mappings={\"cond\": lambda x, y: sympy.Piecewise((0, x < 0), (y, True))},\r\n)\r\n```\r\nThe `::T` `where {T}` is just Julia notation for templating a function for arbitrary type. It's not normally required, but I want to declare the type of the `0` there as the same type, so I used it.\r\n\r\nUsing the `Piecewise` function, SymPy should correctly convert the output of this to an executable function when calling lambdify.\r\n\r\n\r\n---\r\n\r\nA simpler version which is also valid: `\"cond(x, y) = x >= 0 ? y : 0*y\"`. Though this might be slower due to the type conversions.",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

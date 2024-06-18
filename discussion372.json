@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 372,
+        "title": "What is `L` in the custom objectives?",
+        "body": "Where does the \"L\" in L(Inf) come from?\r\nHow can I return a \"L(Inf)\" value in my Julia code in my julia helper object jl?\r\nCurrently, even when I do \"using SymbolicRegression\" in my Julia helper object, I can not return \"L(Inf)\" in my custom function \"eval_loss\", because when I do return \"L(Inf)\" inside \"eval_loss\" and I run the julia code of the custom function \"eval_loss\", the Julia interpreter gives me a error in the terminal.\r\n\r\nFor your reference, \"jl\" is my julia helper object, and \"jl\" is defined as \r\n```\r\njl = pysr.julia_helpers.init_julia(julia_kwargs={\"threads\": 8, \"optimize\": 3})\r\n```\r\n\r\nSpecifically, when I run:\r\n```\r\njl.eval(\"\"\"\r\nusing SymbolicRegression\r\nfunction my_func(some_x)\r\n\r\n    return L(Inf)\r\nend\r\n\r\nprintln(my_func(3))\r\n\r\n\"\"\")\r\n\r\n``` \r\nin my Python3 terminal, the Julia interpreter gives me this error in the terminal:\r\n```\r\nTraceback (most recent call last):\r\n  File \"<stdin>\", line 1, in <module>\r\n  File \"/opt/anaconda3/envs/pysr_env/lib/python3.10/site-packages/julia/core.py\", line 627, in eval\r\n    ans = self._call(src)\r\n  File \"/opt/anaconda3/envs/pysr_env/lib/python3.10/site-packages/julia/core.py\", line 555, in _call\r\n    self.check_exception(src)\r\n  File \"/opt/anaconda3/envs/pysr_env/lib/python3.10/site-packages/julia/core.py\", line 609, in check_exception\r\n    raise JuliaError(u'Exception \\'{}\\' occurred while calling julia code:\\n{}'\r\njulia.core.JuliaError: Exception 'UndefVarError: `L` not defined' occurred while calling julia code:\r\n\r\nusing SymbolicRegression\r\nfunction my_func(some_x)\r\n\r\n    return L(Inf)\r\nend\r\n\r\nprintln(my_func(3))\r\n\r\n\r\n```\r\n\r\nWhy this is somewhat important: When I pass into my Julia objective function a lot of the math functions that my model.equations_ contains, the Julia helper's objective function returns a different loss value from what the model.equations_ reports as the loss value in the \"loss\" column for that math function.\r\nSo, I want to make my Julia helper's objective function (that I use to double-check the model's reported value for loss for a particular math function) *as close as possible* to the Julia objective function that my model \"model\" uses.\r\nTo make my Julia helper's objective function *as close as possible* to my model's objective function, I want to be able (in my Julia helper's objective function) to return L(Inf) instead of just Inf.\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "`L` is just a type variable that you have in the loss functions — it’s based on the dataset type of `Dataset{T,L}` that you would need to declare in the function signature. `L` could be a `Float32` or a `Float64` or something else. \r\n\r\nNote that `L(Inf)` just means: “convert infinity to type `L`”.\r\n\r\nIf you want to use `L` from the loss function in other functions, you could pass it. But normally all you need to do is just wrap the output of the other function with `L(…)` to convert whatever numerical type it outputs.",
+              "createdAt": "2023-07-08T21:18:01Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNy0wOFQyMjoxODowMSswMTowMM4AYY32"
+          }
+        }
+      }
+    }
+  }
+}

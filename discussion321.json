@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 321,
+        "title": "Empirical Mode Decomposition",
+        "body": "Reading the paper I included the link for below I was wondering why can we not reconstruct the Empirical Mode Decomposition using elementary functions with symbolic regression? Where each term in the formula represents a mode with a given frequency in order of high to low. The trend line would be picked up as well by PySR. Empirical Mode Decomposition is often used for damage detection by comparing time history response of new and used and possibly damaged system at various points on the structure. The damage per each mode of EMD would simply be the changing of parameters of adding an extra term to the expression in principle.\r\nRegards.\r\nAleksey\r\n\r\nA Symbolic Regression Based Residual Useful Life\r\nModel for Slewing Bearings\r\n\r\nhttps://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjdweGtzcj-AhXtFFkFHU3ADy0QFnoECBwQAQ&url=https%3A%2F%2Fieeexplore.ieee.org%2Fiel7%2F6287639%2F6514899%2F08723621.pdf&usg=AOvVaw2CJtMmcJsL_IiuUAHoUUGY",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi Aleksey,\r\nI’m not familiar with this paper, what equation specifically do you want to reconstruct?\r\nBest,\r\nMiles",
+              "createdAt": "2023-04-26T22:42:43Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNC0yNlQyMzo0Mjo0MyswMTowMM4AV4jw"
+          }
+        }
+      }
+    }
+  }
+}

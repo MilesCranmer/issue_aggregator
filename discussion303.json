@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 303,
+        "title": "Manipulating identified expressions using a custom loss function",
+        "body": "Is it possible to (numerically) integrate an expression or use a symbolic library (like Sympy) from a custom loss function?\r\n\r\nI thought of using \"node_to_symbolic\" from SymbolicRegression.jl to obtain something that I could later convert to a callable function, but all I managed to do with it was simple evaluation: \r\n\r\n```\r\n@syms x::LiteralReal y::LiteralReal\r\n\r\nevaluated_expr =  (substitute(expr, Dict(x  => 1,  y => 2)))\r\n``` \r\n  \r\nAnd this only worked when calling Julia code directly, not from a custom loss function. \r\n\r\nIdeally, the tree itself would be a callable function, but it doesn't seem to be the case. Any suggestions? \r\n\r\n\r\n\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Have you looked at the `loss_function` parameter (equivalently, `full_objective` in PySR)? It lets you write an arbitrary function for the loss, including any sort of non-differentiable external calls you want. Numerical integration is totally possible.",
+              "createdAt": "2023-04-21T17:13:43Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNC0yMVQxODoxMzo0MyswMTowMM4AVs2B"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 376,
+        "title": "On how to give integers an extra bonus in score while searching",
+        "body": "Hi, Mr. Miles!\r\n\r\nIf the actual formula is sin(\\pi * 7 * x / 2), can we directly obtain the formula in the hall of fame, instead of, say, sin(10.996 * x) ? (In this case, sin(11 * x) may also be a good answer.)\r\n\r\nI know that I can concat some \"constant columns\" to the features, say, all of numpy.pi to the data in order to simulate constant pi, but do I have to include all integers from 1 to 11 to obtain all possible candidates? And can we set the scores of them higher than ordinary decimal constants?\r\nIf all those are viable, how to give the '7' a higher score than '11'?\r\n\r\nMuch appreciated!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @NoRatRacing,\r\n\r\nIndeed concatenating constant columns is by far the easiest way to tackle this specification. Here are your options:\r\n\r\n\r\n1. You could create one feature column for every integer (and constant) you are interested in including. Then, you could add `complexity_of_constants=5` to make regular real constants (like 10.996) more expensive – so the search will prefer your provided integers!\r\n\r\n    I've done this approach even for integers 1 to 30, and it seems to do okay. You might need to run a bit longer though.\r\n    \r\n    Indeed it's not the most elegant though. \r\n\r\n2. The proper way to do this would be to introduce mixed integer programming. If someone has time to try that (with JuMP.jl), and push it, I (and many others) would be incredibly grateful! Here's how you could do this.\r\n\r\n    a. Change https://github.com/MilesCranmer/SymbolicRegression.jl/blob/0f47c6baf783b436ccecd5e635f692516c92d963/src/MutationFunctions.jl#L50-L52 to randomly perturb the constant between integer values, rather than over the real line. You could turn this off and on with a new option.\r\n    b. Similar to a, the function https://github.com/MilesCranmer/SymbolicRegression.jl/blob/0f47c6baf783b436ccecd5e635f692516c92d963/src/MutationFunctions.jl#L153 needs to randomly choose an integer rather than sample from a Gaussian.\r\n    c. Implement JuMP mixed integer optimization here: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/0f47c6baf783b436ccecd5e635f692516c92d963/src/ConstantOptimization.jl#L29-L31. I'm not quite sure how this would work, but this would be the final step.\r\n\r\n    However, it might be that a and b are good enough. The other thing you would need to worry about is simplification, which could turn `cos(5)` into the numerical value, i.e., not an integer. So for that you might just want to disable simplification (`weight_simplify=0.0` in PySR or `MutationWeights(simplify=0.0)` in SymbolicRegression.jl), and `should_simplify=false`.\r\n\r\n4. One other option is to create a custom objective (`full_objective` in PySR or `loss_function` in SymbolicRegression.jl). In this custom objective, you could copy the `tree`, convert all constant values to integers, with:\r\n\r\n    ```julia\r\n    function my_custom_objective(tree::Node{T}, dataset::Dataset{T,L}, options::Options) where {T,L}\r\n        tree = copy(tree)\r\n        \r\n        for node in tree\r\n            if node.degree == 0 && node.constant\r\n                node.val = convert(T, round(Int, node.val::T))\r\n            end\r\n        end\r\n        \r\n        # All the constants are now integers!\r\n        ...\r\n    \r\n    end\r\n    ```\r\n    \r\n    you could further add some sort of soft penalty on how close values are to the nearest integers.\r\n    \r\n    Also note that the expressions returned to you would still have the real constants, so you would need to post-process them.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-07-10T09:21:33Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNy0xMFQxMDoyMTozMyswMTowMM4AYbBs"
+          }
+        }
+      }
+    }
+  }
+}

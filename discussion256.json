@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 256,
+        "title": "Incorporating inequality constraints",
+        "body": "I am currently working on a project where I am using symbolic regression to define a function based on a set of input-output pairs. The function produces a single output value.\r\n\r\nIn some cases, I know the exact output value that the function should produce for a given set of input parameters, but in other cases, I only know the relative ordering of the output values for different sets of input parameters. For example, I know that the function should produce a higher output value for one set of input parameters (x1, y1, z1, ...) than for another set of input parameters (x2, y2, z2, ...).\r\n\r\nI am facing some difficulties in incorporating this type of inequality constraints into the optimization process. Any ideas or suggestions on how to approach this problem?\r\n\r\nThank you in advance for your help!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "You should be able to write a custom loss function that does this for you. (Losses need not be differentiable!). See https://astroautomata.com/PySR/options/#loss for some examples. Note that you can define very complex functions as losses as any Julia code is allowed.",
+              "createdAt": "2023-01-25T19:51:34Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wMS0yNVQxOTo1MTozNCswMDowMM4ASPS5"
+          }
+        }
+      }
+    }
+  }
+}

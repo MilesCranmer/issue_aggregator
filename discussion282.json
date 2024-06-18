@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 282,
+        "title": "pysr.install() not found",
+        "body": "I followed installation instructions through step 1 and 2. But when I try `python3 -c 'import pysr; pysr.install()'` , it says that there is no install in pysr.\r\nThis is what I got in pysr folder:\r\n\r\n`__init__.py  __pycache__  export.py  feynman_problems.py  sr.py`\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Looks like a very old version. Try `pip install -U pysr`",
+              "createdAt": "2023-03-22T17:33:39Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wMy0yMlQxNzozMzozOSswMDowMM4AUlaH"
+          }
+        }
+      }
+    }
+  }
+}

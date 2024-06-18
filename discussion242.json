@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 242,
+        "title": "How to improve search?",
+        "body": "My model seems to be stuck, as for 1400 iterations it didn't change hall of fame at all. What parameters can i change to improve it?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "It really depends on the problem, but have a look through the options:\r\nhttps://astroautomata.com/PySR/api/#pysrregressor-parameters\r\n\r\nIn particular the search space: https://astroautomata.com/PySR/api/#creating-the-search-space\r\n\r\nand the constraints: https://astroautomata.com/PySR/api/#working-with-complexities \r\n\r\nare going to be key to tuning. \r\n\r\nThe search size parameters are for making the search larger, which is also necessary for more exhaustive searches: https://astroautomata.com/PySR/api/#setting-the-search-size",
+              "createdAt": "2022-12-22T21:26:13Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0xMi0yMlQyMToyNjoxMyswMDowMM4ARFqN"
+          }
+        }
+      }
+    }
+  }
+}

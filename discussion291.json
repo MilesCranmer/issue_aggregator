@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 291,
+        "title": "Fixing functional form",
+        "body": "Hi Miles, thank you again for your swift reply and thorough answers about #273 .\r\nI am still stuck with some problems and having a hard time figuring them out. Your help would be very appreciated again.\r\n\r\n1. Poor predictive skills:\r\nDespite using the default or recommended parameters you provided earlier (#273 #242 ), I still get poor R^2 values (e.g., around 0.1) and low Pearson correlations between the predicted and true response values. I expected the R^2 to be similar to or higher than the random forest model's R^2 (R^2 ~ 0.7) for the same training dataset. I am unsure what I am doing wrong here. Or could running the model for a longer time be a matter (https://github.com/MilesCranmer/PySR/discussions/275 )? You mentioned running it for a week but I noticed minor changes in the equations after a certain point (maybe after 70-80% progress). Do you have any suggestions for further tuning or improving the search?\r\n\r\n2. Features selected by pysr:\r\nI let all my features (~15 features) into the model as you suggested, but only a couple of variables that I thought were less important (based on science/references/RF model) repeatedly showed up in the final equations. For example, x1 and x2 dominate the equations out of 15 features: x1x1 +x1/x2 +sin(x1) + 0.02212x2. Any thoughts on this? How could I set the features show up one or two times with more various features? Any examples of codes here? I know you mentioned about customized loss function but I am unsure how to constrain it.\r\n\r\n3. Formula prior:\r\nI also need to fix a symbolic form of an expression with input variables (https://github.com/MilesCranmer/PySR/issues/285 ). For example, I wanted to have a form like f1(x1) + f2(x2,x3,x4,x5,x6,x7,x8,x9..) = y. In codes, I just changed (2,3) and (1,4) to the corresponding index number of my variables: e.g., \"return !t.constant && t.feature in (1) and (2,3,4...9)\". However, f2 has an x1 variable too and selects only a couple of variables. I could set the complexity of constants large enough so that only features can be included but I am still curious about what problems are here (maybe the same problem from question 2). Also, is there a way to control the complexity of f1 and f2 separately?\r\n\r\nAny further input or recommendations would be very appreciated!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "I will respond later, but just a quick note for 3 - would you be up for giving comments on this issue: https://github.com/MilesCranmer/SymbolicRegression.jl/issues/193? This proposes a more general way of imposing functional priors, and simplifies the process compared to writing a manual evaluation function. Since you are using the functional prior, it would be useful to hear what you think about that proposal!\r\n\r\n---\r\n\r\nAlso, if it's okay with you, it might be helpful if you share your full search script + dataset (or a small sample of the dataset).",
+              "createdAt": "2023-04-11T15:44:16Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNC0xMVQxNjo0NDoxNiswMTowMM4AVS87"
+          }
+        }
+      }
+    }
+  }
+}

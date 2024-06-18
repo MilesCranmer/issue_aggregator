@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 327,
+        "title": "default populations contradiction",
+        "body": "Hey! On your page it says the default populations is 15 under 'Reference' but under 'features and options' it says its 100. I have been running some searches with 15 and 24 since you also said to set populations = 3 x num_cores. I wanted to try running more populations since i was confused by the contradiction on your page and my script crashed when trying to search 10k samples (only 2 features though) I assume its a Ram problem but wanted to ask anyway if there's a way to optimize my configuration for more populations than is good for me. Sorry if that's stupid.\r\n\r\nThank you so much for doing all this work, i am currently writing my bachelors thesis and having a blast using PySR!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Oops, thanks for pointing that issue out!! I will fix it.",
+              "createdAt": "2023-05-10T19:48:27Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "> I wanted to try running more populations since i was confused by the contradiction on your page and my script crashed when trying to search 10k samples (only 2 features though) I assume its a Ram problem but wanted to ask anyway if there's a way to optimize my configuration for more populations than is good for me. Sorry if that's stupid.\r\n\r\nHm, this sounds like it might be a bug. Could you post an issue with the log and specific script you are using?",
+              "createdAt": "2023-05-10T20:08:30Z"
+            },
+            {
+              "author":
+              {
+                "login": "RubenBies"
+              },
+              "body": "Thanks, I will try to write an issue but don't have much to go on.",
+              "createdAt": "2023-05-11T09:16:29Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNS0xMVQxMDoxNjoyOSswMTowMM4AWZU5"
+          }
+        }
+      }
+    }
+  }
+}

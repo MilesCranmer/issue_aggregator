@@ -1,0 +1,57 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 344,
+        "title": "Integer constants + how to use atan2",
+        "body": "Hi all!\r\n\r\n1. Is there a way to constrain the constant to only use specific integers? In my case, 1 and 2.\r\n\r\n2. Is there also a way to use a atan2 function? It seems that Julia doesn't have this.\r\n\r\nMuch appreciated!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "1. Yes, the trick for this is to avoid constants altogether, and give `1` and `2` as **features**. For example:\r\n\r\n```python\r\ndata_cols = 5\r\ninteger_cols = 2\r\nX = np.random.randn(100, data_cols + integer_cols)  # Normal data is first 5 columns\r\nX[:, data_cols+0] = 1\r\nX[:, data_cols+1] = 2\r\n```\r\n\r\nWe have generated some random data and then set the last two columns equal to the constants we wish for PySR to use.\r\n\r\nThen, we need to disable PySR from finding its own constants, by making them prohibitively expensive (and also disabling the constant optimization routine to speed things up):\r\n\r\n```python\r\nsettings_to_disable_constants = dict(\r\n    complexity_of_constants=100,  # Make constants too expensive to use\r\n    should_optimize_constants=False,  # =speed up\r\n    weight_mutate_constant=0.0  # =speed up\r\n)\r\n\r\nmodel = PySRRegressor(**your_settings, **settings_to_disable_constants)\r\nmodel.fit(X, y, variable_names=[\"x1\", \"x2\", \"x3\", \"x4\", \"x5\", \"_1\", \"_2\"])\r\n```\r\n\r\nThe equation will show `_1` and `_2` as features, but they are integers. This is just to prevent SymPy from eagerly simplifying things.\r\n\r\n2.\r\n\r\nJulia's `atan` can be used as a binary operator, in which case it is the same as typical `atan2`. i.e., `atan(x)` is normal `atan`, and `atan(x, y)` is `atan2`.\r\n\r\nHope this helps!\r\nMiles",
+              "createdAt": "2023-06-06T14:20:05Z"
+            },
+            {
+              "author":
+              {
+                "login": "benlabbeus"
+              },
+              "body": "Amazing! Thanks for the prompt reply Miles!\r\n\r\nJust wanted to say this is an amazing tech you've built!\r\n\r\n",
+              "createdAt": "2023-06-06T15:21:08Z"
+            },
+            {
+              "author":
+              {
+                "login": "benlabbeus"
+              },
+              "body": "Again, really appreciate your help!\r\n\r\nI can't seem to get atan2 working, I have the following:\r\n\r\n`\r\nbinary_operators=[\"*\", \"+\", \"-\", \"/\", \"^\", \"greater\", \"atan2\"],\r\n\r\nextra_sympy_mappings={\"atan2\": lambda x, y: sympy.atan(x,y)},\r\n`\r\n\r\nand am getting the error:\r\n\r\n\r\n`julia.core.JuliaError: Exception 'UndefVarError: `atan2` not defined' occurred while calling julia code:\r\n[*, +, -, /, ^, greater, atan2]\r\n`",
+              "createdAt": "2023-06-06T15:59:03Z"
+            },
+            {
+              "author":
+              {
+                "login": "benlabbeus"
+              },
+              "body": "Nvm! Got it working:\r\n\r\nbinary_operators=[\"*\", \"+\", \"-\", \"/\", \"^\", \"greater\", \"atan2(x, y) = atan(x, y)\"],",
+              "createdAt": "2023-06-06T16:01:35Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNi0wNlQxNzowMTozNSswMTowMM4AXR4k"
+          }
+        }
+      }
+    }
+  }
+}

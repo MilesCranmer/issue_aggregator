@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 307,
+        "title": "SymbolicUtils versions",
+        "body": "Hi!\r\n\r\nIs it possible to change the project.toml for SymbolicUtils = \"0.1.0-0.19.7\"? The current version in project.toml limits the NeuralPDE.jl",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "See https://github.com/MilesCranmer/SymbolicRegression.jl/pull/84, https://github.com/MilesCranmer/SymbolicRegression.jl/issues/82, https://github.com/MilesCranmer/SymbolicRegression.jl/issues/59.\r\n\r\n",
+              "createdAt": "2022-04-29T08:29:46Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Fixed on v0.9.0+",
+              "createdAt": "2022-05-02T05:02:03Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0wNS0wMlQwNjowMjowMyswMTowMM4AKMMY"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 382,
+        "title": "Can't import pysr module successfully in jupyter",
+        "body": "I have already installed 'pysr' with pip command in vscode. And I can find it with 'pip list' and 'pip show pysr'. But when I try to 'import pysr' in a  .ipynb file, it always make an error:  No module named 'pysr'. My OS is Win10.  Thanks for your kind suggestion for this problem!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @RicardoSun,\r\n\r\nYou are likely using a different Python environment in jupyter, where PySR is not installed. You can always do\r\n\r\n```\r\n!pip install -U pysr\r\n```\r\n\r\nand\r\n\r\n```\r\nimport pysr\r\npysr.install()\r\n```\r\n\r\nfrom within Jupyter.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-07-18T19:19:51Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNy0xOFQyMDoxOTo1MSswMTowMM4AYueb"
+          }
+        }
+      }
+    }
+  }
+}

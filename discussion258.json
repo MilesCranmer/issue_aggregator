@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 258,
+        "title": "Control the variables available to the operator?",
+        "body": "We can see the that now we can constrain the operators used by operators, which is great!\r\n\r\nHowever, it seems we cannot control the variables used by operators. For example, we might know by priori that X_0 can only by used by multiply as  * X_0, and X_0 only appears in a certain term.\r\n\r\nIn other words, is it possible to predetermine a function, leaving a few parameters for pysr for fitting?\r\n\r\nFor example, y = a * x0^b * x1 + c * x2, and we may only need pysr to find out a, b and c.\r\n\r\nIs there any template to try out? Should we try the penalty one?\r\n\r\nAppreciate any comment,\r\n\r\nMike",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "Zhonglu"
+              },
+              "body": "More fundamentally, what would be the best practice to incorporate known knowledge into the symbolic regression process?",
+              "createdAt": "2023-01-31T06:29:38Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "For this, and more generally for other constraints which are very specific, it might be best to write a custom `eval_loss` function, as described here: https://astroautomata.com/PySR/backend/.\r\n\r\n---\r\n\r\nUpdate: you can now control this with `full_objective` (PySR) or `loss_function` (SymbolicRegression.jl).",
+              "createdAt": "2023-01-31T13:02:31Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wMS0zMVQxMzowMjozMSswMDowMM4ASbIV"
+          }
+        }
+      }
+    }
+  }
+}

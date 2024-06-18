@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 240,
+        "title": "Learning an expression with four terms",
+        "body": "I am trying to learn an equation of the form: \r\n\r\na*(x+y)+b*(x+y)^(2/3)-c*x*(x-1)/(x+y)^(1/3)-d*(y-x)^2/(x+y)\r\n\r\nwhere a,b,c,d are constants\r\n\r\nThings I have tried: \r\n-Change variables to x, z=x+y, w=x-y and train on them\r\n-define: ()^(2/3), ()^(1/3) and square as new unary operators (and put constraints on their complexities <3)\r\n-increase d the maxdepth=maxsize=30\r\n-increase the population_size\r\n-increase the complexity of constants\r\n-randomize the tree more frequently\r\n-let the code run until loss<10\r\n\r\nI am running out of ideas and the loss is still > 300 (the program halts since there is no improvement)\r\nI would be grateful for any ideas.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "What's the range of x and y?\r\n\r\nRegardless, this looks like a pretty difficult expression to find. But it might be possible.",
+              "createdAt": "2022-12-20T19:33:38Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0xMi0yMFQxOTozMzozOCswMDowMM4ARBSw"
+          }
+        }
+      }
+    }
+  }
+}

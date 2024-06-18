@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 348,
+        "title": "tutorial for multiple equation regressions",
+        "body": "As far as I can tell, across all of the tutorials there is a theme, every regression only occurs for a single equation. However, you can imagine that there are low dimensional problems that produce multiple equations of motion. For example, a double pendulum has two equations of motion since there are two masses to keep track of (see this notebook to implement a numerical simulation of a double pendulum):\r\n\r\nhttps://github.com/thwbecker/ML-for-EQ-physics-discovery/blob/tutorial1/Module1.2_DoublePendulum.ipynb\r\n\r\nHowever, I am kind of stuck in trying to get PySR to produce multiple equations. Are there some code examples I could start from? I am happy to produce full fledged tutorials for PySR if I can get this to work. There are other applications as well this could apply to. Happy to hear ideas about it.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "The simplest way to get multiple equations is to simply use multiple columns in the `y` variable you pass to `model.fit()`. There will be a set of equations for each column.",
+              "createdAt": "2023-06-12T19:55:48Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNi0xMlQyMDo1NTo0OCswMTowMM4AXe_N"
+          }
+        }
+      }
+    }
+  }
+}

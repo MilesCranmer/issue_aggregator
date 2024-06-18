@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 350,
+        "title": "Load model from csv file",
+        "body": "Dear all, \r\n\r\nFirst of all, thanks to all the contributors to put in place such a nice tool.\r\n\r\nI am writing to you after spending some time going through the documentation or previously answered questions, and I did not find any duplicate. Let me know if this has already been solved, anyway, here is my question.\r\n\r\nI would like to know if it is possible to load a model previously obtained using the function \"PySRRegressor.from_file()\" not from a .pkl but from a .csv file ? I unfortunately got my job killed for an overload of memory, so I do not have a .pkl file from the which I could restart.\r\n\r\nIf not possible, is it possible to generate a pkl file from a csv file ?\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "You should be able to just pass the `.csv` file to `from_file`. But note that the `pkl` file contains some of the settings, so if you are only passing the `.csv` file, you will have to pass some other settings. The API reference for this function is here: https://astroautomata.com/PySR/api/#pysr.sr.PySRRegressor.from_file",
+              "createdAt": "2023-06-14T19:14:00Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNi0xNFQyMDoxNDowMCswMTowMM4AXkan"
+          }
+        }
+      }
+    }
+  }
+}

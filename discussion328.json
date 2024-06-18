@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 328,
+        "title": "warm_start  option in native  julia EquationSearch",
+        "body": "I am interested in fitting spectra of radio pulsars with the simplest possible function and started with using the PySR version. I find it however a lot  more convenient and efficient  to use the native  julia version, picking up a few julia skills on the way.  \r\n\r\nPulsar spectra span a dynamic range of several orders of magnitude and therefore require a chi^2 like loss function which I have specified following the examples given in the docs.  \r\nlossxyw(x,y,w) =((x-y)*w)^2;\r\n with w=1/sigma\r\n\r\n Here is a typical spectrum with the fit by EquationSearch: \r\n![B2021](https://github.com/MilesCranmer/PySR/assets/133158048/c261d839-026a-4962-a45c-33c66d8bfecd)\r\nThe fit given as fit1(x1)=(16717.066101066815 / (1349.00938061052 + x1)) ^ 1.9131948224707083\r\nThe fit is good and the algorithm converges quite reliably on the _form_ of the function, but  understandably enough with variable results for the constants in different runs, and also with variable goodness of fit. \r\nI am using the following options for my call of EquationSearch:\r\n```julia\r\noptions = Options(;\r\n    binary_operators=[+, -, *, /,^], \r\n    unary_operators=[log,exp], \r\n    complexity_of_operators=[(/) => 2] , \r\n    complexity_of_variables=2,\r\n    constraints=[(^)=>(-1,1), (*) => (5,5)],\r\n    nested_constraints=[ (/) => [(/) => 0], exp => [exp => 0],log => [log => 0]], \r\n    elementwise_loss=lossxyw,  \r\n    enable_autodiff=true,\r\n    maxsize=20,\r\n    save_to_file=false,\r\n    optimizer_iterations=16,\r\n    ncycles_per_iteration=2000\r\n)\r\nhof = EquationSearch(X, y; weights=w, options=options,  niterations=100)\r\n```\r\nI would now start a subsequent iteration with different option where the algorithm should focus on refining the constants\r\nin order to find the functions with the smallest loss.\r\n\r\nmy idea has been to use \r\n```julia\r\noptions2 = Options(;\r\n    binary_operators=[+, -, *, /,^], \r\n    unary_operators=[log,exp], \r\n    complexity_of_operators=[(/) => 2] , \r\n    complexity_of_variables=2,\r\n    constraints=[(^)=>(-1,1), (*) => (5,5)],\r\n    nested_constraints=[ (/) => [(/) => 0], exp => [exp => 0],log => [log => 0]], \r\n     elementwise_loss=lossxyw,  \r\n    enable_autodiff=true,\r\n    maxsize=20,\r\n    save_to_file=false,\r\n    optimizer_iterations=32,\r\n    optimize_probability=0.2,\r\n    warm_start=true,\r\n    ncycles_per_iteration=500\r\n)\r\n```\r\nfor niterations=16.\r\n\r\nUnfortunately the warm_start=true option from PySR  is not supported and I do not understand how to feed the previous state into a subsequent run. Is there any simple way to achieve that for the native julia implementation?\r\n\r\nAnother, but unrelated problem is the apparent inability to recover Lorentzian functions like y(x)=1 / (1 +1.0e-4* x^2)    even when data are generated directly from them for tests. SR comes up with arbitrary complex solutions, but doesn't hit on the simple ones. It doesn't matter if log and exp are allowed here or not.  Is there a way to tweak the options so that it might evaluate them too, but without biasing against other simple alternatives?\r\n\r\nA few hints would be greatly appreciated for me as a novice here!\r\n\r\nThanks in advance\r\n\r\n  Axel\r\n\r\n\r\n\r\n\r\n\r\n   \r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @AxelJessner,\r\n\r\nFor question 1: Yes, in the Julia side of things, you can use warm starts by setting `return_state=true` in the `Options` object, and then `EquationSearch` will return an extra state variable.\r\n\r\nFor example:\r\n\r\n```julia\r\noptions = Options(; kws..., return_state=true)\r\nhof, state_info = EquationSearch(X, y; options)\r\n\r\n...\r\n\r\nhof2, state_info2 = EquationSearch(X, y; options, saved_state=(hof, state_info))\r\n```\r\n\r\nI understand it's a bit less intuitive than the PySR side of things, so I am actively trying to think up an improved API. If you have any suggestions, the thread is here: https://github.com/MilesCranmer/SymbolicRegression.jl/issues/187.\r\n\r\nExcited to see what you find with pulsars!!\r\nCheers,\r\nMiles",
+              "createdAt": "2023-05-10T20:02:31Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNS0xMFQyMTowMjozMSswMTowMM4AWX7m"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 378,
+        "title": "On how to load some prior knowledge of known formulas",
+        "body": "Hi, Miles!\r\n\r\nI'm recently testing your excellent tool on explainable AI, so I wish I could somehow merge the PySR workflow better with neural networks.\r\nOn the official website of PySR, I only saw that you can load 'pretrained models' from a pickle file. \r\nBut is it feasible to directly load a prior formula with sympy?\r\nSay, you've known the classic momentum formula: p = m * v, can you input this prior knowledge, and let PySR to regress out the one in special relativity?\r\n\r\nMuch appreciated!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @NoRatRacing,\r\n\r\nGreat question. Unfortunately there isn’t anything built in at the moment. It shouldn’t be too bad to add it. If you have some time available I could walk you through adding it. I can try myself but have a list of other features I’m working on so it will take a bit longer before I can work on it.\r\n\r\nNote that you can restart from where the previous search left off when you use the `warm_start` parameter and call `fit` twice. So I think this feature could exploit that same functionality, and basically pass the prior knowledge as existing equations/population members.\r\n\r\nWhat do you think?\r\n\r\nCheers,\r\nMiles\r\n",
+              "createdAt": "2023-07-11T18:31:01Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNy0xMVQxOTozMTowMSswMTowMM4AYfQ9"
+          }
+        }
+      }
+    }
+  }
+}

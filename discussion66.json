@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 66,
+        "title": "Partial Least Squares & PySR",
+        "body": "I wanted to ask if anyone has seen an implementation of Partial Least Squares and Symbolic Regression. They seem to be a great fit. This is especially true for small datasets with high dimensionality.  \r\n\r\nI would love to hear back on this from someone.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Sorry not sure why I didn't see this post. For others looking at this discussion, you can check out the `full_objective` parameter in PySR or the `loss_function` in SymbolicRegression.jl - it lets you define an arbitrary objective function.",
+              "createdAt": "2023-04-21T19:22:41Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNC0yMVQyMDoyMjo0MSswMTowMM4AVtCl"
+          }
+        }
+      }
+    }
+  }
+}

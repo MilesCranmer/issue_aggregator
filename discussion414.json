@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 414,
+        "title": "Compute derivative from fitted model",
+        "body": "Dear @MilesCranmer & community,\r\nfirst of all, thanks for developing the wonderful SR package. It is a pleasure working with it.\r\n\r\nOnce I have trained my model using the MLJ interface, I would not only like to use ```predict(mach, X)``` but also compute the derivative of my model expression with respect to ```X```. I know that there exists the ```eval_diff_tree_array()``` function, but I am not sure on how to call this function outside e.g. a custom loss function. I would somehow need to get access to the ```tree``` of the best fit from my model to pass it to ```eval_diff_tree_array()```. Is this possible? Or does anyone have a better idea on how to tackle the issue?\r\n\r\nThanks a lot in advance.\r\n\r\nBests\r\nLukas \r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @llamm-de,\r\n\r\nThanks for the message. This is a bit tricky as MLJ does not have an interface for this, so you will have to use the low-level SymbolicRegression.jl calls directly. The easiest way to do this right now would be as follows:\r\n\r\n```julia\r\nusing MLJ\r\nusing SymbolicRegression as SR\r\n\r\n...\r\nmodel = ...\r\nmach = ...\r\n...\r\n\r\n# Get the tree:\r\nr = report(mach)\r\ntree = r.equations[r.best_idx]\r\n\r\n# Get the transposed X:\r\nX_t, _, _ = SR.MLJInterfaceModule.get_matrix_and_info(X, model.dimensions_type)\r\n\r\n# Get options from mach:\r\noptions = mach.fitresult.options\r\n\r\n# Use:\r\neval_grad_tree_array(tree, X_t, options; variable=true/false)  # or eval_diff_tree_array\r\n```\r\n\r\nBut it would definitely nice if there was a function to pass this through automatically.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-08-23T12:16:25Z"
+            },
+            {
+              "author":
+              {
+                "login": "llamm-de"
+              },
+              "body": "Hey @MilesCranmer,\r\n\r\nthanks for the quick answer. It works like a charm. :blush: :+1: \r\n\r\nBests Lukas",
+              "createdAt": "2023-08-23T13:21:35Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wOC0yM1QxNDoyMTozNSswMTowMM4AZ81K"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 199,
+        "title": "Papers about how PySR actually works?",
+        "body": "Hi there,\r\n\r\nI really like PySR and there seem to be a lot of scientific papers that made use of it. However, I haven‘t found any description or similar that explains how PySR and its Julia backend work respectively. I only read that it uses some regularized evolutionary algorithm, simulated annealing and gradient-free optimization, but no details. Before I start digging into the source, is there any explaination available? Something which makes clear what PySR makes so special and different from other algorithms?\r\n\r\nThanks in advance\r\nAndreas",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Will be up on arXiv soonish... I'll paste the link here when it's ready! In summary, it's basically a classical tournament selection genetic algorithm with a few tweaks. The most important tweaks are: BFGS constant optimization (without exact gradients), crossovers, and an adaptive parsimony term.\r\n\r\nIn terms of the source code, the actual search backend is here: https://github.com/MilesCranmer/SymbolicRegression.jl.",
+              "createdAt": "2022-10-05T22:12:21Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hey @andmeier,\r\nSorry for the very long delay. Paper is out; you can find it here: https://github.com/MilesCranmer/pysr_paper and arxiv here: https://arxiv.org/abs/2305.01582.\r\nCheers,\r\nMiles",
+              "createdAt": "2023-05-05T15:32:39Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNS0wNVQxNjozMjozOSswMTowMM4AWMQA"
+          }
+        }
+      }
+    }
+  }
+}

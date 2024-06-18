@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 226,
+        "title": "Is it possible to exclude variable from an operator, without altering the complexity?",
+        "body": "Hi,\r\n\r\nPySR looks promising with some features like \"constraints\" and \"nested_constraints\", which Eureqa did not seem to be capable of.\r\n\r\nCurrently, to exclude the variable from an operator, e.g. \"pow\", we must play with complexity:\r\n```\r\n    complexity_of_variables = 2,\r\n    complexity_of_constants = 1,\r\n    constraints={\r\n        \"pow\": (-1, 1),\r\n    },\r\n```\r\nIn this way, no variable can appear in the y position of x^y. However, this also makes the constants appears too frequently in the results.\r\n\r\nIs there a way to exclude variable from an operator without affecting complexity? I believe it can be useful for implementing domain knowledge.\r\n\r\nWith kind regards,\r\n\r\nMike\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "For custom constraints like this, the best thing is to write a function that checks the underlying expressions explicitly. This can be done by modifying the backend as described on this page: https://astroautomata.com/PySR/backend/. You will want to edit the `check_constraints` function to perform this check. ",
+              "createdAt": "2022-11-17T15:42:56Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0xMS0xN1QxNTo0Mjo1NiswMDowMM4AP5vh"
+          }
+        }
+      }
+    }
+  }
+}

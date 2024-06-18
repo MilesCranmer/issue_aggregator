@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 251,
+        "title": "Multicores processing",
+        "body": "Hi,\r\nAlthough I have many cores available, but the PySR is not using more than a few cores (2-4 cores). Is there a way to make PySR to use all cores available? I'd like to add that my search is really complex (populations, iterations, generations are big numbers), for example, after running PySR for 4 days (4 cores used max), I succeed to get close to the desired results. I am trying to find a way PySR uses more cores \r\nI don't pass proc to PySRRegressor.\r\n\r\nAny advice is much appreciated, \r\nAhmad",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "The `procs` argument controls how many cores it uses. So for using 4 cores you would set `procs=4`.\r\n\r\nIf it still doesn't use all the cores, then it could be that the main thread is doing too much work. In that case, try increasing `ncyclesperiteration` until all cores are being used. Also, having `populations >= 2 * procs` is a good idea, so that all threads can be occupied.\r\n\r\nYou could also try using multiprocessing instead of multithreading. To do that, use `multithreading=False, procs=4`.",
+              "createdAt": "2023-01-16T18:50:16Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wMS0xNlQxODo1MDoxNiswMDowMM4AR7hC"
+          }
+        }
+      }
+    }
+  }
+}

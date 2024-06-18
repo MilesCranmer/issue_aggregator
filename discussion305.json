@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 305,
+        "title": "Problem with constraints",
+        "body": "Hi,\r\n\r\nI am trying to use the constraints option without success as follows:\r\n\r\n```julia\r\nusing Distributed\r\nusing SymbolicRegression\r\nusing SymbolicUtils\r\nprocs = addprocs()\r\n\r\n@everywhere using SymbolicRegression\r\n\r\nX = randn(Float32, 5, 100)\r\ny = 2 * cos.(X[4, :]) + X[1, :] .^ 2 .- 2\r\n\r\noptions = SymbolicRegression.Options(\r\n    binary_operators=(+, *, /, -,^),\r\n    unary_operators=(cos, exp),\r\n    npopulations=30,loss=L2DistLoss(),constraints=[(^)=>(-1, 3)]\r\n)\r\nniterations = 5\r\n\r\nhallOfFame = EquationSearch(X, y, niterations=niterations, options=options)\r\n\r\nrmprocs(procs)\r\n```\r\n\r\nOutput gives a type error as follows:\r\n\r\n```julia\r\nTypeError: in typeassert, expected Union{Nothing, Tuple, Vector{Pair{Any, Any}}}, got a value of type Vector{Pair{typeof(^), Tuple{Int64, Int64}}}\r\n```\r\n\r\nAny ideas as to what I'm doing wrong?\r\n\r\nThanks!\r\n\r\n\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @JulesArcher,\r\n\r\nThanks for raising this. Looks like a bug! I'll fix this straight away.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2022-03-28T19:17:02Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Fixed on 0.8.1 (registry will update in ~1 hour). Let me know if it works for you. \r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2022-03-28T19:21:01Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "btw, note that since you aren't passing `procs` to EquationSearch, so they won't actually be used. You can either let SymbolicRegression.jl handle the multiprocessing automatically, with:\r\n\r\n```julia\r\nusing SymbolicRegression\r\nX = randn(Float32, 5, 100)\r\ny = 2 * cos.(X[4, :]) + X[1, :] .^ 2 .- 2\r\n\r\noptions = SymbolicRegression.Options(\r\n    binary_operators=(+, *, /, -,^),\r\n    unary_operators=(cos, exp),\r\n    loss=L2DistLoss(),\r\n    constraints=[(^)=>(-1, 3)]\r\n)\r\nniterations = 5\r\n\r\nhallOfFame = EquationSearch(X, y, niterations=niterations, options=options, numprocs=4)\r\n```\r\n\r\nNo use of `@everywhere` needed. This will create and then remove the extra processes internally. (Although I recommend `numprocs=0, multithreading=true` instead - it's more stable - just be search to launch julia with multithreading).\r\n\r\nIf you do want to do everything manually, you should change your code to:\r\n\r\n```julia\r\nusing Distributed\r\nprocs = addprocs(4)\r\nusing Pkg\r\nproject_path = splitdir(Pkg.project().path)[1]\r\n\r\n@everywhere procs begin\r\n    # Activate project on processes:\r\n    Base.MainInclude.eval(quote\r\n        using Pkg\r\n        Pkg.activate($$project_path)\r\n    end)\r\nend\r\n@everywhere using SymbolicRegression\r\nX = randn(Float32, 5, 100)\r\ny = 2 * cos.(X[4, :]) + X[1, :] .^ 2 .- 2\r\noptions = SymbolicRegression.Options(\r\n    binary_operators=(+, *, /, -,^),\r\n    unary_operators=(cos, exp),\r\n    loss=L2DistLoss(),\r\n    constraints=[(^)=>(-1, 3)]\r\n)\r\nniterations = 5\r\n\r\nhallOfFame = EquationSearch(\r\n    X, y,\r\n    niterations=niterations,\r\n    options=options,\r\n    procs=procs\r\n)\r\n\r\nrmprocs(procs)\r\n```",
+              "createdAt": "2022-03-28T19:33:44Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0wMy0yOFQyMDozMzo0NCswMTowMM4AJXjd"
+          }
+        }
+      }
+    }
+  }
+}

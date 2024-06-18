@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 181,
+        "title": "Generalization to vector and tensor operators",
+        "body": "Hi,\r\nis it possible to generalize pysr to vectors and tensors?\r\n\r\nIn physics inputs are often vectors and tensors, and treating their components individually does not make sense. Operators like dot product or matrix multiplication are basic operators for vector or tensor objects, but they become very complex expressions if we deal with individual scalar components.\r\n\r\nSay my inputs are an NxN matrix **A** and a vector **x** of size N, and my output is their matrix-vector product **y** = **A** **x**. Currently, if I understood correctly, this will involve fitting an equation separately to each of the N components of **y** using N^2+N input variables. Clearly this is not the way to go. Yet this equation should be easy to find if the matrix-vector product operator was available and if the inputs were described as matrices and vectors rather than a long list of scalars.\r\n\r\nWhat would be the way to do this?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @auroreloisy,\r\n\r\nGreat question. Currently PySR only fits scalar equations, though you can fit multiple equations at the same time. Unfortunately this means in order to find a vector equation, you have to recognize the vector operations (like a dot product) by eye - and piece the scalar equations together manually.\r\n\r\nAdopting PySR to vector operations is definitely possible; it’s just an engineering challenge. Take a look at the backend: MilesCranmer/SymbolicRegression.jl. You would basically need to modify it such that each operator has a specific input and output shape and use those to constrain whether a particular tree is valid or not.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2022-08-29T13:19:09Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0wOC0yOVQxNDoxOTowOSswMTowMM4ANWk1"
+          }
+        }
+      }
+    }
+  }
+}

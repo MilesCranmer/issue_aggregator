@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 294,
+        "title": "Can I clone SymbolicRegression.jl manually while running pysr.install()?",
+        "body": "I always met difficulties about cloning git repos while running pysr.install(). But i can clone those repos manually. So can i put these repos like SymbolicRegression.jl somewhere so that i can skip the step of cloning while runing install()?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Yes, the `julia_project` parameter is for this purpose. Point it to the location of your local git repo.\r\n\r\nhttps://astroautomata.com/PySR/api/#environment\r\n\r\nTo install dependencies manually, go to the SymbolicRegression.jl folder and type:\r\n\r\n```bash\r\njulia --project=. -e 'using Pkg; Pkg.instantiate()'\r\n```\r\n\r\nThis is the equivalent of the `install()` step but run on your local folder",
+              "createdAt": "2023-04-18T11:26:48Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNC0xOFQxMjoyNjo0OCswMTowMM4AVi3h"
+          }
+        }
+      }
+    }
+  }
+}

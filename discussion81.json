@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 81,
+        "title": "Conserved quantities + galactic dynamics",
+        "body": "Hi,\r\n\r\nI've been attempting to use pysr to find conserved quantities along galaxy orbits in 6D phase space.  \r\nFor the tests I've run so far  I'm using a spherical gravitational potential (eg a Plummer model) for which there should be 4 conserved quantities - energy + the 3 components of angular momentum.  I'm not attempting to find energy at the moment (sqrt is left out as a unary operator) but I was hoping to find the angular momentum components.  In general, I find one component but not all three.  The data file I supply contains position + velocities for 2 orbits with a function value set to 1 for the first orbit and 2 for the second (as in the AI Poincare paper).  The question I have is how can I find the other components of angular momentum ?  Are you able to  provide any advice / guidance please ?  \r\n\r\nRichard Long",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

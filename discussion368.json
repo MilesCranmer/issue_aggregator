@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 368,
+        "title": "Problem with pysr.julia_helpers (because PyCall got messed up)",
+        "body": "I'll share my full code \"Use_the_PySR_Package\" here.\r\n\r\nActually, interestingly I was able to successfully run these lines of code (including the last\r\n```jl = pysr.julia_helpers.init_julia(julia_kwargs={\"threads\": 8, \"optimize\": 3})```\r\nline of code) in a separate smaller new ipynb file called Use_just_the_PySR_Julia_Helper.ipynb .\r\n\r\nI must have run some other command in this one Use_the_PySR_Package  ipynb file that messed up this one file permanently, because even when I re-started the Jupyter Notebook, I still got a error when running\r\n```jl = pysr.julia_helpers.init_julia(julia_kwargs={\"threads\": 8, \"optimize\": 3})```.\r\n\r\n========================\r\nIn the Use_the_PySR_Package ipynb file,\r\nI ran\r\n```\r\n!curl -fsSL https://install.julialang.org | sh\r\n```\r\nwhich tells me that Julia is installed in this system\r\nthen\r\nI ran\r\n```\r\n!pip3 install -U pysr\r\n```\r\nwhich tells me a bunch of \"requirement already satisfied\"'s, including \"Requirement already satisfied: pysr in /opt/anaconda3/envs/pysr_env/lib/python3.10/site-packages (0.14.3)\"\r\nthen I ran\r\n```\r\n!python3 -m pysr install\r\n```\r\nthen I ran\r\n```\r\nimport pysr\r\n```\r\nthen I ran\r\n```\r\njl = pysr.julia_helpers.init_julia(julia_kwargs={\"threads\": 8, \"optimize\": 3})\r\n```\r\nwhich gives me this error message:\r\n```\r\nJuliaError: Exception 'ArgumentError' occurred while calling julia code:\r\nconst PyCall = Base.require(Base.PkgId(Base.UUID(\"438e738f-606a-5dbb-bf0a-cddfbfd45ab0\"), \"PyCall\"))\r\n```\r\n\r\nAny idea why?\r\nMy version of Julia is 1.9.1\r\nMy version of Python is 3.10.4\r\n\r\nNotably, this error did not happen to me before. A few days ago, I was able to create the julia object\r\n```\r\njl = pysr.julia_helpers.init_julia(julia_kwargs={\"threads\": 8, \"optimize\": 3})\r\n```\r\n\r\nand I was able to do\r\n```\r\njl.eval(\"\"\"\r\nprint(\"hello world\")\r\n\"\"\")\r\n```\r\nfor example.\r\n\r\nThe only difference I can think of between a few days ago and today is that today, I imported the Roots and ForwardDiff package\r\n```\r\njl.eval(\r\n\"Pkg.add(\"Roots\")\r\nPkg.add(\"ForwardDiff\")\r\n\r\nusing Roots\r\nusing ForwardDiff\")\r\n```\r\nBut I have a feeling there is some other reason for this, as I do not understand why doing that would cause a problem with using PyCall.\r\n\r\n\r\n\r\n\r\n[Use_the_PySR_Package.pdf](https://github.com/MilesCranmer/PySR/files/11951998/Use_the_PySR_Package.pdf)\r\n[Use_just_the_PySR_Julia_Helper.pdf](https://github.com/MilesCranmer/PySR/files/11951999/Use_just_the_PySR_Julia_Helper.pdf)\r\n\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @unary-code,\r\n\r\nThanks for the report. Could you edit your post to surround code with three back quotes `\\`` so that it is formatted correctly? Otherwise it is hard to read.\r\n\r\nRegarding the issue, the latest PySR uploaded today has some functionality to self-repair PyCall installs. Could you try upgrading your PySR and retrying?\r\n\r\nThanks,\r\nMiles",
+              "createdAt": "2023-07-05T00:25:37Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNy0wNVQwMToyNTozNyswMTowMM4AYQHl"
+          }
+        }
+      }
+    }
+  }
+}

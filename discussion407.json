@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 407,
+        "title": "Specifying variable names in custom operator?",
+        "body": "Hi! Thanks for your work on this -\r\n\r\nHad a question - after training, a slice of my model's CSV looks like this : \r\n\r\n```\r\nComplexity,Loss,Equation\r\n1,0.21656719,\"0.55522686\"\r\n3,0.19779082,\"(0.5202965 + x3)\"\r\n4,0.18656741,\"cube(0.78804094 + x3)\"\r\n5,0.17970817,\"(0.44131896 + (x3 / 0.29340526))\"\r\n6,0.16866684,\"cube(0.78804094 + (x3 - x2))\"\r\n7,0.16247983,\"(0.4539367 + ((x3 - x2) / 0.3689541))\"\r\n8,0.15914866,\"cube(0.78804094 + (x3 - (x2 - x1)))\"\r\n9,0.15100345,\"(0.5554471 + (((x3 - x2) + x1) / 0.42898953))\"\r\n```\r\n\r\nI now want to start a new run, but want to initiate it with custom intuition (via custom operators/features/constraints etc) that allows it to weigh `x3 - x2` or `0.5202965 + x3` or `lambda x : x3 - x` more during search (since these tend to appear more, and I'm determining externally which expressions appear more in the results). What's the best way to do this / is there someplace I can pass a Julia expression to make this work ? \r\n\r\nHappy to make any PRs/mods myself with some help, if this isn't directly possible. (I already see the issue on differential operators [here](https://github.com/MilesCranmer/SymbolicRegression.jl/issues/89), is there some native Julia way to do this today?)",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @sibeshkar,\r\n\r\nGreat question. Currently this is not possible. If you restart a search with `warm_start=True`, note that it will keep all of the expressions from the last search. Due to the crossover operation, it is more likely that, e.g., `x3 - x2` will appear in a mutated expression because it appears in your hall of fame of expressions already.\r\n\r\nHowever a more general approach to this this is definitely something I would be interested in if you are up for working on it! I think e.g., https://github.com/MilesCranmer/SymbolicRegression.jl/issues/193 would be awesome to have.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-08-17T06:05:03Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wOC0xN1QwNzowNTowMyswMTowMM4AZvWS"
+          }
+        }
+      }
+    }
+  }
+}

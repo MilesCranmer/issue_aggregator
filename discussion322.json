@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 322,
+        "title": "Preventing nested functions",
+        "body": "I Was wondering if it was possible to restrict the search to only f(t)=sin(t) and cos(t), functions and exclude function nesting, but can include powers of t such as t, t^2, sin (t^2)...basically\r\nrestrict ourselves to only include analytical functions and combination of functions from solutions to single degree of freedom vibration problems or vibration of rods and beams.\r\nWould be very interested to hear your thoughts.\r\nRespectfully\r\nAleksey",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi Aleksey,\r\nThanks for the question. I think the `nested_constraints` parameter might be what you are looking for? https://astroautomata.com/PySR/api/#working-with-complexities Let me know if this answers it. Thanks!\r\nMiles",
+              "createdAt": "2023-04-26T22:41:39Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNC0yNlQyMzo0MTozOSswMTowMM4AV4js"
+          }
+        }
+      }
+    }
+  }
+}

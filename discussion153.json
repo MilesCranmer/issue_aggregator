@@ -1,0 +1,57 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 153,
+        "title": "Procs parameter",
+        "body": "Hi,\r\n\r\nI have 16 cores , but although I've been playing with the procs parameter I never seem to be using more than 1 core.\r\nIs there anything else that needs to be done/setup/configured?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "That seems like a bug... `procs` should be the number of cores you use. Are you using any other parameters different from the defaults?",
+              "createdAt": "2022-06-23T13:42:24Z"
+            },
+            {
+              "author":
+              {
+                "login": "Carlos-Fernands"
+              },
+              "body": "My parameters are set in this code (a small variation of the simple example provided):\r\n\r\nfrom pysr import PySRRegressor\r\nmodel = PySRRegressor(\r\n    procs = 8,\r\n    batching = True,\r\n    batch_size = 5000,\r\n    model_selection=\"best\",  # Result is mix of simplicity+accuracy\r\n    niterations=40,\r\n    binary_operators=[\"+\", \"*\"],\r\n    unary_operators=[\r\n        \"cos\",\r\n        \"exp\",\r\n        \"sin\",\r\n        \"inv(x) = 1/x\",\r\n\t# ^ Custom operator (julia syntax)\r\n    ],\r\n    extra_sympy_mappings={\"inv\": lambda x: 1 / x},\r\n    # ^ Define operator for SymPy as well\r\n    loss=\"loss(x, y) = (x - y)^2\",\r\n    # ^ Custom loss function (julia syntax)\r\n) ",
+              "createdAt": "2022-06-23T14:01:51Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Ah, so the `batch_size` is quite large. Could you try with a much smaller batch_size? Maybe just down-sample your data to ~1000 points, and see how well you can fit it with that? Generally symbolic regression is much less expressive than other ML techniques, so you don't need to worry as much about overfitting.",
+              "createdAt": "2022-06-23T14:06:00Z"
+            },
+            {
+              "author":
+              {
+                "login": "mtaylorDW"
+              },
+              "body": "@Carlos-Fernands, I had a similar problem.  Setting `multithreading=False` fixed it.  Do you have an AMD CPU by any chance?https://github.com/MilesCranmer/PySR/issues/158",
+              "createdAt": "2022-07-08T14:25:41Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0wNy0wOFQxNToyNTo0MSswMTowMM4AL23p"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 292,
+        "title": "PySR model tuning",
+        "body": "Hello,\r\n\r\nI am new to PySR and currently working on the following problem.\r\n\r\nI am trying to derive the [following empirical formula](https://www.bridgeanalyzers.com/service-calibration/white-papers/02-ega-lambda-calculation-the-modified-brettschneider-equation/) using PySR as part of my thesis work. The formula, upon simplification, has a complexity of around 50 (53) and contains many terms (5 input variables and combinations of them). \r\nI already made many changes to the model including setting deterministic to True, maxsize, niterations, nested_constraints to derive the exact expression but have yet to achieve it.  \r\n\r\n![image](https://user-images.githubusercontent.com/66682406/232433561-1a2c3c68-127e-4879-b12d-50f9cc29e2fc.png)\r\n\r\nThe expression on expanding looks like this and the output expression from PySR should be similar to this.\r\n![image](https://user-images.githubusercontent.com/66682406/232452178-b27dfffa-974f-4f39-baa4-03cc8403ffc6.png)\r\n\r\nI have gas (CO2, CO, NO, O2 and HC ) measurements as input data and Lambda values for output.\r\n\r\nCould anyone help me in understanding on how to provide constraints such as constraints, nested_constraints so that they match the above expression and help the model narrow the search to the exact expression.\r\nI have already referred to the PySR regressor reference page to understand how the above mentioned constraints work.\r\n\r\n**Any response would be highly appreciated.**\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @LP2006,\r\n\r\nThanks for the post. Take a look at the tuning tips page here: https://astroautomata.com/PySR/tuning/ for some info on how you could optimize the parameters for your expression. An expression with a complexity of 50 might be difficult to get exactly, but you could try. \r\n\r\nCould you post your current PySRRegressor settings?\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2023-04-17T19:04:38Z"
+            },
+            {
+              "author":
+              {
+                "login": "LP2006"
+              },
+              "body": "Hello,\r\n\r\nThank you very much for the response.\r\nHere is the current model\r\n```py\r\nmodel = PySRRegressor(\r\n    model_selection=\"best\",                                                    \r\n    populations = 10,                                                          \r\n    maxsize = 60,                                                           \r\n   population_size = 60,                                                   \r\n    niterations=100,                                                         \r\n    binary_operators=[\"+\", \"*\",'/','^'],                                    \r\n    unary_operators = ['square'],                                                \r\n    warm_start = False,                                                        \r\n    tournament_selection_n = 10,\r\n    constraints={\r\n    'add': (3, 3),\r\n    'mult': (3, 3),\r\n    'pow': (-1, 1),\r\n    'div': (5, 5)\r\n},                                               \r\n    use_frequency_in_tournament = True,\r\n    warmup_maxsize_by = 0.2,\r\n    use_frequency = False,\r\n nested_constraints = {\r\n    '+': {'+': 0, '*': 2, '^': 0, '/': 0},\r\n    '*': {'+': 2, '*': 2, '^': 0, '/': 0},\r\n    '^': {'+': 0, '*': 0, '^': 0, '/': 0},\r\n    '/': {'+': 2, '*': 3, '^': 0, '/': 0}\r\n},\r\n  ]\r\n     denoise = True,\r\n    select_k_features=5,                                                     \r\n    loss=\"loss(x, y) = (x - y)^2\", \r\n    verbosity = 1e5,\r\n    progress = True,\r\n    output_torch_format = True,\r\n    random_state = 17,\r\n    procs = 0,\r\n    multithreading = False,\r\n    deterministic = True,                                          \r\n   )\r\n```\r\n\r\nPlease let me know if the above settings are good to work with or if any improvements could be made.\r\n\r\nThanks.\r\n",
+              "createdAt": "2023-04-17T21:55:31Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Comments:\r\n\r\n1. \"^\" is not needed, so remove it.\r\n2. Add the operator \"-\".\r\n3. Remove denoising (`denoise=False`).\r\n4. Turn off the `select_k_features=5` setting, because you have more than 5 features you need.\r\n5. Your constraints are too strong for your equation. See the docs on the constraints [here](https://astroautomata.com/PySR/api/#working-with-complexities). In your example:\r\n```py\r\nconstraints={\r\n    'add': (3, 3),\r\n    'mult': (3, 3),\r\n    'pow': (-1, 1),\r\n    'div': (5, 5)\r\n},                                  \r\n```\r\nthis says that \"add\" can only have maximum of 3 complexity in its left and right arguments. Which rules out the equation you wish to find.\r\n\r\nI would instead do:\r\n\r\n```py\r\nconstraints={\r\n    'square': 1\r\n},                                  \r\n```\r\nwhich only imposes a constraint on `square` that it can have only a variable as its input (which seems reasonable), and leaves the others alone.\r\n\r\n6. Your nested constraints are also too strong. See the docs for more info. I would do:\r\n```py\r\n nested_constraints = {\r\n    '/': {'/': 2}\r\n},\r\n```\r\nwhich means that it can only nest up to three `/` operator, but not more. The CO/CO2 term in your desired equation is nested within two `/`, so at least this constraint is needed. You could even do `'/': {'/': 3}` to give it more \"room\" to explore.\r\n\r\n7. Why use deterministic mode? It will be slower. I would turn that off as well, so you then can use CPU parallelism.\r\n\r\nSo in total, I would make the changes:\r\n\r\n\r\n```py\r\nmodel = PySRRegressor(\r\n    maxsize=60,\r\n    population_size=60,\r\n    niterations=1_000_000_000,  # Just make this very large and exit when satisfied\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\"],   # Adjusted\r\n    unary_operators=[\"square\"],   # Adjusted\r\n    constraints={\"square\": 1},   # Adjusted\r\n    nested_constraints={\"/\": {\"/\": 2}},  # Adjusted\r\n    loss=\"loss(x, y) = (x - y)^2\",\r\n)\r\n```\r\nI removed some of the other parameters because they are already set as defaults. No need to change them unless you know you need to. You could also play around with the `parsimony` parameter.\r\n\r\nHope this helps!\r\n\r\nMiles",
+              "createdAt": "2023-04-17T22:21:13Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNC0xN1QyMzoyMToxMyswMTowMM4AVhhd"
+          }
+        }
+      }
+    }
+  }
+}

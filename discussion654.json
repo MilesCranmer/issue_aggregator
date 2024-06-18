@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 654,
+        "title": "Making PySR approximate a specific type of equation (Linear, non-linear, polynomial, etc.)",
+        "body": "I have been working in a certain material science problem and have used a few ML models such as AutoML and simple models like multiple-linear regression (MLR). I find it odd that PySR cannot come even close to the performance of even a simple MLR. I even tuned the parameter space to look over a lot and few operators, setting constrains, and increasing number of iterations and population. @MilesCranmer do you have any idea of why this might be happening? Do you have any recommendations? Although the MLR equation is not the definitive model with the best performance, it still outperformed every symbolic equation PySR gave. PySR is trying too hard to find complex symbolic equations that might fit the data. It may be interesting to be able to set the model to a starting point. For example, tell the algorithm first to use a linear regression using all the variables and start exploring from there. Another thing I need to try is to use the equation of the MLR as the input for the PySRegressor. The MLR is already very good, so my hope is that PySR might be able to improve it. I will give updates on it on the following days.\r\n\r\nVariable handling\r\nAlso, I would like to specify that PySR use all the variables I gave in all the expressions it explores. Based on my previous knowledge of my problem, I know the variables I gave have to be fixed in the equation, so exploring symbolic expressions while missing one would be unrealistic. That could save PySR computation and time exploring equations with missing variables.",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Can you share a bit more about the example, maybe with some code and datasets? More diagnostics would be helpful too.\r\n\r\nAlso, do you know what the equivalent complexity of the linear regression model would be, if PySR were to find it? e.g., `y = a * x + b * z` would have a complexity of 7. The default max complexity is 20 (`maxsize` parameter – which you can increase).\r\n\r\nAlso see related thread here: https://github.com/MilesCranmer/PySR/issues/536",
+              "createdAt": "2024-06-18T21:54:56Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0xOFQyMjo1NDo1NiswMTowMM4AlbRD"
+          }
+        }
+      }
+    }
+  }
+}

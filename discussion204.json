@@ -1,0 +1,89 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 204,
+        "title": "Reducing startup times",
+        "body": "Hi Miles,\r\n\r\nThanks for putting all of this together. Great work!\r\n\r\nI’ve been using PySR to research several problems at the same time: different datasets, different search space, different params.\r\nEvery time, I need to launch a new PySR instance so it loads all the appropriate params. And every time PySR makes a call to launch julia and load all necessary libraries. Launching julia generally takes a long time — compared to how long SymbolicRegression.jl generally runs once it’s loaded. On my machine it takes about 10s for the symbolic regression algorithm to run, and about a 1-2mins to launch julia. Most of the time there’s some issue with the features I pass in and/or I want to try different params once it starts. If the machine is loaded with some other processes, launching julia can take 10x longer.\r\n\r\nI’m not familiar with julia, so at the moment I’m really stuck with the python frontend.\r\n\r\nTwo questions:\r\n1. Is there a way around having to launch julia every time?\r\n2. If I am not mistaken the importance of julia here is so that the symbolic regression algorithm can be better parallelized among cores within same machine. Having access to several machines, it seems it would be easier if there was an all-python PySR (without julia backend), with parallelization taken care of on the user side. Is there a chance of making available an all-python based PySR? If not, could you suggest an alternative to parallelize among machines without having to recourse to julia?\r\n\r\nThanks!",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @Quarlos,\r\nThanks for the questions. I am surprised it takes that long to startup Julia on your machine - you should post about this on the Julia help forums maybe. For me, Julia (itself) only takes a couple of seconds to start, and maybe 5-10 seconds for a PySR search to start while it is compiling everything.\r\n\r\nIn general, to get faster startups, you have a few options:\r\n\r\n1. Don't close Python in between runs. When you quit Python, you also quit Julia (via PyJulia) and the compiled functions in SymbolicRegression.jl are thrown out (Julia is a just-in-time compiled language). But if you simply use the same Python instance, and don't quit, then the startup time should be pretty small. For different search options, simply create a new `PySRRegressor` object.\r\n2. Make sure your PySR and Julia versions are up-to-date. Generally the most recent version of Julia is always better at precompiling stuff, and also faster at JITing in general.\r\n3. (harder) Something I've thought about is using `PackageCompiler.jl` to save cached SymbolicRegression.jl functions: https://github.com/JuliaLang/PackageCompiler.jl. Maybe there's a way to integrate this into PySR but I haven't really looked into this yet. You'd probably want to go into the PyJulia docs to see if there is a way to load a specific shared library.\r\n\r\n> If I am not mistaken the importance of julia here is so that the symbolic regression algorithm can be better parallelized among cores within same machine.\r\n\r\nUsing Julia for a backend is much more than just parallelism. Julia basically gets you the same performance as C: https://julialang.org/benchmarks/ while still being a high-level language, so it's just as easy to develop as a Python package. It took me cumulatively about ~1 year of full time work to write the current backend in Julia, whereas if I had wrote the backend in C++, it would probably have taken me 5+ years! (I used to do things like this in C++ 🙂)\r\n\r\nJulia also has a lot of meta-programming tricks that let you generate and compile code on the fly. For example, you can define a custom operator or loss function in PySR by passing a string, and it will be compiled into a fast SIMD kernel in the Julia backend. That is something you simply cannot do with a statically compiled language like C.\r\n\r\n>  Having access to several machines, it seems it would be easier if there was an all-python PySR (without julia backend), with parallelization taken care of on the user side. \r\n\r\nWhy not pure Python: speed. Genetic algorithms are pretty simple and the only way to get good results is just make every part of them - expression evaluation, constant optimization, mutations, crossovers, migration, etc. - really really fast so they can churn through billions of expressions. \r\n\r\nFor example, let's compare the **dynamic** expression evaluation of numpy (C-backend) with SymbolicRegression.jl. Don't miss the emphasis on **dynamic** - this expression itself is not allowed to be compiled; only the operators.\r\n\r\nFirst, here's numpy (importantly: we need to pass a string defining the function here so that it doesn't cache the tokenization!)\r\n```python\r\nimport numpy as np\r\n\r\ndef f(X, expr_string):\r\n    return eval(expr_string)\r\n\r\nexpr_string = \"np.cos(X[:, 0] * 3.2 - 1.5) * np.exp(- X[:, 3] ** 2) - X[:, 4] * X[:, 2] + np.cos(X[:, 0] * 3.2 - 1.5) * np.exp(- X[:, 3] ** 2) - X[:, 4] * X[:, 2] + np.cos(X[:, 0] * 3.2 - 1.5) * np.exp(- X[:, 3] ** 2) - X[:, 4] * X[:, 2] +  np.cos(X[:, 0] * 3.2 - 1.5) * np.exp(- X[:, 3] ** 2) - X[:, 4] * X[:, 2] + np.cos(X[:, 0] * 3.2 - 1.5) * np.exp(- X[:, 3] ** 2) - X[:, 4] * X[:, 2] + np.cos(X[:, 0] * 3.2 - 1.5) * np.exp(- X[:, 3] ** 2) - X[:, 4] * X[:, 2]\"\r\nX = np.random.randn(300, 5)\r\n\r\n%%timeit\r\nf(X, expr_string)\r\n# 156 µs ± 184 ns per loop (mean ± std. dev. of 7 runs, 10,000 loops each)\r\n```\r\n\r\nNext, let's see SymbolicRegression.jl:\r\n```julia\r\nusing SymbolicRegression\r\nusing BenchmarkTools\r\n\r\n# Define the enum over operators:\r\noptions = Options(binary_operators=(*, -, +, /), unary_operators=(square, cos, exp))\r\n\r\nx1, x2, x3, x4, x5 = Node(\"x1\"), Node(\"x2\"), Node(\"x3\"), Node(\"x4\"), Node(\"x5\")\r\n\r\nequation = cos(x1 * 3.2 - 1.5) * exp(-1.0 * square(x4)) - x5 * x3 + cos(x1 * 3.2 - 1.5) * exp(-1.0 * square(x4)) - x5 * x3 + cos(x1 * 3.2 - 1.5) * exp(-1.0 * square(x4)) - x5 * x3 + cos(x1 * 3.2 - 1.5) * exp(-1.0 * square(x4)) - x5 * x3 + cos(x1 * 3.2 - 1.5) * exp(-1.0 * square(x4)) - x5 * x3 + cos(x1 * 3.2 - 1.5) * exp(-1.0 * square(x4)) - x5 * x3 \r\n\r\nX = randn(Float64, 5, 300)  # Note that SymbolicRegression.jl has columns first\r\n\r\n@btime eval_tree_array(equation, X, options)\r\n#  45.334 μs (137 allocations: 69.92 KiB)\r\n```\r\nAnd this is comparing against numpy, which already has a C backend! The point I am trying to make is that the pure Python overhead here really hurts you, even for cases like this. For all other parts of the genetic algorithm, when you are comparing against pure-Python code, the speedup would be even more apparent.\r\n\r\nWhy not only use Julia: compatibility. The vast majority of machine learning packages are in Python, so it just makes sense to have a frontend here. Most ML packages have C backends with Python frontends, so PySR is pretty similar in that sense; it just has its backend written in a high-level language instead of low-level (for productivity reasons).\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2022-10-13T01:06:48Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Oh, and for using PySR over several machines at once, check out the `cluster_manager` parameter for `PySRRegressor`! I regularly use PySR over up to ~45 different machines at once (i.e., for a single search), which is 1000s of cores, and it's quite stable.",
+              "createdAt": "2022-10-13T01:16:59Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "One other idea if you are open to messing around with Julia code. There is a package called [SnoopCompile.jl](https://github.com/timholy/SnoopCompile.jl) which I've been meaning to try out with SymbolicRegression.jl. Using this would basically let the Julia precompilation (which happens at install time, rather than every runtime) do a much better job at compiling necessary functions. That would probably make startup time much faster.",
+              "createdAt": "2022-10-13T01:20:44Z"
+            },
+            {
+              "author":
+              {
+                "login": "Quarlos"
+              },
+              "body": "Hi @MilesCranmer \r\n\r\nThanks for the detailed answer, particularly, on the point of julia, and how important that is here for essentially being able to pass in custom operators on the fly with enough compilation/evaluation speed.\r\n\r\nUnfortunately, option 1 doesn’t work well with how my system is set up. I preprocess the data through some other non-python process and pipe that to a wrapper of PySR so I can adjust operators and loss according to data. Sometimes that may also be done by different users needing different python libraries to be loaded. So, I guess I’ll explore PackageCompiler.jl and SnoopCompile.jl as you suggested.\r\n\r\nAlso, thanks for pointing to the cluster_manager param. I’ll look into that as well.\r\n\r\nBest,\r\nCarlos",
+              "createdAt": "2022-10-13T10:06:41Z"
+            },
+            {
+              "author":
+              {
+                "login": "Quarlos"
+              },
+              "body": "In fact, I had already explored a bit the PackageCompiler.jl, and it did speed up things a bit -- that's how I got from ~2.5min launching to ~1min launching. Posting it here in case someone finds it helpful and/or can suggest a more appropriate way of doing this.\r\n\r\nI created a precompiled julia system image as:\r\n`python3 -m julia.sysimage /PATH/TO/IMAGE/sys.so`\r\n\r\nAnd then on the julia_helper.py in the function init_julia I force it to go through the image as:\r\n```\r\ntry:\r\n        from julia.api import LibJulia\r\n        api = LibJulia.load()\r\n        api.sysimage = \"/PATH/TO/IMAGE/sys.so\"\r\n        api.init_julia()\r\n        from julia import Main as _Main\r\n\r\n        Main = _Main\r\nexcept UnsupportedPythonError:\r\n        # Static python binary, so we turn off pre-compiled modules.\r\n        from julia.core import Julia\r\n\r\n        jl = Julia(compiled_modules=False)\r\n        from julia import Main as _Main\r\n\r\n        Main = _Main\r\n\r\njulia_initialized = True\r\nreturn Main\r\n```",
+              "createdAt": "2022-10-13T10:43:15Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks for posting the part about using PackageCompiler.jl! That's very useful to know. I wonder how hard it would be to set that up to be done automatically as part of the install step. If you figure out how to do this, feel free to submit a PR!\r\n\r\n> Unfortunately, option 1 doesn’t work well with how my system is set up. I preprocess the data through some other non-python process and pipe that to a wrapper of PySR so I can adjust operators and loss according to data. Sometimes that may also be done by different users needing different python libraries to be loaded. So, I guess I’ll explore PackageCompiler.jl and SnoopCompile.jl as you suggested.\r\n\r\nThanks for explaining this use-case. I think one other thing you might want to try is [DaemonMode.jl](https://github.com/dmolina/DaemonMode.jl). It basically runs a Julia process in the background, which you execute things on from other Julia processes. What this basically means is that you might (?) be able to connect and execute code on the same Julia process from different Python processes, and use the same cached functions. I wonder if that could solve your issue.",
+              "createdAt": "2022-10-13T13:59:20Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "For the PackageCompiler.jl, it looks like you can pass the argument `--script=my_script.jl` to create a pre-defined sysimage. This is the default script: https://github.com/JuliaPy/pyjulia/blob/master/src/julia/precompile.jl - literally just `using PyCall`. \r\n\r\nSo, I think if you basically create a script with this instead:\r\n```julia\r\nusing PyCall\r\nusing SymbolicRegression\r\nX = randn(Float32, 5, 100)\r\ny = 2 * cos.(X[4, :]) + X[1, :] .^ 2 .- 2\r\noptions = SymbolicRegression.Options(;\r\n    binary_operators=(+, *, /, -),\r\n    unary_operators=(cos, exp),\r\n    verbosity=0,\r\n    max_evals=1\r\n)\r\nhall_of_fame = EquationSearch(X, y; options=options, multithreading=true)\r\n```\r\nand pass that in the `--script` argument. You also need to pass `--compiler-env` to a Julia project with both SymbolicRegression and PyCall. I think that would help quite a bit in reducing startup time?",
+              "createdAt": "2022-10-13T14:36:49Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Note for myself: the following script builds a decent sysimage:\r\n\r\n```sh\r\nPYSR_VERSION=0.11.4\r\nSHARED_LIB=\"/Users/mcranmer/symbolic_regression.so\"\r\njulia -O3 --threads=auto -e 'using Pkg; Pkg.activate(\"pysr-'$PYSR_VERSION'\"; shared=true); Pkg.add([\"PackageCompiler\", \"PyCall\", \"Conda\", \"VersionParsing\"]); open(\"/tmp/sr_precompile_file.jl\", \"w\") do io; write(io, \"import PyCall; include(joinpath(pkgdir(PyCall), \\\"test\\\", \\\"runtests.jl\\\")); using SymbolicRegression; X=randn(Float64, 5, 100); y=X[1, :] .+ 5.2 .* cos.(X[3, :] .* 1.2); options=Options(verbosity=0); EquationSearch(X, y; options=options, multithreading=true)\"); end; using PackageCompiler; using SymbolicRegression; create_sysimage([\"SymbolicRegression\"]; sysimage_path=\"'$SHARED_LIB'\", precompile_execution_file=\"/tmp/sr_precompile_file.jl\")'\r\n```\r\n\r\nThen, one can simply run the following before starting a PySR run:\r\n```python\r\nfrom julia.api import LibJulia\r\napi = LibJulia.load()\r\napi.sysimage = \"/Users/mcranmer/symbolic_regression.so\"\r\napi.init_julia()\r\n```\r\n\r\nThis should be much more effective once https://github.com/MilesCranmer/SymbolicRegression.jl/pull/147 gets merged, as changing the operators will not cause the library to be re-compiled, only the expression evaluation scheme (which is small anyways).",
+              "createdAt": "2022-10-23T01:01:25Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0xMC0yM1QwMjowMToyNSswMTowMM4APCZn"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 353,
+        "title": "Working with complex custom objectives",
+        "body": "How can I add and evaluate function to the objective ? \n\nEssentially, I want to also search for functions for polynomials in your example (_https://astroautomata.com/PySR/examples/#9-custom-objectives_). Something like this `f(P(X)) / g(Q(X))`, where `f = P(X) ** y` or something else. \n\nI tried to reserve first l and r nodes for these functions and use the rest for polynomials:\n```\n    tree.degree != 2 && return L(Inf)\n   \n    attraction_func = tree.l\n    repultion_func= tree.r\n    \n    attraction_func != 2 && return L(Inf)\n    repulsion_func != 2 && return L(Inf)\n   \n    attraction = attraction_func.l\n    repulsion = repultion_func.l\n```\n\nbut it gives `inf` loss and only complexity of 1",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Is this\r\n```\r\nattraction_func != 2\r\n```\r\nSupposed to be `attraction_func.degree != 2`?",
+              "createdAt": "2023-06-18T20:47:05Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNi0xOFQyMTo0NzowNSswMTowMM4AXssI"
+          }
+        }
+      }
+    }
+  }
+}
