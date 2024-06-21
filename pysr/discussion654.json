@@ -19,12 +19,20 @@
               },
               "body": "Can you share a bit more about the example, maybe with some code and datasets? More diagnostics would be helpful too.\r\n\r\nAlso, do you know what the equivalent complexity of the linear regression model would be, if PySR were to find it? e.g., `y = a * x + b * z` would have a complexity of 7. The default max complexity is 20 (`maxsize` parameter – which you can increase).\r\n\r\nAlso see related thread here: https://github.com/MilesCranmer/PySR/issues/536",
               "createdAt": "2024-06-18T21:54:56Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Other related questions you should check out –\r\n- #572 \r\n- #273\r\n- #161 ",
+              "createdAt": "2024-06-18T22:54:25Z"
             }
           ],
           "pageInfo":
           {
             "hasNextPage": false,
-            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0xOFQyMjo1NDo1NiswMTowMM4AlbRD"
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0xOFQyMzo1NDoyNSswMTowMM4AlbVV"
           }
         }
       }

@@ -10,11 +10,29 @@
         "body": "Hi,\r\n\r\nThanks for the great work! I was wondering if there is a way to get the loss/score value associated with a known ground truth equation. For example i ran search using PySr however i found that it didn't find the correct equation, so i wanted to see the score value given to the ground truth equation that i have access to. This might be useful as i would want to know if the search couldn't find a equation with higher score or my complexity definition were bad which resulted in lower score for the ground truth equation. ",
         "comments":
         {
-          "nodes": [],
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "So the loss is specified with `elementwise_loss`. By default this is just MSE. So if you have `y` and `X` you could potentially compute `ypredicted` directly in Python, and then compute `np.sum(np.square(y - ypredicted)) / y.shape[0]`. Does that work for you?\r\n\r\nNote the \"score\" is just a metric to display users, it doesn't actually affect the search itself. The search is all based on loss, which by default is MSE.\r\n\r\nSee https://astroautomata.com/PySR/api/#the-objective for details",
+              "createdAt": "2024-06-19T00:04:18Z"
+            },
+            {
+              "author":
+              {
+                "login": "mihirp1998"
+              },
+              "body": "Thanks for the reply. Although i thought score affects the best equation u pick and the best equation u pick depends on complexity of that equation? So i just wanted to see if the correct equation had a higher score (i.e a good ratio between complexity and loss)? \r\n\r\nPlz let me know if i'm getting something wrong here\r\n\r\n\r\n",
+              "createdAt": "2024-06-19T01:08:12Z"
+            }
+          ],
           "pageInfo":
           {
             "hasNextPage": false,
-            "endCursor": null
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0xOVQwMjowODoxMiswMTowMM4AlbeC"
           }
         }
       }
