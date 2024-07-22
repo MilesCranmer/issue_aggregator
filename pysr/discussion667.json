@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 667,
+        "title": "Implement mathematical constraints",
+        "body": "I want to implement mathematical constraints in a soft way in Pysr. I think if I apply them in a hard way I lose a lot of functions. These constraints are like I know the positiveness or negativeness of function with respect to some values, and behavior of function derivative with respect to some variables.\r\n\r\n\r\nI find that it seems the main of your program is written in Julia. Then you wrapped it to work in Python. I tried to read \"src\" part of your code but it's hard for me because I am not familiar with Julia. So, I read the discussion part of the page and I saw this question: [Constraints?](\"https://github.com/MilesCranmer/PySR/discussions/304\") \"https://github.com/MilesCranmer/PySR/discussions/304\"\r\nIn answer, you said: \"Update: added full_objective (PySR) and loss_function (SymbolicRegression.jl) for this purpose.\"\r\n\r\nActually, I did not find \"full_objective\" part in the Python code. I found and read \"loss_function\" in Julia's part. I also read this question: \"https://github.com/MilesCranmer/PySR/discussions/449\" and this question:\"https://github.com/MilesCranmer/PySR/discussions/256\"\r\nIt seems to me you are trying to say that you can define a new loss function. I want to know: can I define this new loss criterion in Python? If I define a new loss function I must download your code manipulate it and compile it again? I see your loss criterion repeated somewhere in the code, Do I need to make changes elsewhere?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "To implement a custom loss about function constraints, the right way is to pass a Julia function **as a string** in Python to the `loss_function ` parameter of PySRRegressor. You unfortunately cannot use a pure Python function as the loss function. This is technically possible but it would restrict you to serial computation only, due to Python’s “global interpreter lock”, and would also be very very slow as it couldn’t be compiled or differentiated (whereas Julia code can be).\r\n\r\nIf you describe your constraints exactly or provide an example in Python I can help get it working.\r\n\r\nThe examples that you cited are indeed the most relevant.",
+              "createdAt": "2024-07-12T22:43:18Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNy0xMlQyMzo0MzoxOCswMTowMM4AmSPZ"
+          }
+        }
+      }
+    }
+  }
+}

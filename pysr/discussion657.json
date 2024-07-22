@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 657,
+        "title": "Forcing PySR to use specific formula and shortcut for activating all unary operators",
+        "body": "Hi @MilesCranmer \r\nFrist of all thank you for that wonderful tool that you have created with PySR. Unfortunately I am fairly new to the data science world and am facing some difficulties as a result. I work in the field of material science and I’m measuring material properties at for different conditions for example temperatur. For my data analysis I have identified to steps, where I want to use or maybe misuse PySR.\r\n\r\nIn the first step I want to fit my data with PySR, but the mathematical function to fit the data is given by the literature as: A*( digmma(1/2-B/abs(x)) – ln(B/abs(x)) ) – C*abs(x)^2\r\nIs there a way to force PySR to use a specific formula and only optimize the factors A, B and C (similar to functions like for example scipy.optimize.curve_fit)? I have already tried using different modules like scipy for this problem but often the optimisation fails.\r\n\r\nIn a second step I wanted to use PySR to find a temperature dependent expression for A, B and C.\r\nAs far as I know, we don’t know which kind of expression this temperature dependencies have. Therefore, is there a possible shortcut to activate all possible unary operators?\r\n\r\nThank you for your time and input in advance!\r\n",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @Sta1ger, since you are only optimising constants, perhaps you could use `scipy.optimize.minimize`? PySR is better for finding new expressions where you don't know the specific functional form\r\n\r\nRelated:\r\n- https://github.com/milescranmer/pysr/discussions/631\r\n- https://github.com/MilesCranmer/PySR/discussions/547",
+              "createdAt": "2024-06-21T15:34:36Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0yMVQxNjozNDozNiswMTowMM4Aliq5"
+          }
+        }
+      }
+    }
+  }
+}

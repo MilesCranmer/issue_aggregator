@@ -1,0 +1,33 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 659,
+        "title": "Cross-validation error as PySR objective function?",
+        "body": "Hello. As the title suggests, I am trying to write a custom objective function based on the cross-validation error. However, I am not really well-versed in Julia. This is my amateur attempt at writing a cross-validation error-based objective function:\r\n\r\n```\r\nfrom pysr import PySRRegressor\r\nimport numpy as np\r\n\r\n# Writing an objective function based on 60/40 cross-validation error\r\nobjective = \"\"\"\r\nusing SymbolicRegression\r\n\r\n# Function to perform 60/40 cross-validation\r\nfunction cross_validation_objective(tree, dataset::Dataset{T, L}, options)::L where {T, L}\r\n    n = dataset.n\r\n    train_size = Int(round(0.6 * n))\r\n    train_idx = 1:train_size\r\n    valid_idx = (train_size + 1):n\r\n\r\n    train_idx = filter(x -> x <= n, train_idx)\r\n    valid_idx = filter(x -> x <= n, valid_idx)\r\n\r\n    train_data = Dataset(dataset.X[train_idx, :], dataset.y[train_idx])\r\n    valid_data = Dataset(dataset.X[valid_idx, :], dataset.y[valid_idx])\r\n\r\n    prediction_valid, flag_valid = eval_tree_array(tree, valid_data.X, options)\r\n\r\n    if !flag_valid\r\n        error = sum((prediction_valid .- valid_data.y) .^ 2) / length(valid_idx)\r\n        return error\r\n    else\r\n        return L(Inf)\r\n    end\r\nend\r\n\"\"\"\r\n\r\nmodel = PySRRegressor(\r\n    niterations=100,\r\n    populations=20,\r\n    loss_function=objective,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\"],\r\n    verbosity=1,\r\n)\r\n\r\n# Example dataset\r\nX = np.random.rand(100, 5)  # 100 samples, 5 features\r\ny = np.random.rand(100)     # 100 target values\r\n\r\n# Use PySR for model fitting\r\nmodel.fit(X, y)\r\n\r\n```\r\n\r\nI am getting a Julia error if I use this code. It appears to be related to accessing invalid index ranges. Is there already a code for some sort of cross-validation error already available here?",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Maybe just do it from the Python side? It should be faster too as then you aren't doing the split every single evaluation, but only once:\r\n\r\n```python\r\nfrom sklearn.model_selection import train_test_split\r\n\r\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=0)\r\n\r\nmodel.fit(X_train, y_train)\r\n\r\ntrain_loss = np.mean(np.square(y_train - model.predict(X_train, index=-1)))\r\ntest_loss = np.mean(np.square(y_test - model.predict(X_test, index=-1)))\r\n```\r\n\r\n(And, by the way, Julia indexes with column-major order, so you would write the row first, feature second, like `X[:, train_idx]`)",
+              "createdAt": "2024-07-04T08:51:30Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNy0wNFQwOTo1MTozMCswMTowMM4Al-0E"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "discussion":
+      {
+        "number": 674,
+        "title": "Dimensional analysis: provide natural constants/constants with given unit possible?",
+        "body": "I think the best way to explain my question is with my specific problem:\r\nI have a dataset with a given pressure p0, temperature T0 and mass flow rate mflow and I would like to fit them to an outlet pressure. \r\n( I know the ground truth equation, it is however computationally expensive to solve and I would like to search for an easier one) \r\nBut to get a more general solution I would like to add some known constants like specific gas constant, area of outlet and isentropic coefficient. \r\nIf I use the dimensional analysis I get some random constants with a unit to choose so it fits my output unit. \r\nIf I force the algorithm to use dimensionless constants only, it just uses p0 because combining my three input variables doesnt lead to a pressure unit. \r\nSo I was wondering if there is way to allow the algorithm to use some given constants with a given unit and additionally to use dimensionless constants that it needs to find. Because the inputs and the constants I mentioned can be combined to a pressure unit. \r\n\r\nDid anyone try something like this or implemented a similar example? ",
+        "comments":
+        {
+          "nodes": [],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

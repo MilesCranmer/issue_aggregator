@@ -1,0 +1,49 @@
+{
+  "data":
+  {
+    "repository":
+    {
+      "issue":
+      {
+        "number": 662,
+        "title": "[BUG]: Freezes after launching pysr in streamlit app",
+        "body": "### What happened?\n\nI am currently trying to launch pysr from streamlit app and after running model.fit(x_train, y_train) \r\nI see only this and nothing else:\r\n**Compiling Julia backend...\r\n[ Info: Started!**\r\nrunning it just as a python script or in jupiter notebook works\r\nI also trying calling pysr using ThreadPoolExecutor and same happens\r\n\r\nWould appreciate any suggestions\r\n\n\n### Version\n\n0.19.0\n\n### Operating System\n\nmacOS\n\n### Package Manager\n\nConda\n\n### Interface\n\nOther (specify below)\n\n### Relevant log output\n\n```shell\nCompiling Julia backend...\r\n[ Info: Started!\n```\n\n\n### Extra Info\n\n_No response_",
+        "comments":
+        {
+          "nodes":
+          [
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @bahonya,\r\nCan you give a full code example so I can reproduce it? I am not familiar with streamlit.\r\nThanks,\r\nMiles",
+              "createdAt": "2024-07-06T13:58:31Z"
+            },
+            {
+              "author":
+              {
+                "login": "bahonya"
+              },
+              "body": "Hi @MilesCranmer , thanks for the quick response\r\n\r\n\r\nI got it, it happens because I change directory during the run, if I remove os.chdir in example below it works. I have to change the directory durung the run. I will look for a workaround. I think I will close this ticket then \r\n\r\n\r\n`\r\nimport streamlit as st\r\nimport numpy as np\r\nimport pandas as pd\r\nimport os\r\nfrom pysr import PySRRegressor\r\n\r\n\r\ndef generate_data(n_samples):\r\n    X = np.random.rand(n_samples, 1) * 10\r\n    y = 2 * X.squeeze() + np.random.randn(n_samples) * 2\r\n    return X, y\r\nst.title(\"example app\")\r\nst.sidebar.header(\"parameters to generate data\")\r\nn_samples = st.sidebar.slider(\"number of samples\", min_value=10, max_value=1000, value=100)\r\nX, y = generate_data(n_samples)\r\nst.subheader(\"generated data\")\r\ndata = pd.DataFrame(data={'X': X.squeeze(), 'y': y})\r\nst.write(data)\r\nmodel = PySRRegressor(\r\n    populations=5,\r\n    niterations=100,\r\n    binary_operators=[\"+\", \"*\"],\r\n    unary_operators=[\"sin\", \"cos\"],\r\n)\r\nif st.button(\"Fit the model\"):\r\n    os.chdir('subfolder')\r\n    model.fit(X, y)\r\n    os.chdir('..')\r\n    st.subheader(\"found equations\")\r\n    st.write(model.equations_)\r\n    st.subheader(\"predictions\")\r\n    y_pred = model.predict(X)\r\n    st.write(\"predicted values\", y_pred)\r\n    import matplotlib.pyplot as plt\r\n    plt.scatter(X, y, label='ground truth', color='blue')\r\n    plt.scatter(X, y_pred, label='predicted values', color='red')\r\n    plt.legend()\r\n    st.pyplot(plt)\r\n    `",
+              "createdAt": "2024-07-07T08:18:12Z"
+            },
+            {
+              "author":
+              {
+                "login": "MilesCranmer"
+              },
+              "body": "Cool!\r\n\r\nIf you are interested, maybe we could work together on a GUI? I have a start on this PR: https://github.com/MilesCranmer/PySR/pull/589. It's with gradio rather than streamlit but parts are similar. The goal is to have it be compatible with HuggingFace spaces so you can have web version of PySR.",
+              "createdAt": "2024-07-08T22:20:51Z"
+            }
+          ],
+          "pageInfo":
+          {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOhA0PXA=="
+          }
+        }
+      }
+    }
+  }
+}
