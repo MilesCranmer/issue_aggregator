@@ -38,3 +38,11 @@ for i in 1..1000 {
 ### Examples
 
 You can see all the threads as of June 18, 2024 for PySR stored in the `pysr` directory. Basically I will just start a vector database on this folder, and efficiently search through and aggregate the threads with an LLM.
+
+### Other useful commands
+
+Combine discussions and issues from 620-699 into a single file:
+
+```nushell
+(glob pysr/discussion6[2-9][0-9].json) ++ (glob pysr/issue6[2-9][0-9].json) | each {|it| open $it} | to json | save combined.json
+```
