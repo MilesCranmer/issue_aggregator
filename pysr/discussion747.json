@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 747,
+        "title": "Pre-specify feature to be used for supplied functions",
+        "body": "Hello everyone,\r\n\r\nI am very new to pySR and I've tried to find answers to the two questions I have, but haven't been successful in my search. I hope someone can help me find the solution! Here are my questions:\r\n\r\n1. Can one pre-specify what features are available to certain functions, instead of the algorithm picking what fits best from the full set of features? To give my specific example, I want to include an arrhenius function and gaussian function to pySR, but want them to be only available for a specific feature each. So, I want the arrhenius function to be only used with feature A, and the gaussian function only with feature B. I still want the algorithm to drop the function, if it isn't influential - I just want to make it try only with one sepcific feature.\r\n\r\n2. Can pySR also optimize parameters for custom functions? For example, the gaussian function needs to be supplied two parameters (mu, sigma). The parameters change depending on which feature is selected to be used with the function. Is there a way for pySR to find these depending on which features are selected to be best?\r\n\r\nI hope these questions are clear, please do let me know if I need to elaborate. Any help is very much appreciated!\r\n\r\nBest,\r\nMasumi",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

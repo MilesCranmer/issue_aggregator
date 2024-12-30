@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 708,
+        "title": "Could not automatically save pickle file",
+        "body": "Hi,\r\n\r\nAfter fitting data by PySRRegressor, I only have two saved files, .csv and .bkup. However, I want to reload all equations after fitting, but I cannot apply  `from_file` because .pkl file is absent. Is there any suggestion?\r\nThanks!\r\n\r\nRegards,\r\nLu Li\r\n\r\nCode is attached:\r\n\r\nmodel = PySRRegressor(\r\n    #procs=10,\r\n    populations=3*48,\r\n    ncycles_per_iteration=5000,\r\n    niterations=1000000000,  # Run forever\r\n    timeout_in_seconds=int(3600*n_hour),\r\n    maxsize=50,\r\n    complexity_of_operators = {\r\n                            **{key: 3*verylow_complexity for key in medium_complex_ops},\r\n                            **{key: 2*verylow_complexity for key in low_complex_ops},\r\n                            **{key: 1*verylow_complexity for key in very_low_complex_ops}},\r\n    complexity_of_variables=1,\r\n    binary_operators=binary_operators,\r\n    unary_operators=unary_operators,\r\n    extra_sympy_mappings={'inv': lambda x: 1/x},\r\n    model_selection=\"best\",\r\n    constraints={\"pow\": (9, 1)},\r\n    nested_constraints={\"tanh\": {\"tanh\":0}},\r\n    loss=\"loss(x, y) = (abs(max(min(x,100),0) - y))^%d\"%loss_exp, #(julia syntax)\r\n    temp_equation_file=True,\r\n    delete_tempfiles=False,\r\n    #cluster_manager=\"slurm\",\r\n    #parsimony=10,\r\n    bumper=True,\r\n    weight_optimize=0.001,)",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "leelew"
+              },
+              "body": "Hi,\r\n\r\nI found `from_file` could directly load equations from .csv file. Thus my problem is solved.\r\n\r\nI have a further question. I want to count free parameters of equations instead of directly use complexity. Is there any method to automatically get the number of free parameters? I have to manually count it for all equations after fitting data.\r\n\r\nThanks!\r\n\r\nRegards,\r\nLu Li",
+              "createdAt": "2024-09-04T00:57:01Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOS0wNFQwMTo1NzowMSswMTowMM4AoNAr"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 752,
+        "title": "MLR to the residuals of SR to speed up search",
+        "body": "Hi @MilesCranmer,\r\n\r\nThis is a strategy I used to greatly speed my search. Letting SR run from scratch found a great fit over quite a long search (6 variables), which eventually was a combination of nonlinear interactions + linear coefficients.\r\n\r\nI didn't like the idea of running MLR and then feeding the residuals to SR, as that would be restrictive to the search space. \r\nInstead, I did this in reverse, perform MLR to the residuals of the SR in a custom loss function. \r\n\r\nThe hope is SR can explore the nonlinear interactions without wasting the search space also finding the linear components (if applicable). \r\n\r\nThis way, the linear components mould to the residuals of the expression being assessed and hopefully this is not restrictive to the search space. Also, this is very useful if you have a categorial variable that you know has a linear relationship to y. \r\n\r\nIt does however, mean that you require to run MLR on the residuals of the expression afterward, and a bit more of a pain to find the final expression. The complexity will be longer than it may otherwise have been (but after simplification/factorisation it is not so different).\r\n\r\n```julia\r\nusing SymbolicRegression, Statistics, LoopVectorization, Bumper, MLJ, DataFrames, CategoricalArrays, Zygote, SparseArrays, IterativeSolvers, TensorBoardLogger\r\nfunction loss_fnc(tree, dataset::Dataset{T,L}, options, idx) where {T,L}\r\n    # Extract data for the given indices\r\n    X = idx === nothing ? dataset.X : dataset.X[:, idx]\r\n    y = idx === nothing ? dataset.y : view(dataset.y, idx)\r\n    weights = idx === nothing ? dataset.weights : view(dataset.weights, idx) #categorial variable with linear relationship to y. \r\n    prediction, grad, complete = eval_grad_tree_array(tree, X, options; variable=true)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n    #....other code, such as monotonicity check etc. Return early where possible to avoid unnecessary MLR processing.\r\n    residuals = Float32.(prediction .- y)\r\n    # one-hot encoding for categorial variable, (passed as weights)\r\n    unique_weights = unique(weights) \r\n    weight_map = Dict(weight => i for (i, weight) in enumerate(unique_weights))\r\n    Z_w = sparse(1:length(weights), [weight_map[weights[i]] for i in 1:length(weights)], 1.0f0, length(weights), length(unique_weights))\r\n    intercept = ones(Float32, length(weights))\r\n    Z_X = X' \r\n    Z_SR = Float32.(prediction)\r\n    Z = hcat(intercept, Z_w, Z_X, Z_SR) \r\n    β = IterativeSolvers.lsqr(Z, residuals)\r\n    prediction .-= Z * β\r\n    mse = mean((prediction .- y).^2)\r\n    return mse\r\nend\r\n```\r\n\r\nThis code does converge very quickly indeed in my use case. Sparse matrices and IterativeSolvers really sped up the processing time. \r\n\r\nIt would be amazing to have some level of integration for MLR in one way or the other as an option, although I can definitely see the importance of letting SR explore without any bias or predilection. \r\n\r\nDo you think running MLR even 'in reverse' here would still potentially restrict the search space as perhaps it will evolve to rely on linear components?\r\n\r\nEdit: Add the output of SR to MLR to acquire its own coefficient. Very happy to share any logs using the new logging feature to demonstrate just how much faster it converges.",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

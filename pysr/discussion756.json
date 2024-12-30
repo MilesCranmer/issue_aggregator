@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 756,
+        "title": "Setting a variable as a result of a function in Template Expression",
+        "body": "Congratulations on the release of PySR v1.0.0!\r\n\r\nWhen using template expressions, can the result of a function be stored as a variable and then called upon in another function?\r\n\r\ne.g. lets say you have a set function:10a^2-13a+3 = y and need to use PySR to explore _a_.  \r\n\r\nis there a correct syntax for: combine=\"((; f,), (x1, x2,)) -> 10*a**2-13*a+3\", where f(x1,x2) = a\r\nor would it be: combine=\"((; f,), (x1, x2,)) -> 10*f(x1,x2)**2-13*f(x1,x2)+3\", #i.e. having to repeat f(x1,x2)?\r\n\r\nThanks again\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Yeah! The `((; f,), (x1, x2,)) -> 10 * f(x1, x2)^2 - 13*f(x1, x2) + 3` syntax is just Julia syntax for an anonymous function so you can have any kind of logic in the function you want. The one requirement is that expressions have the same number of arguments each time they are called. So if you do `f(x1)`, you can't then do `f(x1, x2)`. But you can totally do something like `f(x1) - f(x2)`.\r\n\r\nFor example:\r\n\r\n```\r\ncombine = \"\"\"\r\nfunction my_structure(exprs, data)\r\n    (; f) = exprs\r\n    (x1, x2) = data\r\n    f_result = f(x1, x2)\r\n    \r\n    return 10 * f_result ^ 2 - 13 * f_result + 3\r\nend\r\n\"\"\"\r\n```\r\n\r\nWriting the function as `((; f,), (x1, x2)) -> ...` is just a shorthand way of unpacking into variables.\r\n\r\nBut yeah you can have whole multi-line functions there!",
+              "createdAt": "2024-12-01T14:00:48Z"
+            },
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "Sorry @MilesCranmer a bit stuck, and with it being a new feature there isn't much yet in the forums to go off. \r\n\r\nI'm working in Julia rather than PySR to permit global variables to be used in a custom loss function otherwise\r\nEssentially I have a categorial variable that I know with domain knowledge, has a linear effect on y with just one parameter. \r\n\r\nI am interested in finding the expression that finds y, but without the noise of the parameter from the categorial variable. Although parametric expressions seems ideal, the actual problem is more complicated and template expressions is an otherwise better fit (if I can get it to work). I input the y and category variables as part of X so that I could access them in structure. The categorial variable is basically a vector of Ints, one for each group. \r\n\r\n```julia\r\nstructure = TemplateStructure{(:f, :c)}(\r\n    ((; f, c), (x1, x2, x3, x4, x5, x6, y, category)) -> begin\r\n        transformed_x1 = c(x1, x3, x4)\r\n        o = f(transformed_x1, x2, x3, x4, x5, x6)\r\n        residuals = y .- o\r\n        unique_category = unique(category)\r\n        mean_residuals_by_category = Dict(\r\n            group => mean(residuals[category .== group]) for group in unique_category\r\n        )\r\n        o .-= [mean_residuals_by_category[category[i]] for i in eachindex(o)]\r\n        return o\r\n    end\r\n)\r\n\r\n\r\nmodel = SRRegressor(\r\n    niterations=1000000,\r\n    binary_operators=[+,-,*,/],\r\n    maxsize=40,\r\n    bumper=true,\r\n    turbo=true,\r\n    populations=18,\r\n    expression_type = TemplateExpression,\r\n    expression_options = (; structure),\r\n    population_size=30,\r\n    parsimony = 0.01,\r\n    batching=true,\r\n)\r\nmach = machine(model, X, y)\r\nfit!(mach)\r\n```\r\nAlthough I think my approach is completely wrong, as structure is dealing with valid_vectors, I am really at a loss of how to get something like this to work. ",
+              "createdAt": "2024-12-06T00:19:51Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0wNlQwMDoxOTo1MSswMDowMM4AryiF"
+          }
+        }
+      }
+    }
+  }
+}

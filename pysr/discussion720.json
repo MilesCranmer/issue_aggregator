@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 720,
+        "title": "I'm curious, will PySR run into local optimality?",
+        "body": "I'm curious, will PySR run into local optimality?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi, could you please share a bit more info on your question? Local optimality in what sense?",
+              "createdAt": "2024-09-18T08:15:31Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOS0xOFQwOToxNTozMSswMTowMM4AovJt"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 735,
+        "title": "Estimation of CNN",
+        "body": "I have an idea to estimate a pre-trained CNN based on its input and output. \r\nWhat custom operators should I use if I am utilizing PySR?",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

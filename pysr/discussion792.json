@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 792,
+        "title": "Is it possible to account for the covariance matrix in PySR?",
+        "body": "Hello,\r\n\r\nI’m working with data that includes a covariance matrix, and I was wondering if it’s possible to incorporate or consider this covariance matrix directly in PySR. If yes, could you provide some guidance or examples on how to implement this?\r\n\r\nThank you for your help!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Do you mean covariance between rows of `y`? If this is what you are looking for:\r\n\r\n```python\r\nimport numpy as np\r\nfrom pysr import PySRRegressor\r\nfrom pysr import jl\r\n\r\nX = np.random.randn(100, 2)  # Your input data\r\ny = np.random.randn(100)     # Your target values\r\ncov_matrix = # Your covariance matrix\r\n\r\n# First compute and register inverse of covariance matrix\r\ninv_cov = np.linalg.inv(cov_matrix)  # Compute inverse in Python\r\n\r\n# Important we make it `const` here for performance reasons\r\njl.seval(\"x -> @eval const INV_COV_MATRIX = $x\")(inv_cov)\r\n\r\nloss_function = \"\"\"\r\nfunction custom_loss(tree, dataset::Dataset{T,L}, options) where {T,L}\r\n    # Compute predictions\r\n    prediction, completed = eval_tree_array(tree, dataset.X, options)\r\n    \r\n    if !completed\r\n        return L(Inf)\r\n    end\r\n    \r\n    # Get residuals\r\n    diffs = prediction .- dataset.y\r\n    n = length(diffs)\r\n    \r\n    # Compute (diffs' * INV_COV_MATRIX * diffs) / n\r\n    loss = 0.0\r\n    for i in 1:n\r\n        weighted_sum = 0.0\r\n        for j in 1:n\r\n            weighted_sum += INV_COV_MATRIX[i,j] * diffs[j]\r\n        end\r\n        loss += diffs[i] * weighted_sum\r\n    end\r\n    \r\n    return L(loss / n)\r\nend\r\n\"\"\"\r\n\r\nmodel = PySRRegressor(\r\n    loss_function=loss_function,\r\n    # ... other parameters as needed ...\r\n)\r\n```",
+              "createdAt": "2024-12-29T02:55:09Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0yOVQwMjo1NTowOSswMDowMM4Aslky"
+          }
+        }
+      }
+    }
+  }
+}

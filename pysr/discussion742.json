@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 742,
+        "title": "Can PYSR be used to find a system of equations in which variables are coupled?",
+        "body": "Hello everyone,\r\n\r\nI am new to PYSR. I've been tasked with analyzing a complex system where the variables are interdependent, meaning changes in one variable affect others in a coupled manner.\r\n\r\nMy question is: Can PYSR be used to derive a system of equations that accurately describes such a coupled relationship between variables?\r\n\r\nPYSR seems to be a powerful tool for symbolic regression, but as a first-time user, I'm unsure if it's capable of handling systems where multiple outputs depend on each other through a set of equations rather than just finding a single equation relating inputs to a single output.\r\n\r\nAny advice or pointers on how to get started with this would be greatly appreciated.\r\n\r\nThank you in advance for your help!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "reactingflow"
+              },
+              "body": "Hello again,\r\n\r\nI wanted to add some more context to my previous post regarding the nature of the system I am studying. For our research involving reaction and transport phenomena, the combinations of these coupled variables are actually limited. \r\n\r\nWould this information make it easier to apply PYSR, or perhaps suggest any specific strategies for using the software effectively in this scenario?\r\n\r\nThanks again for any insights you can offer.\r\n\r\nBest regards,",
+              "createdAt": "2024-10-28T14:08:51Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I guess you could write a custom loss function to set this up although it will a bit complex. I would start by going through the examples on the docs and then seeing some of the other threads discussing custom loss functions",
+              "createdAt": "2024-10-29T02:57:21Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMC0yOVQwMjo1NzoyMSswMDowMM4AqRi6"
+          }
+        }
+      }
+    }
+  }
+}

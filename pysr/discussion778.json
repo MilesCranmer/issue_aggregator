@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 778,
+        "title": "[Feature]: Training and testing splitting.",
+        "body": "### Feature Request\n\nGood morning everyone, \r\n\r\nI am new to PySR, so apologies if the questions I place are naiive.\r\nI was wondering if there is any way to have an automatic \"training and testing\" split, and for training I mean the value for fitting, while for testing unseen data on which the loss can be calculated. \r\n\r\nI am trying to implement this feature for my project, and I see that `model.predict()` evaluates the input based on the equation chosen by `model_selection`. Is there any way of evaluating the expression also on other candidate functions?\r\n\r\nThank you for your help!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "You can use scikit learn’s train test split: https://scikit-learn.org/1.5/modules/generated/sklearn.model_selection.train_test_split.html, and then feed in the train split to `.fit` and the test split to `.predict`\r\n\r\nNote that `.predict` also has a keyword for the equation index so you can test with other ones too. See the docs for more info: https://ai.damtp.cam.ac.uk/pysr/examples/\r\n\r\nhope this helps!\r\nBest,\r\nMiles",
+              "createdAt": "2024-12-12T14:42:14Z"
+            },
+            {
+              "author": {
+                "login": "VittoriaOssanna"
+              },
+              "body": "Thank you for your answer!\r\nI was also wondering at this point if there is a default method to calculate the loss on the test set, instead of predict. \r\n\r\nThank you again!",
+              "createdAt": "2024-12-13T10:46:49Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0xM1QxMDo0Njo0OSswMDowMM4AsFGD"
+          }
+        }
+      }
+    }
+  }
+}

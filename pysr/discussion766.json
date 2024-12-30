@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 766,
+        "title": "Is it possible to find expressions for scalar field & gradients?",
+        "body": "Say I'm trying to learn a function $\\phi: \\mathbb{R}^{N \\times D} \\to \\mathbb{R}$, where $N$ is the number of vectors and $D$ is the dimension of each vector, the vectors can be written as $\\mathbf{R} = (\\mathbf{r}_1, \\mathbf{r}_2, \\ldots, \\mathbf{r}_N)$, with $\\mathbf{r}_i \\in \\mathbb{R}^D$.  \r\n\r\nI have discrete data points for the scalar field, $y_{\\mathbf{R}}'$, for different configurations $\\mathbf{R}$. Additionally, I have the corresponding gradient values,  $\\nabla y_{\\mathbf{R}}' \\in \\mathbb{R}^{N \\times D}$.\r\n\r\nIs it possible to use `PySR` to find a functional form for $\\phi(\\mathbf{R})$ such that:\r\n1. It matches the given scalar field data $y_{\\mathbf{R}}'$.\r\n2. The gradient $\\nabla_{\\mathbf{R}} \\phi(\\mathbf{R})$ derived from $\\phi$ aligns with the provided gradient data $\\nabla y_{\\mathbf{R}}'$.\r\n\r\nAre there examples handling this kind of dual fitting in `PySR`?\r\n\r\n> [!NOTE]  \r\n> Sorry in advance if this has been asked before; I did search just couldn't find anything quite similar. \r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "You can do gradients in a custom loss function by using `eval_grad_tree_array`; see links on https://github.com/MilesCranmer/PySR/discussions/701. Though on PySR 1.0, instead of `enable_autodiff=True`; you would use `autodiff_backend=\"Zygote\"`.\r\n",
+              "createdAt": "2024-12-06T02:14:00Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0wNlQwMjoxNDowMCswMDowMM4ArysB"
+          }
+        }
+      }
+    }
+  }
+}

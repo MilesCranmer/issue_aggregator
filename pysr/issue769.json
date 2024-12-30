@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 769,
+        "title": "[BUG]: `cluster_manager=\"slurm\"` is not working",
+        "body": "### What happened?\r\n\r\nI am attempting to run PySR on multiple nodes of a slurm cluster. I have attempted not passing a `cluster_manager` argument at all but then all but one node will remain idle. When I pass `cluster_manager=\"slurm\"` into PySRRegressor, I get the following error:\r\n\r\n> juliacall.JuliaError: ArgumentError: Package ClusterManagers not found in current path.\r\n> \\- Run `import Pkg; Pkg.add(\"ClusterManagers\")` to install the ClusterManagers package.\r\n\r\n### Version\r\n\r\n0.19.4\r\n\r\n### Operating System\r\n\r\nWindows, Linux\r\n\r\n### Package Manager\r\n\r\npip\r\n\r\n### Interface\r\n\r\nScript (i.e., `python my_script.py`)\r\n\r\n### Relevant log output\r\n\r\n```shell\r\n> Traceback (most recent call last):\r\n> File \"/burg/home/dh3065/twostream_PySR_RTsources_Dec06_small5_multinode/twostream_PySR_RTsources.py\", line 127, in\r\n> modelRpT.fit(X_sample, y1_sample)\r\n> File \"/burg/home/dh3065/miniconda3/envs/2stream/lib/python3.12/site-packages/pysr/sr.py\", line 2087, in fit\r\n> self._run(X, y, runtime_params, weights=weights, seed=seed)\r\n> File \"/burg/home/dh3065/miniconda3/envs/2stream/lib/python3.12/site-packages/pysr/sr.py\", line 1694, in _run\r\n> cluster_manager = _load_cluster_manager(cluster_manager)\r\n> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n> File \"/burg/home/dh3065/miniconda3/envs/2stream/lib/python3.12/site-packages/pysr/julia_helpers.py\", line 31, in load_cluster_manager\r\n> jl.seval(f\"using ClusterManagers: addprocs{cluster_manager}\")\r\n> File \"/burg/home/dh3065/.julia/packages/PythonCall/Nr75f/src/JlWrap/module.jl\", line 27, in seval\r\n> return self._jl_callmethod($(pyjl_methodnum(pyjlmodule_seval)), expr)\r\n> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n> juliacall.JuliaError: ArgumentError: Package ClusterManagers not found in current path.\r\n> \r\n> Run import Pkg; Pkg.add(\"ClusterManagers\") to install the ClusterManagers package.\r\n> Stacktrace:\r\n> [1] macro expansion\r\n> @ ./loading.jl:1772 [inlined]\r\n> [2] macro expansion\r\n> @ ./lock.jl:267 [inlined]\r\n> [3] _require(into::Module, mod::Symbol)\r\n> @ Base ./loading.jl:1753\r\n> [4] #invoke_in_world#3\r\n> @ ./essentials.jl:926 [inlined]\r\n> [5] invoke_in_world\r\n> @ ./essentials.jl:923 [inlined]\r\n> [6] require(into::Module, mod::Symbol)\r\n> @ Base ./loading.jl:1746\r\n> [7] eval\r\n> @ ./boot.jl:385 [inlined]\r\n> [8] eval\r\n> @ ./Base.jl:88 [inlined]\r\n> [9] pyjlmodule_seval(self::Module, expr::Py)\r\n> @ PythonCall.JlWrap ~/.julia/packages/PythonCall/Nr75f/src/JlWrap/module.jl:13\r\n> [10] pyjl_callmethod(f::Any, self::Ptr{PythonCall.C.PyObject}, args::Ptr{PythonCall.C.PyObject}, nargs::Int64)\r\n> @ PythonCall.JlWrap ~/.julia/packages/PythonCall/Nr75f/src/JlWrap/base.jl:67\r\n> [11] _pyjl_callmethod(o::Ptr{PythonCall.C.PyObject}, args::Ptr{PythonCall.C.PyObject})\r\n> @ PythonCall.JlWrap.Cjl ~/.julia/packages/PythonCall/Nr75f/src/JlWrap/C.jl:63\r\n```\r\n\r\n\r\n### Extra Info\r\n\r\nThis produces the error:\r\n\r\n```\r\nmodelRpT = PySRRegressor(\r\n    procs=56, # Trying 2 nodes with 28 cores each\r\n    cluster_manager=\"slurm\",\r\n    populations=56*3,\r\n    multithreading=False,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\"], # Default\r\n    unary_operators=[\"exp\"],\r\n    #niterations=100,\r\n    nested_constraints={\"exp\": {\"exp\": 0}},\r\n    maxsize=45,\r\n    #warmup_maxsize_by=0.5,\r\n    bumper=True,\r\n    warm_start=True,\r\n    verbosity=0,\r\n    #weight_optimize=0.001,\r\n    #adaptive_parsimony_scaling=1000,\r\n    parsimony=0.01**2 / 10,\r\n)\r\n\r\nmodelRpT.fit(X_sample, y1_sample)\r\n```",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "@dhjx1996 could you please upgrade PySR to at least version 1? The line here: https://github.com/MilesCranmer/PySR/blob/3433e5d92ebea731e9c4a4361cc8981fc0953291/pysr/julia_extensions.py#L24-L25 should solve this.",
+              "createdAt": "2024-12-08T05:26:46Z"
+            },
+            {
+              "author": {
+                "login": "dhjx1996"
+              },
+              "body": "> @dhjx1996 could you please upgrade PySR to at least version 1? The line here:\r\n> \r\n> https://github.com/MilesCranmer/PySR/blob/3433e5d92ebea731e9c4a4361cc8981fc0953291/pysr/julia_extensions.py#L24-L25\r\n> \r\n> should solve this.\r\n\r\nHi @MilesCranmer yup, I got it working now! Thank you very much for your help.\r\n\r\nIt seems like `Bumper.jl`, `ClusterManagers.jl` and `SymbolicRegression.jl` are not automatically installed after the upgrade, which also upgraded Julia, and I had to manually install them before PySR worked again. I am not sure if that is intended behavior.\r\n\r\nFinally, a completely separate question if you don't mind: you recommended using `bumper` for speedup and I have activated it. Would you also recommend activating `turbo`, i.e. `LoopVectorization.jl`? Thank you once again!",
+              "createdAt": "2024-12-09T04:54:52Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Cool!\r\n\r\n> It seems like `Bumper.jl`, `ClusterManagers.jl` and `SymbolicRegression.jl` are not automatically installed after the upgrade, which also upgraded Julia, and I had to manually install them before PySR worked again. I am not sure if that is intended behavior.\r\n\r\nHm. That’s not intended. They should be automatically installed though. Maybe it’s just a one-time issue from upgrading, and if you set up a new environment, it would work?\r\n\r\n> Finally, a completely separate question if you don't mind: you recommended using `bumper` for speedup and I have activated it. Would you also recommend activating `turbo`, i.e. `LoopVectorization.jl`? Thank you once again!\r\n\r\nYes the `turbo=True` (LoopVectorization.jl) is far more effective for speed than `bumper=True` (Bumper.jl). The bumper one is more subtle and has to do with Julia’s garbage collection. You can also try both. It’s problem dependent so it’s worth trying each option.\r\n",
+              "createdAt": "2024-12-09T08:40:44Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOlqMtdQ=="
+          }
+        }
+      }
+    }
+  }
+}

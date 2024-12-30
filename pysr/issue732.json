@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 732,
+        "title": "[Feature]: Support for Full Time-Derivative Prediction (the Right Hand Side of System of ODEs) with Symbolic Regression",
+        "body": "### Feature Request\n\nHi,\r\n\r\nThank you for your continued work on PySR! I’ve been interested lately in using PySR to model complex physical systems, specifically working on symbolic regression for time series.\r\n\r\nI'm trying to predict the full set of time derivatives \\( \\frac{dV_i}{dt} \\) for all variables \\( V_i \\). This is just a system of ODEs \\( \\frac{dV}{dt}= f(V) \\). For example, a lorenz system, Rossler, harmonic oscillator... The current symbolic regression approach seems to handle one variable at a time, but for this case, the variables are interrelated. Thus, I need to handle the entire set of time derivatives across all modes simultaneously to apply (for example) conservation laws that I can include in the loss function.\r\n\r\nWould it be possible to access to the whole prediction of the vector \\( V\\)? Do you think this could be interesting to explore further? I'd be happy to discuss potential ideas and how this might fit into PySR’s future development.\r\n\r\nLooking forward to your thoughts! Thanks again for all your efforts!\r\n\r\nBest,  \r\nDavid",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "edfink234"
+              },
+              "body": "Could PySindy do this? So $V$ is a vector a functions which you'd want to find such that $\\frac{d\\vec{V}}{dt} - \\vec{f}(\\vec{V}) \\approx 0$. I developed a script [here](https://github.com/edfink234/Alpha-Zero-Symbolic-Regression/blob/PrefixPostfixSymbolicDifferentiator/PrefixPostfixMultiThreadDiffSimplifySR_Nd_NaveenNanoMedicine.cpp) that does this but it's in C++ so not so user-friendly (but if you give me a specific use case you're interested in I could show you how to use it). ",
+              "createdAt": "2024-11-05T23:32:49Z"
+            },
+            {
+              "author": {
+                "login": "ricor07"
+              },
+              "body": "Hello, I'd like to work on the project by fixing this issue. Can you assign this to me? Thanks",
+              "createdAt": "2024-12-28T21:14:40Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I think this should already be possible via https://github.com/MilesCranmer/PySR/releases/tag/v1.3.0 no? Although I guess in the Python side you can’t pass tuples yet. But you totally can do this in the Julia side: https://ai.damtp.cam.ac.uk/symbolicregression/dev/examples/template_expression/\r\n\r\nI guess all we need is to figure out changes needed for passing y with dtype=object on the Python side. But the backend should already be set up for this.",
+              "createdAt": "2024-12-28T23:42:17Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOmNwOow=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 753,
+        "title": "Can PYSR handle some time-series operators?",
+        "body": "Hi, I am wondering whether PYSR can handle time-series operators? \r\nfor example: \r\n'''\r\n# Time-based Operators\r\ndef skew(series, t):\r\n    \"\"\"\r\n    Skewness of the series over the past t periods.\r\n    \"\"\"\r\n    t = int(t)\r\n    if t <= 0:\r\n        raise ValueError(\"Rolling window size must be a positive integer.\")\r\n    \r\n    return series.rolling(t).skew()\r\n'''",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

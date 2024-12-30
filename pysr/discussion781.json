@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 781,
+        "title": "v1.2.0",
+        "body": "## What's Changed\r\n* Compatibility with new scikit-learn API and test suite by @MilesCranmer in https://github.com/MilesCranmer/PySR/pull/776\r\n* Add differential operators and input stream specification by @MilesCranmer in https://github.com/MilesCranmer/PySR/pull/780\r\n  * (Note: the differential operators aren't yet in a stable state, and are not yet documented. However, they do work!)\r\n  * This PR also adds various GC allocation improvements in the backend.\r\n\r\n**Frontend Changelog**: https://github.com/MilesCranmer/PySR/compare/v1.1.0...v1.2.0\r\n\r\n**Backend Changelog**: https://github.com/MilesCranmer/SymbolicRegression.jl/compare/v1.2.0...v1.4.0\r\n\n\n<hr /><em>This discussion was created from the release <a href='https://github.com/MilesCranmer/PySR/releases/tag/v1.2.0'>v1.2.0</a>.</em>",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 683,
+        "title": "[Feature]: Easier bug reporting/automated error reports",
+        "body": "### Feature Request\n\nIt would be nice if there was an easier way for users to submit bugs, so we can get more reports, and ensure PySR is made more and more robust. Perhaps there could be an automatic report generated with all relevant info, and all the user would have to do is click a link, and it would get sent to the core devs? (I am thinking it would be safer to have it sent to the core devs directly, rather than posted publicly, just in case the report accidentally includes tokens/passwords. We would then upload the redacted version to the issues page). ",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

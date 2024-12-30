@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 760,
+        "title": "Updating  `mach` when using MLJ interface",
+        "body": "I use `MLJ` interface like this\r\n```julia\r\nstructure = TemplateStructure{(:f, :g, :ω)}(\r\n  ((; f, g, ω), (t, ω₀)) -> begin\r\n    Ω = ω(ω₀)\r\n    return f(ω₀, Ω*t) + g(ω₀, Ω)\r\n  end\r\n)\r\nmodel = SRRegressor(;\r\n    binary_operators       = (+, -, *, /),\r\n    unary_operators        = (sin, cos),\r\n    niterations            = 30,\r\n    maxsize                = 30,\r\n    batching               = true,\r\n    batch_size             = 256,\r\n    parallelism            = :multithreading,\r\n    expression_type        = TemplateExpression,\r\n    expression_options     = (; structure),\r\n)\r\n\r\nmach = machine(model, X, y)\r\nfit!(mach)\r\n```\r\nI was able to update `mach` by `fit!(mach)` in a loop (mutating `X` and `y`) before v1.0(was not using `TemplateExpression` then). However, now, it just skips doing anything in `fit!` if used once and needs `MLJ.update` defined for updating `mach`. Is there a way to update `mach` or is there a way to search equations iteratively using different samples for `X`, and `y`?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "So apparently this is the “correct” behavior for MLJ, because no hyperparams were updated between fit calls. The behavior before was apparently incorrect. (This behavior was implemented as a breaking change in 1.0.0 of SR.jl)\r\n\r\nThe way to do it now is simply increase the `niterations` and then call `fit!` again. It will fit for the _remaining_ iterations, given the previous search. So:\r\n\r\n```julia\r\nfit!(mach)\r\nmach.model.niterations += 100\r\nfit!(mach)\r\n```",
+              "createdAt": "2024-12-03T09:41:28Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0wM1QwOTo0MToyOCswMDowMM4Arqg1"
+          }
+        }
+      }
+    }
+  }
+}

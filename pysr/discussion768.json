@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 768,
+        "title": "Constraining constants to be real for imaginary-value data",
+        "body": "Thanks for developing pySR. I'm really enjoying it.\r\nI'm stuck with the following question: \r\nHow can I enforce a customized unary operator on all leaf nodes (terminmal nodes)? But I don't want to allow it on inner nodes.\r\nCan you please advise me?\r\nThanks",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "You could do `constraints={\"myoperator\": 1}`? See https://ai.damtp.cam.ac.uk/pysr/api/#working-with-complexities",
+              "createdAt": "2024-12-07T16:40:27Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "So you can either do it with a template expression or a custom loss function. I suppose I would try a custom loss first? Then you won't need to do any manual postprocessing as the raw expression would have nearly-real constants.\r\n\r\n```julia\r\nfunction my_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    if !flag\r\n        return L(Inf)\r\n    end\r\n\r\n    square_error = sum(i -> abs2(prediction[i] - dataset.y[i]), eachindex(prediction))\r\n    mse = square_error / length(dataset.y)\r\n\r\n    imaginary_value_penalty = sum(\r\n        node -> if node.degree == 0 && node.constant\r\n            val = node.val\r\n            penalty = abs(imag(val) / (abs(val) + 1e-10))\r\n            L(penalty)  # penalize any non-real part of constants\r\n        else\r\n            zero(L)\r\n        end,\r\n        tree\r\n    )\r\n    \r\n    return mse + 1000 * imaginary_value_penalty\r\nend\r\n```\r\n\r\n(The `L` is just the numeric type of the loss - which in this case is probably `Float32`)\r\n\r\nSo while the numerical constants will still have _some_ imaginary component, the search will be encouraged to minimise it. It's a bit easier than needing to convert the constants. It also means you will have sympy compatibility.\r\n\r\n\r\nYou can pass this to PySR like this:\r\n\r\n```python\r\nPySRRegressor(\r\n    ... # other args\r\n    loss_function=\"\"\"\r\n        function my_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n            prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n            if !flag\r\n                return L(Inf)\r\n            end\r\n        \r\n            square_error = sum(i -> abs2(prediction[i] - dataset.y[i]), eachindex(prediction))\r\n            mse = square_error / length(dataset.y)\r\n        \r\n            imaginary_value_penalty = sum(\r\n                node -> if node.degree == 0 && node.constant\r\n                    val = node.val\r\n                    penalty = abs(imag(val) / (abs(val) + 1e-10))\r\n                    L(penalty)\r\n                else\r\n                    zero(L)\r\n                end,\r\n                tree\r\n            )\r\n            \r\n            return mse + 1000 * imaginary_value_penalty\r\n        end\"\"\"\r\n)\r\n```\r\n",
+              "createdAt": "2024-12-07T21:09:50Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0wN1QyMTowOTo1MCswMDowMM4Ar2rP"
+          }
+        }
+      }
+    }
+  }
+}

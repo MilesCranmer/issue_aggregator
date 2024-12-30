@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 722,
+        "title": "Symbolic Regression Time Series Operator Question",
+        "body": "Lets said I have a dataset which contains N features data in T days.  My X is a matrix with dimension (T, N) , and Y is a vector with length T.   There are some basic time-series functions below:\r\n\r\n> ma( X,  d ):       d is a random generated constant number. Calculating moving average in the past d days of each feature n in X.    X[t, n] = mean( X[t-d+1:t, n] )\r\n\r\n> delay( X, d ):    d is a random generated constant number. Replacing X with the past d day value in each feature n.    X[t, n] = X[t-d+1, n]\r\n\r\n> argmax(  X,  d): d is a random generated constant number. Taking the largest number in the past d day of each feature n.    X[t, n] =  max( X[t-d+1:t, n] )\r\n\r\nI would like to put those functions above into Symbolic Regression model training and input as custom operators. \r\nIs that possible to achieve that? and how? Give a short example please. Thank you.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "qizzhao"
+              },
+              "body": "Could anyone help to answer this question above. I know how to create the binary operator and unary operator. But none of them use rolling data. ",
+              "createdAt": "2024-09-23T05:21:10Z"
+            },
+            {
+              "author": {
+                "login": "qizzhao"
+              },
+              "body": "Could anyone help to answer this question above. I know how to create the binary operator and unary operator. But none of them use rolling data.",
+              "createdAt": "2024-10-09T02:49:11Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Sorry for the late reply. Have you checked the other discussions? There are a couple about implementing the roll operator.",
+              "createdAt": "2024-10-09T04:58:31Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMC0wOVQwNTo1ODozMSswMTowMM4ApiHm"
+          }
+        }
+      }
+    }
+  }
+}

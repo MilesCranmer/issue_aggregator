@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 788,
+        "title": "Getting nicer symbolic representations",
+        "body": "Hello! Thanks for the package.\r\nIs there any way of obtaining the correct parameter names from the report? I would like to pass the array of names as third parameter to node_to_symbolic(...) to get recognizable parameters after processing the symbolic version further. Currently I'm getting x1, x2, etc. I've seen that printing the whole report, there's a variable_names vector. But I can't find how to access it as a julia newbie.\r\n\r\n`equations = Expression{Float64, DynamicExpressions.NodeModule.Node{Float64}, @NamedTuple{operators::DynamicExpressions.OperatorEnumModule.OperatorEnum{Tuple{typeof(+), typeof(-), typeof(*), typeof(/), typeof(safe_pow), typeof(rem), typeof(/)}, Tuple{typeof(square), typeof(safe_sqrt), typeof(neg), typeof(exp), typeof(safe_sqrt), typeof(safe_log), typeof(safe_log2), typeof(safe_log10), typeof(inv), typeof(abs), typeof(sign)}}, variable_names::Vector{String}}}[...]`",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Oh you can get the variables names with\r\n\r\n```julia\r\nusing SymbolicRegression: get_variable_names\r\neq = equations[end]\r\nvars = get_variable_names(eq)\r\n```\r\n\r\nThis is the “proper” generic way, but you can also just do\r\n\r\n```julia\r\neq.metadata.variable_names\r\n```\r\n",
+              "createdAt": "2024-12-22T03:10:04Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Although, the `node_to_symbolic` should automatically extract the variable names. If not we should fix it",
+              "createdAt": "2024-12-22T03:10:56Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Ok should be fixed by this: https://github.com/SymbolicML/DynamicExpressions.jl/pull/117",
+              "createdAt": "2024-12-24T03:34:58Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0yNFQwMzozNDo1OCswMDowMM4Asdga"
+          }
+        }
+      }
+    }
+  }
+}

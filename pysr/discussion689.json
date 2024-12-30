@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 689,
+        "title": "Replace spaces with underscores in column names also for the predict function",
+        "body": "I found that PySR warns about spaces in column names when passing the .fit function data where this occurs. It then replaces the spaces in the column names with underscores and prints a warning about this. You can then proceed with fitting the data as per normal.\r\nWhen later calling the .predict function, this does not attempt to make the same replacement of spaces with underscores in the column names.\r\nSo, if we have a fitted model and want to use it to make predictions, and we pass data to the .predict function in the same format that we used for the .fit function, we can run into the following issue:\r\nThe predict function (in sr.py) contains the following code line \"X = X.reindex(columns=self.feature_names_in_)\". This results in NaN values in case the column names have spaces, because now it tries to match the column names (with spaces) with the feature names of the model, but in the latter the spaces were replaced by underscores.\r\nWe then get the somewhat confusing message \"ValueError: Input X contains NaN.\", which leads one to believe that there are NaN values in the data even while there are none, they only get introduced by the reindex which can't match the column names.\r\n\r\nAll this can be avoided of course, once you are aware of the problem and avoid using spaces in the column names from the beginning. However, it might be more consistent, and allow for a better user experience, if the .predict function also replaces spaces in the column names with underscores?\r\n\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I think this is a bug. I transferred to https://github.com/MilesCranmer/PySR/issues/690.",
+              "createdAt": "2024-08-02T16:36:13Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOC0wMlQxNzozNjoxMyswMTowMM4AnAil"
+          }
+        }
+      }
+    }
+  }
+}

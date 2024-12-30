@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 734,
+        "title": "multivariate polynomial fitting",
+        "body": "```\r\nloss_function = \r\n    \"\"\"  \r\n\r\n    function my_loss_function(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n\r\n        tree.degree != 2 && return L(Inf)\r\n\r\n        P = tree.l\r\n        Q = tree.r\r\n\r\n        s1, flag = eval_tree_array(P, dataset.X, options)\r\n        !flag && return L(Inf)\r\n\r\n        s2, flag = eval_tree_array(Q, dataset.X, options)\r\n        !flag && return L(Inf)\r\n\r\n        J_fit = s1 .^ 2 + s2 .^ 3\r\n\r\n        loss = sum((J_fit .- dataset.y) .^ 2)\r\n\r\n        return loss\r\n    end\r\n    \"\"\"\r\n```\r\n`J_fit = s1 .^ 2 + s2 .^ 3`,  I hope to change s1, s2 to get dataset.y by multivariate polynomial fitting, just like univariate polynomial regression \r\n```\r\nf = Polynomials.fit(s, dataset.y, 2)\r\nJ_fit = f.(s)\r\n```\r\nHow to write Julia code to implement multivariate polynomial regression in Loss Function",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "Alexia369"
+              },
+              "body": "```\r\nloss_function = \r\n    \"\"\" \r\n    using GLM\r\n    using DataFrames\r\n\r\n    function my_loss_function(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n\r\n        tree.degree != 2 && return L(Inf)\r\n\r\n        P = tree.l\r\n        Q = tree.r\r\n\r\n        s1, flag = eval_tree_array(P, dataset.X, options)\r\n        !flag && return L(Inf)\r\n\r\n        s2, flag = eval_tree_array(Q, dataset.X, options)\r\n        !flag && return L(Inf)\r\n        \r\n        data = DataFrame(X1=s1, X2=s2, y=dataset.y)\r\n        model = GLM.lm(@formula(y ~ X1 + X2 + I(X1^2) + I(X1*X2) + I(X2^2)), data)\r\n        J_fit = predict(model, data)\r\n\r\n        loss = sum((J_fit .- dataset.y) .^ 2)\r\n\r\n        return loss\r\n    end\r\n    \"\"\"\r\n```\r\nI used the GLM library, but it didn't work. Is it a code problem?",
+              "createdAt": "2024-10-15T09:55:05Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMC0xNVQxMDo1NTowNSswMTowMM4ApwW5"
+          }
+        }
+      }
+    }
+  }
+}

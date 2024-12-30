@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 743,
+        "title": "The invalidation of pysr under some constraint conditions",
+        "body": "Hi Miles @MilesCranmer\r\nIn my work, I need to lock the equation y1 = f( k1, k2,... ) * x1 + g( k1, k2,... ) * x2, (x, y, k are all variables) , and need to balance the dimension, and limit the appearance of constants. Under these constraints, pysr unexpectedly fails : it cannot grow a reliable expression tree, but stays at the root node. \r\nI have tried to increase randomness and increase the number of populations, but all failed. As shown in the picture, the final result has only a very simple expression.\r\n<img width=\"592\" alt=\"27ae1f3640dc0490cf4c4c5fbac98cd\" src=\"https://github.com/user-attachments/assets/9f40b0b2-7365-407d-a7fa-6f791992e7c9\">\r\nBut miraculously, when I reverse the problem, that is, x1 = f ( k1, k2,... ) * y1 + g ( k1, k2,... ) * y2, pysr can grow normally and evolve a binary tree.\r\n<img width=\"669\" alt=\"ab3d23969d64f2b77de1f4332a5290a\" src=\"https://github.com/user-attachments/assets/4e2e4a77-40b5-4245-9168-ab6b50429d9d\">\r\nDo you have any clue about this ? I guess it is because the amount of information contained in x and y is different ?\r\nThanks！",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "This is going to be so so so easy once 1.0 drops. This kind of feature is built-in! 1.0.0 should drop this or next week.\r\n\r\nbut until then, what is your current approach? Is it a custom loss function?",
+              "createdAt": "2024-11-03T00:49:57Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMS0wM1QwMDo0OTo1NyswMDowMM4AqdxL"
+          }
+        }
+      }
+    }
+  }
+}

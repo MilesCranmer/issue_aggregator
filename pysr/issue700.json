@@ -1,0 +1,47 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 700,
+        "title": "[BUG]: PySRRegressor.from_file throws AttributeError",
+        "body": "### What happened?\n\nWhen loading a saved model with `from_file`, an AttributeError is thrown:\r\n\r\n```\r\nAttributeError: 'PySRRegressor' object has no attribute 'dimensionless_constants_only'\r\n```\r\nI am using version 0.18.4 and it is possible that the model I am loading was saved under an older version (0.17.2 maybe) - could that be the problem?\n\n### Version\n\n0.18.4\n\n### Operating System\n\nLinux\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\nmsg_model = PySRRegressor.from_file(pickle_filename, extra_torch_mappings=get_extra_torch_mappings())\r\nChecking if logs/train/cartpole/2024-07-11__04-48-25__seed_6033/symbreg/2024-07-22__04-36-52/msg/2024-07-22__04-36-55/symb_reg.pkl exists...\r\nLoading model from logs/train/cartpole/2024-07-11__04-48-25__seed_6033/symbreg/2024-07-22__04-36-52/msg/2024-07-22__04-36-55/symb_reg.pkl\r\nTraceback (most recent call last):\r\n  File \"/home/titus/PycharmProjects/train-procgen-pytorch/venv/lib/python3.8/site-packages/IPython/core/interactiveshell.py\", line 3508, in run_code\r\n    exec(code_obj, self.user_global_ns, self.user_ns)\r\n  File \"<ipython-input-7-fec4b34b7d62>\", line 1, in <module>\r\n    msg_model = PySRRegressor.from_file(pickle_filename, extra_torch_mappings=get_extra_torch_mappings())\r\n  File \"/home/titus/PycharmProjects/train-procgen-pytorch/venv/lib/python3.8/site-packages/pysr/sr.py\", line 969, in from_file\r\n    model.set_params(**pysr_kwargs)\r\n  File \"/home/titus/PycharmProjects/train-procgen-pytorch/venv/lib/python3.8/site-packages/sklearn/base.py\", line 223, in set_params\r\n    valid_params = self.get_params(deep=True)\r\n  File \"/home/titus/PycharmProjects/train-procgen-pytorch/venv/lib/python3.8/site-packages/sklearn/base.py\", line 195, in get_params\r\n    value = getattr(self, key)\r\nAttributeError: 'PySRRegressor' object has no attribute 'dimensionless_constants_only'\n```\n\n\n### Extra Info\n\n_No response_",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "> I am using version 0.18.4 and it is possible that the model I am loading was saved under an older version (0.17.2 maybe) - could that be the problem?\r\n\r\nYes this seems to be the cause. That variable was only introduced more recently. However this seems like it would be a common enough issue with pickle so I’m assuming there’s some sort of easy workaround we can use?",
+              "createdAt": "2024-08-21T02:32:33Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I guess maybe the error is inevitable. Though it would be nicer if PySR could print a nicer error, maybe by saving the PySR version used to create the pickle file.",
+              "createdAt": "2024-08-21T02:35:27Z"
+            },
+            {
+              "author": {
+                "login": "tbuckworth"
+              },
+              "body": "I have found a workaround by inspecting the error a bit closer.\r\n\r\nThe problem is in `sklearn.BaseEstimator`. In the `get_params` method, `_get_param_names` gets all the parameter names from the (current) constructor and then uses `value = getattr(self, key)` for each key in the parameters. \r\nWhen it reaches `dimensionless_constants_only`, it throws the error.\r\n\r\nSo a workaround is in the `from_file` method, to have it call in all the parameters and their default values from the constructor and then add any missing attributes to the model before calling `set_params`.\r\n\r\n```\r\n# Get constructor parameters and default values\r\nparams = inspect.signature(model.__init__).parameters\r\n\r\n# Filter for missing parameters excluding kwargs\r\nmissing_params = {k:v for k,v in params.items() if k not in model.__dict__.keys() and  v.name != \"self\" and v.kind != v.VAR_KEYWORD}\r\n\r\n# Assign missing attributes\r\nfor k, v in missing_params.items():\r\n    setattr(model, k, v)\r\n\r\nmodel.set_params(**pysr_kwargs)\r\n```\r\n\r\nThis then no longer throws the error. Should I try to suggest it in the code?",
+              "createdAt": "2024-08-21T09:17:39Z"
+            },
+            {
+              "author": {
+                "login": "tbuckworth"
+              },
+              "body": "I've created a pull request, but maybe you want to add a warning when `missing_params` is not empty, as it could effect the behaviour of the model.",
+              "createdAt": "2024-08-21T09:35:59Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOiS-5kg=="
+          }
+        }
+      }
+    }
+  }
+}

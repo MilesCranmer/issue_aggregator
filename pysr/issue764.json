@@ -1,0 +1,152 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 764,
+        "title": "[BUG]: Memory issue in version 1.0.0?",
+        "body": "### What happened?\r\n\r\nI first reported \"juliacall.JuliaError: TaskFailedException\" errors in https://github.com/MilesCranmer/PySR/issues/759. Having done further tests, I strongly suspect those were actually two separate issues. The domain error that was occurring with `sin` or other \"unsafe\" functions I believe was indeed solved as per the fix applied for that ticket.\r\n\r\nHowever, I keep getting crashes. I tested without using `sin`, and still it crashed. Furthermore, I applied the fix from https://github.com/MilesCranmer/PySR/issues/759 and made sure Julia re-compiled the relevant package etc., but still have crashes after that.\r\n\r\nLooking further into the log files, when scrolling up a bit from the stacktrace, I get:\r\n> run: error: hpcslurm-computenodeset-1: task 13: Out Of Memory\r\nWorker 15 terminated.\r\n\r\n, or similar, as the task number and worker number differ for each crash.\r\n\r\nAnd the julia-xxx-xxxxxx-0000.out log says:\r\n\r\n> slurmstepd: error: Detected 1 oom_kill event in StepId=10.0. Some of the step tasks have been OOM Killed.\r\nslurmstepd: error: *** STEP 10.0 ON hpcslurm-computenodeset-1 FAILED (non-zero exit code or other failure mode) ***\r\nslurmstepd: error: Failed to send MESSAGE_TASK_EXIT: Connection refused\r\n\r\nCan it be that v1.0.0 is more likely to have such memory issues? I never had issues like this before the upgrade.\r\n\r\nThe crashes occur always roughly in the same timeframe, which would be consistent with a memory issue, because one would expect it to \"boil over\" at roughly the same time. In my case, that is each time somewhere between 8 and 11 hours. And this is using a VM with 240GB of RAM. This used to be more than enough, and if anything, before the upgrade to v1.0.0 memory usage was usually very low and I was planning to switch to VMs with less RAM to avoid unnecessary costs.\r\n\r\nHere is a memory usage graph of a run started this morning. It can be seen that memory usage climbs quite steep. And while there seems to be some garbage collection or other cleanup process, it doesn't make much of a dent and then memory usage continues to climb. Note that the line that is climbing steeply is the line for the usage space (applications) while the ones that remain flat are kernel and disk data.\r\n![PySR_memory_usage](https://github.com/user-attachments/assets/654e7076-7422-4274-ad7a-c119ec5d8718)\r\n\r\nAnd when looking at which processes consume the memory, the top users are all Julia workers. See screenshot below, where the heap-size is also visible in the screenshot.\r\n![PySR_memory_procs](https://github.com/user-attachments/assets/97c9ec34-3d4b-4a14-a3cb-ff91d527388e)\r\n\r\nMight this memory issue be due to changes in v1.0.0?\r\nAnd/or is there an easy fix such as assigning a different memory amount to the processes or to encourage better garbage collection somehow?\r\n\r\nI saw something similar in https://github.com/MilesCranmer/PySR/issues/490 but it's my understanding that was fixed.\r\n\r\nI tried using the \"heap_size_hint_in_bytes\" parameter but this does not solve the issue it seems, see comment with screenshot added to this ticket.\r\n\r\n\r\n\r\n### Version\r\n\r\nv1.0.0\r\n\r\n### Operating System\r\n\r\nLinux\r\n\r\n### Package Manager\r\n\r\npip\r\n\r\n### Interface\r\n\r\nScript (i.e., `python my_script.py`)\r\n\r\n### Relevant log output\r\n\r\n```shell\r\nrun: error: hpcslurm-computenodeset-1: task 13: Out Of Memory\r\nWorker 15 terminated.\r\n\r\n\r\nslurmstepd: error: Detected 1 oom_kill event in StepId=10.0. Some of the step tasks have been OOM Killed.\r\nslurmstepd: error: *** STEP 10.0 ON hpcslurm-computenodeset-1 FAILED (non-zero exit code or other failure mode) ***\r\nslurmstepd: error: Failed to send MESSAGE_TASK_EXIT: Connection refused\r\n```\r\n\r\n\r\n### Extra Info\r\n\r\nI was running in distributed mode (cluster_manager='slurm'), with 30 CPU cores. The dataset has around 2500 records, but only two features. It's unfortunately not possible to share the full Python script I'm using, but here are the main parameters used when calling PySRRegressor:\r\n\r\n```python\r\nniterations=10000000,\r\nbinary_operators=[\"+\", \"-\", \"*\", \"/\"],\r\nunary_operators=[\"exp\", \"sin\", \"square\", \"cube\", \"sqrt\"],\r\nprocs=30, populations=450,\r\ncluster_manager='slurm',\r\nncycles_per_iteration=20000,\r\nbatching=False,\r\nweight_optimize=0.35,\r\nparsimony=1,\r\nadaptive_parsimony_scaling=1000,\r\nmaxsize=35,\r\nparallelism='multiprocessing',\r\nbumper=False\r\n```",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "GoldenGoldy"
+              },
+              "body": "Looking at it again, I suppose I should give the \"heap_size_hint_in_bytes\" parameter a try, which I will do now. Still strange though that before this was never necessary. I'll see if it fixes the issue though!",
+              "createdAt": "2024-12-04T10:24:27Z"
+            },
+            {
+              "author": {
+                "login": "GoldenGoldy"
+              },
+              "body": "I tried using `heap_size_hint_in_bytes=1500000000` (1.5 GB) but that doesn't help so far. See screenshot below. Below the graph it can be seen that the requested heap size is reflected for each of the processes, however, the lines in the graph make it clear that memory usage for each process happily grows well beyond that limit, so `heap_size_hint_in_bytes=1500000000` doesn't actually change anything.\r\nAny thoughts?\r\n\r\n![PySR_memory_usage_heap_size](https://github.com/user-attachments/assets/11335ebd-22d2-4494-bbab-4ad36af446ec)",
+              "createdAt": "2024-12-04T17:14:20Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Can you share your PySRRegressor settings and script? The more details the better.",
+              "createdAt": "2024-12-04T18:31:36Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Oh sorry I just saw it and the fact you can't share more details.\r\n\r\nIn this case can you explain your dataset size, and maybe any other details of the system?\r\n\r\nAre those all the PySR parameters, or do you have other ones like the logger?",
+              "createdAt": "2024-12-04T18:35:23Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Can you also:\r\n\r\n1. See which parameters are most strongly correlated with this memory leakage?\r\n2. Does it occur with `parallelism=\"multithreading\"`? And `parallelism=\"serial\"`?\r\n3. This figure looks good:\r\n\r\n![image](https://github.com/user-attachments/assets/dbc80f06-8524-4519-8729-6cbd52e831e8)\r\n\r\nfor a heap size hint of 1.5 GiB, it seems like Julia is correctly doing aggressive garbage collection when it gets close to that limit. (Edit: Or, wait, it looks like 8 GiB in this screenshot?)\r\n\r\nSo, perhaps you could try other heap size hints? Maybe like 150 MiB?\r\n\r\n\r\nThese are just to help get me more diagnostics on the issue.\r\n\r\nThanks!",
+              "createdAt": "2024-12-04T18:38:22Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Other ideas:\r\n\r\n- Can you try forcing Julia 1.10 instead of Julia 1.11? I have noticed some garbage collection issues on the latest Julia which I wonder are related. You can do this with `juliapkg`:\r\n\r\n```python\r\nimport juliapkg\r\njuliapkg.require_julia(\"~1.10\")\r\n\r\n# THEN, import pysr:\r\nimport pysr\r\n```\r\n\r\nThis will modify the version constraint to one that is compatible with both PySR and your new requirement of [1.10.0, 1.11)",
+              "createdAt": "2024-12-04T18:44:24Z"
+            },
+            {
+              "author": {
+                "login": "GoldenGoldy"
+              },
+              "body": "> Can you also:\r\n> \r\n> 1. See which parameters are most strongly correlated with this memory leakage?\r\n> 2. Does it occur with `parallelism=\"multithreading\"`? And `parallelism=\"serial\"`?\r\n> 3. This figure looks good:\r\n> \r\n> ![image](https://private-user-images.githubusercontent.com/7593028/392523638-dbc80f06-8524-4519-8729-6cbd52e831e8.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzMzNDAwOTgsIm5iZiI6MTczMzMzOTc5OCwicGF0aCI6Ii83NTkzMDI4LzM5MjUyMzYzOC1kYmM4MGYwNi04NTI0LTQ1MTktODcyOS02Y2JkNTJlODMxZTgucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MTIwNCUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDEyMDRUMTkxNjM4WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9YWNmMmY0NzlkZDkwMTg5NDkxMzgxNDZlODg2NDgwMGFjNGM4ODA4ZDljNTE1YzZmNDQ1NDRjY2IwNjIwZGE1MSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QifQ.JMA9xNmewQ-HPhG9JXB0YdcnROP77FA_TKXvOw6BrU4)\r\n> \r\n> for a heap size hint of 1.5 GiB, it seems like Julia is correctly doing aggressive garbage collection when it gets close to that limit. (Edit: Or, wait, it looks like 8 GiB in this screenshot?)\r\n> \r\n> So, perhaps you could try other heap size hints? Maybe like 150 MiB?\r\n> \r\n> These are just to help get me more diagnostics on the issue.\r\n> \r\n> Thanks!\r\n\r\nThanks for the feedback!\r\nI hadn't tried yet to see if it also occurs with other parallelism settings but I was planning to do that as a next step to see if the system becomes \"usable\" again with `parallelism=\"multithreading\"` for example. Let me try that, but I might first force the 1.10 Julia version, as suggested in the other comment, to see if that might fix the issue.\r\n\r\nThe graph you referred to above though was not from the situation where the heap size hint was set to 1.5 GiB, in fact that was when I didn't set any heap size hint at all yet. See this comment:\r\nhttps://github.com/MilesCranmer/PySR/issues/764#issuecomment-2518064601\r\nfor what happened when setting the heap size hint, not so much it seems.\r\n\r\nAlso, I was thinking to set `bumper=True` to see if that makes any difference.",
+              "createdAt": "2024-12-04T19:22:05Z"
+            },
+            {
+              "author": {
+                "login": "GoldenGoldy"
+              },
+              "body": "And the only other parameter I'm currently passing is:\r\n`    nested_constraints = {\r\n        \"sin\": {\"sin\": 0},\r\n        \"square\": {\"square\": 1, \"cube\": 1, \"exp\": 0, \"sqrt\": 1},\r\n        \"cube\": {\"square\": 1, \"cube\": 1, \"exp\": 0, \"sqrt\": 1},\r\n        \"exp\": {\"square\": 1, \"cube\": 1, \"exp\": 0, \"sqrt\": 1},\r\n        \"sqrt\": {\"square\": 1, \"cube\": 1, \"exp\": 1, \"sqrt\": 1},\r\n    }`",
+              "createdAt": "2024-12-04T19:31:00Z"
+            },
+            {
+              "author": {
+                "login": "GoldenGoldy"
+              },
+              "body": "The dataset has around 2500 records, and only two features in this case, not exactly huge.",
+              "createdAt": "2024-12-04T19:42:12Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I think the garbage collector for Julia 1.11 is a bit buggy because they rewrote it to be parallel and likely haven't solved all the issues yet (I have seen some other issues with it, like https://github.com/JuliaLang/julia/issues/56735).\r\n\r\nSo I am really curious to hear if simply switching to Julia 1.10 is enough to fix it. If that is true I think I might try to _default_ to 1.10 in the future until the new Julia version is more stable. \r\n\r\nWe can likely make use of https://github.com/JuliaPy/pyjuliapkg/issues/29 to have a \"recommended\" version.",
+              "createdAt": "2024-12-04T21:00:53Z"
+            },
+            {
+              "author": {
+                "login": "GoldenGoldy"
+              },
+              "body": "Thanks for the additional insights, and indeed changing the Julia version tot 1.10 makes all the difference!\r\n\r\nFirst, I tried still with Julia 1.11, but with bumper=True. This seems to slow down the rate at which the memory fills up, however, it is still happening, and the task is destined to crash at some point. And this is with `heap_size_hint_in_bytes=1500000000` (1.5GB):\r\n\r\n**Total memory usage**\r\n![PySR_memory_usage_heap_size_Julia1_11_bumper](https://github.com/user-attachments/assets/db00fe18-505e-40a6-bd03-171bd64fe5d0)\r\n\r\n**Memory usage per process**\r\n![PySR_memory_usage_heap_size_Julia1_11_bumper_detail](https://github.com/user-attachments/assets/6028b918-0e6d-4af4-a348-f12a4de8bb84)\r\n\r\n\r\nThen, I forced Julia 1.10. Initially, I did that in combination with a lower value for heap size, with `heap_size_hint_in_bytes=500000000`, and then the issues seemed to immediately go away:\r\n\r\n**Memory usage per process**\r\n![PySR_memory_usage_heap_size_Julia1_10](https://github.com/user-attachments/assets/3626fcb6-c12e-4e9d-8be2-6cf185656326)\r\n\r\n\r\nThen, I tried it again with forcing Julia 1.10, but now without any heap_size_hint at all. And indeed, with Julia 1.10 it happily works, even though no heap size is specified it all:\r\n\r\n**Total memory usage**\r\n![PySR_memory_usage_Julia1_10](https://github.com/user-attachments/assets/8736c3eb-0bc8-46fa-9eaa-70dde04e3ce7)\r\n\r\n**Memory usage per process**\r\n![PySR_memory_usage_Julia1_10_detail](https://github.com/user-attachments/assets/4bbbd4fc-329c-491b-8a9e-55374192be47)\r\n\r\nSo, with Julia 1.10, the memory usage remains almost constant during a whole night.\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
+              "createdAt": "2024-12-05T08:01:04Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks, that is really interesting and useful. I raised an issue in Julia: https://github.com/JuliaLang/julia/issues/56759 as it seems to be a core language issue rather than PySR specific.\r\n\r\nIn the meantime, if you have time, do you think you can try with `parallelism=\"multithreading\"`? If this also has the memory leak then I think I should just force PySR to Julia 1.10 until they fix the bugs on 1.11.",
+              "createdAt": "2024-12-05T09:40:23Z"
+            },
+            {
+              "author": {
+                "login": "GoldenGoldy"
+              },
+              "body": "Thanks!\r\n\r\nSure, let me try running with `parallelism=\"multithreading\"`, I'll post some details on that later today hopefully.",
+              "createdAt": "2024-12-05T09:55:46Z"
+            },
+            {
+              "author": {
+                "login": "GoldenGoldy"
+              },
+              "body": "I wanted to do multiple additional tests but lacked the time. However, I did manage to do one test with `parallelism=\"multithreading\"`. Again no issues on Julia 1.10, while memory usage continues to grow on Julia 1.11. \r\n\r\nIn both cases I forced the Julia version, using:\r\n\r\n> import juliapkg\r\n> juliapkg.require_julia(\"~1.10\")\r\n> from pysr import PySRRegressor\r\n\r\nor\r\n\r\n> import juliapkg\r\n> juliapkg.require_julia(\"~1.11\")\r\n> from pysr import PySRRegressor\r\n\r\n**Julia 1.10**\r\n![PySR_memory_usage_force_Julia1_10_multithreading](https://github.com/user-attachments/assets/c2845d03-5f9b-4c16-87b5-baee243291d3)\r\n\r\n**Julia 1.11**\r\n![PySR_memory_usage_force_Julia1_11_multithreading](https://github.com/user-attachments/assets/fb4877d4-be11-4341-8565-6e5f7135099c)",
+              "createdAt": "2024-12-05T15:37:25Z"
+            },
+            {
+              "author": {
+                "login": "GoldenGoldy"
+              },
+              "body": "The last observation I thought I'd add, is that the issue sometimes seems to take a bit longer to surface in case of multiprocessing. There may be a period that the memory usage growth is non-existent or very limited, and the lines in the graph are more or less flat. See below an example, where this lasted about half an hour, after which the lines curl up and memory keeps growing out of control. I've also seen a case where the flat lines lasted for a bit over an hour, after which the issue still occurred, and memory usage again started growing fast suddenly. With multithreading the issue seems to occur faster and even more aggressive, at least in the tests that I've done, but with multiprocessing the issue also occurs each time it seems in the end. In all cases where I had the issue, it concerned Julia 1.11\r\n\r\n![PySR_memory_usage_force_Julia1_11_multiprocessing_detail](https://github.com/user-attachments/assets/ebd82fe7-5f98-4eb3-9c28-b30caa52c13f)",
+              "createdAt": "2024-12-05T19:35:51Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks! It sounds like the Julia team is looking into this: https://github.com/JuliaLang/julia/issues/56759. It seems to be a real bug in Julia as far as I can tell. (I'm considering whether to push a change that defaults PySR to Julia 1.10 until this is solved.)",
+              "createdAt": "2024-12-05T20:44:39Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "In the meantime, if you are up for running some more experiments, I think the most useful signal would be to know what hyperparameter makes the memory blow up the _fastest_",
+              "createdAt": "2024-12-06T23:52:10Z"
+            },
+            {
+              "author": {
+                "login": "GoldenGoldy"
+              },
+              "body": "Ok, I ran a few more experiments. Because it would be very time consuming to try and change each of the parameters and check the result each time, I thought I'd just run with the default parameters. So, the following is the result of running on the same dataset as before, but now with all the parameters on their default values in accordance with the PySR API documentation, except for setting `niterations=10000000`. And just to stress that this is using multithreading. Result:\r\n\r\n![PySR_memory_usage_force_Julia1_11_multithreading_default_par](https://github.com/user-attachments/assets/39ba26f2-a0f8-43ea-a3a6-b9892d36ebba)\r\n\r\nThe memory usage still increases very fast, perhaps slightly slower than before, although that might also be some random variation. It doesn't look that any of the parameters that were changed from their previous value to their default make a huge difference?\r\n\r\nNext, I wanted to exclude any impact from the particular data that I'm using, or the script that I'm running and so on. So, I also tried running a script in Julia directly, completely removing Python or anything custom that I did. I took the script you gave here:\r\nhttps://github.com/JuliaLang/julia/issues/56759\r\n\r\n> using SymbolicRegression\r\nX = randn(Float32, 5, 10_000)\r\ny = randn(Float32, 10_000)\r\noptions = SymbolicRegression.Options(binary_operators=[+, *, /, -], unary_operators=[cos, exp])\r\nhall_of_fame = equation_search(X, y; niterations=1000000000, options=options)\r\n\r\nand ran it for a short while, here is the result:\r\n![Julia_memory_usage_example_script](https://github.com/user-attachments/assets/6f3fb3ae-a2e5-4673-b026-402467ddd064)\r\n\r\nThere is still an increase in memory usage but it is very modest now.\r\n\r\nThen, I amended the Julia script, to bring the data dimensions more in line with the dataset I was using each time when I ran into the memory issue. Amended script:\r\n\r\n> using SymbolicRegression\r\nX = randn(Float32, 2, 2500)\r\ny = randn(Float32, 2500)\r\noptions = SymbolicRegression.Options(binary_operators=[+, *, /, -], unary_operators=[cos, exp])\r\nhall_of_fame = equation_search(X, y; niterations=1000000000, options=options)\r\n\r\nand ran that for a short while, now we see a completely different result:\r\n\r\n![Julia_memory_usage_example_script_changed_dim](https://github.com/user-attachments/assets/3c5c2237-d9fe-457a-9476-9021810ce3bb)\r\n\r\nThat's a huge growth in memory usage.\r\n\r\nI repeated the last two experiments just to be sure, in the same order:\r\n![Julia_memory_usage_example_script (2)](https://github.com/user-attachments/assets/65c1e258-49c5-4166-a4c9-b54f5fda8b05)\r\n\r\n![Julia_memory_usage_example_script_changed_dim (2)](https://github.com/user-attachments/assets/63c6a418-fba5-4b99-b4ce-145e3828e271)\r\n\r\nNote that for all experiments running Julia directly I used \"--threads auto\" to try and make sure the available threads are being used. If I didn't add this, it seemed that only one thread was being used.\r\n\r\nSo, the data dimensions seem to play a huge role?\r\nAnd maybe one key difference is then simply how fast each of the scripts goes through the iterations? The second (amended) script results in a reported ETA (in days) that is roughly 20 times shorter than the unchanged example script.\r\n\r\nHopefully this helps with reproducing and fixing the issue?\r\n",
+              "createdAt": "2024-12-07T13:06:10Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "This was fixed in https://github.com/JuliaLang/julia/pull/56801. The next Julia version should include this patch: https://github.com/JuliaLang/julia/pull/56741. Thanks again for helping figure this out!",
+              "createdAt": "2024-12-13T23:47:32Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOl4xb3g=="
+          }
+        }
+      }
+    }
+  }
+}

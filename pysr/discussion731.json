@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 731,
+        "title": "Creating custom expression type",
+        "body": "Hi, I'm trying to create a new custom expression type to see if Symbolic regression works with String or Symbol. To create it I used the example of ParametricExpression. However I get an error saying that AbstractExpression is not defined and I don't know why I get this error. Here's the Julia code : \r\n\r\n```\r\nmutable struct StringNode<:SymbolicRegression.AbstractExpressionNode{String}\r\n    val::String\r\n    degree::UInt8\r\n\r\n\r\n    op::UInt8\r\n    l::StringNode\r\n    r::StringNode\r\n\r\nend\r\n\r\nstruct StringExpr{\r\n    String,\r\n    N<:StringNode,\r\n    D<:NamedTuple{(:operators, :variable_names, :parameters, :parameter_names)},\r\n} <: SymbolicRegression.AbstractExpression{String,N}\r\n    tree::N\r\n    metadata::Metadata{D}\r\n\r\n    function ParametricExpression(tree::StringNode, metadata::Metadata)\r\n        return new{eltype(tree),typeof(tree),typeof(_data(metadata))}(tree, metadata)\r\n    end\r\nend\r\n```\r\n\r\nThanks in advance for the help",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "What version of SymbolicRegression.jl are you using? 1.0.0 is in beta so you need to install from the GitHub directly",
+              "createdAt": "2024-10-10T09:39:54Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMC0xMFQxMDozOTo1NCswMTowMM4AplqH"
+          }
+        }
+      }
+    }
+  }
+}

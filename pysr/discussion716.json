@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 716,
+        "title": "custom operators in Python",
+        "body": "I have a huge library of operators, all of them implemented in Python. Is it possible to use these functions or do I have to reimplement them in Julia?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "gro1729"
+              },
+              "body": "What I have forgotten to mention: My Python- Operators have a signature of at least three parameters, like ,,age'', ,,gender'', ,,term of premium payments'', ....  . Is it possible to use PySR, SymbolicRegression.jl respectively, in order to be able to find formulas for premium calculations.",
+              "createdAt": "2024-09-14T09:26:03Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "You can try to use PythonCall.jl to call back into Python. But it will be much slower due to Python’s GIL which blocks parallelism. It is better to reimplement in Julia.\r\n\r\nOperators are only arity 1 and 2.",
+              "createdAt": "2024-09-14T14:56:50Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOS0xNFQxNTo1Njo1MCswMTowMM4AonZO"
+          }
+        }
+      }
+    }
+  }
+}

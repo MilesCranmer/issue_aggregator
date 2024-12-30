@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 736,
+        "title": "Multi-objective search",
+        "body": "I have loss function, that contains 4 terms describing 4 different systems. While total loss seems fine, if one looks at each system individually the fit would be much worse in comparison to the result from only 2 terms ( if we compare two identical systems). \r\n\r\nIt seems that multi objective optimization( pareto optimization ) is the solution.\r\n\r\nIs it possible to use something like that? if not, will it be implemented in the near future?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Yes, the new `TemplateExpression` should help a lot with this kind of thing. It’s in the beta release now for SymbolicRegression. Unsure when or if I will make it available from PySR (since I think such flexibility would be incompatible with scikit-learn) but hopefully this will happen eventually.",
+              "createdAt": "2024-10-21T03:12:56Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMC0yMVQwNDoxMjo1NiswMTowMM4Ap9mX"
+          }
+        }
+      }
+    }
+  }
+}

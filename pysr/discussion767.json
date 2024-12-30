@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 767,
+        "title": "Building complex TemplateExpression structures",
+        "body": "Copying @gm89uk from https://github.com/MilesCranmer/PySR/discussions/756 for visibility in case others are wanting to learn more about the internals of TemplateExpressions –\r\n\r\n> Sorry @MilesCranmer a bit stuck, and with it being a new feature there isn't much yet in the forums to go off.\r\n> \r\n> I'm working in Julia rather than PySR to permit global variables to be used in a custom loss function otherwise Essentially I have a categorial variable that I know with domain knowledge, has a linear effect on y with just one parameter.\r\n> \r\n> I am interested in finding the expression that finds y, but without the noise of the parameter from the categorial variable. Although parametric expressions seems ideal, the actual problem is more complicated and template expressions is an otherwise better fit (if I can get it to work). I input the y and category variables as part of X so that I could access them in structure. The categorial variable is basically a vector of Ints, one for each group.\r\n> \r\n> ```julia\r\n> #=\r\n> structure = TemplateStructure{(:f, :c)}(\r\n>     ((; f, c), (x1, x2, x3, x4, x5, x6, y, category)) -> begin\r\n>         transformed_x1 = c(x1, x3, x4)\r\n>         o = f(transformed_x1, x2, x3, x4, x5, x6)\r\n>         residuals = y .- o\r\n>         unique_category = unique(category)\r\n>         mean_residuals_by_category = Dict(\r\n>             group => mean(residuals[category .== group]) for group in unique_category\r\n>         )\r\n>         o .-= [mean_residuals_by_category[category[i]] for i in eachindex(o)]\r\n>         return o\r\n>     end\r\n> )\r\n> =#\r\n> \r\n> \r\n> model = SRRegressor(\r\n>     niterations=1000000,\r\n>     binary_operators=[+,-,*,/],\r\n>     maxsize=40,\r\n>     bumper=true,\r\n>     turbo=true,\r\n>     populations=18,\r\n>     expression_type = TemplateExpression,\r\n>     expression_options = (; structure),\r\n>     population_size=30,\r\n>     parsimony = 0.01,\r\n>     batching=true,\r\n> )\r\n> mach = machine(model, X, y)\r\n> fit!(mach)\r\n> ```\r\n> \r\n> Although I think my approach is completely wrong, as structure is dealing with valid_vectors, I am really at a loss of how to get something like this to work.\r\n\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I think you are almost there! The next thing would be to unpack the ValidVector with `.x` - which gives you the raw data.\r\n\r\nMaybe this would work?\r\n\r\n```julia\r\nstructure = TemplateStructure{(:f, :c)}(\r\n    ((; f, c), (x1, x2, x3, x4, x5, x6, y, category)) -> begin\r\n        transformed_x1 = c(x1, x3, x4)\r\n        o = f(transformed_x1, x2, x3, x4, x5, x6)\r\n        residuals = y - o  # Changed\r\n        unique_category = unique(category.x)  # Changed\r\n        _mean(_x) = sum(_x) / length(_x)  # Just in case it doesn't exist\r\n        mean_residuals_by_category = Dict(\r\n            group => _mean(residuals.x[category.x .== group])  # Changed\r\n            for group in unique_category\r\n        )\r\n        offsets = [mean_residuals_by_category[category[i]] for i in eachindex(o.x)]  # Changed\r\n        return ValidVector(o.x .- offsets, o.valid && residuals.valid)\r\n    end\r\n)\r\n```\r\n\r\nBasically each `x1, x2, x3, ...` is a `ValidVector`. This has a `.x` field which stores the raw data vector, and a `.valid` which stores whether the evaluation encountered any NaNs/Infs. This is because invalid values are very common in evolution, and it's faster to pass them through as bools rather than throw errors and catch them.\r\n\r\nThe `ValidVector` doubles a convenience wrapper around `Vector` to automatically perform vectorized operations. So you can just write `-` between two `ValidVector` objects, like `x1 - x2` and it will do `x1.x .- x2.x` and `x1.valid && x2.valid`.\r\n\r\nWhen you evaluate an expression like `c(x1, x3, x4)`, the result is another `ValidVector`.\r\n\r\nChanges:\r\n- `y .- o` into `y - o`.\r\n- `category` into `category.x`\r\n- `residuals` into `residuals.x` within the `Dict`\r\n- Added the `_mean` function (`mean` doesn't exist in Julia due to the ambiguity between sample/population means)\r\n- Changed the `o .-= offsets` into a `o.x .- offsets`\r\n- I also did an explicit `ValidVector` as a return value just as a demonstration, and so you could include the `.valid` part of the `residual` `ValidVector` (though I think here it's probably not necessary, but just a good habit!)",
+              "createdAt": "2024-12-06T02:02:24Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0wNlQwMjowMjoyNCswMDowMM4Aryq6"
+          }
+        }
+      }
+    }
+  }
+}

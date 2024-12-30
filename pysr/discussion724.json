@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 724,
+        "title": "Timeout in seconds",
+        "body": "I tried the timeout_in_seconds function of pysr regressor and set the timeout to 12 hours but after many hours from the limit the program is still working because I see the resources used but it seems stopped because it no longer writes anything new",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Moved to #725 ",
+              "createdAt": "2024-09-25T14:08:12Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOS0yNVQxNTowODoxMiswMTowMM4ApBAv"
+          }
+        }
+      }
+    }
+  }
+}

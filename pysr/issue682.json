@@ -1,0 +1,89 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 682,
+        "title": "[BUG]: Hard crash on import from MacOS System Integrity Protection (SIP)",
+        "body": "### What happened?\n\nupon pip installing pysr into a virtual environment, making sure my PATH variable has the bin, exporting LD_LIBRARY_PATH as specified in github readme, and even removing quarantine status for the environment, importing pysr still results in python quitting\r\n\r\njulia version supports arch64 (silicon)\n\n### Version\n\nAny version of PySR\n\n### Operating System\n\nmacOS\n\n### Package Manager\n\npip\n\n### Interface\n\nJupyter Notebook\n\n### Relevant log output\n\n```shell\n-------------------------------------\r\nTranslated Report (Full Report Below)\r\n-------------------------------------\r\n\r\nProcess:               Python [40891]\r\nPath:                  /Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python\r\nIdentifier:            com.apple.python3\r\nVersion:               3.9.6 (3.9.6)\r\nBuild Info:            python3-141000000000000~1415\r\nCode Type:             ARM-64 (Native)\r\nParent Process:        python [40765]\r\nResponsible:           pycharm [40727]\r\nUser ID:               501\r\n\r\nDate/Time:             2024-07-27 21:46:46.1280 -0700\r\nOS Version:            macOS 14.5 (23F79)\r\nReport Version:        12\r\nAnonymous UUID:        6F31D97B-2A3B-8D95-FA9E-B1FE5CB86DF1\r\n\r\nSleep/Wake UUID:       404515B4-A7B3-4531-A2F4-F7C17B16EC40\r\n\r\nTime Awake Since Boot: 240000 seconds\r\nTime Since Wake:       27250 seconds\r\n\r\nSystem Integrity Protection: enabled\r\n\r\nCrashed Thread:        0  Dispatch queue: com.apple.main-thread\r\n\r\nException Type:        EXC_GUARD (SIGKILL)\r\nException Codes:       GUARD_TYPE_MACH_PORT\r\nException Codes:       0x0000000000012740, 0x0000000000000000\r\n\r\nTermination Reason:    Namespace GUARD, Code 2305843035917854528\n```\n\n\n### Extra Info\n\ntried all sorts of PySR and Julia versions, this seems to be independent of that, id prefer a solution that doesnt involve me booting in RecoveryOS and disabling SIP, although this is what I have done in the meantime",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "ev-watson"
+              },
+              "body": "just to be clear, booting into RecoveryOS and disabling the security protocol DOES solve this issue (I was able to fully regress an equation), so surely there is a fix that can be made, maybe permissions can be set somewhere or something",
+              "createdAt": "2024-07-28T08:01:41Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "1. Can you launch Julia by itself?\r\n2. Then, can you import `juliacall` by itself, or does that trigger the error too?\r\n3. Do you have any corporate security tools that might be causing this? Note that PySR attempts to install Julia the first time you import it. \r\n\r\nIf (1) is okay, but (2) is not, perhaps you could try forcing the version of Julia it is loading? You can do this with the environment variables here: https://juliapy.github.io/PythonCall.jl/stable/juliacall/#julia-config",
+              "createdAt": "2024-07-28T13:36:15Z"
+            },
+            {
+              "author": {
+                "login": "ev-watson"
+              },
+              "body": "I can launch julia just fine, i can also import juliacall by itself, once I did this, i then imported pysr and everything worked just fine\r\nIf i restart my jupyter server and import pysr alone it crashes, but if i import juliacall before pysr everything works and i can regress an equation. For clarity this works:\r\n```\r\nimport juliacall\r\nimport pysr\r\n```\r\n-----------------------\r\nBut this causes the security protocol to be triggered:\r\n```\r\nimport pysr\r\n```\r\ni do not have any corporate security tools, this was just Apple's own disk System Integrity Protection force killing python. So obviously it is because pysr cant install julia, or at least right now it just does so in way that triggers SIP,\r\n\r\nThanks for the help,",
+              "createdAt": "2024-07-29T03:06:50Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "> but if i import juliacall before pysr everything works and i can regress an equation\r\n\r\nInteresting. So the only things that this could change are the environment variables set within `pysr/julia_import.py`. I wonder if you set those manually, if any environment variable in particular triggers the error? Perhaps the multithreaded setting is causing it?\r\n\r\ne.g., https://github.com/MilesCranmer/PySR/blob/3aee19e38ceb3e0e1617d357a831400e01204658/pysr/julia_import.py#L32-L37\r\n\r\nBasically if you import juliacall beforehand, these environment variables in this file will not be used. So maybe one of the variables is causing the issue.",
+              "createdAt": "2024-07-29T03:12:52Z"
+            },
+            {
+              "author": {
+                "login": "ev-watson"
+              },
+              "body": "Setting manually does not trigger an error, I ran the code provided above without importing pysr and it ran, but then upon importing PySR, even with the environment variables set, it still triggered security protocol",
+              "createdAt": "2024-07-29T04:02:58Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Can you set the environment variables, and then import juliacall? (i.e., no PySR)",
+              "createdAt": "2024-07-29T05:43:32Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Another thing to try is using the `trace` module to see exactly where it gets killed:\r\n```\r\npython -m trace -t myscript.py \r\n```\r\nIt should print every line that gets executed. So the last line printed is the one that triggered the system integrity protection",
+              "createdAt": "2024-07-29T05:46:58Z"
+            },
+            {
+              "author": {
+                "login": "ev-watson"
+              },
+              "body": "Setting environment variables and then importing juliacall did cause a crash, in particular the HANDLE_SIGNALS variable:\r\n\r\nSo this works (commented out first line):\r\n```\r\nimport os\r\n\r\nfor k, default in (\r\n        #(\"PYTHON_JULIACALL_HANDLE_SIGNALS\", \"yes\"),\r\n        (\"PYTHON_JULIACALL_THREADS\", \"auto\"),\r\n        (\"PYTHON_JULIACALL_OPTLEVEL\", \"3\"),\r\n):\r\n    os.environ[k] = os.environ.get(k, default)\r\n\r\nimport juliacall\r\n```\r\n------------------------------------\r\nWhereas this triggers security protocol (uncommented first line):\r\n```\r\nimport os\r\n\r\nfor k, default in (\r\n        (\"PYTHON_JULIACALL_HANDLE_SIGNALS\", \"yes\"),\r\n        (\"PYTHON_JULIACALL_THREADS\", \"auto\"),\r\n        (\"PYTHON_JULIACALL_OPTLEVEL\", \"3\"),\r\n):\r\n    os.environ[k] = os.environ.get(k, default)\r\n\r\nimport juliacall\r\n```\r\n\r\nHere is the traceback of the crash:\r\n```\r\n --- modulename: __init__, funcname: __init__\r\n__init__.py(336):         self._name = name\r\n__init__.py(337):         flags = self._func_flags_\r\n__init__.py(338):         if use_errno:\r\n__init__.py(340):         if use_last_error:\r\n__init__.py(342):         if _sys.platform.startswith(\"aix\"):\r\n__init__.py(350):         if _os.name == \"nt\":\r\n__init__.py(360):         class _FuncPtr(_CFuncPtr):\r\n --- modulename: __init__, funcname: _FuncPtr\r\n__init__.py(360):         class _FuncPtr(_CFuncPtr):\r\n__init__.py(361):             _flags_ = flags\r\n__init__.py(362):             _restype_ = self._func_restype_\r\n__init__.py(363):         self._FuncPtr = _FuncPtr\r\n__init__.py(365):         if handle is None:\r\n__init__.py(366):             self._handle = _dlopen(self._name, mode)\r\n__init__.py(183):     argc, argv = args_from_config()\r\n --- modulename: __init__, funcname: args_from_config\r\n__init__.py(112):         argv = [CONFIG['exepath']]\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(115):                 if val is None:\r\n__init__.py(116):                     if opt == 'opt_handle_signals':\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(115):                 if val is None:\r\n__init__.py(116):                     if opt == 'opt_handle_signals':\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(115):                 if val is None:\r\n__init__.py(116):                     if opt == 'opt_handle_signals':\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(115):                 if val is None:\r\n__init__.py(116):                     if opt == 'opt_handle_signals':\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(115):                 if val is None:\r\n__init__.py(116):                     if opt == 'opt_handle_signals':\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(115):                 if val is None:\r\n__init__.py(116):                     if opt == 'opt_handle_signals':\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(115):                 if val is None:\r\n__init__.py(116):                     if opt == 'opt_handle_signals':\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(115):                 if val is None:\r\n__init__.py(116):                     if opt == 'opt_handle_signals':\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(115):                 if val is None:\r\n__init__.py(116):                     if opt == 'opt_handle_signals':\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(115):                 if val is None:\r\n__init__.py(116):                     if opt == 'opt_handle_signals':\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(115):                 if val is None:\r\n__init__.py(120):                 argv.append('--' + opt[4:].replace('_', '-') + '=' + val)\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(115):                 if val is None:\r\n__init__.py(116):                     if opt == 'opt_handle_signals':\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(115):                 if val is None:\r\n__init__.py(120):                 argv.append('--' + opt[4:].replace('_', '-') + '=' + val)\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(115):                 if val is None:\r\n__init__.py(116):                     if opt == 'opt_handle_signals':\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(114):             if opt.startswith('opt_'):\r\n__init__.py(113):         for opt, val in CONFIG.items():\r\n__init__.py(121):         argv = [s.encode(\"utf-8\") for s in argv]\r\n --- modulename: __init__, funcname: <listcomp>\r\n__init__.py(121):         argv = [s.encode(\"utf-8\") for s in argv]\r\n__init__.py(121):         argv = [s.encode(\"utf-8\") for s in argv]\r\n__init__.py(121):         argv = [s.encode(\"utf-8\") for s in argv]\r\n__init__.py(121):         argv = [s.encode(\"utf-8\") for s in argv]\r\n__init__.py(123):         argc = len(argv)\r\n__init__.py(124):         argc = c.c_int(argc)\r\n__init__.py(125):         argv = c.POINTER(c.c_char_p)((c.c_char_p * len(argv))(*argv))\r\n__init__.py(126):         return argc, argv\r\n__init__.py(184):     jl_parse_opts = lib.jl_parse_opts\r\n --- modulename: __init__, funcname: __getattr__\r\n__init__.py(377):         if name.startswith('__') and name.endswith('__'):\r\n__init__.py(379):         func = self.__getitem__(name)\r\n --- modulename: __init__, funcname: __getitem__\r\n__init__.py(384):         func = self._FuncPtr((name_or_ordinal, self))\r\n__init__.py(385):         if not isinstance(name_or_ordinal, int):\r\n__init__.py(386):             func.__name__ = name_or_ordinal\r\n__init__.py(387):         return func\r\n__init__.py(380):         setattr(self, name, func)\r\n__init__.py(381):         return func\r\n__init__.py(185):     jl_parse_opts.argtypes = [c.c_void_p, c.c_void_p]\r\n__init__.py(186):     jl_parse_opts.restype = None\r\n__init__.py(187):     jl_parse_opts(c.pointer(argc), c.pointer(argv))\r\n__init__.py(188):     assert argc.value == 0\r\n__init__.py(191):     try:\r\n__init__.py(192):         jl_init = lib.jl_init_with_image__threading\r\n --- modulename: __init__, funcname: __getattr__\r\n__init__.py(377):         if name.startswith('__') and name.endswith('__'):\r\n__init__.py(379):         func = self.__getitem__(name)\r\n --- modulename: __init__, funcname: __getitem__\r\n__init__.py(384):         func = self._FuncPtr((name_or_ordinal, self))\r\n__init__.py(385):         if not isinstance(name_or_ordinal, int):\r\n__init__.py(386):             func.__name__ = name_or_ordinal\r\n__init__.py(387):         return func\r\n__init__.py(380):         setattr(self, name, func)\r\n__init__.py(381):         return func\r\n__init__.py(195):     jl_init.argtypes = [c.c_char_p, c.c_char_p]\r\n__init__.py(196):     jl_init.restype = None\r\n__init__.py(197):     jl_init(\r\n__init__.py(198):         (default_bindir if bindir is None else bindir).encode('utf8'),\r\n__init__.py(199):         None if sysimg is None else sysimg.encode('utf8'),\r\n__init__.py(197):     jl_init(\r\nzsh: killed     python -m trace -t testing.py\r\n```",
+              "createdAt": "2024-07-29T06:13:21Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks, that is super useful! So it sounds like that one environment variable is the issue here. (You can ignore the other two, they seem to not affect it).\r\n\r\nWould it be possible for you to make an issue on PythonCall.jl (same thing as juliacall)? Here: https://github.com/JuliaPy/PythonCall.jl/issues\r\n\r\nIt sounds like an issue is larger than just PySR so we can solve it over there instead. I would just copy the minimal example you mentioned to an issue there (without the other two env variables), and explain how it is triggering system integrity protection issues.",
+              "createdAt": "2024-07-29T06:29:15Z"
+            },
+            {
+              "author": {
+                "login": "ev-watson"
+              },
+              "body": "Done, thanks for all the help",
+              "createdAt": "2024-07-29T07:29:34Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOhmssaQ=="
+          }
+        }
+      }
+    }
+  }
+}

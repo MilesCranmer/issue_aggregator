@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 717,
+        "title": "Constraint not being followed [Resolved]",
+        "body": "Hello!\r\n\r\nI’ve been encountering some issues with PySRRegressor, where the returned functions occasionally produce complex values.\r\n\r\nI would like to know if it’s possible to restrict the functions being evaluated to only return real values within the bounds of the x-vector, i.e., for every xi value between the minimum and maximum of x.\r\n\r\nAlthough the imaginary component is usually small, I cannot work with complex numbers.\r\n\r\nI’m also inclined to retain the potentially problematic operators, like \"pow\" and \"log\".\r\n\r\nSo far, the only solution I’ve considered is applying constraints on subtraction and addition inside the \"pow\" and \"log\" operators. However, I’m not confident this would guarantee real-valued functions, and it might lead to less optimal solutions.\r\n\r\nThank you in advance!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @Sorah-Darkhat,\r\n\r\nPySRRegressor will only return complex values if you train it on complex data. Be sure to verify that you are passing real data to avoid this. e.g., you can check `X.dtype` and `y.dtype`.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2024-09-14T22:41:27Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOS0xNFQyMzo0MToyNyswMTowMM4Aon6H"
+          }
+        }
+      }
+    }
+  }
+}

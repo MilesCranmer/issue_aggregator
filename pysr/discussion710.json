@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 710,
+        "title": "Let sympy use log2(x) instead of log(x)/log(2)",
+        "body": "The export to sympy currently translates log2(x) to log(x)/log(2). This is cumbersome if log2 is commonly used and makes the equations hard to read.\r\n\r\nSympy supports log2 natively, so I feel it would be appropriate to also translate log2 into that instead. It is perhaps possible to only fix the output in sympy, but ideally, it should be done in PySR directly.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Moved to https://github.com/MilesCranmer/PySR/issues/711",
+              "createdAt": "2024-09-04T12:14:27Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOS0wNFQxMzoxNDoyNyswMTowMM4AoOZm"
+          }
+        }
+      }
+    }
+  }
+}

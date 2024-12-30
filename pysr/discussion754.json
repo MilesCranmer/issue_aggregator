@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 754,
+        "title": "How to import ParametricExpressionSpec for Parametric Expression?",
+        "body": "Hi,\r\n\r\nI saw in the release video for parametric expressions that Miles writes the following:\r\n\r\nexpression_spec=ParametricExpressionSpec(max_parameters=2)\r\n\r\nHowever, when I try a similar exercise in Python, I am unable to import ParametricExpressionSpec properly.\r\n\r\nI would appreciate it if someone could clarify this for me.\r\n\r\nBest regards,\r\nSarem",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "It just got released today, try updating?",
+              "createdAt": "2024-12-01T03:34:09Z"
+            },
+            {
+              "author": {
+                "login": "saremnorouzi"
+              },
+              "body": "I had updated but update it again and now works fine :)",
+              "createdAt": "2024-12-01T08:25:06Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0wMVQwODoyNTowNiswMDowMM4ArlyX"
+          }
+        }
+      }
+    }
+  }
+}

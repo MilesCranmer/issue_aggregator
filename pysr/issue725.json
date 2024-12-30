@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 725,
+        "title": "Timeout in seconds not applying",
+        "body": "### Discussed in https://github.com/MilesCranmer/PySR/discussions/724\r\n\r\n<div type='discussions-op-text'>\r\n\r\n<sup>Originally posted by **usebi** September 25, 2024</sup>\r\nI tried the timeout_in_seconds function of pysr regressor and set the timeout to 12 hours but after many hours from the limit the program is still working because I see the resources used but it seems stopped because it no longer writes anything new</div>",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "@usebi can you share info on your system? Does it work for smaller timeouts? Also what parameters are you using?",
+              "createdAt": "2024-09-25T14:06:57Z"
+            },
+            {
+              "author": {
+                "login": "usebi"
+              },
+              "body": "i'm using Windows 11.  doesn't work for smaller timeouts. The problem is the size of the dataset, with a smaller datasets the timeout works",
+              "createdAt": "2024-09-26T16:01:09Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOjbPEkA=="
+          }
+        }
+      }
+    }
+  }
+}

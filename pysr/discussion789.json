@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 789,
+        "title": "Symbolic Transformer",
+        "body": "Hi,\r\n\r\nNewbie question that I can't find reference in documentation.  Is it possible to generate new features instead of predicting similar to GPlearn Symbolic Transfomer?  ",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "You could write down an arbitrary forward function (https://ai.damtp.cam.ac.uk/pysr/examples/#11-expression-specifications) or loss function (https://ai.damtp.cam.ac.uk/pysr/examples/#9-custom-objectives) and could set up a problem where you optimize an unsupervised objective (you could write down a fake value for `y` like just a vector of zeros, and then avoid using it inside the loss function). Does that help? But yeah it would be cool to add an example of this to the PySR docs to show how to do it.",
+              "createdAt": "2024-12-25T21:58:56Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Here’s a Spearman Correlation loss for PySR in case this is what you were after?\r\n\r\n```python\r\n\r\nloss_function = \"\"\"\r\nfunction my_spearman_loss(tree, dataset::Dataset{T,L}, options) where {T,L}\r\n    prediction, complete = eval_tree_array(tree, dataset.X, options)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n    \r\n    # Get ranks\r\n    rank_pred = sortperm(sortperm(prediction))\r\n    rank_y = sortperm(sortperm(dataset.y))\r\n    \r\n    # Calculate Spearman\r\n    d = rank_pred .- rank_y\r\n    rho = 1 - (6 * sum(d .^ 2)) / (dataset.n * (dataset.n^2 - 1))\r\n    \r\n    # Return 1-rho so it's a loss to minimize (rho ranges from -1 to 1)\r\n    return L(1 - rho)\r\nend\r\n\"\"\"\r\n\r\nmodel = PySRRegressor(loss_function=loss_function)\r\n\r\nmodel.fit(X, y)\r\n\r\nfeatures = [model.predict(X, index=i) for i in range(len(model.equations_))]\r\n```\r\n\r\nthe `index` just enumerates simplest to most complex model:  https://ai.damtp.cam.ac.uk/pysr/api/#pysr.PySRRegressor.predict",
+              "createdAt": "2024-12-26T18:57:28Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0yNlQxODo1NzoyOCswMDowMM4AshS5"
+          }
+        }
+      }
+    }
+  }
+}

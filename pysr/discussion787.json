@@ -1,0 +1,54 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 787,
+        "title": "ParametricExpression within a TemplateExpressionSpec?",
+        "body": "Hello Miles,\r\n\r\nI am trying to find an equation to describe the Bremsstrahlung X-rays collected within an energy-dispersive X-ray spectroscopy spectrum. I am using the following `TemplateExpressionSpec`:\r\n```\r\ntemplated_expr = TemplateExpressionSpec(\r\n    function_symbols=[\"k\", \"f\", \"g\", \"h\"],\r\n    combine=\"((; k, f, g, h), (x1, x2, x3)) -> k() * g(x2) * h((x3-x1)/x1, x3)* f(x1,x2,x3)\")\r\n```\r\nI was wondering if there was the possibility of making `k` parametric, such as the parameters within `ParametricExpressionSpec`?\r\n`k` is simply a scaling factor, and should be allowed to be different in every spectrum. The idea of a parametric expression would do the job, but I am not sure at the moment this can be integrated with a `TemplateExpressionSpec`? Any suggestion on how to do this?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "This feature is not yet available, though I would also like it! If you are very eager to have this feature (or anybody else reading this comment), I can help walk you through what needs to be done in the backend. I don't think it will be too bad (and Julia is pretty similar to Python in syntax), but it requires some care to make sure everything is compatible.\r\n\r\nIf you want something quick and dirty, and don't have too many categories, I would recommend just passing in an additional feature `i` that indexes the category. Then you can have the \"parameters\" be functions like `p1(i)`, `p2(i)`, and so on. (Or just pass `i` to the other functions directly).\r\n\r\ne.g., if I just write down some random parameters `[0.8, 0.2, -4.2, 0.9]`, I could learn an expression to represent them with `p1(i) = (0.82028 / i) + ((0.45242 / (i + -3.0969)) + 0.19716)` which is 1e-6 level accurate. So for the general case you would just assume each `p1`, `p2`, `p3`, is going to learn some mapping like that - and you would just remove those expressions at the end and replace them with the numerical values for each category. Maybe you could even write a custom complexity that downweights the complexity in the parameter mappings or something.\r\n\r\nBut this is not going to be as clean or as accurate as a full implementation of a \"TemplateParametricExpressionSpec\".",
+              "createdAt": "2024-12-19T02:24:46Z"
+            },
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "Would like to echo support for parametric within template, particularly to support the flexibility of structure within parametric expression. That essentially gives you the power of a custom loss function. I have been doing my own workarounds for a problem with a variable that has 12 categories within template expression. ",
+              "createdAt": "2024-12-20T22:42:13Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "@gm89uk @Andrea-gm do you have any ideas for what would be the most intuitive API for something like this? How would you use the parameters inside the template expression?",
+              "createdAt": "2024-12-23T21:19:53Z"
+            },
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "I guess the main difference / difficulty between the approaches is a means to permit parameter optimisation within and also outside the functions of templateExpressions.",
+              "createdAt": "2024-12-24T09:45:12Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "@gm89uk @Andrea-gm what about this API?\r\n\r\n```julia\r\nstructure = TemplateStructure{(:f, :g)}(\r\n    ((; f, g), (x1, x2, x3, i1, i2), params) -> let\r\n        p1 = params[i1]\r\n        p2 = params[i2 + 15]\r\n        f(x1, x2) + g(x3, p2) + p1 * x1 * x3\r\n    end,\r\n    num_params=20\r\n)\r\n```\r\n\r\nNow, you would need to manually input the max number of categories in `i1` in advance (so you can offset them) - here, the example is `15`. And we have specified there are 20 parameters in total.\r\n\r\nThis `params` would basically be a special type of `Vector` with a special method when you index it with a `ValidVector` it creates another `ValidVector`.\r\n\r\nThe other part I like about this API is it is super super flexible. `params` is just a vector. You could manually just index one of the parameters, like `params[1]`. This is actually a better option than the current approach of doing `f()` - because `f()` is actually treated as an arbitrary symbolic expression (and is evolved like every other symbolic expression – even if it doesn't look like that under the hood – which is kind of inefficient).\r\n\r\nSo you basically get access to this vector of parameters and can use them however you want. They'll be optimized like any other constant in the expression.\r\n\r\n---\r\n\r\nI should also mention that whatever API we decide on is probably there permanently, which is why I'm trying to think very carefully about this.\r\n\r\n",
+              "createdAt": "2024-12-25T05:13:49Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0yNVQwNToxMzo0OSswMDowMM4AsfG9"
+          }
+        }
+      }
+    }
+  }
+}

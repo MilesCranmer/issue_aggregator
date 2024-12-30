@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 701,
+        "title": "Checking for monotonicity through derivatives",
+        "body": "Hi all,\r\n\r\nI'm struggling to get the automatic derivative functionality to work:\r\n\r\nI set enable_autodiff=True in the python code. When trying to asses the gradient with respect to p (X[3,:]) to (y) (negative correlated, so negative grad expected) I'm getting a \"JuliaError: TaskFailedException\".\r\n\r\nEDIT: a more detailed error message: MethodError: no method matching eval_grad_tree_array(::Node{Float32}, ::Matrix{Float32}, ::Int64, ::Options{SymbolicRegression.CoreModule.OptionsStructModule.ComplexityMapping{Int64, Int64}, DynamicExpressions.OperatorEnumModule.OperatorEnum, Node, false, true, nothing, StatsBase.Weights{Float64, Float64, Vector{Float64}}})\r\n\r\nSo far I've checked out: \r\nhttps://github.com/MilesCranmer/PySR/discussions/625#discussion-6661115\r\nhttps://github.com/MilesCranmer/PySR/discussions/548#discussioncomment-8497413\r\nhttps://github.com/MilesCranmer/PySR/discussions/447#discussion-5769750\r\nhttps://github.com/MilesCranmer/PySR/discussions/299#discussion-5107012\r\nhttps://github.com/MilesCranmer/PySR/discussions/667#discussioncomment-10061284\r\n\r\nI've also checked out the API but I have struggled to apply it.\r\n\r\n```\r\njl.seval(\"using Zygote\")\r\nelementwise_loss = \"\"\"\r\n```\r\n```julia\r\nfunction my_loss_function(tree, dataset::Dataset{T,L}, options, idx)::L where {T,L}\r\n    X = idx === nothing ? dataset.X : view(dataset.X, :, idx)\r\n    y = idx === nothing ? dataset.y : view(dataset.y, idx)\r\n    weights = idx === nothing ? dataset.weights : view(dataset.weights, idx)\r\n    derivative_with_respect_to = 3\r\n    prediction, grad, complete = eval_grad_tree_array(tree, X, derivative_with_respect_to, options)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n    is_monotonic = all(grad .<= 0) || all(grad .>= 0)\r\n    if !is_monotonic\r\n        return L(Inf)\r\n    end\r\n```\r\nThanks in advance\r\n\r\nedit: fixed line:\r\n```julia\r\nprediction, grad, complete = eval_diff_tree_array(tree, X, options,derivative_with_respect_to)\r\n```\r\n\r\n\r\n\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "Pysr has really exploded various aspects of my research that is resulting in several manuscripts being written. I am extremely grateful to the team not just for Pysr, but for the contribution you offer the community in your spare time @MilesCranmer  and I'm sorry to bump. \r\n\r\nEssentially, at lower complexity, there is monotonicity between a feature in x and y; pysr has found great expressions for my problem. At higher complexities, there is overfitting and monotonicity is violated. I'm trying to see if there are slightly more complex expressions it can find if I enforce a monotonicity constraint through the custom loss function. \r\n\r\nThis is and one other aspect (which I edited out of this request to keep this post clean and I can post it separately), are the final pieces of the puzzle for me for one that is almost ready. Please let me know if anything is unclear or you require any further information, thank you again.  \r\n\r\np.s. I'm sorry for the multiple edits, I had updated the code as I made some progress :)",
+              "createdAt": "2024-08-28T17:55:04Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hey sorry for the late reply! I was off on vacation last week. \r\n\r\nAwesome to hear your experience is going well, that makes me very happy to hear 🙂 \r\n\r\nSo the issue here is that `eval_grad_tree_array` gives you the _whole_ gradient, and thus only takes 3 arguments. The other function is `eval_diff_tree_array` (sorry for the weird naming) which only differentiates with respect to a single feature – that function is where you provide it with a 4th argument (as you have done) giving the feature index.\r\n\r\nThese API calls are documented here – https://symbolicml.org/DynamicExpressions.jl/dev/eval/#Derivatives. (Note that you can pass `options` instead of the `operators::OperatorEnum` which is just the lower-level call)",
+              "createdAt": "2024-08-28T18:36:45Z"
+            },
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "Thank you so much, Miles! I hope you had a lovely holiday.\r\n\r\nI’m amazed that the solution was so simple—I should have read the API more closely!\r\n\r\nThe custom loss feature is truly the secret sauce of PySR. It adds another level of versatility.\r\n\r\nA breakthrough for me was using the custom loss feature to implement a 'pseudo' multilevel regression approach. I knew that differences between certain groups had a linear difference effect on y, and this approach allowed me to get the best fit without being thrown off by constant differences between the groups.\r\n\r\n```julia\r\n    unique_group = unique(weights)\r\n    mean_residuals_by_group = Dict{L, T}()\r\n    for member in unique_group\r\n        group_residuals = residuals[weights .== member]\r\n        mean_residuals_by_group[member] = sum(group_residuals) / length(group_residuals)\r\n    end\r\n    adjusted_predictions = copy(prediction)\r\n    for i in eachindex(y)\r\n        adjusted_predictions[i] -= mean_residuals_by_group[weights[i]]\r\n    end\r\n    mse = sum(i -> (adjusted_predictions[i] - y[i])^2, eachindex(y)) / length(y)\r\n    return mse\r\n```\r\nThanks again for your help!\r\n",
+              "createdAt": "2024-08-29T20:06:44Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOC0yOVQyMTowNjo0NCswMTowMM4AoBX5"
+          }
+        }
+      }
+    }
+  }
+}

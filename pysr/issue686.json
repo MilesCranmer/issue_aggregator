@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 686,
+        "title": "[Feature]: Apptainer support",
+        "body": "### Feature Request\n\nHPC System admins generally don't install or run Docker in their clusters. Apptainer / Singularity has become the de facto container platform. PySR should include an Apptainer definition file which researchers can use, or extend, to build PySR Apptainer containers.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Closed with #687 ",
+              "createdAt": "2024-08-12T03:34:05Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "P.S., let me know how things work with multi-node for you. Currently it relies on ClusterManagers.jl + Distributed.jl. It works OK but I've had some issues with ClusterManagers.jl before in the past. Eventually I'd like to switch to using MPIClusterManagers.jl which relies on MPI.jl which is probably much more compatible across clusters. https://github.com/JuliaParallel/MPIClusterManagers.jl",
+              "createdAt": "2024-08-13T08:10:18Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOiDvpaA=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 705,
+        "title": "Multiexpression Outputs Question",
+        "body": "When I define multiexpression outputs, how do I know which is P and which is Q?\r\n```\r\nobjective = \"\"\"\r\nfunction my_loss_function(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n\r\n  tree.degree != 2 && return L(Inf)\r\n\r\n    P = tree.l\r\n    Q = tree.r\r\n\r\n    # Evaluate numerator:\r\n    P_prediction, flag = eval_tree_array(P, dataset.X, options)\r\n    !flag && return L(Inf)\r\n\r\n    # Evaluate denominator:\r\n    Q_prediction, flag = eval_tree_array(Q, dataset.X, options)\r\n    !flag && return L(Inf)\r\n\r\n    R12_2D =  (P_prediction .- 1)  .* cz1_jl ./ (0.09 .* woo_tran_jl .* (Q_prediction .+ c_pe_tran_jl .- 1.0))\r\n    \r\n    diffs = R12_2D .- dataset.y\r\n    loss = sum(diffs .^ 2) \r\n\r\n    return loss\r\n \r\nend\r\n\"\"\"\r\n\r\nmodel = PySRRegressor(\r\n    population_size=200,\r\n    niterations=200,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\"],\r\n    loss_function=objective,\r\n)\r\nmodel.fit(X, y)\r\nmodel.get_best().equation\r\n```\r\nThe results are as follows：\r\n```\r\nComplexity,Loss,Equation\r\n1,Inf,\"x0\"\r\n3,1.8108e-6,\"0.6919551 + 1.4003153\"\r\n5,1.6049491e-6,\"(0.43112686 - x0) * 2.6639194\"\r\n7,1.3138252e-6,\"(x0 / (-0.3637128 - x0)) * 4.5015717\"\r\n9,1.048514e-6,\"((x0 / (-0.32570758 - x0)) + x0) / 4.502915\"\r\n11,1.0421031e-6,\"(((x0 / (-0.32833982 - x0)) + x0) / 0.90415287) - 4.490343\"\r\n```",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Basically .l is the left side and .r is the right side of the outermost operator. So if you were numerically evaluating the equation, the last operator that you would evaluate is the one you split at. So `x0 / (-0.3637128 - x0)) * 4.5015717` has P equal to the x0/(-0.36 - x0) and Q equal to the 4.5. The outermost operator `*` is ignored.\r\n\r\nBut yes I think it would be nice for PySR to have a proper way of facilitating this, rather than needing to do it all manually.",
+              "createdAt": "2024-08-26T14:27:11Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOC0yNlQxNToyNzoxMSswMTowMM4An36y"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 774,
+        "title": "Scaling PySR to very large and high-dimensional datasets",
+        "body": "Hi there! First of all, I love this effort! Very well done to all contributors.\r\n\r\nFor the question, I want to experiment with symbolic regression but in a fairly low signal-to-noise ratio environment but with millions of samples and fairly high-dimensional feature space (hundreds of features). I've seen many discussions where ~1,000 samples seem to be max and then potentially batch processing. With this is mind, is it even feasible to run symbolic regression to my applications and if so, how?\r\n\r\nLooking forward to hearing your thoughts!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "For these settings I like to fit another machine learning model to the dataset first, and treat its predictions as “denoised”, because it will effectively average out the noise.\r\n\r\nThis is actually what the `denoise` and `Xresampled` options do!\r\n\r\nHowever, this uses a Gaussian process as the secondary machine learning models. Gaussian processes take O(N^3) compute for a given dataset with N points. So for this problem I think I would try something like a neural network or even XGBoost. Then, take a grid of input features, evaluate the model over that grid, and that becomes your “denoised” y vector that you can feed PySR.\r\n\r\nThe high-dimensional feature space is a bit trickier since it’s not a good setting for symbolic regression (an equation that uses all 100 features would be extremely complex). So you could either try the new TemplateExpressionSpec to impose some aggregation over the features if there is something that makes sense (see examples page in the docs), or just try PCA to do a dimensionality reduction and then fit the principal components as input features.",
+              "createdAt": "2024-12-11T13:51:20Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0xMVQxMzo1MToyMCswMDowMM4Ar_x2"
+          }
+        }
+      }
+    }
+  }
+}

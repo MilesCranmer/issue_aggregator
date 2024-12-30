@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 727,
+        "title": "Manim Animation PySR",
+        "body": "Hello Miles Cranmer,\r\n\r\nabsolutely great Python Package, thanks for doing it open source!\r\n\r\nDo you have the code for the animation from pysr_animation.mp4, if its written in Manim. It looks beautiful! I want to adapt it to my pysr use-case. 😄 \r\n\r\nThanks a lot!\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Yes! The animation is open-source too :) https://github.com/MilesCranmer/pysr_paper - the manim source is in the animation folder.",
+              "createdAt": "2024-09-27T14:06:09Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOS0yN1QxNTowNjowOSswMTowMM4ApG8e"
+          }
+        }
+      }
+    }
+  }
+}

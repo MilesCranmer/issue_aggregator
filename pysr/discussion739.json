@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 739,
+        "title": "Multiexpression Outputs Question",
+        "body": "```\r\nfunction my_loss_function(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n\r\n  tree.degree != 2 && return L(Inf)\r\n\r\n    P = tree.l\r\n    Q = tree.r\r\n\r\n    # Evaluate numerator:\r\n    P_prediction, flag = eval_tree_array(P, dataset.X, options)\r\n    !flag && return L(Inf)\r\n\r\n    # Evaluate denominator:\r\n    Q_prediction, flag = eval_tree_array(Q, dataset.X, options)\r\n    !flag && return L(Inf)\r\n```\r\nIf there are 3 or more multi-expression outputs, how to realize and distinguish them?\r\nYou say,Want to make a new thread for that? But basically just apply the pattern recursively.\r\nHow to achieve it in a simple way? Is there any code? Thanks",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "This should be **significantly easier** with the upcoming TemplateExpression. ETA 2 days for SR.jl and TBD for PySR.",
+              "createdAt": "2024-10-21T10:34:48Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMC0yMVQxMTozNDo0OCswMTowMM4Ap-gA"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 745,
+        "title": "Multidimensional data",
+        "body": "I want to use PySR in a dataset, but instead of using just one variable (ie. $f(x) = x^2$) I want to use 2 variable to make a 3 dimensional analysis (ie. $f(x,y) = x^2+y^2$). Has anyone have done enything similar?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Not sure I understand. PySR natively supports multiple input features - see the README example. But maybe you mean something else?",
+              "createdAt": "2024-11-08T14:36:04Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMS0wOFQxNDozNjowNCswMDowMM4Aqr6B"
+          }
+        }
+      }
+    }
+  }
+}

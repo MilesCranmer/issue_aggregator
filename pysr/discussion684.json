@@ -1,0 +1,47 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 684,
+        "title": "How many datapoints are needed?",
+        "body": "I am running an experiment that is quite expensive. Therefore each datapoint takes time and cost budget.\r\nWhat is the minimum number of datapoints that are needed to have some reliability?\r\n\r\nIs there any documentation/references/previous discussion?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "It depends on how complex you want the equation to be, and also noise, and how many operators you are searching with. But symbolic regression is pretty data-efficient as equations are not that expressive, so you can get away with very very few datapoints. \r\n\r\nWhat I would basically do is a train/validation/test split. Train on the train data, and evaluate the model on the validation dataset. Are the predictions good/bad? If the predictions are bad, you need more data. If the predictions are close in performance to the results on the training data, then  you probably have enough data.\r\n\r\nhttps://scikit-learn.org/stable/modules/cross_validation.html",
+              "createdAt": "2024-07-29T13:56:09Z"
+            },
+            {
+              "author": {
+                "login": "cmougan"
+              },
+              "body": "We are looking at something like this. 10-12 datapoints, around 2/3 features. \r\n\r\nYour package provides a loss that can be calculated in train/test, but there are no pvalues right?\r\n\r\n![Screenshot 2024-07-29 at 19 06 03](https://github.com/user-attachments/assets/63d2d2f3-cf77-4cfe-83aa-481428e50b9d)\r\n ",
+              "createdAt": "2024-07-29T17:07:47Z"
+            },
+            {
+              "author": {
+                "login": "cmougan"
+              },
+              "body": "After some work, I have realised that the question is off. \r\nThe approach here is not from classical stats (where we are looking for a pvalue) but an ML one, where we have a loss function that we can compute in test set.\r\n\r\nStill, for a function like the above. X =[x1,n] and Y. There are many functions that in this range can have the same shape. \r\n\r\nHow do you provide scientifical statistical validity to the equatian?",
+              "createdAt": "2024-08-03T09:23:27Z"
+            },
+            {
+              "author": {
+                "login": "cmougan"
+              },
+              "body": "In binary classification I have seen some people using Classifier Two Sample Tests:\r\n - Model-independent detection of new physics signals using interpretable SemiSupervised classifier tests https://projecteuclid.org/journals/annals-of-applied-statistics/volume-17/issue-4/Model-independent-detection-of-new-physics-signals-using-interpretable-SemiSupervised/10.1214/22-AOAS1722.short\r\n - Revisiting Classifier Two-Sample Tests https://arxiv.org/abs/1610.06545\r\n\r\nIn binary classification is easier, as it naturally allows for a hypothesis testing.\r\nPerhaps in SR something similar can be achieved. ",
+              "createdAt": "2024-08-04T09:02:25Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOC0wNFQxMDowMjoyNSswMTowMM4AnCmu"
+          }
+        }
+      }
+    }
+  }
+}

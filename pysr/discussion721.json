@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 721,
+        "title": "Complexity Constraints for POW operator",
+        "body": "I would like to restrict the pow operator to only allow constants in the exponent. I am trying to restrict my model to only using x^2, x^3, x^4, ..., x^n, but I have not been able to figure out how to restrict the complexity in this way. Restricting the complexity of the exponent to 1 still allows there to be variables in the exponent. I have tried this: constraints={\"pow\":(1,1)}, but even that allows more freedom than what I want. Does anyone know of a way to achieve what I want? My current solution is creating custom functions for each power of x, but this is proving to be very inefficient. ",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "You could do this with a custom loss function (see https://astroautomata.com/PySR/api/ `loss_function`) \r\n\r\n```python\r\nloss_function = \"\"\"\r\nfunction my_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    if !flag\r\n        return L(Inf)  # NaN or Inf detected => infinite penalty!\r\n    end\r\n\r\n    pow_index = 1  # CHANGE ME (1 is if ^ appears first in binary_operators, 2 is second, ...)\r\n    \r\n    non_constant_exponent = any(tree) do node\r\n        \r\n        is_pow_node = node.degree == 2 && node.op == pow_index\r\n        \r\n        if is_pow_node\r\n            any(node) do node2\r\n                node2.degree == 0 && !node2.constant\r\n            end\r\n        else\r\n            false\r\n        end\r\n    end\r\n    \r\n    if non_constant_exponent\r\n        return L(100_000)  # Return large penalty (but not as big as for NaN/Inf which are worse)\r\n    end\r\n    \r\n    return sum((prediction .- dataset.y) .^ 2) / dataset.n\r\nend\r\n\"\"\"\r\n```\r\n\r\nSome of these operations are described with examples here: https://symbolicml.org/DynamicExpressions.jl/dev/examples/base_operations/\r\n\r\n(There are some other examples similar to this scattered throughout the discussions if wanting to try adding some other things).\r\n\r\nHope this helps!",
+              "createdAt": "2024-09-19T16:07:56Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOS0xOVQxNzowNzo1NiswMTowMM4AozLi"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 692,
+        "title": "Limit on constants value and having all the variables in the equation",
+        "body": "Hello, everyone; I am new to Symbolic Regression and the Julia programming language. I am using the SymbolicRegression.jl package to get equations for my use case. I want to limit the size of the constants. Currently, some constant values are in the range of e-16, and I need to limit the length of the constant. Secondly, the equations do not use all the input variables in the equations, and only one or two variables are filled with constants to achieve a lower loss value. I wonder if both scenarios are possible or if this problem was already solved earlier. ",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

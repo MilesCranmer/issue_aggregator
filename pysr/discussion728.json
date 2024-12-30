@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 728,
+        "title": "Nested constraint on binary operators?",
+        "body": "I'm curious: how can I do nested constraints on binary operators in Julia?\r\n\r\nI've tried:\r\n```julia\r\nnested_constraints=[/ => [/ => 0]],\r\n```\r\nbut this gives an error message pointing to the fact that `/` is not a unary operator.  At the same time, the documentation for `nested_constraints` suggests that it is possible to apply `nested_constraints` also to binary operators.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "The way to do it is `[(/) => [(/) => (0, 0)]]`. In other words, you need to provide a tuple of integers rather than a single integer. These integers correspond to the left and right argument. This is so that you can, e.g., set a different constraint for the base of `^` than the exponent.",
+              "createdAt": "2024-09-29T15:48:56Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOS0yOVQxNjo0ODo1NiswMTowMM4ApKQF"
+          }
+        }
+      }
+    }
+  }
+}

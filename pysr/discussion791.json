@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 791,
+        "title": "Exploring custom complexities / 2D pareto fronts",
+        "body": "Trying out some ideas including from @larsentom in https://github.com/MilesCranmer/SymbolicRegression.jl/issues/364. Since it's not yet possible to have a 2D pareto \"surface\" instead of a pareto front, I'm currently just adding different complexity measures with different weightings (which, in effect, partially accomplishes the same thing?). Here's one idea that simply adds the depth (times 2) with complexity:\r\n\r\n```julia\r\nusing SymbolicRegression\r\n\r\nfunction my_custom_complexity(tree::AbstractExpression)\r\n    # only do a single tree traversal but get both the\r\n    # depth AND the number of nodes:\r\n    (depth, num_nodes) = tree_mapreduce(\r\n        leaf -> (1, 1),\r\n        branch -> nothing,\r\n        (_, children...) -> (1 + maximum(first, children), 1 + sum(last, children)),\r\n        tree,\r\n    )\r\n    return 2 * depth + num_nodes\r\nend\r\n\r\nmodel = SymbolicRegression.SRRegressor(;\r\n    binary_operators=[+, *, /, -],\r\n    complexity_mapping=my_custom_complexity,\r\n    maxsize=50,\r\n)\r\n```\r\n\r\nIt gives interesting differences in the search result compared to simply counting the number of nodes. Maybe this sort of thing is worth trying during hyperparameter tuning.\r\n\r\nSince we can't yet do 2D pareto surfaces, I think a good alternative is simply adding up the various complexity metrics with different weightings, and using a larger `maxsize`. If the 1D pareto front is fully explored, this should in effect also explore more of the 2D pareto surface.\r\n\r\nI'd be interested in hearing any ideas from @folivetti too!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "folivetti"
+              },
+              "body": "what is the objective here? To improve diversity?\r\n\r\nI had some good initial results exploring fitness sharing here https://dl.acm.org/doi/abs/10.1145/3583133.3590525\r\n\r\nThe key element here is how I measure the similarity, I compare the predictions of two models outside the boundaries of the training data. I'm assuming that all good solutions will have similar predictions in the training points (to minimize the MSE), they can differ in how they behave outside that boundary.\r\n\r\nBogdan's hash can also help to identify equivalent structures (tho it is inexact) and can also be used to measure similarity.\r\n\r\nNow, if you want different ways to measure complexity, I like Kommenda's approach. He published a study in using different measures in MOO https://link.springer.com/chapter/10.1007/978-3-319-27340-2_51\r\n",
+              "createdAt": "2024-12-28T16:23:18Z"
+            },
+            {
+              "author": {
+                "login": "pukpr"
+              },
+              "body": "Regarding complexity measures/metrcs, this one I'm experimenting with called complexity invariant-distance (CID) is really simple to implement, A variation that builds off the correlation coefficient\r\n\r\n`CID = CC * min(Length(Model), Length(Data))/ max(Length(Model), Length(Data))`\r\n\r\nIt essentially tries to stretch a model to match the complexity in the data\r\n\r\n![](https://geoenergymath.com/wp-content/uploads/2024/12/image.png)\r\n\r\nMy experiments with it here:\r\nhttps://geoenergymath.com/2024/12/24/qbo-metrics/",
+              "createdAt": "2024-12-29T01:48:30Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "@folivetti Yeah, to improve diversity in the hall of fame. Whenever I do hyperparameter tuning, it seems the algorithm really likes to resample from the hall of fame (which stores a pareto front of expressions). So I wanted a way to allow the hall of fame to store alternates.\r\n\r\nI remember someone mentioning that many ways they had tried to implement a \"thick\" pareto front resulted in purely genotypic differences in population members with negligible phenotypic differences (like `x * 2` vs `x / 0.5`). So I'm trying to find a way to improve diversity in phenotype specify. I remember Hod Lipson once gave a talk where he mentioned they had good results from keeping separate Pareto fronts for _random subsets of the full dataset_. So I wonder if that might be an option, rather than imposing some sort of complexity differential? Thanks for the links btw.\r\n\r\nThanks @pukpr.\r\n\r\n",
+              "createdAt": "2024-12-29T02:42:23Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0yOVQwMjo0MjoyMyswMDowMM4AslkR"
+          }
+        }
+      }
+    }
+  }
+}

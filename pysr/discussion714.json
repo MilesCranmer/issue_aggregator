@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 714,
+        "title": "Including Extra Input Tensors for Dot Product Calculation?",
+        "body": "Hello,\r\n\r\nI'm working on a regression problem where I have a set of features with the shape `(n, 15)` and an additional set of input tensors with the shape `(n, 10, 9)`. My goal is to find a vector of 10 coefficients that can be dot-producted with the `(n,10, 9)` tensors to produce a target vector of length `(n, 9)`.\r\n\r\nSince i can only fit X, and Y into the model I need to create a custom loss function that:\r\n1. Reads in these extra `(n, 10, 9)` input tensors.\r\n2. Multiplies the vector of 10 coefficients with each of the `(n,10, 9)` tensors using a dot product to generate the target vector of 9.\r\n3. Evaluates the loss by comparing the resulting vector with the actual target values.\r\n\r\nCould you provide guidance or an example on how to implement this custom loss function within the framework?\r\n\r\nThank you!\r\n",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

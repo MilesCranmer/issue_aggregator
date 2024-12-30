@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 786,
+        "title": "Constraints on operators within each function within TemplateExpressionSpec",
+        "body": "I am using the following `TemplateExpressionSpec`:\r\n```\r\ntemplated_expr = TemplateExpressionSpec(\r\n    function_symbols=[\"k\", \"f\", \"g\", \"h\"],\r\n    combine=\"((; k, f, g, h), (x1, x2, x3)) -> k() * g(x2) * h((x3-x1)/x1, x3)* f(x1,x2,x3)\")\r\n```\r\n\r\nI was wondering if there was the possibility of setting a list of allowed operators for each function f,g,h, and eventually separate constraints within each function?\r\n\r\nThanks for the great work! The `TemplateExpressionSpec` is a great addition to version 1!\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks @Andrea-gm. Right now there is no built-in way to do this. But if you are willing to get your hands dirty, you could hack it in? You can overload the function https://github.com/MilesCranmer/SymbolicRegression.jl/blob/433669068acf9d285deacb1dfa7912f739f14112/src/TemplateExpression.jl#L489-L513 for your particular expression type. I guess since this is a very specific constraint, it might just be easier to write up a constraint manually?\r\n\r\nFor example:\r\n\r\n```julia\r\nusing SymbolicRegression: TemplateExpression, TemplateStructure, AbstractOptions, compute_complexity, get_contents\r\nusing SymbolicRegression.TemplateExpressionModule: has_invalid_variables\r\n\r\n# Overload the behavior of check_constraints:\r\nimport SymbolicRegression: check_constraints\r\n\r\nfunction check_constraints(\r\n    ex::TemplateExpression{T,F},\r\n    options::AbstractOptions,\r\n    maxsize::Int,\r\n    cursize::Union{Int,Nothing}=nothing,\r\n)::Bool where {T,F<:TemplateStructure{(:k, :f, :g, :h)}}\r\n\r\n\r\n    ###################################################\r\n    # Standard `check_constraints` for this expression type\r\n    # https://github.com/MilesCranmer/SymbolicRegression.jl/blob/433669068acf9d285deacb1dfa7912f739f14112/src/TemplateExpression.jl#L489-L513\r\n    ###################################################\r\n    # First, we check the variable constraints at the top level:\r\n    if has_invalid_variables(ex)\r\n        return false\r\n    end\r\n\r\n    # We also check the combined complexity:\r\n    @something(cursize, compute_complexity(ex, options)) > maxsize &&\r\n        return false\r\n\r\n    # Then, we check other constraints for inner expressions:\r\n    raw_contents = get_contents(ex)\r\n    for t in values(raw_contents)\r\n        if !check_constraints(t, options, maxsize, nothing)\r\n            return false\r\n        end\r\n    end\r\n    ###################################################\r\n\r\n    # Our custom constraint on \"f\":\r\n    f_tree = raw_contents.f.tree\r\n    for node in f_tree  # Iterate through nodes and test some condition\r\n        if (\r\n            node.degree == 2 && # (binary operators)\r\n            node.op == 1  # (first operator in your list – we want to prevent this from being found in f!)\r\n        )\r\n            return false\r\n        end\r\n    end\r\n\r\n    return true\r\nend\r\n```\r\n\r\nNote that the `{T,F<:TemplateStructure{(:k, :f, :g, :h)}` part is important - this is a more specific type than the `check_constraints` in the library, which means that Julia will select this function whenever a template matches this form. (This is how Julia's multiple dispatch works). And make absolutely sure that the order of `(:k, :f, :g, :h)` matches the one you define.\r\n\r\nTo run this in Python, just do:\r\n\r\n```python\r\nfrom pysr import jl\r\n\r\njl.seval(\"\"\"\r\n\r\n## The Julia code ##\r\n\r\n\"\"\")\r\n```",
+              "createdAt": "2024-12-18T22:53:58Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0xOFQyMjo1Mzo1OCswMDowMM4AsSv5"
+          }
+        }
+      }
+    }
+  }
+}

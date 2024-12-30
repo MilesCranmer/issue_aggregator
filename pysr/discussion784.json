@@ -1,0 +1,82 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 784,
+        "title": "Longer runtime when running several PySR runs after another",
+        "body": "Hello,\r\n\r\nI am using PySR for my master's thesis and I came across some strange behavior, that I have not found any comments about on this Github page yet. \r\nWhen I run several PySR runs after another in one Skript (for example in a for-loop), the runs tend to take longer and longer, even though their settings are identical, no warmstart is enabled and I am creating a new PySRRegressor instance for each run.\r\nAn example function, that causes the behavior is given below together with the recorded increase in runtime and RAM Usage. The RAM usage was my first guess, but it is not increasing for the searches (see record). Also the clock frequency of the CPU is staying constant. \r\nIn the PySR output it is noticeable, that the number of evaluations per second is decreasing. \r\nThe increase in runtime is becoming higher when running a more extensive regression for example with many populations.\r\nI really do not now, what might cause this issue and thereby I would be very grateful for your support!\r\nThank you very much in advance already.\r\n\r\nBest regards\r\n\r\n___________________________________________________________________________________________\r\n```\r\nimport numpy as np\r\nimport pandas as pd\r\nimport time\r\nimport tracemalloc\r\nfrom pysr import PySRRegressor\r\n\r\n\r\n# Training data and loss_function are created before\r\n\r\n# PySR Settings\r\nbinary_operators = [\"+\", \"-\", \"*\", \"/\", \"^\"]\r\nunary_operators = [\"exp\", \"log\", \"sin\", \"atan\", \"sqrt\", \"square\", \"neg\", \"abs\"]\r\ncomplexity_of_operators = {\"exp\":2, \"log\":2, \"sin\":2, \"atan\":2, \"sqrt\":2, \"square\":2, \"abs\":3}\r\nconstraints = {'^':(-1,2),'sin':(2),'atan':(2)}\r\nnested_constraints = {'atan':{'atan':0,'sin':1},'sin':{'sin':0,'atan':1},'exp':{'log':0},'log':{'exp':0},'sqrt':{'square':0,'neg':0},'square':{'sqrt':0,'neg':0,'abs':0},'neg':{'neg':0},'abs':{'abs':0,'neg':0}}\r\nbatching = True\r\nbatch_size = 500\r\n\r\n# Start multiple PySR runs\r\nmemory = []\r\nt_run_s=[]\r\nfor i in range(6):\r\n    # Create regression object\r\n    regression_object = PySRRegressor(loss_function=loss_function, niterations=100, warmup_maxsize_by=0.5,\r\n                                      population_size=100, populations=25, tournament_selection_n=5,\r\n                                      model_selection='accuracy', binary_operators=binary_operators,\r\n                                      unary_operators=unary_operators, constraints=constraints,\r\n                                      nested_constraints=nested_constraints, batching=batching, batch_size=batch_size,\r\n                                      bumper=True, turbo=True)\r\n    t_start = time.time()\r\n    tracemalloc.start()\r\n    regression_object.fit(training_data[['x1','x2','x3']],training_data[['y']])\r\n    memory.append(tracemalloc.get_traced_memory())\r\n    tracemalloc.stop()\r\n    t_finish = time.time()\r\n    t_run_s.append(t_finish - t_start)\r\n# Print RAM usage and duration\r\nprint('Memory (first value: current RAM usage (uninteresting), second: peak RAM usage in run (interesting)):')\r\nprint(memory)\r\nprint('Time: ')\r\nprint(t_run_s)\r\n\r\n\r\n# Resulting output:\r\n#Memory (first value: current RAM usage (uninteresting), second: peak RAM usage in run (interesting)):\r\n#[(1224377, 2029137), (947962, 1740351), (1160301, 2339805), (2075128, 3449471), (1254039, 2223228), (3452654, 3933324)]\r\n#Time:\r\n#[470.570111989975, 513.3470871448517, 609.9849309921265, 719.835132598877, 870.5115010738373, 1025.4808928966522]\r\n```",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Maybe related to https://github.com/MilesCranmer/PySR/issues/764? This turned out to be a Julia bug which I reported in https://github.com/JuliaLang/julia/issues/56759 and is now fixed. Now we just wait for 1.11.3, or you can force it to use 1.10 (see PySR issue for how).",
+              "createdAt": "2024-12-17T00:15:02Z"
+            },
+            {
+              "author": {
+                "login": "BrotherHa"
+              },
+              "body": "Thank you very much for the quick answer! I tried using 1.10(.7), but unfortunately it did not solve the issue.",
+              "createdAt": "2024-12-17T10:33:29Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "What is your `loss_function`?",
+              "createdAt": "2024-12-17T17:37:19Z"
+            },
+            {
+              "author": {
+                "login": "BrotherHa"
+              },
+              "body": "Thanks for your answer and your support! I am really not finding the reason and the whole issue seems quite weird to me. It also occurs with the PySR version 0.19.4, that is what I tried today. And the increase in run time gets bigger continuously for more runs and does not converge as far as I tried. I just came across this issue now, as I was not running many iterations before and the runs where not that extensive (e.g. smaller populations) and there the effect was far smaller.\r\n\r\nMy loss function is defined as follows. It depends on the particular input data and the options in the beginning are to identify the different y-variables, that all need differently shaped loss functions:\r\n\r\n```\r\nfunction custom_loss_function(tree, dataset::Dataset{T,L}, options, idx)::L where {T,L}\r\n    if isapprox(dataset.y[1],0.0)\r\n        p5 = 0.00813762\r\n        p80 = 17.448\r\n        a_1 = 7.838560195225847\r\n        b_1 = 0.012206430080501547\r\n        a_2 = 2\r\n        b_3 = 6.53098971058287\r\n        a_3 = 47.9579776388101\r\n        c_3 = -117.475032351869\r\n    elseif isapprox(dataset.y[1],0.05725155)\r\n        p5 = 1.2804586\r\n        p80 = 15.113608\r\n        a_1 = 0.6248880798745418\r\n        b_1 = 1.9206878219999999\r\n        a_2 = 2\r\n        b_3 = -6.09607886912224\r\n        a_3 = 18.0350585617555\r\n        c_3 = -9.43495030694149\r\n    elseif isapprox(dataset.y[1],0.00017221528)\r\n        p5 = 0.0040257196\r\n        p80 = 1.8914138\r\n        a_1 = 11.144567754841631\r\n        b_1 = 0.006038579739964286\r\n        a_2 = 2\r\n        b_3 = 0.0400789096218153\r\n        a_3 = 3.86298538267220\r\n        c_3 = 1.23985086650155\r\n    elseif isapprox(dataset.y[1],0.0063780397)\r\n        p5 = 0.46299943\r\n        p80 = 13.051656\r\n        a_1 = 1.0391895552455737\r\n        b_1 = 0.694499148\r\n        a_2 = 2\r\n        b_3 = 4.05385061247809\r\n        a_3 = 34.2110131049562\r\n        c_3 = -71.0354535190814\r\n    end\r\n    if idx == nothing\r\n        y_pred, complete = eval_tree_array(tree, dataset.X, options)\r\n        y = dataset.y\r\n    else\r\n        y_pred, complete = eval_tree_array(tree, dataset.X[:,idx], options)\r\n        y = dataset.y[idx]\r\n    end\r\n    y_border = zeros(length(y))\r\n    y_border[abs.(y).<p5] .= (a_1 * y[abs.(y).<p5]).^2 .+ b_1\r\n    y_border[(abs.(y).>=p5).&(abs.(y).<=p80)] .= a_2 * abs.(y[(abs.(y).>=p5).&(abs.(y).<=p80)])\r\n    y_border[abs.(y).>p80] .= a_3 * log.(abs.(y[abs.(y).>p80]) .+ b_3) .+ c_3\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n    if dataset.weights isa Array{<:Number,1}\r\n        if idx == nothing\r\n          custom_error = (sum( ( (-3 .* ( ( ( ((y_pred .- y) ./ (sqrt(2) .* y_border)).^2 ) .+ 1).^(-1) ) ) .+ 3) .* dataset.weights))/(sum(dataset.weights))\r\n        else\r\n          custom_error = (sum( ( (-3 .* ( ( ( ((y_pred .- y) ./ (sqrt(2) .* y_border)).^2 ) .+ 1).^(-1) ) ) .+ 3) .* dataset.weights[idx]))/(sum(dataset.weights[idx]))\r\n        end\r\n    else\r\n        custom_error = (sum( (-3 .* ( ( ( ((y_pred .- y) ./ (sqrt(2) .* y_border)).^2 ) .+ 1).^(-1) ) ) .+ 3))/(length(y))\r\n    end\r\n    return custom_error\r\nend\r\n```",
+              "createdAt": "2024-12-17T22:48:58Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Very weird. If you do a `time.sleep(100000)` after the first search is complete, what does `htop` show? Is Julia still running? I wonder if it’s some zombie process still doing the search that wasn’t killed or something? Just trying to think of explanations.\r\n\r\nHow are you letting each run quit? Do they run until the end or do you quit them early?\r\n\r\nDo you see this with bumper set to False?",
+              "createdAt": "2024-12-18T02:00:07Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Also, if you’re up for getting your hands dirty, you could try building Julia at this commit: https://github.com/JuliaLang/julia/pull/56801, and then forcing PySR to use that Julia. (via `juliapkg.require_julia` before importing PySR). My gut feeling is that it’s due to the bug that was fixed in that Julia PR (which was also found on 1.10 apparently).\r\n\r\nI’m curious if turning off bumper helps too though.",
+              "createdAt": "2024-12-18T02:05:52Z"
+            },
+            {
+              "author": {
+                "login": "BrotherHa"
+              },
+              "body": "Thanks for your answers! During the sleep, the python.exe of the process showed no activity in regards to memory or CPU at all. And there was also no process. that seemed suspicious to me. I checked that with ntop and the Process Explorer, as I am working on a Windows machine. \r\nEach run quits when niterations is met. I do not quit them early.\r\nAnd even with bumper set to False the behavior occurs.\r\n\r\nConcerning your second answer I tried to run Julia at the state of the commit, but unfortunately I did not manage. How can I input the SHA of the commit into the require_julia function or is there another way?\r\n\r\nWhat I do for now is to \"outsource\" the for loops I run by having a .bat-file, that calls a python-script to run PySR for several times and I save the parameters of each regression as .pkl and read it in the next iteration to continue where I ended. This works without increasing runtime for many iterations.",
+              "createdAt": "2024-12-19T10:22:15Z"
+            },
+            {
+              "author": {
+                "login": "BrotherHa"
+              },
+              "body": "I am running some iterations now on a server with many core and multiple CPUs and when turning parallelism to \"multiprocessing\" the behavior is not occurring any more. I really have no idea, what might be the reason for the issue, when running on a single machine. If you could specify how to force PySR to use a certain Julia commit I would still try to see, if that solves the problem.\r\nThank you very much for your support!",
+              "createdAt": "2024-12-23T16:50:29Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Here's how to do it by installing the nightly version of Julia.\r\n\r\nFirst, install Juliaup:\r\n\r\n```bash\r\ncurl -fsSL https://install.julialang.org | sh\r\n# on windows: winget install julia -s msstore\r\n```\r\n\r\nThen, install the \"nightly\" channel:\r\n\r\n```bash\r\njuliaup add nightly\r\n```\r\n\r\nThis is the most recent version of Julia in the `master` branch. (Note there is a chance it is broken, since it's not as stable as the released versions).\r\n\r\nThen, when you start Python, set the `PYTHON_JULIAPKG_EXE` environment variable to point to the `nightly` Julia which you can find with this:\r\n\r\n```bash\r\njulia +nightly --startup-file=no -e 'println(Base.julia_cmd())'\r\n# For me, I get: `/Users/mcranmer/.julia/juliaup/julia-nightly/bin/julia -C native -J/Users/mcranmer/.julia/juliaup/julia-nightly/lib/julia/sys.dylib -g1 --startup-file=no`\r\n```\r\n\r\nSet this when you start python:\r\n\r\n```python\r\nimport os\r\nos.environ[\"PYTHON_JULIAPKG_EXE\"] = \"/Users/mcranmer/.julia/juliaup/julia-nightly/bin/julia\"\r\n\r\n# Then, import pysr\r\nimport pysr\r\n```\r\n\r\nAnd it will automatically install under this specific Julia version!",
+              "createdAt": "2024-12-23T18:07:15Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0yM1QxODowNzoxNSswMDowMM4Asc09"
+          }
+        }
+      }
+    }
+  }
+}

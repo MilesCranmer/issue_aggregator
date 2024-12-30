@@ -1,0 +1,54 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 771,
+        "title": "[Feature]: Some compatibility issues in version 1.1",
+        "body": "### Feature Request\n\nHi Miles @MilesCranmer\r\nThanks for developing the helpful tool! \r\nIn my model, the equation expression to be sought is relatively complex - the complexity is usually between 20-30, and I have around 10 independent variables, with a large amount of data. In this case, I would like to introduce an initial equation into the expression tree: start evolving from this expression, rather than generating a set of random initial expressions. Is it possible to implement this function in the current pysr framework?\r\nBy the way, my PySR version is 0.19.4 because for my reason, I have found that the older model parameters are more beneficial for my problem.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @jackeuylov,\r\n\r\nHave you tried the new TemplateExpressionSpec approach? i.e., https://ai.damtp.cam.ac.uk/pysr/examples/#template-expressions. You would write out the initial expression and then learn modifications to it. Especially with a lot of variables this is probably helpful for your problem to make things easier.",
+              "createdAt": "2024-12-09T08:35:13Z"
+            },
+            {
+              "author": {
+                "login": "jackeuylov"
+              },
+              "body": "Hi Miles @MilesCranmer\r\nThese days I have seriously tried the latest version of 1.1, some places I still have some problems ( they may be a bug ) : \r\n1. The constraints of the equation form and the dimensional constraints are not compatible, and when both exist at the same time, an error will be reported :\r\n<img width=\"372\" alt=\"8a5b4a1b7ce1e61092ddcfabe5c5357\" src=\"https://github.com/user-attachments/assets/92a77d5b-63df-450b-b191-d30608e38edc\" />\r\n\r\n\r\n2. When using tensorboard, the Model loading function will not be compatible (I am very sure that this error will occur after the TensorBoard function is used.) :\r\n<img width=\"713\" alt=\"08fea33b6ddb6d8733c60f28c7ecee4\" src=\"https://github.com/user-attachments/assets/dfd2fc5b-f1b9-4c64-914f-fb878776ff42\" />\r\n\r\n\r\n3. When I use the Model loading function to continue running the previous results, it seems to run from the initial hall _ of _ fame, rather than from the previous hall _ of _ fame (This problem seems to exist before version 1.0).\r\n<img width=\"628\" alt=\"9847ba8e93d9d8d526a6de36f85c7ff\" src=\"https://github.com/user-attachments/assets/1e22d849-1d45-494e-a838-bd9396d5a50d\" />\r\n\r\nHope to hear from you back soon. Thanks!",
+              "createdAt": "2024-12-12T11:46:18Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "> The constraints of the equation form and the dimensional constraints are not compatible, and when both exist at the same time, an error will be reported\r\n\r\nYes, these features are not compatible. The implementation would be quite complex. The assertion is there to make sure both features are not used.\r\n\r\nMaybe there could be a Python error for this though, to make it more obvious it’s intended?\r\n\r\n> When using tensorboard, the Model loading function will not be compatible (I am very sure that this error will occur after the TensorBoard function is used.)\r\n\r\nThanks, this looks like a bug. Can you please submit another issue with details about how you generated it?\r\n\r\n> When I use the Model loading function to continue running the previous results, it seems to run from the initial hall _ of _ fame, rather than from the previous hall _ of _ fame (This problem seems to exist before version 1.0).\r\n\r\nDo you have `warm_start=True`? Otherwise it will get reset\r\n",
+              "createdAt": "2024-12-12T13:07:03Z"
+            },
+            {
+              "author": {
+                "login": "jackeuylov"
+              },
+              "body": "> > 方程式的约束和尺寸约束不兼容，当两者同时存在时，将报告错误\r\n> \r\n> 是的，这些功能不兼容。实现将相当复杂。该断言用于确保这两个功能均未被使用。\r\n> \r\n> 也许这可能会有一个 Python 错误，以使其更明显地是故意的？\r\n> \r\n> > 使用 tensorboard 时，Model loading 函数将不兼容（我非常确定使用 TensorBoard 函数后会出现此错误。\r\n> \r\n> 谢谢，这看起来像一个错误。您能否提交另一个问题，并详细说明您是如何生成的？\r\n> \r\n> > 当我使用 Model loading 函数继续运行之前的结果时，它似乎是从 _ fame 的初始大厅 _ 运行，而不是从 _ fame 的前一个大厅 _ 运行（这个问题似乎在 1.0 版本之前就存在）。\r\n> \r\n> 你有吗 ？否则，它将会被重置`warm_start=True`\r\n\r\nI have submitted a report on the second question in #779.",
+              "createdAt": "2024-12-12T15:04:08Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Fixed the pkl loading issue in #780!",
+              "createdAt": "2024-12-14T05:52:28Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOl5Co3A=="
+          }
+        }
+      }
+    }
+  }
+}

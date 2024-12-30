@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 685,
+        "title": "Difficulties in rediscovering Von Neumann entropy from eigenvalue data",
+        "body": "The Von Neumann equation states that the entropy of a density matrix $\\rho$ is of the form:\r\n\r\n$$S(\\rho) = -\\sum_i \\lambda_i \\ln \\lambda_i$$\r\nwhere $\\{\\lambda_i\\}$ are the eigenvalues of $\\rho$. \r\n\r\nI have 10,000+ rows of data for the eigenvalues for density matrices as they evolve over time and I have 10,000+ rows of data for the entropy of the density matrices. I have checked that the eigenvalue data matches the correct entropy value when the Von Neumann equation is applied to the eigenvalues. I am trying to use PySR to rediscover the Von Neumann entropy equation using the eigenvalue data before I try applying the package to more complicated scenarios in quantum information. \r\n\r\nI can't seem to get PySR to find the correct expression. I'm including a screenshot of its results when working with my data. In this, \"l1\" and \"l2\" are the two eigenvalues of the density matrices. My density matrices only ever have two eigenvalues. \r\n\r\n<img width=\"780\" alt=\"PySR_HOF\" src=\"https://github.com/user-attachments/assets/f61b42f8-530a-4f62-bd17-60b28ecc89da\">\r\n\r\n... I was assuming that this would have been an easy problem for PySR to solve given that I just have two columns of data and the correct expression just a sum with some natural logs attached. I'm completely new to using PySR so I am assuming that I just don't understand how to work with the package yet. This is the code that I'm using to generate the model, which I've left almost completely unedited from the example given on the repo's README file: \r\n\r\n<img width=\"1073\" alt=\"PySR_code\" src=\"https://github.com/user-attachments/assets/332b2fa5-d1e2-47ed-86c5-2c16cbd3080f\">\r\n\r\nShould I be using different operators? Is the number of iterations too small? Is it problematic to try discovering an expression that only depends on two variables? Is it a known issue that PySR struggles to predict expressions involving natural logs and sums?\r\n\r\nAny guidance would be greatly appreciated. \r\n  \r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hm, yeah it should be pretty easy for it to find that. Are there any data preprocessing steps that could be generating invalid results for `y`?\r\n\r\nOut of curiosity, why not give it `+` too? It is needed for some of the simplification operators to work.\r\n\r\nAlso since it’s so simple you likely don’t need that many datapoints. Even 100 should be okay.\r\n\r\n",
+              "createdAt": "2024-07-29T17:39:47Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNy0yOVQxODozOTo0NyswMTowMM4Am19I"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 733,
+        "title": "Nano Tesla as Dimensional Contraint",
+        "body": "I have a simple question how can I have nano Tesla as dimensional contraint? I have tried with nT but it say the unit is not recognised.\r\n\r\nThank you very much for your help!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "For dimensionality constraints, the specific unit does not matter, only dimensions. Basically the units themselves are ignored. (I considered both options but there seemed to be too many gotchas if we actually took into account unit values)\r\n\r\nHowever we could definitely add nT to the units library, which is developed here: https://github.com/SymbolicML/DynamicQuantities.jl. My policy is to basically add a unit whenever someone requests it (rather than adding a bunch of units that nobody uses)",
+              "createdAt": "2024-10-11T18:02:27Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMC0xMVQxOTowMjoyNyswMTowMM4Appld"
+          }
+        }
+      }
+    }
+  }
+}

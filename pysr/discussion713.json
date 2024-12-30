@@ -1,0 +1,47 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 713,
+        "title": "Constraint that excludes constants that are not (part of) coefficients",
+        "body": "I'm trying to figure out how to implement a constraint that excludes any constants that are not a coefficient, and not part of any coefficient. Basic example:\r\ny = aX1 bX2 + cX3 + d\r\na, b and c are ok, but d should be excluded, so an equation of this form should be penalized for containing the \"separate constant\" d.\r\n\r\nI searched through previous discussions about custom losses, which allow to do a lot of cool things but I haven't found a solution for the above yet.\r\nI also checked https://discourse.julialang.org/t/tree-collection-looking-for-api-feedback-in-dynamicexpressions/98109 to see what components are available in a custom loss to potentially make this work, but I couldn't yet figure out how to do it.\r\n\r\nAt first, I thought node.constant would be helpful, but as I understand this would also be True for a, b and c in the example above. So how to differentiate between a b c, and d in this example?\r\nIs it necessary to cycle through all nodes for which node.constant is True, and then somehow check if they are only \"linked\" to the rest of the equation via + or -, or is there an easier way?\r\nApart from not knowing how to do this exactly, I also wonder how big the performance impact of something like this might be.\r\n\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "GoldenGoldy"
+              },
+              "body": "Just giving this a nudge, which I hope is ok.\r\nSuggestions anyone?\r\nAny help would be much appreciated.",
+              "createdAt": "2024-09-27T22:37:09Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Sorry for the late reply @GoldenGoldy. This constraint sounds a bit tricky but it is certainly doable. Have a look at https://symbolicml.org/DynamicExpressions.jl/dev/examples/base_operations/ to learn how to write custom constraints. For your problem I suppose I would have some check like:\r\n\r\n```julia\r\nnum_constants_under_multiply = sum(tree) do node\r\n    is_mul = node.degree == 2 && node.op == 1  # Assuming * was passed as first operator\r\n    if is_mul\r\n        left = node.l\r\n        right = node.r\r\n        left_is_constant = left.degree == 0 && left.constant\r\n        right_is_constant = right.degree == 0 && right.constant\r\n        \r\n        return left_is_constant + right_is_constant\r\n    else\r\n        return 0\r\n    end\r\nend\r\n```\r\n\r\nThis will count how many times `<const> * (anything)` or `(anything) * <const>` appears in the equation `tree`. And then you could just count the number of constants with\r\n\r\n```julia\r\nnum_constants = count(tree) do node\r\n    node.degree == 0 && node.constant\r\nend\r\n```\r\n\r\nAnd I guess if `num_constants == num_constants_under_multiply`, you could use that as a constraint?\r\n\r\n\r\nAnd then you would include this in a custom loss and add some penalty term for a violation.\r\n\r\nHope this helps!",
+              "createdAt": "2024-09-28T04:51:05Z"
+            },
+            {
+              "author": {
+                "login": "GoldenGoldy"
+              },
+              "body": "@MilesCranmer Thanks for the detailed reply! \r\nI tested it and it works so far! I now realized I might have to change it further to also allow for division and perhaps some other situations, but I think I should manage to make such changes based on this working example and the resource you linked.\r\nThanks!",
+              "createdAt": "2024-09-28T16:09:01Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Cool. I guess the one other thing it doesn't take into account is that you could still have things like `<const> * <const>`. Presumably you also want to skip those. For that situation I think I would tweak the calculation to be:\r\n\r\n```julia\r\nnum_constants_under_multiply = count(tree) do node\r\n    is_mul = node.degree == 2 && node.op == 1  # Assuming * was passed as first operator\r\n    if is_mul && node.l.degree == 0 && node.l.constant\r\n        return any(subnode -> subnode.degree == 0 && !subnode.constant, node.r)\r\n    elseif is_mul && node.r.degree == 0 && node.r.constant\r\n        return any(subnode -> subnode.degree == 0 && !subnode.constant, node.l)\r\n    else\r\n        return false\r\n    end\r\nend\r\n```\r\n\r\nBasically the `any` check is going to see if any nodes in the **other side** of the `*` operator are non-constant via depending on a variable node, which needs to satisfy `node.degree == 0 && !node.constant`.",
+              "createdAt": "2024-09-28T17:18:21Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOS0yOFQxODoxODoyMSswMTowMM4ApJD3"
+          }
+        }
+      }
+    }
+  }
+}

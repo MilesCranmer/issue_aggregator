@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 723,
+        "title": "Custom loss functions and printout help",
+        "body": "I want to find three expressions for $f,g,z,h$ in the following equation, where $T_1,T_2,T_3,T_4,b$ are known 3*3 matrices：\r\n\r\n$f(\\alpha_1,\\alpha_2,\\alpha_3)*T_1+g(\\alpha_1,\\alpha_2,\\alpha_3)*T_2+z(\\alpha_1,\\alpha_2,\\alpha_3)*T_3+h(\\alpha_1,\\alpha_2,\\alpha_3)*T_4=b$\r\n\r\n(where the inputs $\\alpha_1,\\alpha_2,\\alpha_3$ are one-dimensional and the outputs $b$ are multiple 3*3 matrices through operation)\r\n\r\nHow to print $f,g,z,h$ expressions?  ($f,g,z,h$ are respectively $prediction1,prediction2,prediction3,prediction4$ in the following code)\r\n\r\nI refer to this section : https://github.com/MilesCranmer/SymbolicRegression.jl/pull/143#issuecomment-1279205103\r\n\r\nHere's my loss function code:\r\n```\r\nobjective = \"\"\"\r\nfunction my_loss_function(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n\r\n    prediction1, complete = eval_tree_array(tree, dataset.X, options)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n\r\n    prediction2, complete = eval_tree_array(tree, dataset.X, options)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n\r\n    prediction3, complete = eval_tree_array(tree, dataset.X, options)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n\r\n    prediction4, complete = eval_tree_array(tree, dataset.X, options)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n\r\n    pre_jz = prediction1 .* T_1_jl .+ prediction2 .* T_2_jl .+ prediction3 .* T_3_jl.+ prediction4 .* T_4_jl\r\n\r\n    diffs = pre_jz .- dataset.y\r\n    \r\n    loss = (sum(diffs .^ 2)) / (length(diffs))\r\n    \r\n    return loss\r\n\r\nend\r\n\"\"\"\r\n\r\nmodel = PySRRegressor(\r\n    populations=20,\r\n    population_size=60,\r\n    niterations=130,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\"],\r\n    loss_function=objective,\r\n    warm_start=True\r\n\r\n)\r\nmodel.fit(X, y)\r\nmodel.get_best().equation\r\n```\r\nIn addition, I also tried the following method, but it will return an infinite loss:\r\n```\r\nobjective = \"\"\"\r\nfunction my_loss_function(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n\r\n   tree.degree != 4 && return L(Inf)\r\n    P_1 = tree.l.l\r\n    Q_2 = tree.l.r\r\n    Z_3 = tree.r.l\r\n    T_4 = tree.r.r\r\n\r\n    prediction1, complete = eval_tree_array(P_1, dataset.X, options)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n\r\n    prediction2, complete = eval_tree_array(Q_2, dataset.X, options)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n\r\n    prediction3, complete = eval_tree_array(Z_3, dataset.X, options)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n\r\n    prediction4, complete = eval_tree_array(Z_4, dataset.X, options)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n\r\n    pre_jz = prediction1 .* T_1_jl .+ prediction2 .* T_2_jl .+ prediction3 .* T_3_jl .+ prediction4 .* T_4_jl\r\n\r\n    diffs = pre_jz .- dataset.y\r\n    \r\n    loss = (sum(diffs .^ 2)) / (length(diffs))\r\n    \r\n    return loss\r\n\r\nend\r\n\"\"\"\r\nAny help would be greatly appreciated!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "Ansy9378"
+              },
+              "body": "Hello @ccclalala123 \r\nI'm working on custom loss functions and , Have you figured out how to print out the predictions from loss function code\r\n",
+              "createdAt": "2024-11-13T22:15:16Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMS0xM1QyMjoxNToxNiswMDowMM4Aq5zw"
+          }
+        }
+      }
+    }
+  }
+}

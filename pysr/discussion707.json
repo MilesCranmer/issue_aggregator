@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 707,
+        "title": "Re-using best equation strings",
+        "body": "Hello, \r\n\r\nNew user here (SymbolicRegression.jl) and I absolutely love it! \r\n\r\nI was wondering if anyone knew a way to turn the equation strings that are obtained after n-iterations into a callable function so that, for example: \r\n\r\n`returned_equ = (((x₅ * -50) * x₁) + -2)` could be easily turned into a callable like `f = turn_to_callable(equation_str)` with `f(x_1, x_2, ..., x_n) = ....` yielding the result of the computation in the equation string (a bit similar to what `Polynomials.jl` does). I am essentially looking for something that could be easily applied to any new vector `[x_1, x_2, ..., x_n]` without going through `predict(mach, x_test)`. \r\n\r\nPerhaps, to simplify things, how does `predict(mach, x_test)` work exactly?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Glad to hear you are liking it! :)\r\n\r\nIf you run `report(mach)` you will get a NamedTuple containing an element `equations`. You can use this to access the callable functions for each equation:\r\n\r\n```julia\r\nusing MLJ, SymbolicRegression\r\n\r\n# ...\r\n\r\nfit!(mach)\r\n\r\nequations = report(mach).equations\r\n```\r\n\r\nThis is a vector of callable expression objects. You can call these with:\r\n\r\n```julia\r\neq = equations[end]  # Most accurate expression is last one\r\n# Note that the default selection is `report(mach).best_idx`\r\n\r\nformatted_X = MLJ.matrix(X)'  # Convert to matrix, and transpose to column-major\r\noptions = SymbolicRegression.MLJInterfaceModule.get_options(model)  # Equivalent of `Options(...)`\r\n\r\neq(formatted_X, options)\r\n```\r\n\r\nThis will evaluate the resultant equation on `X`.\r\n\r\nSorry that you need to call `get_options` manually right now which is admittedly not great. However, once https://github.com/MilesCranmer/SymbolicRegression.jl/pull/326 finally merges, it will be much easier to use this – you won't even need to pass the `options` object anymore as it will be embedded in the expression.",
+              "createdAt": "2024-08-27T20:40:18Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOC0yN1QyMTo0MDoxOCswMTowMM4An7h-"
+          }
+        }
+      }
+    }
+  }
+}

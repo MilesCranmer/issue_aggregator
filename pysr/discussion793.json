@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 793,
+        "title": "TemplateExpression slowdown over time relative to Custom Loss Function",
+        "body": "TemplateExpressions gives so much flexibility that in theory you can incorporate a custom loss function within a structure function. \r\nHowever, for whatever reason, there seems to be a significant slow down after running for several hours compared to running otherwise functionally identical code to a custom loss function.\r\n\r\nTemplateExpression code: \r\n```julia\r\nusing Statistics #for mean\r\nstructure = TemplateStructure{(:f,)}(\r\n  ((; f), (x1, x2, x3, x4, x5, x6, y, cat)) -> begin\r\n    o = f(x1, x2, x3, x4, x5, x6)\r\n    if !o.valid\r\n        return ValidVector(Vector{Float32}(undef, length(o.x)), false)\r\n    end\r\n    for varidx in 1:3 #checking monotonicity for first 3 variables\r\n    \tgrad_column = D(f, varidx)(x1, x2, x3, x4, x5, x6).x\r\n    \tif !(all(grad_column .>= 0) || all(grad_column .<= 0))\r\n        \treturn ValidVector(fill(Float32(1e9), length(o.x)), true)\r\n    \tend\r\n    end\r\n    residuals = o - s\r\n    unique_groups = unique(Int.(cat.x))\r\n    mean_residuals_by_group = Dict(group => _mean(residuals.x[cat.x .== group]) for group in unique_groups)\r\n    offsets = [mean_residuals_by_group[cat.x[i]] for i in eachindex(o.x)]\r\n    return ValidVector(o.x .- offsets, o.valid && residuals.valid)\r\n  end\r\n)\r\nmodel = SRRegressor(\r\n    niterations=1000000,\r\n    binary_operators=[+,-,*,/],\r\n    maxsize=60,\r\n    bumper=true,\r\n    turbo=true,\r\n    populations=18,\r\n    expression_type = TemplateExpression,\r\n    expression_options = (; structure),\r\n    population_size=100,\r\n    parsimony = 0.01,\r\n    batching=true,\r\n)\r\n``` \r\nTo achieve the same with a custom loss function: \r\n```julia\r\nusing Statistics #for mean\r\n\r\nfunction loss_fnc(tree, dataset::Dataset{T,L}, options, idx) where {T,L}    \r\n    # Extract data for the given indices\r\n    X = idx === nothing ? dataset.X : dataset.X[:, idx]\r\n    y = idx === nothing ? dataset.y : view(dataset.y, idx)\r\n    prediction, grad, complete = eval_grad_tree_array(tree, X, options; variable=true)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n    if any(row -> !(all(row .>= 0) || all(row .<= 0)), eachrow(grad[1:3, :])) #checking monotonicity for first 3 variables\r\n        return 1e09\r\n    end\r\n    # Calculate residuals\r\n    residuals = prediction .- y\r\n    weights = idx === nothing ? dataset.weights : view(dataset.weights, idx) #this carries the categorial variable\r\n    mean_residuals_by_group = Dict{L, T}()\r\n    unique_groups = unique(weights)\r\n    for group in unique_groups\r\n        group_residuals = residuals[weights .== group]\r\n        mean_residuals_by_group[group] = mean(group_residuals)\r\n    end\r\n    for i in eachindex(y)\r\n        group_type = weights[i]\r\n        prediction[i] -= mean_residuals_by_group[group_type]\r\n    end    \r\n\r\n    # Calculate mean squared error (MSE) with adjusted predictions\r\n    mse = mean((prediction .- y).^2)\r\n    \r\n    # Return final loss value (MSE + Penalty)\r\n    return mse\r\n\r\nend\r\nmodel = SRRegressor(\r\n    niterations=1000000,\r\n    binary_operators=[+,-,*,/],\r\n    maxsize=60,\r\n    bumper=true,\r\n    turbo=true,\r\n    populations=18,\r\n    population_size=100\r\n    parsimony = 0.01,\r\n    batching=true,\r\n    loss_function = loss_fnc,\r\n)\r\n````\r\n\r\n\r\nBoth start with around 50-60 days remaining, which then rises to around 150 for the custom loss function (after 8 hours or so) and falls back to 50 days remaining. \r\n\r\nTemplateStructure: After running for 8 hours, the ETA increases to 442 days after initially being 53. Total CPU usage drops to around 17-20%. This has consistently been the case after I tested both codes out over a few weeks. \r\n\r\nKey difference in the code: \r\nCustom_loss_function calculates grad for all variables at once and only checks monotonicity for the first 3.\r\nStructure: Uses D() to check the grad for first 3 variables\r\n\r\nHowever, both start off at a similar speed and convergence, (if anything TemplateExpression structure code is quicker initially), TE slows down dramatically. I've set all input variables to float32 to be consistent for both as I initially thought one might be using Float64. Any ideas why the TemplateExpression code starts quickly and then dramatically slows down would be very helpful. Personally I would much prefer to work with TemplateExpression if possible! \r\n\r\n\r\n\r\n ",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks for the report! It could be related to the garbage collection issue I reported which should be fixed in Julia 1.11.3: https://github.com/JuliaLang/julia/issues/56759. You could try Julia 1.10 to see if the problem gets better? On 1.10, that garbage collection issue still technically exists, it's just not getting hit as frequently, so the issue will be smaller.\r\n\r\nBy the way, note that `1e9` is technically a Float64 - so  I would make the following fix to the loss function code:\r\n\r\n```diff\r\n    if any(row -> !(all(row .>= 0) || all(row .<= 0)), eachrow(grad[1:3, :])) #checking monotonicity for first 3 variables\r\n-       return 1e09\r\n+       return 1f09\r\n    end\r\n```\r\n\r\n`1f9` is a Float32 so the type stability will be preserved. I'm not sure this will impact things though.\r\n\r\nOther tips:\r\n\r\nAvoid the extra allocation:\r\n```diff\r\n    if !o.valid\r\n-       return ValidVector(Vector{Float32}(undef, length(o.x)), false)\r\n+      return o\r\n    end\r\n```\r\n\r\nAlso avoid allocation here:\r\n\r\n```diff\r\n-   \tif !(all(grad_column .>= 0) || all(grad_column .<= 0))\r\n+   \tif !(all(g -> g >= 0, grad_column) || all(g -> g <= 0, grad_column))\r\n        \treturn ValidVector(fill(Float32(1e9), length(o.x)), true)\r\n    \tend\r\n```\r\n\r\n(It will scan the `>= 0` across the array and exit early, rather than computing `>= 0` for the entire array)\r\n",
+              "createdAt": "2024-12-30T04:20:24Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Ah, one other tricky thing... I realised that `turbo=true, bumper=true` will not be passed through to the evaluation when using TemplateExpression (I'll need to figure out how to do this... Maybe it requires embedding the `turbo` and `bumper` inside the `TemplateExpression` and `ComposableExpressions` types). I do know that `bumper=true` results in improved memory usage (and less garbage collection), so perhaps that is why the TemplateExpression is hitting issues after some number of hours while the custom loss function lasts a lot longer.\r\n\r\nAlso could explain why TemplateExpression is slower in general (?), simply because it doesn't use turbo evaluation!",
+              "createdAt": "2024-12-30T04:21:42Z"
+            },
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "Great, thank you very much for the tips. I've adjusted the code as you recommended and it's very interesting to hear that bumper and turbo potentially have such a cumulative effect on prolonged runs.  ",
+              "createdAt": "2024-12-30T18:28:37Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0zMFQxODoyODozNyswMDowMM4AsoNd"
+          }
+        }
+      }
+    }
+  }
+}

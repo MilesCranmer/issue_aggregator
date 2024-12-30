@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 693,
+        "title": "SR.jl to include the constant length, variables to be present in equations and previous state information to be used in current state",
+        "body": "Hello, everyone. I am using SR.jl for fluid dynamics application and need my SR to work with some constraints:\r\n\r\n1. The constants generated are currently in the range of e-16,  and the value is 0. I want to constrain SRRegressor so that the constant value should be of a particular length. Also, the equations primarily use constants rather than variables.\r\n2. I would like all the variables in equations since all the inputs impact the output feature. Currently, only 1 or 2 variables are used in the equations. A lower loss value is achieved but hardly has any input variable, for example:\r\n\r\n> Complexity,Loss,Equation\r\n> 18,1.5375358344591114e-7,\"(0.003040617289178417 + 0.003040617289178417) / (sqrt(x₁) + ((2.009394600234112 + x₁) + 0.003040617289178417))\"\r\n\r\n3. Is there any feature in SR.jl with previous state information to predict the current state, somewhat like an RNN?\r\n\r\nI am new to SR and Julia, so if there are any redundant questions, please let me know the most relevant solution.",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

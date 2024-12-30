@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 738,
+        "title": "Stochastic Custom Loss Function",
+        "body": "Hi all and @MilesCranmer,\r\n\r\nThank you again for your work on this package! \r\n\r\nWith my limited compute power available, I am trying to improve efficiency of my custom loss function. \r\nI have several variables in X that I am trying to ensure all have monotonicity with Y in a custom loss function. \r\nInstead of checking each one at each loss function, I have made it select a random feature and hold the other variables stable (randomly selected) and check the monotonicity. \r\n\r\nJust wondering if this would work with pysr? i.e. if the loss is really low and an equation enters the HoF, then the next loss is high (due to the random nature of the feature selection), would pysr know to remove that equation from the HoF?\r\n```julia\r\njl.seval(\"\"\"\r\nusing Statistics, DataFrames\r\nconst common_bounds = -8:0.5:9 #standardised data with wide spread, -8 to 9 represent SDs\r\nconst feature_length = length(common_bounds)\r\nconst num_features = 6\r\nX_fixed = Matrix{Float32}(undef, num_features, feature_length)\r\n\r\n\"\"\")\r\nelementwise_loss = \"\"\"\r\nfunction loss_function(tree::Node, dataset::Dataset{T,L}, options::Options, idx) where {T,L}    \r\n    # Extract data for the given indices\r\n    X = idx === nothing ? dataset.X : view(dataset.X, :, idx)\r\n    y = idx === nothing ? dataset.y : view(dataset.y, idx)\r\n    weights = idx === nothing ? dataset.weights : view(dataset.weights, idx)\r\n    prediction, complete = eval_tree_array(tree, X, options)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n    penalty = 0\r\n    featureCounter = rand(1:5)\r\n    for i in 1:5\r\n        if i != featureCounter\r\n            X_fixed[i, :] .= rand(common_bounds)  # Randomly initialise for all features except the one of interest\r\n        end\r\n    end\r\n    X_fixed[6, :] .= rand(0:1)  #boolean variable\r\n    # Replace the feature of interest with the fixed common bounds\r\n    X_fixed[featureCounter, :] .= common_bounds  # Vary only the selected feature\r\n    s_values, completeSub = eval_tree_array(tree, X_fixed, options)\r\n     s_diff = diff(s_values)\r\n     if !(all(s_diff .>= 0) || all(s_diff .<= 0))\r\n \t     penalty += 0.5  # Add penalty for non-monotonicity if there is a sign change\r\n     end        \r\n    mse = mean((prediction .- y).^2)\r\n    return mse + penalty\r\n ```",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "So PySR expects that the loss function for an expression is deterministic, due to caching, as well as the absolute ordering in the hall of fame. Therefore, if you have randomness, you could either use a fixed seed in the loss (and maybe average the loss over a few different evaluations), or perhaps re-run the search each time (with a warm start) and randomness introduced each time?",
+              "createdAt": "2024-10-21T03:10:49Z"
+            },
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "Hi @MilesCranmer, I think I have a working compromise. When batching=true then the loss function is also nondeterministic, but when idx == nothing, at the end of each iteration, the whole data is assessed making it deterministic again. \r\n\r\nSo, the loss function can combine a much faster stochastic loss function when idx=batch_size but when idx==nothing, perform a deterministic loss function, before updating the HoF.\r\n\r\nIf you wanted to do take advantage of this but without batching, could you turn batching=true and batch_size=length(y)?\r\n\r\n",
+              "createdAt": "2024-11-10T04:52:04Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMS0xMFQwNDo1MjowNCswMDowMM4Aqu7b"
+          }
+        }
+      }
+    }
+  }
+}

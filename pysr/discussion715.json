@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 715,
+        "title": "Kolmogorov Complexity Approximation Alternative to (Error, Complexity) Pareto Frontier",
+        "body": "Since any finite dataset will have finite precision, it is apparent that a given symbolic formula's residual errors will have finite precision. That being the case, error residuals can be treated as additive program literals in a expression that approximates the Kolmogorov Complexity of the dataset: An optimal lossless compression of the data.\r\n\r\nThis would approximate the gold standard for generalization in machine learning: Solomonoff Induction.\r\n\r\nIt seems the only real problems to solve in defining such a loss function are:\r\n\r\n1) a principled way of assigning complexity to each library function\r\n2) ignoring model-computed digits beyond the data's precision\r\n\r\nAn example of 1) would be assigning a complexity measure to, say cosine vs arccosine vs arctan vs sqrt in a manner that is justifiable in terms of Kolmogorov Complexity.  This, it seems is a previously solved problem in computer engineering where known machine language algorithms, of minimal length, are known -- taking into account that math libraries must incorporate all of such algorithms in a manner that minimizes the length of the total library.  Pedantry regarding \"arbitrary\" choice of machine instruction set may be ignored for the simple reason that there is no such \"arbitrary\" choice of axiomatic basis for arithmetic in reality.  No one serious bothers to even talk to pedants who insist that some random choice of symbols should be considered as principled as, say, Peano's. \r\n\r\nAn example of 2) would be, say, detecting when a rational number's repeating digit pattern -- which goes on for infinity -- must be truncated to not exceed the precision of the data-point being computed.  In that case the error residual would not go on for infinity but be similarly truncated.\r\n\r\nFinally consider that any finite computation system is a finite state machine which means it is a state space model.\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "pukpr"
+              },
+              "body": "A recurring misunderstanding is that Kolmogorov Complexity can't be applied to data, only to a model of the data. Since that's the case, one still needs an error term that quantifies the discrepancy of the model from the data.\r\n\r\nApart from that, the idea behind Kolmogorov Complexity is that a seemingly simple expression can have hidden complexity, often extending into fractal or chaotic regimes.  This is good in a way in that it's the entire idea behind symbolic regression. Isn't it?\r\n ",
+              "createdAt": "2024-09-12T18:50:23Z"
+            },
+            {
+              "author": {
+                "login": "jabowery"
+              },
+              "body": "Rather argue against your authoritatively postured confusion, I'll just ask one question that is similar to one I use to test large language models:\r\n\r\nWhat is the shortest python program you can come up with that outputs the following string:\r\n000000000100010000110010000101001100011101000010010101001011011000110101110011111000010001100101001110100101011011010111110001100111010110111110011101111101111111111\r\n\r\nNow, to illustrate your confusion about \"error terms\", lets examine a possible \"model\":\r\n\r\n`print(''.join([f'{xint:0{5}b}' for xint in range(32)]))`\r\n\r\nNote that the output is _almost_ a Kolmogorov Complexity approximation of the string as it outputs:\r\n0000000001000100001100100001010011000111010000100101010010110110001101011100111110000100011001010011101001010110110101111100011001110101101111100111011111011111\r\n\r\nIt fails because it leaves off the trailing '11111'.  But it becomes a Kolmogorov Complexity approximation, if one modifies the program to, instead, be:\r\n\r\n`print(''.join([f'{xint:0{5}b}' for xint in range(32)])+'11111')`\r\n\r\nNote that by adhering to the definition of Kolmogorov Complexity (ie: _lossless_ compression of the data) the loss function is 72 rather than 64 + some ill defined \"error term\".\r\n",
+              "createdAt": "2024-09-13T18:11:37Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOS0xM1QxOToxMTozNyswMTowMM4Aol3y"
+          }
+        }
+      }
+    }
+  }
+}

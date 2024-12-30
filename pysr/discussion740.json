@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 740,
+        "title": "Multiexpression Outputs Question",
+        "body": "```\r\nfunction my_loss_function(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n        tree.degree != 2 && return L(Inf)\r\n\r\n        P = tree.l\r\n        Tree = tree.r\r\n        \r\n        Tree.degree != 2 && return L(Inf)\r\n\r\n        Q = Tree.l\r\n        R = Tree.r\r\n\r\n        p, flag = eval_tree_array(P, dataset.X, options)\r\n        !flag && return L(Inf)\r\n\r\n        q, flag = eval_tree_array(Q, dataset.X, options)\r\n        !flag && return L(Inf)\r\n\r\n        r, flag = eval_tree_array(R, dataset.X, options)\r\n        !flag && return L(Inf)\r\n```\r\nIs the code right, How to get 3 -expression outputs?,thanks",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

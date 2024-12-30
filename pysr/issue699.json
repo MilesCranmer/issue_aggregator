@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 699,
+        "title": "[Feature]: PySR interface should support ClusterManager keyword arguments",
+        "body": "### Feature Request\n\nWhen using a ClusterManager, the PySRRegressor interface should allow the user to specify associated keyword arguments. There are a couple of use cases for this:\r\n\r\n1. when the user wants to pass additional flags to the workload manager designated by the `cluster_manager` argument. For example when `cluster_manager=\"slurm\"` the user may want to specify `--ntasks-per-node` or `--cpus-per-task`, etc.\r\n2. in an Apptainer container the user needs to specify the `exename` and `exeflags` keyword arguments if `cluster_manager=\"slurm\"`.",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 779,
+        "title": "[BUG]: Compatibility issues with model loading and TensorBoard",
+        "body": "### What happened?\n\nA bug happened!\r\nWhen I am using model loading and TensorBoard simultaneously, I get the following error:\r\n<img width=\"706\" alt=\"888cde09aa6eb3d5025f862fbcffae9\" src=\"https://github.com/user-attachments/assets/b6baf957-5381-42b8-90e5-068298850e5d\" />\r\nThe case used is the code in Examples：\r\nfirst, Using a model with TensorBoard to generate hall_of_fame：\r\n\r\n```\r\nimport numpy as np\r\nfrom pysr import PySRRegressor, TensorBoardLoggerSpec\r\nrstate = np.random.RandomState(42)\r\nX = rstate.uniform(-3, 3, (1000, 2))\r\ny = np.exp(X[:, 0]) + X[:, 1]\r\nlogger_spec = TensorBoardLoggerSpec(\r\n    log_dir=\"logs/run\",\r\n    log_interval=10,  # Log every 10 iterations\r\n)\r\nmodel = PySRRegressor(\r\n    binary_operators=[\"+\", \"*\", \"-\", \"/\"],\r\n    logger_spec=logger_spec,\r\n)\r\nmodel.fit(X, y)\r\n\r\n```\r\nthen, Using the model loading function to optimize the hall_of_fame.\r\n\r\n```\r\nimport numpy as np\r\nfrom pysr import PySRRegressor, TensorBoardLoggerSpec\r\nrstate = np.random.RandomState(42)\r\nX = rstate.uniform(-3, 3, (1000, 2))\r\ny = np.exp(X[:, 0]) + X[:, 1]\r\nmodel = PySRRegressor.from_file(run_directory=\"outputs/20241212_222454_uKch8W\")\r\nmodel.fit(X, y)\r\n```\r\n\r\nThen there will be the above error.\r\n\n\n### Version\n\n1.1.0\n\n### Operating System\n\n_No response_\n\n### Package Manager\n\nNone\n\n### Interface\n\nIPython Terminal\n\n### Relevant log output\n\n_No response_\n\n### Extra Info\n\n_No response_",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thinking out loud, I think I know the issue. It’s the fact we don’t remove the logger from the state saved to the pickle file. Basically, we can’t pickle Julia objects. This new feature needs to be masked from the pickle",
+              "createdAt": "2024-12-12T15:25:07Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "https://github.com/MilesCranmer/PySR/pull/780 should fix this",
+              "createdAt": "2024-12-13T23:43:51Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOl4xRrQ=="
+          }
+        }
+      }
+    }
+  }
+}

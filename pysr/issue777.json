@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 777,
+        "title": "[Feature]: Training and testing splitting.",
+        "body": "### Feature Request\n\nGood morning everyone, \r\n\r\nI am new to PySR, so apologies if the questions I place are naiive.\r\nI was wondering if there is any way to have an automatic \"training and testing\" split, and for training I mean the value for fitting, while for testing unseen data on which the loss can be calculated. \r\n\r\nI am trying to implement this feature for my project, and I see that `model.predict()` evaluates the input based on the equation chosen by `model_selection`. Is there any way of evaluating the expression also on other candidate functions?\r\n\r\nThank you for your help!",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}
