@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 342,
         "title": "Strange behaviour when using custom loss function",
         "body": "Hi,\r\nI was trying to introduce a penalty to solutions that don't satisfy a certain constraint, but for some reason I get very strange results if PySR runs for >= 100 iterations. If running for shorter than that, it seems to output normal results. \r\n\r\nThe custom loss is included below. The idea is to apply a penalty to the loss if the expression blows up when evaluated near zero. \r\n```\r\n\r\n objective1 = \r\n \"\"\" function my_custom_objective(tree, dataset::Dataset{T}, options) where {T<:Real}\r\n    #Applies a penalty if points do not behave as expected.\r\n \r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n \r\n    p1x = zeros(Float32, 1) .+ 0.0005f0\r\n    p1y = zeros(Float32, 1) .+ 0.0005f0\r\n    p1z = zeros(Float32, 1) .+ 0.0005f0\r\n      \r\n    concat = vcat(transpose(p1x[1:1]), transpose(p1y[1:1]),  transpose(p1z[1:1])) \r\n    p1 = eval_tree_array(tree, concat, options)[1][1] \r\n \r\n    \r\n    penalty = 1\r\n \r\n    if p1 >= 50\r\n        penalty = 1.5 #changing to 1 seems to make it work?\r\n    end \r\n\r\n\r\n    prediction_loss = sum((prediction .- dataset.y) .^ 2) / dataset.n * penalty\r\n    return prediction_loss \r\nend  \r\n\"\"\"\r\n```\r\n\r\nThe data used should be here: [x_data__.txt](https://github.com/MilesCranmer/PySR/files/11627782/x_data__.txt) and [y_data__.txt](https://github.com/MilesCranmer/PySR/files/11627783/y_data__.txt). The target I was aiming for (first column of y_data) is the function $$-0.5X + \\frac{1.5}{1+Z^{10}}$$ \r\n\r\nwhere $X$ is the first column of  x_data  and $Z$ is the third column of the same file.\r\n\r\n\r\n```\r\nPySR_args = {\"model_selection\": \"best\",\r\n        \"niterations\": 200,  #changing to <= 100 seems to fix it?\r\n        \"populations\": 25,\r\n        \"binary_operators\": [\"+\", \"*\", \"/\",], \r\n        \"unary_operators\": [\"squared(x) = x^2\"],\r\n        'nested_constraints':{\"squared\": {\"squared\": 4} },\r\n        \"weight_optimize\": 0.001, \r\n        \"ncyclesperiteration\":1000, \r\n        \"warm_start\":False, \r\n        \"multithreading\":False,  \r\n        \"enable_autodiff\":False, \r\n         \"extra_sympy_mappings\": {\"squared\": lambda x: x**2 },\r\n        \"procs\":2,   \r\n        \"maxsize\":25, \r\n        \"turbo\":False} \r\n```\r\n\r\nI'm also including a Hall of Fame that was seen in such a case: [bizarre_hof.csv](https://github.com/MilesCranmer/PySR/files/11627857/bizarre_hof.csv)\r\n\r\n\r\n\r\nI did not open this as a bug report because I'm not really sure if it is my faulty custom loss that is causing the issue or a PySR problem.\r\n\r\nThanks!\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Two quick comments:\r\n\r\n1. A simpler way to define the `concat` array in your code would be:\r\n\r\n```julia\r\nconcat = fill(5f-4, 3, 1)\r\n```\r\n\r\n(which creates an array with shape (3, 1) and value $5 \\times 10^{-4}$)\r\n\r\n2. The second output of `eval_tree_array` is important, as it tells you when the evaluation encounters a NaN or not. So I would do:\r\n\r\n```julia\r\np, completed = eval_tree_array(tree, concat, options)\r\n\r\npenalty = (!completed || p[1] >= 50) ? 1.5 : 1.0\r\n```\r\n\r\nYou should also check the first `flag` and return a large penalty if it is false.\r\n\r\n3. These flags should return a constant large value, rather than a multiplicative value against the predictive loss. Because if there is a NaN, your prediction loss might be NaN, which could be bad. So I would do:\r\n\r\n```julia\r\nif !flag || !completed\r\n    return 1000f0\r\nend\r\n```\r\nand then just compute the multiplicative penalty from `p[1]` if it gets past that stage.",
               "createdAt": "2023-06-01T17:28:10Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNi0wMVQxODoyODoxMCswMTowMM4AXIdr"
           }

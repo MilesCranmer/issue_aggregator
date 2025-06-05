@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 383,
         "title": "[Feature]: Should launch search in a thread",
         "body": "### Feature Request\n\nPySR should launch the search process in a thread so that we can watch for stop signals. However, I'm not sure how PySR could forward the stop signal to PyJulia?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This is probably the way to integrate with tqdm as well.",
               "createdAt": "2023-07-18T16:29:48Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Actually in a process. Then we can catch any interrupt and write to a \"signal file\" that SymbolicRegression.jl would read.",
               "createdAt": "2024-02-12T09:01:34Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOc4ehdw=="
           }

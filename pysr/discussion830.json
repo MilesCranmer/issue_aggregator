@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 830,
+        "title": "v1.4.0",
+        "body": "## What's Changed\r\n\r\n[#823](https://github.com/MilesCranmer/PySR/pull/823) adds support for _parameters in template expressions_, allowing you to learn expressions under a template, that have custom coefficients which can be optimized.\r\n\r\nAlong with this, the `TemplateExpressionSpec` API has changed. (The old API will continue to function, but will not have parametric expressions available).\r\n\r\n```python\r\nspec = TemplateExpressionSpec(\r\n    expressions=[\"f\"],\r\n    variable_names=[\"x\"],\r\n    parameters={\"p\": 3},\r\n    combine=\"fx = f(x); p[1] + p[2] * fx + p[3] * fx^2\"\r\n)\r\n```\r\n\r\nThis would learn three parameters, for the expression $y = p_1 + p_2 f(x) + p_3 f(x)^2.$\r\n\r\nYou can have multiple parameter vectors, and these parameter vectors can also be indexed by categorical features. For example:\r\n\r\n```python\r\n# Learn different parameters for each class:\r\nspec = TemplateExpressionSpec(\r\n    expressions=[\"f\", \"g\"],\r\n    variable_names=[\"x1\", \"x2\", \"category\"],\r\n    parameters={\"p1\": 3, \"p2\": 1},\r\n    combine=\"p1[category] * f(x1, x2) + p2[1] * g(x1 * x2)\"\r\n)\r\n```\r\n\r\nThis will learn an equation of the form: \r\n$$y = \\alpha_c\\,f(x_1,x_2) + \\beta g(x_1 \\cdot x_2)$$\r\nwhere $c$ is the category, $\\alpha_c$ is a learned parameter specific to each category, and $\\beta$ is a normal scalar category. Note that **unlike ParametricExpressionSpec**, this feature of TemplateExpressionSpec would have you pass the `category` variable _in_ `X` rather than as a category keyword (floating point versions of the categories). This difference means that in a TemplateExpressionSpec, you can actually have _multiple_ categories!\r\n\r\n* Added support for expression-level loss functions via `loss_function_expression`, which allows you to specify custom loss functions that operate on the full expression object rather than just its evaluated output. This is particularly useful when working with template expressions.\r\n\r\n* Note that the old template expression syntax using function-style definitions is deprecated. Use the new, cleaner syntax instead:\r\n\r\n```python\r\n# # Old:\r\n# spec = TemplateExpressionSpec(\r\n#     function_symbols=[\"f\", \"g\"],\r\n#     combine=\"((; f, g), (x1, x2, x3)) -> sin(f(x1, x2)) + g(x3)\"\r\n# )\r\n\r\n# New:\r\nspec = TemplateExpressionSpec(\r\n    expressions=[\"f\", \"g\"], \r\n    variable_names=[\"x1\", \"x2\", \"x3\"],\r\n    combine=\"sin(f(x1, x2)) + g(x3)\"\r\n)\r\n```\r\n\r\n  \r\n**Full Changelog:** [v1.3.1...v1.4.0](https://github.com/MilesCranmer/PySR/compare/v1.3.1...v1.4.0)\n\n<hr /><em>This discussion was created from the release <a href='https://github.com/MilesCranmer/PySR/releases/tag/v1.4.0'>v1.4.0</a>.</em>",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

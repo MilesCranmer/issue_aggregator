@@ -1,84 +1,70 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 97,
         "title": "Quiet install option",
         "body": "Something I'd like to use when autogenerating examples in documentation is the ability to pass `quiet=True` to this `julia.install`.\r\n\r\nhttps://github.com/MilesCranmer/PySR/blob/d369a9b9ea2fd7b57c3290a0331e828df5269480/pysr/sr.py#L27",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Partly fixed for `install` and `activate`, but apparently `Pkg.update` has no quiet option. Any idea to hack in a quiet mode?",
               "createdAt": "2022-02-01T23:12:29Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "patrick-kidger"
               },
               "body": "Hmm, I'm not sure either.\r\n\r\nOne other thing I can mention is that this line needs gating with an `if not quiet` though:\r\n\r\nhttps://github.com/MilesCranmer/PySR/blob/96f8639282ec5e2475348ee7a27fcde3fc550467/pysr/sr.py#L54",
               "createdAt": "2022-02-01T23:56:48Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "patrick-kidger"
               },
               "body": "Using Julia 1.7.1 then `julia> Pkg.update(io=devnull)` seems to work for me.",
               "createdAt": "2022-02-01T23:58:40Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks! Seems to be working on 0ef4d0599b01417fff26d35bc53ddb0e369f7ce6",
               "createdAt": "2022-02-02T00:08:33Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "patrick-kidger"
               },
               "body": "Similarly, what about a quiet runtime option? I'm already passing `verbosity=0` but still getting\r\n\r\n```\r\nActivating project at `/tmp/tmpru35511c`\r\n    Updating `/tmp/tmpru35511c/Project.toml`\r\n  [8254be44] + SymbolicRegression v0.7.5\r\n    Updating `/tmp/tmpru35511c/Manifest.toml`\r\n  [c3fe647b] + AbstractAlgebra v0.12.0\r\n  [4fba245c] + ArrayInterface v4.0.2\r\n  [d360d2e6] + ChainRulesCore v1.12.0\r\n  [9e997f8a] + ChangesOfVariables v0.1.2\r\n  [861a8166] + Combinatorics v1.0.2\r\n  [bbf7d656] + CommonSubexpressions v0.3.0\r\n  [34da2185] + Compat v3.41.0\r\n  [9a962f9c] + DataAPI v1.9.0\r\n  [864edb3b] + DataStructures v0.18.11\r\n  [163ba53b] + DiffResults v1.0.3\r\n  [b552c78f] + DiffRules v1.9.1\r\n  [ffbed154] + DocStringExtensions v0.8.6\r\n  [e2ba6199] + ExprTools v0.1.8\r\n...\r\n```\r\noutputted to stderr.",
               "createdAt": "2022-02-02T01:21:29Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Done!",
               "createdAt": "2022-02-02T02:17:16Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Actually it looks like this breaks julia 1.5: https://github.com/MilesCranmer/PySR/runs/5034798763.\r\n\r\nNot sure we need to support it still but maybe we could just turn off the argument for julia<=1.5.",
               "createdAt": "2022-02-02T12:50:59Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "^ I turned this off for 1.5 by checking versions with the new function `is_julia_version_greater(Main, \"1.5\")`. Should be good now.",
               "createdAt": "2022-02-03T16:53:40Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOPVg9Qw=="
           }

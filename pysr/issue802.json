@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 802,
+        "title": "[BUG]: Loading model from 0.19 on 1.3",
+        "body": "### What happened?\n\nA bug happened!\n\n### Version\n\n1.3.1\n\n### Operating System\n\nWindows\n\n### Package Manager\n\npip\n\n### Interface\n\nJupyter Notebook\n\n### Relevant log output\n\n```shell\n~\\AppData\\Local\\Temp\\ipykernel_12944\\3777221198.py in <cell line: 2>()\r\n      1 Eq_No_tps = 21\r\n----> 2 model_tps.sympy(Eq_No_tps)\r\n\r\nD:\\Python310Install\\lib\\site-packages\\pysr\\sr.py in sympy(self, index)\r\n   2424             SymPy representation of the best equation.\r\n   2425         \"\"\"\r\n-> 2426         if not self.expression_spec_.supports_sympy:\r\n   2427             raise ValueError(\r\n   2428                 f\"`expression_spec={self.expression_spec_}` does not support sympy export.\"\r\n\r\nD:\\Python310Install\\lib\\site-packages\\pysr\\sr.py in expression_spec_(self)\r\n   1312     @property\r\n   1313     def expression_spec_(self):\r\n-> 1314         return self.expression_spec or ExpressionSpec()\r\n   1315 \r\n   1316     def get_best(\r\n\r\nAttributeError: 'PySRRegressor' object has no attribute 'expression_spec'\n```\n\n\n### Extra Info\n\n_No response_",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Oh I guess this is from loading a model on a newer version? You can just do \r\n```\r\nmodel.expression_spec = None\r\n```\r\nAfter loading",
+              "createdAt": "2025-01-08T10:21:19Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Though I’m not sure it will work FYI. The underlying Julia backend changed so much between versions 0.19 and 1.0 that it might be completely incompatible with the old pickle file.",
+              "createdAt": "2025-01-08T10:22:33Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOmZ66Gw=="
+          }
+        }
+      }
+    }
+  }
+}

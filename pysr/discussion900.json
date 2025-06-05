@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 900,
+        "title": "Online meeting on Symbolic Regression April 28-29",
+        "body": "\r\nsounds interesting, free online but must register\r\n\r\nsee https://www.eventbrite.co.uk/e/symbolic-regression-in-the-physical-sciences-tickets-1110181545889\r\n\r\nhttps://bsky.app/profile/royalsocietypublishing.org/post/3lnlcbri6bn2c\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "pukpr"
+              },
+              "body": "Meeting is going on for a 2nd day. Here is an interesting exchange with an audience member on the first day,  who asked if the physics model they eventually used was found brute force by the symbolic regression:\r\nhttps://youtu.be/fzVnkDSPwt0?t=9296\r\n\r\nFound it strange that the speaker had not thought about this, as that seems like an obvious aspect to check and one of the strong rationales for doing symbolic regression.  \r\n\r\nFrom my understanding, the speaker explained that they were using the symbolic regression to **emulate** the signal, perhaps as a noise reduction approach a la a spline curve, and that they were satisfied with that.\r\n\r\nSo far the videos are informative.\r\n\r\n",
+              "createdAt": "2025-04-29T04:36:14Z"
+            },
+            {
+              "author": {
+                "login": "gkronber"
+              },
+              "body": "Thanks for linking the youtube videos. The Royal Society will also provide videos of each talk individually after some minor editing. \r\n\r\nWe prepared a summary from the meeting here: https://symreg.at/blog/2025/royal-society-discussion-meeting-symreg-in-physics/\r\nUnfortunately, Miles couldn't stay until the end for the group picture. \r\n\r\n@MilesCranmer  thanks for your insightful talk. I especially like the flexibility of PySR, for instance that it allows any kind of custom loss function. ",
+              "createdAt": "2025-05-08T07:16:44Z"
+            },
+            {
+              "author": {
+                "login": "pukpr"
+              },
+              "body": "Always looking for some secret sauce that will allow symbolic regression to find more complicated expressions that aren't overly penalized by a loss function. \r\n\r\nI gave this prompt to ChatGPT:\r\n> In symbolic regression for discovering formula, to prevent  overfitting , a complexity measure is introduced which counts the number of terms. Alas, this prevents many forms that naturally arise, as say Fourier series expansions with multiple sinusoidal factors, which will become penalized heavily. However, when the terms are harmonically related, the penalty should be reduced as these likely point to structural order in a behavior. Also, for example, in fluid dynamics, the wave frequencies could be related as triads or quartets, which are also natural reinforcements so should come with a penalty reduction.\r\n\r\nresponse:\r\nhttps://chatgpt.com/share/6822ca5d-8854-8010-83cd-c163d435c6ea\r\n\r\nIn my own home-brewed model fitting of fluid dynamics, I rely on harmonics, standing-wave restrictions, and triads & quartets to find Fourier series groupings that symbolic regression algorithms give up on because of the high Pareto complexity.   If penalty relief is granted,  I guess this would have to be implemented as a custom loss function, if it has been done at all.\r\n\r\nThe presentation by Constantin is somewhat related to this, as one of his take-away messages is that finding such groupings as a \"meta-law\" may constrain the search space.  https://youtu.be/8o6jU-iBXbw?t=17518\r\n\r\n",
+              "createdAt": "2025-05-13T04:54:14Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0xM1QwNTo1NDoxNCswMTowMM4AyEo3"
+          }
+        }
+      }
+    }
+  }
+}

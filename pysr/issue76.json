@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 76,
         "title": "PySR compared to heuristic lab",
         "body": "hey, \r\nI've been using your Library for one of my research purposes and it's been very insightful, I switched from gplearn and could reasonably tell the difference.\r\nRecently I came across Heuristic lab(an open-source software) which is also based on symbolic regression.\r\nIf you know about the software could you please give your take on the comparison of PySR to it?\r\nsimilar to the benchmarks comparison which I came across on the thread of gplearn and Pysr.\r\nAppreciate your work been very helpful!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hey @Shreynger,\r\nThanks for your interest! Great to know PySR is working well for you :)\r\nI haven't actually heard of HeuristicLab before, thanks for pointing this out, it looks like a cool app. I don't have bandwidth to try benchmarking against it, but I'd be interested in a comparison too.\r\nCheers,\r\nMiles",
               "createdAt": "2021-09-15T03:00:06Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHONtDjOg=="
           }

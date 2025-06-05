@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 103,
         "title": "Printing in Jupyter notebook",
         "body": "Julia should print to stdout rather than stderr, as is default for `Pkg.update`, `Pkg.activate`, etc. This can be set with the `io` flag that I pass for these. (stderr prints to terminal, rather than to the output of a Jupyter cell)",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Fixed by #535 ",
               "createdAt": "2024-02-12T09:05:24Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOc4e2uQ=="
           }

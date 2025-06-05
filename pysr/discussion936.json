@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 936,
+        "title": "PySR and models that rival even the best LLM's. Wow, you guys are the real deal",
+        "body": "Ok, so I don't know what to do here, but I was able to train a model with PySR that I think rival's LLM's. I created, with the help of AI's coding abilities and stuff, a model that learns music and velocity in a way that I didn't know was possible, and I did it in a couple of hours, and I should share the code maybe? Like what do I do here, because you guys are right, black box AI's I think are going to be not necessary in maybe a shorter period of time that makes me wonder why Magenta links are disappearing when I can show code for a Model that makes music midi's where better than I ever could or thought imaginable. My imagination and modeling with PySR has created a music song composing model that I think is and can be better than even SUNO. So what do I do? Do I share the code with you? That's fine with me. What can you guys do if you have this model and use your way advanced skills to apply it to language, phenoms, or video creation?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "oppressionslayer"
+              },
+              "body": "What I did is I created some not actually that great of midi's, and the model was able to learn music and now creates compositions better than I can. I think I'll put it on GitHub, but maybe you guys want to see it in a private GitHub, because this model is pretty far out there",
+              "createdAt": "2025-05-20T20:25:30Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0yMFQyMToyNTozMCswMTowMM4AyZcx"
+          }
+        }
+      }
+    }
+  }
+}

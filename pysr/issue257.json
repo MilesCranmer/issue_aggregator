@@ -1,140 +1,119 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 257,
         "title": "[BUG] Errors when building PyCall.jl",
         "body": "tldr, delete the folders:\r\n\r\n- `~/.julia/packages/PyCall`\r\n- `~/.julia/prefs/PyCall`\r\n- `~/.julia/environments/pysr-{your-pysr-version}`\r\n\r\nand re-run `python -m pysr install`.\r\n\r\n---\r\n\r\nI am documenting this error because it has shown up a lot for people, and I want to document the solution.\r\n\r\nThe error is basically that after upgrading Python or Julia or both, and running PySR or re-installing PySR, you get the following error:\r\n\r\n```julia\r\n[ Info: Trying to import PyCall...\r\n┌ Info: PyCall is already installed but not compatible with this Python\r\n└ executable. Re-building PyCall...\r\n[ Info: Run `Pkg.build(“PyCall”; verbose=true)`\r\nERROR: LoadError: The following package names could not be resolved:\r\n * PyCall (not found in project or manifest)\r\n```\r\n\r\nThe solution to this is to delete your `~/.julia/packages/PyCall`  folder. Then, simply re-run `python -m pysr install`.\r\n\r\nIf this gives you further errors in building, you should also delete `~/.julia/prefs/PyCall`, and re-run the install step. For further issues, you could delete `~/.julia/environments` folder (or more specifically, the folders `~/.julia/environments/pysr-{version}` and `~/.julia/environments/{julia_version}`, if you want to keep your other environments).\r\n\r\n---\r\n\r\nThis should fix the problem. This issue is basically that the old installed version of PyCall.jl is attached to a specific combination of Julia and Python. And, for whatever reason, re-running `julia.install()` doesn't update the built version of PyCall.jl.\r\n\r\nThis is a temporary manual solution. In the future PySR should handle this automatically.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "It might be good to automatically reset `~/.julia/prefs/PyCall` whenever `julia.install()` is called? What do you think @mkitti?",
               "createdAt": "2023-02-26T23:08:16Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I think PySR should catch `julia.tools.PyCallInstallError` and print out some PySR-relevant information. Especially the above debugging tips.\r\n\r\nI think another couple of changes would simplify the install process for the user:\r\n\r\n1. Have the PySR environment include the hash of the python path, so that using a different python would result in a new PySR install.\r\n2. Have the PyCall.jl variables overwritten if PyCall is already installed in, e.g., `@v1.8`. Right now it seems like install PyCall.jl globally will just freeze the python path.",
               "createdAt": "2023-03-27T23:05:53Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mkitti"
               },
               "body": "Couldn't we just check for a mismatch between PyCall.python and whatever the current Python executable is? How do you find the latter?",
               "createdAt": "2023-05-06T08:13:05Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I'm not sure, because the Python executable could have the same name. So ideally we would want to also store the version of Python and any other meta information that might affect things.",
               "createdAt": "2023-05-10T20:20:17Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Also, a note to myself: should add unit tests for issues like #287 and #222. Would probably need to perform the test within a docker container with pyenv installed, and switch pyenv partway.",
               "createdAt": "2023-05-10T20:21:15Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mkitti"
               },
               "body": "We need more diagnostics here.\n\nCan you catch this error and do one of the following?\n\n```\nprintln(stderr, Base.active_project())\nprintln(stderr, read(Base.active_project()), String))\nmanifest = joinpath(dirname(Base.active_project()), \"Manifest.toml\"))\nif isfile(manifest)\n    println(stderr, read(manifest, String))\nend\n```\n\nSomehow either Project.toml or Manifest.toml had been corrupted or the active environment is not what we think it is.\n\nIf there is something to delete, it might be the deps folder within thr package.",
               "createdAt": "2023-07-02T19:25:53Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I'm trying to get a docker container that can consistently reproduce this.\r\n\r\nFYI I've only seen the error when building via PyJulia; I'm not sure how to trigger it with PyCall directly.",
               "createdAt": "2023-07-02T19:52:52Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "My current attempt to generate this error. No error reported yet...\r\n\r\nI wonder if somehow the latest PyCall has made this error go away.\r\n\r\n<details><summary>Dockerfile:</summary>\r\n\r\n```dockerfile\r\nFROM debian:bullseye-slim\r\n\r\nENV DEBIAN_FRONTEND=noninteractive\r\n\r\nRUN apt-get update && apt-get install -y curl git build-essential libssl-dev zlib1g-dev libbz2-dev \\\r\n    libreadline-dev libsqlite3-dev libncurses5-dev libncursesw5-dev \\\r\n    xz-utils libffi-dev liblzma-dev\r\n\r\n# Install juliaup:\r\nRUN curl -fsSL https://install.julialang.org | sh -s -- -y\r\n\r\n# Install pyenv:\r\nRUN curl -fsSL curl https://pyenv.run | sh && \\\r\n    echo 'export PATH=\"/root/.pyenv/bin:$PATH\"' >> ~/.bashrc && \\\r\n    echo 'export PYENV_ROOT=\"$HOME/.pyenv\"' >> ~/.bashrc && \\\r\n    echo 'eval \"$(pyenv init -)\"' >> ~/.bashrc && \\\r\n    echo 'eval \"$(pyenv virtualenv-init -)\"' >> ~/.bashrc\r\n\r\n# Default to using bash -l:\r\nSHELL [\"/bin/bash\", \"-l\", \"-c\"]\r\n\r\nRUN juliaup add 1.8 && juliaup default 1.8\r\nRUN pyenv install 3.9.2 && pyenv global 3.9.2\r\nRUN python3 -m pip install --upgrade pip\r\n\r\n# Try to install pysr:\r\nRUN python3 -m pip install pysr\r\nRUN python3 -m pysr install\r\n\r\n# Change Julia and Python versions:\r\nRUN juliaup add 1.9 && juliaup default 1.9 && juliaup remove 1.8\r\nRUN pyenv install 3.10 && pyenv global 3.10\r\nRUN python3 -m pip install --upgrade pip\r\n\r\n# Try to re-install pysr:\r\nRUN python3 -m pip install pysr\r\nRUN python3 -m pysr install\r\n```\r\n\r\n</details>\r\n\r\n---\r\n\r\nOne potential solution if I can end up producing the bug: make the PySR environment equal to `pysr-{pysr_version}-jl-{julia_version}-py-{python_version}`. That way the user would be forced to re-install PySR whenever any of those versions changes.",
               "createdAt": "2023-07-02T20:46:41Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Okay I have something to reliably generate an error. If you install PySR with a specific Python version, and then change the Python version, remove `~/.julia/environments/pysr-0.14.2`, and try to re-install PySR, you will get an error during precompilation due to a missing libpython file (it tries to load an older one):\r\n\r\n<details><summary>Dockerfile:</summary>\r\n\r\n```dockerfile\r\nFROM debian:bullseye-slim\r\n\r\nENV DEBIAN_FRONTEND=noninteractive\r\n\r\n# Install juliaup and pyenv:\r\nRUN apt-get update && apt-get install -y curl\r\n\r\n# Install juliaup:\r\nRUN curl -fsSL https://install.julialang.org | sh -s -- -y\r\n\r\nRUN apt-get install -y git build-essential libssl-dev zlib1g-dev libbz2-dev \\\r\n    libreadline-dev libsqlite3-dev libncurses5-dev libncursesw5-dev \\\r\n    xz-utils libffi-dev liblzma-dev\r\n\r\n# Install pyenv:\r\nRUN curl -fsSL curl https://pyenv.run | sh && \\\r\n    echo 'export PATH=\"/root/.pyenv/bin:$PATH\"' >> ~/.bashrc && \\\r\n    echo 'export PYENV_ROOT=\"$HOME/.pyenv\"' >> ~/.bashrc && \\\r\n    echo 'eval \"$(pyenv init -)\"' >> ~/.bashrc && \\\r\n    echo 'eval \"$(pyenv virtualenv-init -)\"' >> ~/.bashrc\r\n\r\n# Default to using bash -l:\r\nSHELL [\"/bin/bash\", \"-l\", \"-c\"]\r\n\r\nRUN juliaup add 1.8 && juliaup default 1.8\r\nRUN pyenv install 3.9.2 && pyenv global 3.9.2\r\nRUN python3 -m pip install --upgrade pip\r\n\r\n# Try to install pysr:\r\nRUN python3 -m pip install pysr==0.14.2\r\nRUN python3 -m pysr install\r\n\r\n# Change Python version:\r\nRUN pyenv install 3.10 && pyenv global 3.10 && pyenv uninstall -f 3.9.2\r\nRUN python3 -m pip install --upgrade pip\r\n\r\n# Try to use PySR:\r\nRUN python3 -m pip install pysr==0.14.2\r\nRUN rm -r ~/.julia/environments/pysr-0.14.2\r\nRUN python3 -m pysr install\r\n```\r\n\r\n</details>\r\n\r\n<details><summary>This generates the following error during the `python -m pysr install` step:</summary>\r\n\r\n```\r\n#18 4.067 Precompiling project...\r\n#18 4.458   ✓ CompilerSupportLibraries_jll\r\n#18 4.551   ✓ VersionParsing\r\n#18 4.596   ✓ Preferences\r\n#18 4.899   ✓ PrecompileTools\r\n#18 5.654   ✓ MacroTools\r\n#18 19.31   ✓ Parsers\r\n#18 20.20   ✓ JSON\r\n#18 20.63   ✓ Conda\r\n#18 21.59   ✗ PyCall\r\n#18 21.61   8 dependencies successfully precompiled in 18 seconds. 3 already precompiled.\r\n#18 21.61   1 dependency errored. To see a full report either run `import Pkg; Pkg.precompile()` or load the package\r\n#18 21.66 \r\n#18 21.66 Precompiling PyCall...\r\n#18 22.35 ERROR: LoadError: could not load library \"/root/.pyenv/versions/3.9.2/lib/libpython3.9.so.1.0\"\r\n#18 22.71 /root/.pyenv/versions/3.9.2/lib/libpython3.9.so.1.0: cannot open shared object file: No such file or directory. Please run `Pkg.build(\"PyCall\")` if your Python build has changed\r\n#18 22.71 Stacktrace:\r\n#18 22.71  [1] error(::String, ::String)\r\n#18 22.72    @ Base ./error.jl:44\r\n#18 22.72  [2] top-level scope\r\n#18 22.72    @ ~/.julia/packages/PyCall/ilqDX/src/startup.jl:51\r\n#18 22.72  [3] include(mod::Module, _path::String)\r\n#18 22.72    @ Base ./Base.jl:457\r\n#18 22.72  [4] include(x::String)\r\n#18 22.72    @ PyCall ~/.julia/packages/PyCall/ilqDX/src/PyCall.jl:1\r\n#18 22.72  [5] top-level scope\r\n#18 22.72    @ ~/.julia/packages/PyCall/ilqDX/src/PyCall.jl:38\r\n#18 22.72  [6] include\r\n#18 22.72    @ ./Base.jl:457 [inlined]\r\n#18 22.72  [7] include_package_for_output(pkg::Base.PkgId, input::String, depot_path::Vector{String}, dl_load_path::Vector{String}, load_path::Vector{String}, concrete_deps::Vector{Pair{Base.PkgId, UInt128}}, source::Nothing)\r\n#18 22.72    @ Base ./loading.jl:2045\r\n#18 22.72  [8] top-level scope\r\n#18 22.72    @ stdin:3\r\n#18 22.72 in expression starting at /root/.julia/packages/PyCall/ilqDX/src/startup.jl:41\r\n#18 22.72 in expression starting at /root/.julia/packages/PyCall/ilqDX/src/PyCall.jl:1\r\n#18 22.72 in expression starting at stdin:3\r\n#18 22.72 \r\n#18 22.72 caused by: could not load library \"/root/.pyenv/versions/3.9.2/lib/libpython3.9.so.1.0\"\r\n#18 22.72 /root/.pyenv/versions/3.9.2/lib/libpython3.9.so.1.0: cannot open shared object file: No such file or directory\r\n#18 22.72 Stacktrace:\r\n#18 22.72  [1] dlopen(s::String, flags::UInt32; throw_error::Bool)\r\n#18 22.72    @ Base.Libc.Libdl ./libdl.jl:117\r\n#18 22.72  [2] dlopen(s::String, flags::UInt32)\r\n#18 22.72    @ Base.Libc.Libdl ./libdl.jl:116\r\n#18 22.72  [3] top-level scope\r\n#18 22.72    @ ~/.julia/packages/PyCall/ilqDX/src/startup.jl:48\r\n#18 22.72  [4] include(mod::Module, _path::String)\r\n#18 22.72    @ Base ./Base.jl:457\r\n#18 22.72  [5] include(x::String)\r\n#18 22.72    @ PyCall ~/.julia/packages/PyCall/ilqDX/src/PyCall.jl:1\r\n#18 22.72  [6] top-level scope\r\n#18 22.72    @ ~/.julia/packages/PyCall/ilqDX/src/PyCall.jl:38\r\n#18 22.72  [7] include\r\n#18 22.72    @ ./Base.jl:457 [inlined]\r\n#18 22.72  [8] include_package_for_output(pkg::Base.PkgId, input::String, depot_path::Vector{String}, dl_load_path::Vector{String}, load_path::Vector{String}, concrete_deps::Vector{Pair{Base.PkgId, UInt128}}, source::Nothing)\r\n#18 22.73    @ Base ./loading.jl:2045\r\n#18 22.73  [9] top-level scope\r\n#18 22.73    @ stdin:3\r\n#18 22.89 ERROR: Failed to precompile PyCall [438e738f-606a-5dbb-bf0a-cddfbfd45ab0] to \"/root/.julia/compiled/v1.9/PyCall/jl_RA5NCO\".\r\n#18 23.47 Stacktrace:\r\n#18 23.47  [1] error(s::String)\r\n#18 23.48    @ Base ./error.jl:35\r\n#18 23.48  [2] compilecache(pkg::Base.PkgId, path::String, internal_stderr::IO, internal_stdout::IO, keep_loaded_modules::Bool)\r\n#18 23.48    @ Base ./loading.jl:2296\r\n#18 23.48  [3] compilecache\r\n#18 23.48    @ ./loading.jl:2163 [inlined]\r\n#18 23.48  [4] _require(pkg::Base.PkgId, env::String)\r\n#18 23.48    @ Base ./loading.jl:1805\r\n#18 23.48  [5] _require_prelocked(uuidkey::Base.PkgId, env::String)\r\n#18 23.48    @ Base ./loading.jl:1660\r\n#18 23.48  [6] macro expansion\r\n#18 23.48    @ ./loading.jl:1648 [inlined]\r\n#18 23.48  [7] macro expansion\r\n#18 23.48    @ ./lock.jl:267 [inlined]\r\n#18 23.48  [8] require(into::Module, mod::Symbol)\r\n#18 23.48    @ Base ./loading.jl:1611\r\n#18 23.52 Traceback (most recent call last):\r\n#18 23.52   File \"/root/.pyenv/versions/3.10.12/lib/python3.10/runpy.py\", line 196, in _run_module_as_main\r\n#18 23.52     return _run_code(code, main_globals, None,\r\n#18 23.52   File \"/root/.pyenv/versions/3.10.12/lib/python3.10/runpy.py\", line 86, in _run_code\r\n#18 23.52     exec(code, run_globals)\r\n#18 23.52   File \"/root/.pyenv/versions/3.10.12/lib/python3.10/site-packages/pysr/__main__.py\", line 4, in <module>\r\n#18 23.52     _cli(prog_name=\"pysr\")\r\n#18 23.52   File \"/root/.pyenv/versions/3.10.12/lib/python3.10/site-packages/click/core.py\", line 1130, in __call__\r\n#18 23.52     return self.main(*args, **kwargs)\r\n#18 23.52   File \"/root/.pyenv/versions/3.10.12/lib/python3.10/site-packages/click/core.py\", line 1055, in main\r\n#18 23.52     rv = self.invoke(ctx)\r\n#18 23.52   File \"/root/.pyenv/versions/3.10.12/lib/python3.10/site-packages/click/core.py\", line 1657, in invoke\r\n#18 23.52     return _process_result(sub_ctx.command.invoke(sub_ctx))\r\n#18 23.52   File \"/root/.pyenv/versions/3.10.12/lib/python3.10/site-packages/click/core.py\", line 1404, in invoke\r\n#18 23.52     return ctx.invoke(self.callback, **ctx.params)\r\n#18 23.52   File \"/root/.pyenv/versions/3.10.12/lib/python3.10/site-packages/click/core.py\", line 760, in invoke\r\n#18 23.52     return __callback(*args, **kwargs)\r\n#18 23.52   File \"/root/.pyenv/versions/3.10.12/lib/python3.10/site-packages/pysr/_cli/main.py\", line 37, in _install\r\n#18 23.52     install(julia_project, quiet, precompile)\r\n#18 23.52   File \"/root/.pyenv/versions/3.10.12/lib/python3.10/site-packages/pysr/julia_helpers.py\", line 84, in install\r\n#18 23.52     julia.install(quiet=quiet)\r\n#18 23.52   File \"/root/.pyenv/versions/3.10.12/lib/python3.10/site-packages/julia/tools.py\", line 127, in install\r\n#18 23.52     raise PyCallInstallError(\"Precompiling\")\r\n#18 23.52 julia.tools.PyCallInstallError: Precompiling PyCall failed.\r\n#18 23.52 \r\n#18 23.52 ** Important information from Julia may be printed before Python's Traceback **\r\n#18 23.52 \r\n#18 23.52 Some useful information may also be stored in the build log file\r\n#18 23.52 `~/.julia/packages/PyCall/*/deps/build.log`.\r\n#18 23.52 \r\n------\r\n```\r\n\r\n</details>\r\n\r\nThere should definitely be a way we can automatically fix this, right? Is it `prefs` we need to update?\r\n\r\n\r\n---\r\n\r\nI note that even doing `julia -e 'using Pkg; Pkg.add(\"PyCall\"); Pkg.build(\"PyCall\")'` beforehand does not seem to save things. The `python -m pysr install` still fails...",
               "createdAt": "2023-07-02T21:27:58Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "It seems like PyCall.jl is storing the `libpython` version inside `packages/PyCall/ilqDX/deps/deps.jl`:\r\n\r\n```julia\r\nconst libpython = \"/root/.pyenv/versions/3.9.2/lib/libpython3.9.so.1.0\"\r\n```\r\n\r\nMaybe that's the issue? Perhaps a new package directory is not being created when the Python binary changes?",
               "createdAt": "2023-07-02T21:39:41Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mkitti"
               },
               "body": "Run a Julia process that executes this before trying to connect Julia and Python.\n\n```\nusing Pkg\nPkg.activate(\"pysr...\"; shared=true)\nENV[\"PYTHON\"] = \"/path/to/python\"\nPkg.build(\"PyCall\")\n```\n\nThat will force the following file to run again.\n\nhttps://github.com/JuliaPy/PyCall.jl/blob/master/deps/build.jl\n\n",
               "createdAt": "2023-07-02T21:53:37Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "That's a good idea. Let me try that.",
               "createdAt": "2023-07-02T23:24:33Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I implemented your suggestion in #363 so it automatically updates PyCall. Seems to work locally! I added a unittest too.",
               "createdAt": "2023-07-02T23:58:41Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Okay I'm temporarily going to close this with #363 merged. Fingers crossed. I'll leave it pinned though.",
               "createdAt": "2023-07-04T16:45:06Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Fixed by #535 ",
               "createdAt": "2024-02-12T09:06:50Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOc4e-nA=="
           }

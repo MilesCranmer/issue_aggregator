@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 897,
+        "title": "Is it possible to get the progress bar in Spyder IDE?",
+        "body": "Hello,\r\n\r\nI Love this package and I'm blown away by the speed of it. I have a small issue though which in no way is impacting the outcome of the model. When using Spyder I get the warning below:\r\n\r\n```\r\nC:\\Users\\arose\\.conda\\envs\\test-env\\Lib\\site-packages\\pysr\\sr.py:2774: UserWarning: Note: it looks like you are running in Jupyter. The progress bar will be turned off.\r\n  warnings.warn(\r\n```\r\n\r\nI'm not using Jupyter but I'm getting this warning. It would be nice to see a progress bar if it's possible. \r\npython: 3.13.2\r\npysr: 1.5.3\r\nSpyder 6.0.4:\r\nSpyder Kernels: 3.0.3\r\n\r\nHas anyone been able to get the progress bar to work in Spyder? Moving to more developer focused like Ipython or PyCharm isn't worth it just for a progress bar so if anyone knows how to get this working that would be awesome. Otherwise I can easily live without it. \r\n\r\nThanks!\r\n\r\nA. Rose",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Yeah it would be really nice if this could work!\r\n\r\nI haven't tried since moving from ProgressBars.jl (old) to [ProgressMeters.jl](https://github.com/timholy/ProgressMeter.jl) (current), but I have an old issue about this: https://github.com/MilesCranmer/PySR/issues/31. If you feel like getting your hands dirty, you could try disabling that behavior around sr.py:2774 and seeing if it works?\r\n\r\nI feel like the proper solution (assuming the above doesn't work) might be to hide the Julia progress bar, and somehow pipe the information from the backend asynchronously to Python, and then have Python display it using tqdm which has proper support for Jupyter. This should all be possible because the global interpreter lock is released once the `equation_search` is called: https://github.com/MilesCranmer/PySR/blob/cd055a67728eeb675c76dedfe5d5e669eea3a6d1/pysr/sr.py#L2085.\r\n\r\nSo this means that if you set up https://docs.python.org/3/library/threading.html, you could theoretically run a tqdm progress bar in parallel with the search taking place. Though I'm not sure if this would work or not.",
+              "createdAt": "2025-04-23T17:14:47Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "P.S., you can also set up tensorboard logging: https://ai.damtp.cam.ac.uk/pysr/api/#pysr.TensorBoardLoggerSpec. If you open up tensorboard in your IDE, you can monitor progress in real-time. A little bit nicer than the text printouts but still not as nice as the IPython progress bars.",
+              "createdAt": "2025-04-23T17:16:41Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNC0yM1QxODoxNjo0MSswMTowMM4AxTtE"
+          }
+        }
+      }
+    }
+  }
+}

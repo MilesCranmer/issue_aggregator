@@ -1,18 +1,13 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 643,
         "title": "Interpretation for complex equations",
         "body": "The ethos behind SR is interpretability. \r\nHowever, in the event that a complex equation has much better fit to test data, the resulting equation, although much easier to work with than a blackbox model, is difficult to interpret. \r\n\r\nHow do you tackle this problem?\r\nI have played around with using the SHAP library?\r\n\r\nThe permutation in SHAP is very slow and I am doubtful this is the best approach, but it does allow for feature importance.\r\n\r\nThis would give me this example output: \r\n![image](https://github.com/MilesCranmer/PySR/assets/127948719/eb4dc613-0971-463c-b455-1157c1a86656)\r\n\r\n```\r\nimport shap\r\n\r\nclass CustomModel:\r\n    def __init__(self, equation_str):\r\n        self.equation_str = equation_str\r\n\r\n    def predict(self, X):\r\n        results = []\r\n        for _, row in X.iterrows():\r\n            sample_values = get_sample_values(row)\r\n            result = eval(self.equation_str, sample_values)\r\n            results.append(result)\r\n        return np.array(results)\r\n\r\nselected_equation_index = 38  # Change this to select a different equation\r\nselected_equation = equation_strs[selected_equation_index]\r\nmodel = CustomModel(selected_equation)\r\n\r\n# Prepare the data using only relevant columns for SHAP\r\nrelevant_columns = list(variable_mapping.values())\r\nX = combined_df[relevant_columns]  # Use combined_df instead of df\r\ny_true = combined_df[target_variable]  # Use combined_df instead of df\r\n\r\n# Ensure all data types are numeric, coerce errors\r\nX = X.apply(pd.to_numeric, errors='coerce')\r\ny_true = y_true.apply(pd.to_numeric, errors='coerce')\r\n\r\n# Drop any remaining rows with NaN values\r\nX = X.dropna()\r\ny_true = y_true.loc[X.index]\r\n\r\n# Generate SHAP values using Permutation Explainer\r\nexplainer = shap.Explainer(model.predict, X, algorithm=\"permutation\")\r\nshap_values = explainer(X)\r\nshap.summary_plot(shap_values, X, plot_type=\"bar\")\r\nshap.summary_plot(shap_values, X)\r\nshap.plots.beeswarm(shap_values)\r\n\r\n```",
-        "comments":
-        {
+        "comments": {
           "nodes": [],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": null
           }

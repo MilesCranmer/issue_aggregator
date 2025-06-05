@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 489,
         "title": "[BUG]: Small typo in documentation",
         "body": "### What happened?\n\nThere is a trivial bug in the README.md, a typo. \r\n\r\nWhen defining a `PySRRegressor`, at some point it says `denoising=True` when the correct syntax is simply  `denoise=True`. \n\n### Version\n\n0.16.5\n\n### Operating System\n\nmacOS\n\n### Package Manager\n\nNone\n\n### Interface\n\nJupyter Notebook\n\n### Relevant log output\n\n```shell\nn/a.\n```\n\n\n### Extra Info\n\nIt seems that I can't push a local branch that fixes the typo to the remote, otherwise I would've made a PR (and PR-ing a fork for this issue seems like an overkill). \r\n\r\nThanks!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks! Just fixed it.",
               "createdAt": "2023-12-19T16:36:52Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHObwzAEg=="
           }

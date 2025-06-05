@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 583,
         "title": "Cannot round symbolic expression",
         "body": "Hi\r\nPlease help on this exception, i have it defined as :\r\n\r\n```python\r\nunary_operators=[\r\n    #\"neg\",\r\n    \"abs\",\r\n    \"rd(x) = round(x+Float32(0.00001), digits=2)\",\r\n    #\"floor\", 'ceil', \r\n    'sign'\r\n    # ^ Custom operator (julia syntax)\r\n],\r\nextra_sympy_mappings={\r\n    'rd': lambda x: round(x+0.00001, 2)\r\n}\r\n```\r\n\r\n\r\nBut after long run, it failed with \r\n\"Cannot round symbolic expression\"\r\n\r\n\r\nThanks\r\nAndrew\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Your `extra_sympy_mappings` version of `rd` isn't a valid sympy function. To fix this:\r\n\r\n```python\r\nextra_sympy_mappings={\r\n    'rd': lambda x: sympy.ceiling((x+0.00001)*100 - 0.5) / 100\r\n}\r\n```\r\nI think this should fix it. But you should test it first.\r\n\r\nEdited: Fixed to `ceiling`.",
               "createdAt": "2024-03-25T22:29:14Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "hongguoadp"
               },
               "body": "Thanks, but I get this now:\r\n\r\nreturn sympy.ceil((x+0.00001)*100 - 0.5) [/](https://file+.vscode-resource.vscode-cdn.net/) 100\r\n\r\nAttributeError: module 'sympy' has no attribute 'ceil'\r\n\r\nI did \r\nimport sympy",
               "createdAt": "2024-03-26T22:45:39Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMy0yNlQyMjo0NTozOSswMDowMM4AiCCf"
           }

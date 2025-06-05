@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 241,
         "title": "How to change function selection",
         "body": "How to make hall of fame with  functions with the smallest loss?\n\nBy default, i guess, it selects functions with respect to score, as i always have a constant member.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "1. You can change the `model_selection` parameter: https://astroautomata.com/PySR/api/#the-objective\r\n2. You can manually select based on your own metric. `predict`, `sympy`, `jax`, etc., all have an `index` parameter. Simply pass the row of the equation you want to use (you can compute this from `model.equations_`, which is the dataframe holding the equations). If `index` is `None` (default), then the `model_selection` strategy is used. ",
               "createdAt": "2022-12-21T21:50:07Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0xMi0yMVQyMTo1MDowNyswMDowMM4ARDl1"
           }

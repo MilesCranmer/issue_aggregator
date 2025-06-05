@@ -1,68 +1,56 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 339,
         "title": "[Feature]: Add complexity calculation for user defined expression",
         "body": "### Feature Request\n\nHi. I've recently started using PySR and I would like to suggest a new feature that I think would make the code even more user-friendly.\r\n\r\nWould it be possible to have more direct access to the function that computes the complexity such that one can compare expressions found by PySR and those found in the literature?\r\n\r\nFor example: `model.complexity('1 + x_0 + x_1**2')`\r\n\r\nThis would allow the user to easily map the expressions found in the literature on the complexity vs accuracy plots. \r\n\r\nThank you in advance.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "That's a good idea. This would probably have to be done by calling out to the Julia backend's `compute_complexity` function, and using `jl.eval()` to evaluate the expression.\r\n\r\nIt is a bit tricky because we would have to overload the user-defined operators to work for the expression type so that `1 + x_0` becomes an expression object. And there are some difficulties because you wouldn't want, e.g., `1 + 2` to automatically simplify to `3` before evaluation of the complexity.\r\n\r\nAnother option is to do the complexity calculation in pure Python, but it would add maintenance burden and also cause some issues due to the fact that some of the SymPy operators are mapped to multiple primitive operators (e.g., `cos2(x)=cos(x^2)` would count as `cos` and `^2`, even though it would be a single operator.",
               "createdAt": "2023-05-28T17:45:40Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Should be much easier after the PR #429 passes. Perhaps we could make a function to convert a string into a SymbolicRegression.jl equation (via the use of `@extend_operators` on `sr_options_`).",
               "createdAt": "2023-09-17T15:29:45Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "@OsAmaro – #430 fixes this. Could you please try it out?",
               "createdAt": "2023-09-17T16:34:55Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "OsAmaro"
               },
               "body": "Hey @MilesCranmer,\r\n\r\nI think this method works! I tried this PR on Docker for some examples and it seemed consistent. Appreciate your work. Ideally one would bypass the .fit entirely and just define the PySRRegressor model, but this is already very helpful! Many thanks!\r\n\r\nCheers,\r\nÓscar",
               "createdAt": "2023-09-19T12:36:41Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I could potentially define a method that runs all the setup steps involved in `.fit` but without running the actual equation search. Right now `.fit` turns on Julia, creates the Julia options, and imports the backend. But those could be perhaps refactored into a separate method...\r\n\r\n(Any help appreciated, as professor life is quite busy 🙂 )\r\n",
               "createdAt": "2023-09-19T13:42:42Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Okay the functionality required has now been implemented as #564.\r\n\r\nFirst, see https://github.com/MilesCranmer/PySR/discussions/550#discussioncomment-8842600 for how to create user-defined expressions in PySR.\r\n\r\nNext, you can get complexity as follows:\r\n\r\n```python\r\nmodel  # PySRRegressor that has already been fit, thus having `.julia_options_`\r\ntree   # Expression you have defined by hand\r\n\r\njl.compute_complexity(tree, model.julia_options_)\r\n```\r\n\r\n",
               "createdAt": "2024-03-24T23:45:30Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOeDjgqA=="
           }

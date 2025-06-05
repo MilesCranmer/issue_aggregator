@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 532,
         "title": "Check how many features used in loss function",
         "body": "Hi,\r\n\r\nThank you for developing this library! I am wondering if there is a way to check how many features have been used in the current tree (except all the constants) when customising the loos functions? \r\n\r\nThanks again!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @nbjdttn,\r\n\r\nInteresting question. I think you could do that like this:\r\n\r\n```julia\r\n# Create array to store whether feature was used:\r\nwas_feature_used = zeros(Bool, dataset.nfeatures)\r\n\r\n# Loop through nodes in tree:\r\nforeach(tree) do node\r\n    if node.degree == 0 && !(node.constant)\r\n        was_feature_used[node.feature] = true\r\n    end\r\nend\r\n\r\nnumber_features_used = sum(was_feature_used)\r\n```",
               "createdAt": "2024-01-24T12:53:44Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMS0yNFQxMjo1Mzo0NCswMDowMM4AfZ1G"
           }

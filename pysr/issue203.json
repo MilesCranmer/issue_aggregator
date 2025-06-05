@@ -1,68 +1,56 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 203,
         "title": "PySR should check SymbolicRegression.jl version",
         "body": "SymbolicRegression.jl now has a `PACKAGE_VERSION` constant – this should be used by PySR to verify that the correct version is being imported. In practice, this probably not needed since PySR is managing the installs, but a user might have SymbolicRegression.jl installed in their base env, which might get imported instead. better to verify the version explicitly.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "tecosaur"
               },
               "body": "Why don't you check the version using `Pkg` ?",
               "createdAt": "2022-10-26T04:13:05Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "They are only adding it to Julia 1.9: https://github.com/JuliaLang/julia/pull/45607. For LTS versions I think I need this constant parameter. What do you think?",
               "createdAt": "2022-10-26T13:36:41Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "tecosaur"
               },
               "body": "Hmm, how long has `Pkg.Types.read_package` been around for? If that's somewhat stable you could do `Pkg.Types.read_package(abspath(pathof(SymbolicRegression), \"..\", \"..\", \"Project.toml\")).version`",
               "createdAt": "2022-10-26T13:55:21Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Here’s the current approach: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/cce9fda3d1fc6493b9d41ee92c6c630cb1944b95/src/SymbolicRegression.jl#L114. I guess the question is whether you’d want to do this inside PySR or SymbolicRegression.jl (and then just check the constant). ",
               "createdAt": "2022-10-26T14:35:47Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "tecosaur"
               },
               "body": "I'd be tempted to suggest this should be checked on the python side, since Julia already has its ways of dealing with version requirements.",
               "createdAt": "2022-10-26T14:48:35Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Implemented a while back so closing. Cheers!",
               "createdAt": "2023-03-27T23:15:19Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOWJJRdw=="
           }

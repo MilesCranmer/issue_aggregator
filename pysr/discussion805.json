@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 805,
+        "title": "Using DynamicDiff within CustomLossFunction",
+        "body": "I'm just trying whether I can use DynamicDiff operator within a custom loss function and comparing that to eval_diff_tree_array\r\n\r\n```julia\r\nfunction loss_fnc(tree, dataset::Dataset{T,L}, options, idx) where {T,L}    \r\n    # Extract data for the given indices\r\n    X = idx === nothing ? dataset.X : view(dataset.X,:, idx)\r\n    y = idx === nothing ? dataset.y : view(dataset.y, idx)\r\n    newExp = D(tree, 2)\r\n    grad, complete = eval_tree_array(newExp, X, options)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n   # Monotonicity check\r\n    if !all(h -> h <= 0, grad)\r\n        return 1f09\r\n    end\r\n    #avoids second eval if monotonicity breached. \r\n    prediction, complete = eval_tree_array(tree, X, options)\r\n    if !complete\r\n        return L(Inf)\r\n    end    \r\n    #...\r\n)\r\n```\r\nHowever, tree is DynamicExpressions.NodeModule.Node and I'm not sure how to extract AbstractExpression from tree. This would avoid any automatic differentiation and only evaluates the data if the constraints on grad are not breached. \r\n\r\nThank you\r\n\r\nEdit: To clarify, I'm comparing against:\r\n\r\n```julia\r\nfunction loss_fnc(tree, dataset::Dataset{T,L}, options, idx) where {T,L}    \r\n    # Extract data for the given indices\r\n    X = idx === nothing ? dataset.X : view(dataset.X,:, idx)\r\n    y = idx === nothing ? dataset.y : view(dataset.y, idx)\r\n    prediction, grad, complete = eval_diff_tree_array(tree, X, options, 2)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n    if !all(h -> h <= 0, grad)\r\n        return 1f09\r\n    end\r\n    #...\r\n)\r\n```\r\n\r\nI think if I get the first one working, it should be much quicker.\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks. Sadly there’s no way to do this at the moment because `loss_function` operates on the extracted tree, rather than the expression object. In the short term maybe we need a `loss_function_expression` to specify it as operating on the expression or something.",
+              "createdAt": "2025-01-13T12:06:27Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMS0xM1QxMjowNjoyNyswMDowMM4AtFke"
+          }
+        }
+      }
+    }
+  }
+}

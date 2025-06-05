@@ -1,92 +1,77 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 118,
         "title": "[BUG] Installation fails",
         "body": "**Describe the bug**\r\nAfter installing from conda in a Python 3.9 environment, installation fails with the following\r\n\r\n`julia.core.JuliaError: Exception 'ReadOnlyMemoryError()' occurred while calling julia code Pkg.add(spec, io=stderr)`\r\n\r\n**Version (please complete the following information):**\r\n- OS: Ubuntu\r\n- Version 20.04.2 LTS (Focal Fossa)\r\n- Does the bug appear with the latest version of PySR? Yes\r\n\r\n**Configuration**\r\n- What are your PySR settings? None. The installed version is 0.7.9 (pyh6c4a22f_0 from conda-forge)\r\n- What dataset are you running on? None\r\n\r\n**Error message**\r\n```\r\nTo silence this warning, you can run pysr.silence_julia_warning() after importing pysr.\r\n  warnings.warn(\r\n  Activating new environment at `~/.julia/environments/pysr-0.7.9/Project.toml`\r\n     Cloning git-repo `https://github.com/MilesCranmer/SymbolicRegression.jl`\r\nTraceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\n  File \"/home//anaconda3/envs/stable/lib/python3.9/site-packages/pysr/sr.py\", line 46, in install\r\n    _add_sr_to_julia_project(Main, io_arg)\r\n  File \"/home//anaconda3/envs/stable/lib/python3.9/site-packages/pysr/sr.py\", line 343, in _add_sr_to_julia_project\r\n    Main.eval(f\"Pkg.add(spec, {io_arg})\")\r\n  File \"/home//anaconda3/envs/stable/lib/python3.9/site-packages/julia/core.py\", line 621, in eval\r\n    ans = self._call(src)\r\n  File \"/home/em/anaconda3/envs/stable/lib/python3.9/site-packages/julia/core.py\", line 549, in _call\r\n    self.check_exception(src)\r\n  File \"/home/em/anaconda3/envs/stable/lib/python3.9/site-packages/julia/core.py\", line 603, in check_exception\r\n    raise JuliaError(u'Exception \\'{}\\' occurred while calling julia code:\\n{}'\r\njulia.core.JuliaError: Exception 'ReadOnlyMemoryError()' occurred while calling julia code:\r\nPkg.add(spec, io=stderr)\r\n```\r\n\r\n**Additional context**\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Where is your anaconda3 folder located? The error trace back seems to reference two different folders: `/home/anaconda3` and `/home/em/anaconda3` - maybe do you have two conflicting installations?",
               "createdAt": "2022-03-14T16:59:42Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "ecod3r"
               },
               "body": "Strange, as I copy-pasted the trace back. No, I've only got one anaconda installation, just multiple envs. But just ran again (same env and everything) and now the paths look right. Alas, the error persists.\r\n\r\n```\r\nEnvironment:\r\n  CONDA_BACKUP_FFLAGS = -fopenmp -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/em/anaconda3/include\r\n  CONDA_BACKUP_LDFLAGS = -Wl,-O2 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,--disable-new-dtags -Wl,--gc-sections -Wl,-rpath,/home/em/anaconda3/lib -Wl,-rpath-link,/home/em/anaconda3/lib -L/home/em/anaconda3/lib\r\n  JAVA_HOME = /usr/lib/jvm/java-11-openjdk-amd64\r\n  CONDA_BACKUP_DEBUG_CFLAGS = -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-all -fno-plt -Og -g -Wall -Wextra -fvar-tracking-assignments -ffunction-sections -pipe -isystem /home/em/anaconda3/include\r\n  CONDA_BACKUP_DEBUG_CPPFLAGS = -D_DEBUG -D_FORTIFY_SOURCE=2 -Og -isystem /home/em/anaconda3/include\r\n  CONDA_BACKUP_DEBUG_CXXFLAGS = -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-all -fno-plt -Og -g -Wall -Wextra -fvar-tracking-assignments -ffunction-sections -pipe -isystem /home/em/anaconda3/include\r\n  CONDA_BACKUP_DEBUG_FORTRANFLAGS = -fopenmp -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/em/anaconda3/include\r\n  HOME = /home/em\r\n  CONDA_BACKUP_CFLAGS = -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/em/anaconda3/include\r\n  CONDA_BACKUP_CXXFLAGS = -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/em/anaconda3/include\r\n  TERM = xterm-256color\r\n  CONDA_BACKUP_CMAKE_PREFIX_PATH = /home/em/anaconda3:/home/em/anaconda3/x86_64-conda-linux-gnu/sysroot/usr\r\n  CONDA_BACKUP_CPPFLAGS = -DNDEBUG -D_FORTIFY_SOURCE=2 -O2 -isystem /home/em/anaconda3/include\r\n  CONDA_BACKUP_DEBUG_FFLAGS = -fopenmp -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/em/anaconda3/include\r\n  PATH = /home/em/anaconda3/envs/stable/bin:/home/em/anaconda3/condabin:/home/em/.local/bin:/home/em/google-cloud-sdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin\r\n  CONDA_BACKUP_FORTRANFLAGS = -fopenmp -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/em/anaconda3/include\r\n[ Info: Julia executable: /home/em/anaconda3/envs/stable/bin/julia\r\n[ Info: Trying to import PyCall...\r\n┌ Info: PyCall is already installed and compatible with Python executable.\r\n│ \r\n│ PyCall:\r\n│     python: /home/em/anaconda3/envs/stable/bin/python\r\n│     libpython: /home/em/anaconda3/envs/stable/lib/libpython3.9.so.1.0\r\n│ Python:\r\n│     python: /home/em/anaconda3/envs/stable/bin/python\r\n└     libpython: \r\n/home/em/anaconda3/envs/stable/lib/python3.9/site-packages/pysr/sr.py:318: UserWarning: \r\nYour Python version is statically linked to libpython. For example, this could be the python included with conda, or maybe your system's built-in python.\r\nThis will still work, but the precompilation cache for Julia will be turned off, which may result in slower startup times on the initial pysr() call.\r\n\r\nTo install a Python version that is dynamically linked to libpython, pyenv is recommended (https://github.com/pyenv/pyenv). With pyenv, you can run: `PYTHON_CONFIGURE_OPTS=\"--enable-shared\" pyenv install 3.9.10` to install Python 3.9.10 with dynamic linking.\r\n\r\nTo silence this warning, you can run pysr.silence_julia_warning() after importing pysr.\r\n  warnings.warn(\r\n  Activating new environment at `~/.julia/environments/pysr-0.7.9/Project.toml`\r\n     Cloning git-repo `https://github.com/MilesCranmer/SymbolicRegression.jl`\r\nTraceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\n  File \"/home/em/anaconda3/envs/stable/lib/python3.9/site-packages/pysr/sr.py\", line 46, in install\r\n    _add_sr_to_julia_project(Main, io_arg)\r\n  File \"/home/em/anaconda3/envs/stable/lib/python3.9/site-packages/pysr/sr.py\", line 343, in _add_sr_to_julia_project\r\n    Main.eval(f\"Pkg.add(spec, {io_arg})\")\r\n  File \"/home/em/anaconda3/envs/stable/lib/python3.9/site-packages/julia/core.py\", line 621, in eval\r\n    ans = self._call(src)\r\n  File \"/home/em/anaconda3/envs/stable/lib/python3.9/site-packages/julia/core.py\", line 549, in _call\r\n    self.check_exception(src)\r\n  File \"/home/em/anaconda3/envs/stable/lib/python3.9/site-packages/julia/core.py\", line 603, in check_exception\r\n    raise JuliaError(u'Exception \\'{}\\' occurred while calling julia code:\\n{}'\r\njulia.core.JuliaError: Exception 'ReadOnlyMemoryError()' occurred while calling julia code:\r\nPkg.add(spec, io=stderr)\r\n```",
               "createdAt": "2022-03-14T18:18:28Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Very strange. Any chance you installed conda with sudo? It looks like it’s unable to write because of permission issues. ",
               "createdAt": "2022-03-14T20:07:40Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "ecod3r"
               },
               "body": "Strange indeed. Everything is in my home directory and I've never had to change permissions on anaconda's folders. Would you know what path is problematic? Also, I've checked, and `~/.julia/environments/pysr-0.7.9` does not exist.",
               "createdAt": "2022-03-14T20:44:16Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This looks similar in some ways: https://github.com/JuliaLang/julia/issues/39396\r\n\r\nMaybe you are running out of RAM? How much RAM do you have?",
               "createdAt": "2022-03-14T23:17:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "ecod3r"
               },
               "body": "1 TB, half of which is available - can free up more, though I'd be *very* surprised if that mattered. Info, as printed by `pysr.install()`\r\n\r\n```\r\nPlatform Info:\r\n  OS: Linux (x86_64-conda-linux-gnu)\r\n      Ubuntu 20.04.2 LTS\r\n  uname: Linux 5.4.0-77-generic #86-Ubuntu SMP Thu Jun 17 02:35:03 UTC 2021 x86_64 x86_64\r\n  CPU: AMD EPYC 7702P 64-Core Processor: \r\n                  speed         user         nice          sys         idle          irq\r\n       #1-128  1499 MHz  1189067606 s      89796 s   73479266 s  8341110380 s          0 s\r\n       \r\n  Memory: 1003.5033874511719 GB (455850.2890625 MB free)\r\n```",
               "createdAt": "2022-03-15T08:17:11Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Yes, that's definitely enough RAM!! I was more wondering if it was like on a tiny virtual machine or something and running out of memory. This bug is really perplexing me.\r\n\r\nCould you try each of the following potential solutions?\r\n\r\n1. Delete the Julia registry using `rm ~/.julia/registries/*` and then re-run `pysr.install()`.\r\n2. Create a new conda environment just for PySR, with `conda create -n pysr pysr`, and see if it works in a fresh environment.",
               "createdAt": "2022-03-15T18:11:53Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Also, make sure your conda is up to date (`conda update -n base conda`), but I'm not sure if that's relevant for this.",
               "createdAt": "2022-03-15T18:18:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Presumably fixed by #535 ",
               "createdAt": "2024-02-12T09:05:13Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOc4e1rQ=="
           }

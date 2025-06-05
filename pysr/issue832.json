@@ -1,0 +1,68 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 832,
+        "title": "[BUG]: Freezing/Getting Stuck on Python 3.7/PySR 0.18.3",
+        "body": "### What happened?\n\nHi there, I have not been able to find a similar issue to this. It is probably something silly. But I am running on Python 3.7, on larger number of iterations and bigger datasets (2000 samples with 3 features), the progress print gets stuck at \"compiling Julia backend\" or in the middle of the optimization. I am using the very basic functionality code in the readme file, so nothing crazy. Any ideas?\n\nThanks,\nAmir\n\n### Version\n\n0.18.3\n\n### Operating System\n\nmacOS\n\n### Package Manager\n\nConda\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\nCompiling Julia backend...\n[ Info: Started!\n2.4%┣██                                                                                  ┫ 71/3.0k [00:02<01:07, 44it/s]Expressions evaluated per second: 7.85e+04. Head worker occupation: 22.4%                                               Press 'q' and then <enter> to stop execution early.                                                                     Hall of Fame:                                                                                                           ----------------------------------------------------------------------------------------------------------------------- Complexity  Loss       Score     Equation                                                                               1           6.077e-01  1.594e+01  y = x2                                                                                2           6.057e-01  3.288e-03  y = cube(-0.33556)                                                                    3           5.736e-01  5.450e-02  y = -0.18654 * x1                                                                     4           5.716e-01  3.527e-03  y = cube(-0.21912 * x1)                                                               5           5.017e-01  1.303e-01  y = 0.24248 * (x0 - x1)                                                               6           3.090e-01  4.849e-01  y = cube(0.33309 * (x0 - x1))                                                         8           2.241e-01  1.606e-01  y = 0.24248 * (square(x0 - x1) - x0)                                                  12          2.219e-01  2.427e-03  y = ((square(x0 - x1) + (x2 - x1)) * 0.21079) + -0.24809                              14          2.136e-01  1.898e-02  y = 0.24248 * (((square((x0 - x1) - -0.17614) - x0) - 1.3057) - -0.22216)             16          2.097e-01  9.353e-03  y = (x2 + ((0.1745 * 1.3059) * (square(x1 - x0) - (0.54558 * x1)))) + -0.34857        17          2.013e-01  4.082e-02  y = (((square(x0 - x1) + x2) * 0.21079) - square((0.096751 * -2.0963) * x1)) + -0....                                   24809                                                                                 19          1.975e-01  9.550e-03  y = (((square(x0 - x1) + x2) * 0.21079) - square(((0.096751 * x0) * x1) * 0.57378)...                                   ) + -0.24809                                                                          20          1.954e-01  1.073e-02  y = (((square(inv(-0.7479)) * square((x0 + -0.34297) - x1)) - x1) * (-0.083091 * i...                                   nv(cube(-0.82306)))) - 0.2591\n```\n\n### Extra Info\n\n_No response_",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @amirhszd,\nAre you able to use a newer Python? Python 3.7 stopped receiving security updates [1.5 years ago](https://endoflife.date/python), so is no longer recommended to use in any context:\n\n<img width=\"1142\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/6476a294-90bc-413a-bdeb-929cbb9d2167\" />\n\nThe most recent PySR version is 1.4.0. This version is only supported on Python 3.10 and above, and will not be available on older Python versions. Are you able to update Python?\n\nCheers,\nMiles",
+              "createdAt": "2025-02-18T23:33:56Z"
+            },
+            {
+              "author": {
+                "login": "amirhszd"
+              },
+              "body": "Thank you very much for this!",
+              "createdAt": "2025-02-19T14:03:14Z"
+            },
+            {
+              "author": {
+                "login": "amirhszd"
+              },
+              "body": "Unfortunately, I am still seeing the same behavior with python 3.11. I am able to run it with 500 iterations and sampling 1000 from my dataset, but anything above that freezes.\n",
+              "createdAt": "2025-02-19T14:15:07Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "What version of PySR? Can you update to 1.4?",
+              "createdAt": "2025-02-19T14:19:35Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Also please share your entire script if possible",
+              "createdAt": "2025-02-19T14:20:39Z"
+            },
+            {
+              "author": {
+                "login": "amirhszd"
+              },
+              "body": "I am using PySR 1.4.\n\nbelow is my code: \n\n```\n    df = pd.read_csv(\"data.csv\")\n\n    x = np.vstack([df[\"w\"].to_numpy(),\n                   df[\"T1\"].to_numpy() - df[\"T2\"].to_numpy(),\n                   (df[\"e1\"].to_numpy() + df[\"e2\"].to_numpy())/2, \n                   df[\"e1\"].to_numpy() - df[\"e2\"].to_numpy()]\n                  ).T.astype(np.float32) \n    y = df['error'].to_numpy()\n\n    from pysr import PySRRegressor\n    model = PySRRegressor(\n        maxsize=20,\n        niterations=1000,  # < Increase me for better results\n        binary_operators=[\"*\", \"+\", \"-\", \"/\"],\n        unary_operators=[\"square\", \"cube\", \"inv(x) = 1/x\"],\n        extra_sympy_mappings={\"inv\": lambda x: 1 / x},\n    )\n\n    indices = np.random.choice(np.arange(len(x)), 1000)\n    model.fit(x[indices], y[indices])\n```",
+              "createdAt": "2025-02-19T14:25:29Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Can you share data.csv too? I really am not sure what could cause freezing though. Can you share the entire output from start to finish, even stderr if it is available? And if you monitor the process in the \"Activity Monitor\", is it still running?",
+              "createdAt": "2025-02-19T14:29:55Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOnxMCiQ=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 863,
+        "title": "Does PySR support matrix computation?",
+        "body": "Does PySR support matrix computation? For example, $y=W_{2}W_{1}x$ where $x$ and $y$ are vectors.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Not inside the expressions themselves. But you can do this sort of thing with template expressions. See https://ai.damtp.cam.ac.uk/symbolicregression/stable/examples/template_expression/ for a Julia example. Scikit learn doesn’t support the full interface but there’s probably a way you can hack it with a combination of a template expression and the right custom loss function.",
+              "createdAt": "2025-03-07T09:38:00Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0wN1QwOTozODowMCswMDowMM4AvZUe"
+          }
+        }
+      }
+    }
+  }
+}

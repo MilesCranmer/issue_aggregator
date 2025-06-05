@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 923,
+        "title": "HOF File Output and Formatting Customization",
+        "body": "Greetings,\r\n\r\nIs there a way to customize the behavior and format of the HOF output, including what’s saved in the output directory? For example, the model might progress through complexities of 4, 6, 8, and 12 with decreasing loss. But if a better expression is found at complexity 9, the 12-complexity expression gets overwritten. Is there a way to save every expression that improves upon the previous one (maybe only if it improves the loss from the previous best expression with a higher complexity)? From a research standpoint, it would be valuable to observe how the training evolves in more detail. This information might already be available in the model object after calling fit, but I'm not sure. Ideally, having access to metrics like Complexity, Loss, Score, Equation, Runtime, Min Error, Max Error, etc., would be huge!\r\n\r\n![image](https://github.com/user-attachments/assets/5c2a008e-44d5-40db-a1bb-0339c0fbf921)\r\n\r\n```\r\nmodel = PySRRegressor(\r\n    model_selection=\"best\",\r\n    run_id=f'SkewNormal - {datetime.datetime.now().strftime(\"%Y-%m-%d-%H-%M-%S.%f\")[:-4]}',\r\n    niterations=10000000,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\"],\r\n    unary_operators=[\"log\", \"sqrt\", \"square\",\"exp\"\r\n                     # , \"sin\", \"cos\", \"tan\"\r\n                     ],\r\n    maxsize=12,\r\n    warm_start=True,\r\n    temp_equation_file=False,\r\n    output_directory=\"C:/Users/person/Desktop/output/Skewnormal\",\r\n    verbosity=1,\r\n    timeout_in_seconds=120,\r\n    # early_stop_condition=\"f(loss, complexity) = (loss <= 5.526e-15) && (complexity < 6)\",\r\n    print_precision=6\r\n)\r\n```\r\n\r\nThank you!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Yes! You can use TensorBoardLoggerSpec: https://ai.damtp.cam.ac.uk/pysr/examples/#12-using-tensorboard-for-logging, which logs the full history of the Pareto front to disk in tensorboard format. This doubles as a way to interface with a GUI and hyperparameter sweep tools.",
+              "createdAt": "2025-05-14T17:55:49Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0xNFQxODo1NTo0OSswMTowMM4AyKD1"
+          }
+        }
+      }
+    }
+  }
+}

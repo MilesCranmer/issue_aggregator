@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 555,
         "title": "Command '['julia', '-e', '...']' returned non-zero exit status 1",
         "body": "### What happened?\n\n[BUG]: I installed the Juliaup direct from Windows terminal (MS store) and also I already had a Python version from MS Store. I'm using VS Code and when I was trying to run the code example, I'm getting the following error message: subprocess.CalledProcessError: Command '['julia', '-e', '...']' returned non-zero exit status 1. Do you have any idea what this is could be?\n\n### Version\n\n0.16.9\n\n### Operating System\n\nWindows\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n_No response_\n\n### Extra Info\n\n_No response_",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Can you install the new version of PySR and try again? This error is specific to this older version.",
               "createdAt": "2024-02-27T19:36:58Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Going to close this as it is fixed in the most recent version. Let me know if it comes up again though...",
               "createdAt": "2024-03-11T13:17:39Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOdoToZQ=="
           }

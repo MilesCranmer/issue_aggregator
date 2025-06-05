@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 161,
         "title": "Method to force each variable to be used at least once",
         "body": "I have a large test matrix of conditions allowing me to see the influence of certain variables on the function I'm trying to investigate.  There is a visible difference in the curves when varying only one parameter and the difference is obvious.  However, these variables are not always included in the resulting best fit equations produced by pysr.  \r\n\r\nI have set `complexity_of_constants=3` to prevent the algorithm from using generic constants unless absolutely necessary.  \r\n\r\nI'm a bit new to symbolic regression, having only experienced Eureqa in the past but I do have experience with other optimization techniques (differential evolution mostly) and I was always able to define a feasible space to restrict the search; reading through the API documents, I've found some constraint options, such as choosing which operators to consider and setting custom complexities for them.  However, I have not found a way to constrain the use of each constant to >=1, <5 for instance... \r\n\r\nIs it possible to ensure each variable is used in the equation?  ",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "You could write a custom `eval_loss`: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/88dc455c8e5db5cfd7439f3d9a271e0029171cb8/src/LossFunctions.jl#L38 to punish an expression if all the features are not used. (The data structure of an equation is defined in `Equation.jl` as `Node`). Then, import your custom backend with the `julia_project` parameter to point to the root directory.\r\n\r\nThere isn't anything built-in like this. PySR/SymbolicRegression.jl are optimizing accuracy and simplicity - thus, if a variable doesn't improve the accuracy, it should not appear in the equation.",
               "createdAt": "2022-07-08T19:26:35Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "Zhonglu"
               },
               "body": "Hi,\r\n\r\nI got the same problem here. By prio-ri physical knowledge, I can know for sure that some variables are 100% influential to the result. Yet I could not force them to appear. I was wondering if anyone have resolved it. I might try write a custom version, yet I am no expert in CS, so I have no idea how long I might take.\r\n\r\nRegards,\r\n\r\nMike ",
               "createdAt": "2022-11-18T08:59:40Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0xMS0xOFQwODo1OTo0MCswMDowMM4AP7VU"
           }

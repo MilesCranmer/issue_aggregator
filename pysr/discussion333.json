@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 333,
         "title": "types of parameters",
         "body": "I am currently attempting to compare predictions of clinical outcomes (dead vs alive (logistic) or number of hospitalizations days(linear)) using different paramters (age (continuous), sex (categorica), bmi(continuous)) using traditional (logistic or linear) regression to symbolic regression. I was wondering how I can ensure that the \"PySRRegressor\" function to develop the different equations takes into account the different types variables/predictors (continuous or categorical). ",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Would you be able to clarify what you mean by \"takes into account\"? What kind of specialization would be used?",
               "createdAt": "2023-05-19T19:49:45Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNS0xOVQyMDo0OTo0NSswMTowMM4AWtIu"
           }

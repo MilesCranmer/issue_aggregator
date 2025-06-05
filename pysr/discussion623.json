@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 623,
         "title": "Learning parametric functions with PySR",
         "body": "Hi PySR community!\r\n\r\nWe are currently stuck with a physics problem and it seems like PySR is just what we need. Instead of brute-forcing the problem with neural networks, we would like to know more about our system so having some equations to look at would help us gain more insight for future research.\r\n\r\nThe problem is very straight-forward: we have a 100 bodies with three euclidean coordinates each, so a total number of 300 parameters in our $X$. Our observable $y$ is the total potential energy of the system, i.e. the sum for all bodies but we do not know what the indivual components are. And this is why we would like to use PySR to find these contributions.\r\n\r\nOur questions essentially are:\r\n1. Has there been documeted cases where it possible to find candidate functions with PySR when there are so many input parameters? We have access to a vast amount of data so the number of data points should not be an issue.\r\n2. Is there any tricks to guide the model in the right direction? E.g. Newton's law of universal gravitation $F_{ij} = \\frac{G m_{i} m_{j}}{r_{ij}^2}$ has a positional dependency, where $r_{ij}^2 = (x_{j}-x_{i})^2 + (y_{j}-y_{i})^2 + (z_{j}-z_{i})^2$, and our problem is probably distance dependent too, but storing all the unique pair distances is even more costly parameter-wise ($\\frac{n(n-1)}{2} = \\frac{100(100-1)}{2} = 4950$ instead of 300).\r\n3. In the distance-dependent example above, it does not matter which coordinate that is considered to be $x$, $y$ and $z$, as long as apples are compared to apples and oranges to oranges, so to speak. Is there a smart way of telling this to PySR (without using the pair distances, if that is an issue)?\r\n4. We also assume that the final equation is the same for each pair, so it seems a bit tedious to let PySR \"re-invent the wheel\" over and over again. In other words, $\\frac{C_{ij}}{(x_{j}-x_{i})^2 + (y_{j}-y_{i})^2 + (z_{j}-z_{i})}$ should be the same equation for any pair $i$ and $j$ but just a different constant $C_{ij} = G m_{i} m_{j}$. This is just an issue as we can not break up our system into individual pairs as we just know the total energy of all possible pairs.\r\n\r\nI think that was it for now. We really look forward to trying PySR in a later project! :smiley: \r\n\r\nEDIT: It is also worth noting that some of these bodies are of the same character. So in that case it would definitely be unnecassary to find the same expression yet again and very worrying if it did not!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @pastaalfredo,\r\n\r\nGreat question! We have done this in https://github.com/MilesCranmer/symbolic_deep_learning (check out the colab demo here: https://colab.research.google.com/github/MilesCranmer/symbolic_deep_learning/blob/master/GN_Demo_Colab.ipynb – which goes through this exact sort of problem). However for you, you will need to also learn a \"parameter dictionary\" which we did in https://iopscience.iop.org/article/10.1088/2632-2153/acfa63/meta as a way to do \"basis learning\".\r\n\r\nBasically you would first learn a deep learning model on your problem, and inside that model, you would have a set of per-object parameters (act as your function \"parameters\" such as $m_i$ and $m_j$ in your example) that you would also learn a neural net, you have:\r\n\r\n```python\r\nclass ParametricModel(nn.Module):\r\n    def __init__(self, num_objects, num_params):\r\n        self.parameter_map = nn.Parameter(torch.randn(num_objects, num_params, dtype=torch.float32))\r\n        # Implement neural net model for learning expression\r\n        self.mlp = ... # has (num_params + num_features) input\r\n\r\n    def forward(self, x):\r\n        object_index = x[:, 0]  # For example - you put in `i` here.\r\n        parameters = self.parameter_map[object_index]\r\n        features = x[:, 1:]\r\n        features_and_parameters = torch.cat((parameters, features), dim=1)\r\n        return self.mlp(feature_and_parameters)\r\n```\r\n\r\nAfter training this, you can approximate `self.mlp` using PySR (see bottom of https://colab.research.google.com/github/MilesCranmer/PySR/blob/master/examples/pysr_demo.ipynb for an example!).\r\n\r\nThat will be a parametric function, and the per-object parameters will be found in `self.parameter_map`.\r\n\r\nThis essentially turns a 100-input problem into a parametrized 5-input problem, which is much easier for PySR to handle.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2024-05-07T14:15:31Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNS0wN1QxNToxNTozMSswMTowMM4Ajo3b"
           }

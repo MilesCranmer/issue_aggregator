@@ -1,18 +1,13 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 128,
         "title": "Have you used PySR in your research? Share your paper!",
         "body": "Have you used PySR in a research paper to discover or rediscover some symbolic model?\r\n\r\nIf so, please add your paper to the following research showcase: https://astroautomata.com/PySR/#/papers\r\n\r\nYou get publicity for your paper as an example of symbolic regression, and others get to see different ways of using PySR!\r\n\r\nTo add your paper here, please submit a pull request adding information about your paper to this YAML file: https://github.com/MilesCranmer/PySR/blob/master/docs/papers.yml. You can include an image in the `docs/images` folder, and that image will show up on the research showcase page (most recent paper at top).\r\n\r\n\r\n![image](https://user-images.githubusercontent.com/7593028/166510250-ff15f36a-341f-47da-a5ee-2cd9b870f423.png)\r\n",
-        "comments":
-        {
+        "comments": {
           "nodes": [],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": null
           }

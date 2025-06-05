@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 891,
+        "title": "srun: error: unable to create step: More processros requested than permitted",
+        "body": "I am trying to use 'multiprocessing' mode on the cluster, I set the SR model parameter as following:\n`regressor = PySRRegressor(\n    cluster_manager=\"slurm\",\n    parallelism='multiprocessing',\n    procs=16,\n    populations=3*16,\n    niterations=100,\n    binary_operators=[\"+\", \"-\", \"*\", \"/\"],\n    unary_operators=[\"exp\", \"log\"],\n    elementwise_loss=\"L2DistLoss()\",\n    logger_spec=logger_spec,\n    batching=True,\n    nested_constraints={\"exp\": {\"exp\": 0}, \"log\":{\"log\":0}},\n)`\n\nFor the batch file, I requested --ntasks=1 and --cpus-per-task=48. Then I run python run.py. \n\nBut I got the  'srun: error: unable to create step: More processros requested than permitted', and the SR doesn't start properly. I am not sure why this happens, and where did I setup the parameters wrongly? ",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "It might be an issue of `srun` being called recursively, since the cluster manager internally  calls `srun`. Can you try running it _without_ srun? For example, just ssh into the worker node and run the Python script. Or modify the sbatch script to not have an srun.",
+              "createdAt": "2025-04-09T05:50:34Z"
+            },
+            {
+              "author": {
+                "login": "GZCPhysics"
+              },
+              "body": "Hi Miles, Thank you for your promote reply! It turns out to be my misunderstanding of the `procs=` parameter in pySR. I thought it was the number of cpus I am calling. But it turns out it should be '--ntask' in my batch script. After I set them to be the same, the 'srun' works properly. \nAlthough I do have further questions about calling the virtual environment in 'multiprocessing' mode, but I will open another issue for that if I don't manage to figure it out easily.  ",
+              "createdAt": "2025-04-11T07:53:56Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOpqmXVQ=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 901,
+        "title": "It is this well implemented?",
+        "body": "Hi, I'm using PySR on some data and I want to check how the different models fit that data by calculating the reduced chi squared for each equation PySR returns and check how similar to 1 they are, and only get the best expresion of all.\r\n\r\n\r\n\r\n```\r\ndef reduced_chi_squared(y_true, y_pred, uncertainty=None, dof=None):\r\n    uncertainty = np.std(y_true) if uncertainty is None else uncertainty\r\n    residuals = (y_true - y_pred) / uncertainty\r\n    chi2 = np.sum(residuals ** 2)\r\n    dof = len(y_true) - 1 if dof is None else dof\r\n    return chi2 / dof\r\n\r\ndef symbolic_regression(df, input_cols, target_col):\r\n    X = df[input_cols].values.reshape(-1, len(input_cols))\r\n    y = df[target_col].values\r\n    \r\n    X_train, X_test, y_train, y_test = train_test_split(\r\n        X, y, test_size=0.3, random_state=12)\r\n    \r\n    model = PySRRegressor(\r\n        niterations=30,\r\n        binary_operators=[\"+\", \"-\", \"*\", \"/\", \"^\"],\r\n        unary_operators=[\"exp\", \"log\", \"sqrt\"],\r\n        model_selection=\"best\",\r\n        elementwise_loss=\"loss(x, y) = (x - y)^2\",\r\n        verbosity=0,\r\n    )\r\n    model.fit(X_train, y_train)\r\n    \r\n    best_expr = None\r\n    best_chi2 = np.inf\r\n    for i, row in model.equations_.iterrows():\r\n        try:\r\n            y_pred = model.predict(X_test, index=i)\r\n            chi2 = reduced_chi_squared(y_test, y_pred)\r\n            if abs(chi2 - 1) < abs(best_chi2 - 1):\r\n                best_chi2 = chi2\r\n                best_expr = model.sympy(i)\r\n            \r\n        except Exception as e:\r\n            logger.warning(f\"Error evaluating model {i}: {e}\")\r\n    if best_chi2 < 0.8 or chi2 > 1.2:\r\n        logger.info(f\"Model {i} has a chi2 value of {chi2}, which is outside the acceptable range.\")\r\n        return None, np.inf\r\n    \r\n    return best_expr, best_chi2\r\n```\r\n\r\nI want to know if this can be done by PySR internally (my guess is yes, maybe in the model selection  variable I can define a function that makes this). Also I would like to have some outside opinion to know if this makes sense, mainly because I get strange things like this one \r\n\r\n![image](https://github.com/user-attachments/assets/a6194f0d-cc34-42e7-b45f-5092e1da02b3)\r\n\r\nHere it has to be something linear, but slightly different, bu I still get value near 1 for the chi2 which is not possible (the prediction of PySR is the number above the chi2)\r\n\r\nThanks for reading",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

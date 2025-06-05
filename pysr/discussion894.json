@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 894,
+        "title": "Choose batches manually",
+        "body": "Hi!\r\n\r\nIs it possible to control how the batches are chosen? I'm working on a custom loss function where it would be advantageous to control how the dataset is being batched. ",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Interesting! Unfortunately there’s nothing built in. You could add this yourself in a forked version though? Not sure if you are using Python or Julia here. On the PySR docs there’s a page explaining how to customise the backend version.\r\n\r\nThe batching is just done in this line: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/cd45719835fdb5260defa7b9bb5cfa0b315eaa4a/src/Dataset.jl#L304. So you could modify that `rand` call to do something else?",
+              "createdAt": "2025-04-18T14:26:49Z"
+            },
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "@MilesCranmer, relevant to this,  I have been experimenting on batching on and off Although with batching on, it convergences much quicker, it seems to hit an evolutionary dead-end earlier and plateau. In comparison, disabling batching (although the runtime is much slower), achieves a lower loss function. Essentially, no batching has a higher ceiling for a lower loss function if both ran indefinitely. \r\n\r\nAlthough this is partially mitigated by increasing the batch_size, but a random batch will under sample the extremes of data. \r\n\r\nI think adding more sophisticated batch samplers would bridge this gap. \r\nRandom would be O(1) complexity per batch, where as a Sobol or Latin Hypercube Sampling (LHS) might perform better? However, it could be expensive with O(<batchsize> * <num_x_vars>) complexity per iteration.\r\n\r\nYou could have something like batch_method = random, as default, or sobol or even a custom_batch_func as you do with other parts in the API. \r\n\r\nAlternatively you could consider having a batch_sequence = <vector of ints> for a more expensive batch method like a farthest point sampling which would just cycle through the batch_sequence for each iteration and leave it to to the user to generate the batch_sequence before the run.  ",
+              "createdAt": "2025-04-21T08:56:05Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNC0yMVQwOTo1NjowNSswMTowMM4AxMqG"
+          }
+        }
+      }
+    }
+  }
+}

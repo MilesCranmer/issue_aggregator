@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 905,
+        "title": "Help with speeding up the search and creating custom loss function expression",
+        "body": "Hi,\r\n\r\nI usually run PySR on an HPC and let it run for 4 days at a time but I find that the loss is still quite large and the equations haven't evolved as much as I wanted them to. I've been reading and implementing the tips from [Astroautomata](https://astroautomata.com/PySR/tuning/), like turning on turbo, bumper and batching, keeping the operators simple, keeping a large ```ncycles_per_iteration```, etc. One thing I would like to mention here is that I've kept a large ```maxsize``` since I'd like more complex equations (I know this can slow the process down a little bit). I've even downsampled the number of points in my dataset. Do you have any other suggestions that could help speed up the search?\r\n\r\nMy second question is, is there a way to save a model and then continue training from where it stopped?\r\n\r\nBelow is what my hyperparameters look like - \r\n\r\n```         \r\n# loss is defined before the regressor object\r\n\r\nmodel_pk = PySRRegressor(\r\n            binary_operators=[\"+\", \"-\", \"*\", \"/\", \"^\"],        \r\n            constraints={'^': (-1, 1)},         \r\n            unary_operators=[\"square\"],\r\n            elementwise_loss=elementwise_loss,     \r\n            niterations=1000,\r\n            populations=200,\r\n            population_size=300,             \r\n            maxsize=70,            \t\r\n            maxdepth=20,   \t\t\r\n            timeout_in_seconds=345600,     # 4 days\r\n            ncycles_per_iteration=3000,\r\n            weight_optimize=0.001,\r\n            weight_add_node=0.004522835200528927,\r\n            weight_insert_node=27.524411192119594,\r\n            weight_mutate_constant=3.4908752644974177,\r\n            weight_mutate_operator=0.005418386628230309,\r\n            weight_do_nothing=0.001374964776098089,\r\n            fraction_replaced=0.013374993832223066,\r\n            fraction_replaced_hof=0.030981822809764206,\r\n            procs=40,    \t  # cores in a node \r\n            batching=True,\r\n            turbo=True,\r\n\t    bumper=True   \r\n)\r\n```\r\n\r\nAny help will be appreciated!! Thank you in advance : D",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "A few tips:\r\n\r\n1. Don't use `square` as an operator if you are also using `^` since they are degenerate with eachother.\r\n2. I would impose stricter `constraints` on operators such as `/` and `^`.\r\n3. Since you are using a larger `maxsize` you could experiment with providing a `parsimony`. As I say on the tuning page, I like to set this to 0.1x the top loss I would expect for a particular problem.\r\n4. Experiment with batch size.\r\n5. @gm89uk has found that `adaptive_parsimony_scaling` set to 20 seems to produce better results sometimes.\r\n\r\n\r\nI also find that `warmup_maxsize_by` can sometimes help. But note that it is set relative to `niterations` rather than `timeout_in_seconds` so you need to select the specific fraction based on niterations.\r\n\r\nYou can also try template expressions. If you know the functional form, this can help a lot. https://ai.damtp.cam.ac.uk/pysr/examples/#template-expressions\r\n\r\n> My second question is, is there a way to save a model and then continue training from where it stopped?\r\n\r\nYes you can do this with `warm_start=True` and then just call `.fit` again. It should start where it left off. You can even use this as a sort of adaptive runs – perhaps gradually turning down the `parsimony` over time might help, so that the model only gradually explores more complex solutions.\r\n",
+              "createdAt": "2025-05-01T18:23:28Z"
+            },
+            {
+              "author": {
+                "login": "skadoosh-MC"
+              },
+              "body": "Hi Miles,\r\n\r\nI've been implementing your suggestions over the last few days, and they seem to have helped; thank you : D However, I do find that using ```parsimony``` or even ```batch_size``` causes it to crash? Not sure why that is. \r\n\r\nAlternatively, I realised that maybe using ```loss_function_expression``` may be more useful than ```elementwise_loss``` for my particular project (I'm also using ```TemplateExpressionSpec```). The initial ```elementwise_loss``` looks like this at the moment - \r\n```\r\nelementwise_loss = '''\r\n                    function custom_loss(prediction, target)            \r\n                        loss = abs(log(abs(prediction)/abs(target)))\r\n                        sign_loss = 10 * (sign(prediction) - sign(target))^2  \r\n                        return loss + sign_loss\r\n                    end'''\r\n```\r\n(taken from the [Dimensional Constraints](https://ai.damtp.cam.ac.uk/pysr/examples/#10-dimensional-constraints) example). I'm having problems adapting it so it works with ```loss_function_expression``` . [Options](https://ai.damtp.cam.ac.uk/symbolicregression/stable/api/#Options) also mentions that setting ```batching=True``` would add an additional argument in the function definition, I can't get it to work that way either. I was hoping you could share some insight on this as well. ",
+              "createdAt": "2025-05-08T16:47:40Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "On your loss: be careful because `log(abs(prediction/target))` can blow up. So what I would do is\r\n```julia\r\nfunction custom_loss(prediction, target)\r\n    T = typeof(prediction)\r\n    zero_point = T(1e-9)\r\n    loss = abs(log(abs(prediction/target) + zero_point))\r\n    sign_loss = 10 * (sign(prediction) - sign(target))^2\r\n    return loss + sign_loss\r\nend\r\n```\r\n\r\nfor the `loss_function_expression` version, I would do it like this:\r\n\r\n```julia\r\nfunction custom_loss_full(ex, dataset::Dataset{T,L}, options) where {T,L}\r\n    prediction, valid = eval_tree_array(ex, dataset.X, options)\r\n    !valid && return L(Inf)\r\n    y = dataset.y\r\n\r\n    function custom_loss(a, b)\r\n        zero_point = T(1e-9)\r\n        loss = abs(log(abs(a / b) + zero_point))\r\n        sign_loss = 10 * (sign(a) - sign(b))^2\r\n        return loss + sign_loss\r\n    end\r\n    \r\n    total_loss = sum([\r\n        custom_loss(prediction[i], y[i])\r\n        for i in eachindex(y)\r\n    ])\r\n    # The above is written to be pedagogical and python-like.\r\n    # In truth, it's actually a tiny bit faster to write this as\r\n    # `sum(i -> custom_loss(prediction[i], y[i]), eachindex(y))`\r\n    # because you avoid allocating the extra array\r\n    return L(total_loss)\r\nend\r\n```\r\nNote that the `L` usually isn't needed. I just tend to write it like this in examples as a safety measure in case a user accidentally introduces a type instability somewhere. By wrapping the output with `L`, we can ensure the return value is always a stable type (of type `L`, which is usually just `Float32`).",
+              "createdAt": "2025-05-08T22:02:59Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0wOFQyMzowMjo1OSswMTowMM4Ax5sx"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,60 +1,49 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 220,
         "title": "[BUG] `conda-forge` breaking",
         "body": "FYI @mkitti @ngam\r\n\r\nWeirdly the conda-forge tests are breaking again, even after I updated the conda-forge build to have a more recent julia depot: https://github.com/MilesCranmer/PySR/actions/runs/3396141209/jobs/5646873573\r\n\r\nThe errors are as follows. It seems like PyCall.jl has not been successfully built or something? The line which raises this error is [here](https://github.com/MilesCranmer/PySR/blob/8390e47de972a519d4b9f9425aa1a2e66f414f74/pysr/julia_helpers.py#L167-L168), meaning that `info.is_pycall_built()` is false. \r\n\r\n```\r\nFailed check_estimators_dtypes with:\r\n    Traceback (most recent call last):\r\n      File \"/home/runner/work/PySR/PySR/test/test.py\", line 652, in test_scikit_learn_compatibility\r\n        check(model)\r\n      File \"/usr/share/miniconda3/envs/test/lib/python3.11/site-packages/sklearn/utils/_testing.py\", line 320, in wrapper\r\n        return fn(*args, **kwargs)\r\n               ^^^^^^^^^^^^^^^^^^^\r\n      File \"/usr/share/miniconda3/envs/test/lib/python3.11/site-packages/sklearn/utils/estimator_checks.py\", line 1726, in check_estimators_dtypes\r\n        estimator.fit(X_train, y)\r\n      File \"/home/runner/work/PySR/PySR/pysr/sr.py\", line 1784, in fit\r\n        self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n      File \"/home/runner/work/PySR/PySR/pysr/sr.py\", line [14](https://github.com/MilesCranmer/PySR/actions/runs/3396141209/jobs/5646873573#step:6:15)78, in _run\r\n        Main = init_julia(self.julia_project)\r\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n      File \"/home/runner/work/PySR/PySR/pysr/julia_helpers.py\", line [16](https://github.com/MilesCranmer/PySR/actions/runs/3396141209/jobs/5646873573#step:6:17)8, in init_julia\r\n        raise ImportError(_import_error())\r\n    ImportError: \r\n        Required dependencies are not installed or built.  Run the following code in the Python REPL:\r\n    \r\n            >>> import pysr\r\n            >>> pysr.install()\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "mkitti"
               },
               "body": "I'm looking",
               "createdAt": "2022-11-04T18:53:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mkitti"
               },
               "body": "When you run `python3 -m unittest test.test` what test are you actually running?\r\n\r\nMy sense is that you are not running the test.py installed with the conda-forge package, but running the test.py stored in this source tree.\r\n\r\n",
               "createdAt": "2022-11-04T19:31:16Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Ah, perhaps that could be it; I can try changing it. Though I don’t see yet how that could cause this specific error. ",
               "createdAt": "2022-11-04T19:55:33Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I should move the `test` to be inside `pysr` so I can simply call it like `pysr.test.testall()`.",
               "createdAt": "2022-11-04T20:05:20Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Awesome. That was it! Thanks @mkitti for figuring that out! The conda-forge tests now actually run the one installed (via #221), and pass.",
               "createdAt": "2022-11-05T05:56:08Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOTb_TSw=="
           }

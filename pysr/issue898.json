@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 898,
+        "title": "Can't use pysr on linux",
+        "body": "Hello to everyone,\nWhen i start a symbolic regression with pysr, using Visual Studio Code on VNC, in a virtual environment made with the command \"python3.12 -m venv namevenv\" i get an error. Being the first start, when the installation of the newer version of juliapkg starts, I get:\n\nWARNING: Error during initialization of module GMP:\n\nErrorException(\"PCRE compilation error: unrecognised compile-time option bit(s) at offset 0\")\n\nERROR: PCRE compilation error: unrecognised compile-time option bit(s) at offset 0\n\nThe computer farm has this characteristics \n- *Operating System:* Red Hat Enterprise Linux 8.10 (Ootpa)\n- *Kernel Version:* 4.18.0-553.37.1.el8_10.x86_64\n- *Architecture:* x86-64\n- *Shell:* tcsh\n\nAny idea on what is causing this ?\nThanks in advance.",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

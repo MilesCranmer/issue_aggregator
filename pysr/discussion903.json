@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 903,
+        "title": "Writing a custom loss function in pysr to find recursive, hidden function",
+        "body": "Hi, \r\nI'm trying to write a custom loss function for the following problem:\r\nI modeled the following dataset: variables `[a, r]` (action and reward). This datasets represents a multi-armed bandit task in which a subject is asked to choose one out of four arms that yield different results from different normal distributions. Their action is the chosen action and their result is the reward. I want to find the subjects' expectation q of the arms and how the expectation is updated based on their last reward. The functions I used to model the dataset look like this: 1) `Pt(a_k) = {(1-epsilon) if k == argmax(Q), epsilon/3 else}, 2)q_{t+1,k} = q_{t,k} + alpha * (r_t - q_{t,k})`. This last function I want to find in the dataset using symbolic regression in Pysr. However, since the variables I'm using and predicting are not directly in the dataset, this problem comes with some difficulties. To solve the problem I'm trying to write a custom loss function, but it's not working as I want, since the model is producing only solutions with a complexity of 1. The code I wrote looks like this: \r\n\r\n```python\r\nX = df2[['a','r']].to_numpy()\r\nY = df2['a'].to_numpy()\r\n\r\nmy_loss_function = \"\"\"\r\nfunction my_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    X = dataset.X \r\n    y = dataset.y\r\n    n_trials = size(X,1)\r\n    \r\n    Q = zeros(4)\r\n    total_loss = zero(L)\r\n\r\n    for i in 1:n_trials \r\n        a=Int(X[1,i]) +1  \r\n        r=X[2,i]\r\n\r\n        q_input = [Q[a], r]\r\n        q_update, valid = eval_tree_array(tree, reshape(q_input, :, 1), options)\r\n    \r\n        if !valid || any(isnan, q_update) || any(isinf, q_update) \r\n            return L(Inf)  \r\n        end\r\n\r\n        maximum = argmax(Q)\r\n        list_ = Float64[]\r\n\r\n        for i in 1:4\r\n            if i == maximum\r\n                push!(list_, 1 - 0.7)\r\n            else\r\n                push!(list_, 0.7 / 3)\r\n            end\r\n        end\r\n\r\n        total_loss += -log(list_[a])\r\n        \r\n        Q[a] = q_update[1]\r\n\r\n    end\r\n\r\n    return total_loss/n_trials \r\nend\r\n\"\"\"\r\n\r\nmodel = PySRRegressor(\r\n    niterations=1000,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\"],\r\n    unary_operators=['cos','sin','log','abs'], \r\n    loss_function=my_loss_function,\r\n)\r\n\r\nmodel.fit(X, Y, variable_names=['a','r'])\r\n```\r\n\r\nI'm not sure why the model only produces solutions with a complexity of 1. I thought it might have something to do with the model being fit to data that is different than the variables I'm using in the eval_tree_array() function, but I don't know any other way to fix it. Hopefully someone can help me with this. Thanks in advance!\r\n\r\n\r\n ",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "~~I wonder if it might be easier to solve this with a TemplateExpressionSpec as opposed to a custom loss function? https://ai.damtp.cam.ac.uk/pysr/examples/#11-expression-specifications~~ Edit: nvm, this is probably not the right way.",
+              "createdAt": "2025-04-28T18:49:59Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Ah. Is the issue because of\r\n\r\n```python\r\nn_trials = size(X, 1)\r\n```\r\n\r\nby any chance? I think this should be `size(X, 2)`, right?",
+              "createdAt": "2025-04-28T19:02:21Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Some other suggested improvements:\r\n\r\n```julia\r\nfunction my_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    X = dataset.X \r\n    n_trials = size(X, 2)  # <-- WITH FIX APPLIED\r\n    Q = ntuple(j -> zero(T), 4)  # <-- TUPLES FASTER THAN VECTORS\r\n    total_loss = zero(L)\r\n\r\n    for i in 1:n_trials \r\n        a = Int(X[1, i]) +1  \r\n        r = X[2, i]\r\n\r\n        q_input = [Q[a]; r;;]  # <-- CONSTRUCT 2x1 DIRECTLY\r\n        q_update, valid = eval_tree_array(tree, q_input, options)\r\n    \r\n        if !valid  # <-- OTHER CHECKS NOT NEEDED\r\n            return L(Inf)  \r\n        end\r\n\r\n        maximum = argmax(Q)\r\n        total_loss += a == maximum ? -log(1 - 0.7) : -log(0.7 / 3)  # <-- SIMPLIFIED\r\n        \r\n        Q = ntuple(\r\n            let a=a, q_update=q_update, Q=Q  # (not 100% needed; but this is a performance hack to avoid boxing in closure)\r\n                j -> j == a ? q_update[1] : Q[j]\r\n            end,\r\n            4\r\n         )  # <-- CONSTRUCT NEW TUPLE\r\n    end\r\n\r\n    return total_loss / n_trials \r\nend\r\n```\r\n",
+              "createdAt": "2025-04-28T19:16:41Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNC0yOFQyMDoxNjo0MSswMTowMM4AxfXb"
+          }
+        }
+      }
+    }
+  }
+}

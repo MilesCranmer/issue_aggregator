@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 607,
         "title": "How to predict using multiply equations?",
         "body": "Hi, \r\nThanks for the useful tools! I really enjoy using it.\r\n\r\nI want to test the performance of result equations on test dataset. But `model.predict()` only return the predictions from best model. I found it can pass index into `predict`, but I cannot find index of all candidate equations. Is there any methods to predict by all equations shown in hall of frame file?\r\n\r\nRegard,\r\nLu",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks!\r\n\r\nThe equations are stored in `model.equations_` in a pandas dataframe.\r\n\r\nFor example:\r\n\r\n```python\r\nmodel  # fitted PySRRegressor\r\n\r\nfor i in range(len(model.equations_)):\r\n    print(\"Equation\", i, \"equal to\", model.sympy(i))\r\n    print(\"with predictions\")\r\n    pred = model.predict(X, i)\r\n    print(pred)\r\n```\r\n\r\nThis assumes 1-dimensional `y`. For 2 dimensional you would need to iterate over each component too.",
               "createdAt": "2024-04-28T02:48:09Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNC0yOFQwMzo0ODowOSswMTowMM4AjSFz"
           }

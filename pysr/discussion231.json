@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 231,
         "title": "Can I make a custom operator with function as one of inputs?",
         "body": "Is it possible to create function like this: function_1(function_2, variable_1), so I can apply function_2 to variable_1 inside function_1? \r\nPreferebly without drastic backend changes ",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Not sure I understand, sorry - why can’t you just make a new function equal to the composition?",
               "createdAt": "2022-11-23T21:35:50Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0xMS0yM1QyMTozNTo1MCswMDowMM4AQGXJ"
           }

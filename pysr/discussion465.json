@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 465,
         "title": "Make PySR look for strictly factorised functions",
         "body": "Hello everyone, \r\n\r\nSay I have a function that takes two features of an input and gives you an output (example $f(x_0, x_1) = x_1  (1 + x_0^2)$ ). \r\n\r\nIs there a way to tell PySR to look for analytical expression that are strictly factorised in terms of their input features? Specifically, I am looking for solutions where the function can be expressed as a product of two separate functions, each depending on one input feature only, like $f(x_0, x_1) = g_{0}(x_0)  g_{1}(x_1)$\r\n\r\nThank you for your insights!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Good question. You could do this with a custom loss function that checks if the expression is factorized, otherwise returns a large loss:\r\n\r\n```julia\r\nfunction eval_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    # Check if expression is factorized:\r\n    penalty_term = L(0)\r\n\r\n    # Make sure root is degree 2:\r\n    if tree.degree != 2\r\n        penalty_term += L(10000)\r\n    else\r\n        # Make sure operator is *\r\n        if options.operators.binops[tree.op] != *\r\n            penalty_term += L(1000)\r\n        else\r\n            # Split the expression into two subexpressions at the root node:\r\n            g0 = tree.l\r\n            g1 = tree.r\r\n            # Check if it's factorized:\r\n            has_x1_in_g0 = any(node -> node.degree==0 && node.constant==false && node.feature==2, g0)\r\n            has_x0_in_g1 = any(node -> node.degree==0 && node.constant==false && node.feature==1, g1)\r\n            is_factorized = !has_x1_in_g0 && !has_x0_in_g1\r\n            penalty_term += is_factorized ? L(0) : L(100)\r\n        end\r\n    end\r\n\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    if !flag\r\n        return L(Inf)\r\n    end\r\n    return (\r\n        penalty_term \r\n        + sum((prediction .- dataset.y) .^ 2) / length(prediction)\r\n    )\r\nend\r\n```\r\n\r\nHere I make the penalty term increase gradually by how far it is away from the constraints, so that the genetic algorithm has a \"direction\" towards the right factorization.\r\n\r\nThen you can pass this to the `full_objective` parameter as a string: https://astroautomata.com/PySR/api/#the-objective",
               "createdAt": "2023-11-15T11:27:53Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMS0xNVQxMToyNzo1MyswMDowMM4Ac5mO"
           }

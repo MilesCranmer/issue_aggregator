@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 278,
         "title": "weight_optimize not a valid argument for regressor",
         "body": "When I try and set the weight_optimize parameter I get the \r\nTypeError: weight_optimize is not a valid keyword argument for PySRRegressor.\r\nThe regressor should update automatically I thought, in case this should be a version issue. But yes, I am curious if others are able to set this parameter. Especially since I want to use a large ncyclesperiteration.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Moved to issues: #279 ",
               "createdAt": "2023-03-15T16:08:21Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wMy0xNVQxNjowODoyMSswMDowMM4AUTvw"
           }

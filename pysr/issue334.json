@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 334,
         "title": "Installing in custom project does not install `SymbolicRegression`",
         "body": "It seems like when you try to install PySR inside a custom Julia project, it does not install SymbolicRegression.jl. In other words, it seems to expect that SymbolicRegression.jl **is** the project you would want to install in.\r\n\r\nI think it should check whether SymbolicRegression.jl is already installed, and, if not, it should add it (just like when it installs the `@pysr-*` projects).",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Fixed by #535 ",
               "createdAt": "2024-02-12T09:02:05Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOc4ekcA=="
           }

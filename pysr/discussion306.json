@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 306,
         "title": "Restricting constants to be integral (or even just sampled from a finite set)",
         "body": "Hey!\r\n\r\nFirst off, just wanted to say great job with the package, it's been quite helpful to me.\r\n\r\nI'm trying to come up with equations that allow for constants, but am really only interested in integral constants (in particular, restriciting to integers with absolute value less than some bound). I was wondering there's some method I'm missing to enact this, or if it's impossible as is. Funnily, what I have seen is the evolution of the subtree Equals(a, a) in place of what should be a 1, but this is obviously unideal.\r\n\r\nJust from a cursory look about, it seems that allowing CONST_TYPE to be a user-defined parameter (+ adding a parameter for eg. a list of desired values), and then selecting the update strategy in ConstantOptimization.jl based on CONST_TYPE being a subtype of Float v. Int type is a solution I coud implement -- but if  you've an idea of a better way I'd love to get your input.\r\n\r\nBest,\r\nAlun",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hey Alun,\r\n\r\nThanks for posting this, I am happy that the package has been useful to you!\r\n\r\nThis is a fantastic question! I agree this would be very nice to have implemented. \r\n\r\nRegarding having user-defined `CONST_TYPE`–I do think this would be the cleanest way to set this up (and some have asked me about having higher-precision or complex constants too–you could also incorporate that). However, I'm not sure how many things need to be changed throughout the package to get this working. For example, I think allowing variable `CONST_TYPE` would mean that the struct `Node` (in `Equation.jl`) should be templated based on the type (i.e., `mutable struct Node {T}`). Other things might also need to be changed, I simply haven't looked into this yet. Getting this working could be very quick or very tedious, I just am not sure. (also note that one can't use an abstract type for the constants, as it would slow things down - https://docs.julialang.org/en/v1/manual/performance-tips/index.html#Avoid-fields-with-abstract-type-1)\r\n\r\nThe other option is to have real numbers and integers both implemented. However, since PySR/SymbolicRegression.jl assume complexity=sum of operators, variables, constants, currently it would not be an advantage for an expression to have an integer instead of a real number, so I think it would preferentially find reals. Therefore changing `CONST_TYPE` would be a preferable strategy.\r\n\r\nInterested to hear your thoughts.\r\nCheers,\r\nMiles",
               "createdAt": "2022-04-08T15:07:41Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Actually, I just realized there is a MUCH simpler way to get this working. You can get this working in only **two lines**!\r\n\r\nBasically, you only need to (1) modify the equation evaluation to round reals to integers, and (2) modify the equation->string conversion to do the same.\r\n\r\nFirst, modify `deg0_eval` in `EvaluateEquation.jl` (evaluates degree=0 nodes which includes variables and constants) to round a stored the real constant to integral:\r\n![Screen Shot 2022-04-08 at 11 09 10 AM](https://user-images.githubusercontent.com/7593028/162470663-4a29d784-6b61-4230-9275-0673c22461c4.png)\r\n\r\nThis will convert the stored real constant to integer when it is evaluated. Therefore, none of the mutations need to be changed–they can continue to do perturbations with real numbers.\r\n\r\nNext, modify `stringTree` in `Equation.jl` to also round the real constant to integer before printing:\r\n\r\n![Screen Shot 2022-04-08 at 11 12 48 AM](https://user-images.githubusercontent.com/7593028/162471261-aaf2f609-12f7-4f67-a569-688e2cd365be.png)\r\n\r\nI think this should be all you need. If you are doing conversions to `SymbolicUtils.jl`, the exporter would also need to be modified to round constants. You also want to set `shouldOptimizeConstants=false` in `Options` so the constant optimizer is not used (actually, it might still work? not sure).\r\n\r\nThese modifications could be easily integrated more generally with another key in `Options` that specifies whether the user wants integer constants or real constants. \r\n\r\nCheers,\r\nMiles",
               "createdAt": "2022-04-08T15:16:12Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0wNC0wOFQxNjoxNjoxMiswMTowMM4AJqHb"
           }

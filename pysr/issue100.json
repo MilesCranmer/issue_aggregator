@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 100,
         "title": "`best_row` has an uninfortmative error message",
         "body": "```\r\nNotImplementedError: `best_row` has been deprecated. Please use the `PySRRegressor` interface. After fitting, you can run `print(model)` to view the best equation.\r\n```\r\n\r\nDoesn't tell me much about how to accomplish the equivalent thing in the new interface?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Fixed! The answer is `model.get_best()`",
               "createdAt": "2022-02-02T00:42:00Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOPT287A=="
           }

@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 162,
         "title": "[BUG] AttributeError in variable_names check",
         "body": "`[\" \" in name for name in variable_names].any()` leads to `AttributeError: 'list' object has no attribute 'any'` for me.\r\n\r\nhttps://github.com/MilesCranmer/PySR/blob/edb2cd636d2b052fbc13d18a33f768c869e3aa13/pysr/sr.py#L1136",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks, that's definitely a bug. Will fix!",
               "createdAt": "2022-07-08T22:40:55Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Fixed :)",
               "createdAt": "2022-07-08T22:44:30Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHORkxnYg=="
           }

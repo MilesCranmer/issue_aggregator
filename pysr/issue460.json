@@ -1,60 +1,49 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 460,
         "title": "[BUG]: runtime grows to infinity",
         "body": "### What happened?\n\nHi,\r\n\r\nPySR runs great for me when I use a relatively small dataset (k<7000), low population (<60), and low niterations (<60). For these parameters, the model converges within a couple of minutes. However, if I increase these parameters the runtime seems to grow to infinity. For these 'too large' runs, CPU usage in the first couple of minutes is very large (same as for the 'smaller' runs) and then decreases to <1%, which makes the runtime extremely large.\r\n\r\nI would like to run PySR on larger datasets and for longer times, but that seems impossible right now. Do you have any idea what is going on and how to avoid this happening?\r\n\r\nThanks so much!\r\n\r\nCheers,\r\nRaf\n\n### Version\n\n0.16.0\n\n### Operating System\n\nmacOS\n\n### Package Manager\n\nNone\n\n### Interface\n\nJupyter Notebook\n\n### Relevant log output\n\n```shell\nThere is no log output since I do not get an error, the model just keeps running forever.\n```\n\n\n### Extra Info\n\n_No response_",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @raf-antwerpen,\r\n\r\nThanks for posting this bug report. Would it be possible for you to share your exist PySRRegressor settings, and maybe more info about how you installed it, how you are running it (IPython or Jupyter or script), and maybe any info about CPU/memory usage during the fit? Also is it completely frozen, or is the hall of fame csv file still being updated?\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2023-11-09T22:29:49Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "If you are running it in a Jupyter notebook, could you also try running it from the command line (i.e., save it in a `.py` file and execute it)? Sometimes Jupyter messes with parallelism so would be good to have this info.",
               "createdAt": "2023-11-09T22:31:02Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "raf-antwerpen"
               },
               "body": "Hi,\r\n\r\nThank you for your quick response.\r\n\r\nExecuting the script as a .py file solved the issue!\r\n\r\nBut for documentation and reporting purposes, here is some info on the bug in the Jupyter notebook. \r\n\r\nI installed PySR using mamba and run it in a Jupyter notebook with python3.9.16. I tried many configurations of PySRRegressor settings, but even with the most minimal settings the bug occurs:\r\n\r\nmodel = PySRRegressor(\r\n               populations=80,\r\n               niterations=80,\r\n)\r\n\r\nI am using datasets of size X=(7000,2) and y=(7000,).\r\n\r\nDuring the first couple of minutes or running PySRRegressor, CPU usage ranges erratically between 100-400%. After a couple of minutes, this goes done to 1-1.5%. This is when the hall of fame csv stops updating as well. When running the script as a .py file, the CPU usage is a lot more consistent between 500-600% instead of the erratic pattern when I run the notebook.\r\n\r\nCheers,\r\nRaf",
               "createdAt": "2023-11-10T16:22:30Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks for this info. Yeah Jupyter has some weird interactions with multiprocessing, even in standard Python libraries like PyTorch, but it could be something else. It's good you found a workaround but I'll leave this open as original the issue is still there.\r\n\r\nI wonder if it could also be due to how text streams work differently on Jupyter. Maybe PyJulia is trying to write to stdout or read stdin, but Jupyter isn't letting it or something, and so it's just stuck waiting to write. Perhaps the following line: \r\n\r\nhttps://github.com/MilesCranmer/SymbolicRegression.jl/blob/141987a3587978039712f010172b142ad09d4757/src/SymbolicRegression.jl#L555\r\n\r\n```julia\r\n    stdin_reader = watch_stream(stdin)\r\n```\r\n\r\ncould be commented out, so that the search (and therefore PyJulia) stops watching stdin? (Along with the other lines interacting with stdin_reader) \r\n\r\nThat would certainly explain this issue if that solves it, because it only starts checking stdin a few steps into the search process, so it would make sense how the CPU goes up to 400% then down to 1%. The 1% just being from Julia waiting to read stdin...\r\n\r\nIf you have some time to try this fix out, you can follow the instructions here: https://astroautomata.com/PySR/backend/ for modifying the PySR backend (which is SymbolicRegression.jl), and implement those changes. It would be interesting to hear if that stdin issue solves it.",
               "createdAt": "2023-11-12T17:10:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "One other thing to try is `multithreading=False`, which will switch to the multiprocessing mode.",
               "createdAt": "2023-11-12T17:11:05Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOa7d5dQ=="
           }

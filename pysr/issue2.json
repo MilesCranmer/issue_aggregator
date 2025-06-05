@@ -1,124 +1,105 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 2,
         "title": "[Question] Pure Julia package",
         "body": "Hi, Is there a plan to have pure Julia API and expose it Julia package?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "**Edit: have added an API at [SymbolicRegression.jl](https://github.com/MilesCranmer/SymbolicRegression.jl)**\r\n\r\n**Old:**\r\n\r\n(Hit a thumbs up on @sheevy's comment if anybody else is interested in a pure-Julia API)\r\n\r\nGreat question! Currently, Python and Julia actually don't talk to eachother at all, so it is definitely possible to work from Julia by itself. But you have to set it up a bit manually; I don't have a module ready to run Pkg.add() on unfortunately.\r\n\r\nAs of v0.2.2, here is how you do it manually:\r\n\r\n- Right now Python will dump two files: `.hyperparams_....jl` and `.dataset....jl` to `/tmp/` (they include random integers in their name).\r\n- To edit hyperparameters, you will need to edit that hyperparameters file.\r\n- You can include those in a Julia script, as well as `sr.jl` and `operators.jl`\r\n- Then, you can run the `fullRun(niterations)` function from Julia.\r\n\r\nNote that all hyperparameters as well as the dataset are treated as global constants right now. I can definitely look at making this into a more cohesive Julia API if there is interest! However, there would be **no performance gain** from this, since Python is only used to dump and then execute pure Julia code via `os.system()` (essentially a bash call).",
               "createdAt": "2020-09-24T23:17:48Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Update: as of v0.3.7, the entire Julia call script is dumped to a file called `/tmp/.runfile_{rand_string}.jl`. You can see the various included files and calls it makes in there, and save those included files to your project, and then ditch the python. (Python generates this file, as well as two other files holding parameters and data, and then executes them with Julia - this command is printed at the start of execution)",
               "createdAt": "2020-09-27T07:49:11Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "Moelf"
               },
               "body": "we should be able to easily split a `SR.jl` package, and then let the python pkg be a simple wrapper using [pyjulia](https://github.com/JuliaPy/pyjulia) instead of calling via shell command.",
               "createdAt": "2020-10-06T20:25:21Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "ChrisRackauckas"
               },
               "body": "Yeah it would be very nice if we could interface ModelingToolkit.jl and DataDrivenDiffEq.jl with this. I don't think there's a reason for SciML to build symbolic regression tools if there's something we can call.",
               "createdAt": "2020-10-06T21:04:49Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "sheevy"
               },
               "body": "I actually started looking at this. One thing I struggle is ATM is how to approach the current @everywhere macro used by the python generated script. Blindly putting it in front of include(\"\") in SR.jl does not seem to be supported. \r\n",
               "createdAt": "2020-10-06T22:41:39Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks, this sounds very interesting! Indeed the Julia should be very easy to split. The Python essentially just configures the Julia code, and starts it.\r\n\r\nI started with PyJulia but I found that controlling multiprocessing through it had some speed issues, especially with multi-node computing. So the current Python-Julia connection is done by writing intermediate Julia code to a file from Python, and then starting up Julia from the shell (or slurm for multi-node). That way, Python and Julia are as disconnected as possible. \r\n\r\nSince I do see a lot more interest in this, I'm happy to start working on a split.",
               "createdAt": "2020-10-06T23:18:48Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "@sheevy want to raise an issue for that specific issue? Just to check - are you running julia with the `-p` flag? The `-p {nprocs}` option auto-imports Distributed, which declares the `@everywhere` macro (required so all the worker processes know the functions in `sr.jl`). Python executes Julia with that flag activated, hence the runfile doesn't need to contain an explicit import for it.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2020-10-07T04:07:15Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Quick update: currently trying to think about how I can make PySR much more generic with respect to types when I create a pure Julia package. I think it would be really nice to have allow a mix of vector + scalar types, exploiting multiple dispatch for element-wise operators. But I will likely need to have in/out type defined explicitly for each node in the equation so that, during mutations, I can detect when an equation is ill-defined and then just re-do the mutation.",
               "createdAt": "2020-11-06T19:35:44Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Okay, I have created a pure-Julia package for symbolic regression here: https://github.com/MilesCranmer/SymbolicRegression.jl:\r\n\r\n(will be added to the general registry in 3 days; for now, use github)\r\n\r\n```julia\r\nusing Distributed\r\naddprocs(4)\r\n@everywhere using SymbolicRegression\r\n\r\nX = randn(Float32, 100, 5)\r\ny = 2 * cos.(X[:, 4]) + X[:, 1] .^ 2 .- 2\r\n\r\noptions = SymbolicRegression.Options(\r\n    binary_operators=[plus, mult],\r\n    unary_operators=[cos, exp])\r\nniterations = 100\r\n\r\nRunSR(X, y, niterations, options)\r\n```\r\n\r\nIt's not as polished as PySR (there's no sympy output, for example), but it seems to work correctly. For some reason it's a bit slower so I need to profile the changes. However, the pure Julia version is probably much easier to run on a cluster which is nice.\r\n\r\nFor now it's only Float32, but would be nice to have arbitrary datatypes eventually.\r\n\r\nLet me know if you have any issues installing it in the SymbolicRegression.jl repo.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2021-01-17T08:49:59Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "sheevy"
               },
               "body": "Is this a right sequence of command to isuee?:\r\n```\r\n(@v1.5) pkg> activate .\r\n(symreg) pkg> add https://github.com/MilesCranmer/SymbolicRegression.jl\r\n(symreg) pkg> precompile\r\njulia> using Distributed\r\njulia> addprocs(4)\r\njulia> @everywhere using SymbolicRegression\r\nERROR: On worker 2:\r\nArgumentError: Package SymbolicRegression [8254be44-1295-4e6a-a16d-46603ac705cb] is required but does not seem to be installed:\r\n - Run `Pkg.instantiate()` to install all recorded dependencies.\r\n\r\n_require at ./loading.jl:999\r\nrequire at ./loading.jl:928\r\n#1 at /buildworker/worker/package_linux64/build/usr/share/julia/stdlib/v1.5/Distributed/src/Distributed.jl:78\r\n#103 at /buildworker/worker/package_linux64/build/usr/share/julia/stdlib/v1.5/Distributed/src/process_messages.jl:290\r\nrun_work_thunk at /buildworker/worker/package_linux64/build/usr/share/julia/stdlib/v1.5/Distributed/src/process_messages.jl:79\r\nrun_work_thunk at /buildworker/worker/package_linux64/build/usr/share/julia/stdlib/v1.5/Distributed/src/process_messages.jl:88\r\n#96 at ./task.jl:356\r\n```\r\n\r\n",
               "createdAt": "2021-01-17T23:14:15Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "It looks like you need to `activate .` again before the import, since you installed it into your local environment?",
               "createdAt": "2021-01-18T01:08:37Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Nevermind, it seems to work fine for me if I run those exact same commands. I'm not sure what the issue is. Want to open an issue in the `SymbolicRegression.jl` repo?",
               "createdAt": "2021-01-18T01:18:39Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "sheevy"
               },
               "body": "ok, moved to https://github.com/MilesCranmer/SymbolicRegression.jl/issues/1",
               "createdAt": "2021-01-18T09:24:05Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOLWzmJg=="
           }

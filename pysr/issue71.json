@@ -1,76 +1,63 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 71,
         "title": "[BUG] \"sub\" operator causing BoundsError",
         "body": "Description:\r\n\r\nWhen using the \"sub\" operator and the \"plus\" and \"mult\" operators together, an out of bounds error occurs.  Not sure why or how these are related but the smallest error causing code I have found is below:\r\n\r\n```\r\nimport numpy as np\r\nfrom pysr import pysr, best, get_hof\r\n\r\n# Dataset\r\nX = 2*np.random.randn(100, 5)\r\n\r\ny = X[:, 0] - X[:, 1]\r\n\r\n# Learn equations\r\nequations = pysr(X, y, niterations=5, \r\n        binary_operators=[\"sub\", \"plus\", \"mult\"],\r\n        unary_operators=[])\r\n\r\n...# (you can use ctl-c to exit early)\r\n\r\nprint(best())\r\n\r\n# Log of tests\r\n# plus, sub, mult = BoundsError (consistent)\r\n# sub, mult = No Error\r\n# plus, sub = No Error\r\n# plus, mult, mySub = No Error (mySub(x, y) = x - y)\r\n# plus, mult, negative = No Error (negative(x) = 0 - x)\r\n# plus, mult = No Error (and success from (x0 + (-1.0 * x1)))\r\n```\r\n\r\nI am running Windows 10 and using VS Code and the PowerShell terminal in the IDE. \r\nPython Version 3.9.0\r\nJulia Version 1.6.2\r\n\r\nThe Error:\r\n\r\n```\r\nRunning on julia -O3 C:\\Users\\ipunc\\AppData\\Local\\Temp\\tmp0ffjfong\\runfile.jl\r\n  Activating environment at `C:\\Python39\\lib\\site-packages\\Project.toml`\r\n    Updating registry at `C:\\Users\\ipunc\\.julia\\registries\\General`\r\n    Updating git-repo `https://github.com/JuliaRegistries/General.git`\r\n  No Changes to `C:\\Python39\\Lib\\site-packages\\Project.toml`\r\n  No Changes to `C:\\Python39\\Lib\\site-packages\\Manifest.toml`\r\nActivating environment on workers.\r\n      From worker 3:      Activating environment at `C:\\Python39\\Lib\\site-packages\\Project.toml`\r\n      From worker 4:      Activating environment at `C:\\Python39\\Lib\\site-packages\\Project.toml`\r\n      From worker 5:      Activating environment at `C:\\Python39\\Lib\\site-packages\\Project.toml`  \r\n      From worker 2:      Activating environment at `C:\\Python39\\Lib\\site-packages\\Project.toml`\r\nImporting installed module on workers...Finished!\r\nTesting module on workers...Finished!\r\nTesting entire pipeline on workers...Finished!\r\nStarted!\r\n1.0%┣▋                                                           ┫ 1/100 [00:02<Inf:Inf, 0.0 it/s]Head worker occupation: 4.8%\r\nHall of Fame:\r\n-----------------------------------------\r\nComplexity  Loss       Score     Equation\r\n1           4.492e+00  7.282e-01  x0\r\n3           1.263e-14  1.675e+01  (x0 - x1)\r\n\r\nERROR: LoadError: TaskFailedException\r\nStacktrace:\r\n [1] wait\r\n   @ .\\task.jl:322 [inlined]\r\n [2] fetch\r\n   @ .\\task.jl:337 [inlined]\r\n [3] _EquationSearch(::SymbolicRegression...\\ProgramConstants.jl.SRDistributed, datasets::Vector{SymbolicRegression...\\Dataset.jl.Dataset{Float32}}; niterations::Int64, options::Options{Tuple{typeof(-), typeof(+), typeof(*)}, Tuple{}, L2DistLoss}, numprocs::Int64, procs::Nothing, runtests::Bool)\r\n   @ SymbolicRegression C:\\Users\\ipunc\\.julia\\packages\\SymbolicRegression\\1URtS\\src\\SymbolicRegression.jl:387\r\n [4] EquationSearch(datasets::Vector{SymbolicRegression...\\Dataset.jl.Dataset{Float32}}; niterations::Int64, options::Options{Tuple{typeof(-), typeof(+), typeof(*)}, Tuple{}, L2DistLoss}, numprocs::Int64, procs::Nothing, multithreading::Bool, runtests::Bool)\r\n   @ SymbolicRegression C:\\Users\\ipunc\\.julia\\packages\\SymbolicRegression\\1URtS\\src\\SymbolicRegression.jl:181\r\n [5] EquationSearch(X::Matrix{Float32}, y::Matrix{Float32}; niterations::Int64, weights::Nothing, \r\nvarMap::Vector{String}, options::Options{Tuple{typeof(-), typeof(+), typeof(*)}, Tuple{}, L2DistLoss}, numprocs::Int64, procs::Nothing, multithreading::Bool, runtests::Bool)\r\n   @ SymbolicRegression C:\\Users\\ipunc\\.julia\\packages\\SymbolicRegression\\1URtS\\src\\SymbolicRegression.jl:145\r\n [6] #EquationSearch#24\r\n   @ C:\\Users\\ipunc\\.julia\\packages\\SymbolicRegression\\1URtS\\src\\SymbolicRegression.jl:157 [inlined]\r\n [7] top-level scope\r\n   @ C:\\Users\\ipunc\\AppData\\Local\\Temp\\tmp0ffjfong\\runfile.jl:7\r\n\r\n    nested task error: On worker 2:\r\n    BoundsError: attempt to access 5×100 Matrix{Float32} at index [-1, 1:100]\r\n    Stacktrace:\r\n      [1] throw_boundserror\r\n        @ .\\abstractarray.jl:651\r\n      [2] checkbounds\r\n        @ .\\abstractarray.jl:616 [inlined]\r\n      [3] _getindex\r\n        @ .\\multidimensional.jl:831 [inlined]\r\n      [4] getindex\r\n        @ .\\abstractarray.jl:1170 [inlined]\r\n      [5] deg0_eval\r\n        @ C:\\Users\\ipunc\\.julia\\packages\\SymbolicRegression\\1URtS\\src\\EvaluateEquation.jl:90      \r\n      [6] evalTreeArray\r\n        @ C:\\Users\\ipunc\\.julia\\packages\\SymbolicRegression\\1URtS\\src\\EvaluateEquation.jl:22      \r\n      [7] #EvalLoss#1\r\n        @ C:\\Users\\ipunc\\.julia\\packages\\SymbolicRegression\\1URtS\\src\\LossFunctions.jl:28\r\n      [8] #scoreFunc#2\r\n        @ C:\\Users\\ipunc\\.julia\\packages\\SymbolicRegression\\1URtS\\src\\LossFunctions.jl:47\r\n      [9] scoreFunc\r\n        @ C:\\Users\\ipunc\\.julia\\packages\\SymbolicRegression\\1URtS\\src\\LossFunctions.jl:47 [inlined]\r\n     [10] #nextGeneration#1\r\n        @ C:\\Users\\ipunc\\.julia\\packages\\SymbolicRegression\\1URtS\\src\\Mutate.jl:139\r\n     [11] regEvolCycle\r\n        @ C:\\Users\\ipunc\\.julia\\packages\\SymbolicRegression\\1URtS\\src\\RegularizedEvolution.jl:57  \r\n     [12] #SRCycle#1\r\n        @ C:\\Users\\ipunc\\.julia\\packages\\SymbolicRegression\\1URtS\\src\\SingleIteration.jl:34       \r\n     [13] macro expansion\r\n        @ C:\\Users\\ipunc\\.julia\\packages\\SymbolicRegression\\1URtS\\src\\SymbolicRegression.jl:476 [inlined]\r\n     [14] #55\r\n        @ C:\\buildbot\\worker\\package_win64\\build\\usr\\share\\julia\\stdlib\\v1.6\\Distributed\\src\\macros.jl:87\r\n     [15] #103\r\n        @ C:\\buildbot\\worker\\package_win64\\build\\usr\\share\\julia\\stdlib\\v1.6\\Distributed\\src\\process_messages.jl:274\r\n     [16] run_work_thunk\r\n        @ C:\\buildbot\\worker\\package_win64\\build\\usr\\share\\julia\\stdlib\\v1.6\\Distributed\\src\\process_messages.jl:63\r\n     [17] run_work_thunk\r\n        @ C:\\buildbot\\worker\\package_win64\\build\\usr\\share\\julia\\stdlib\\v1.6\\Distributed\\src\\process_messages.jl:72\r\n     [18] #96\r\n        @ .\\task.jl:411\r\n    Stacktrace:\r\n     [1] #remotecall_fetch#143\r\n       @ C:\\buildbot\\worker\\package_win64\\build\\usr\\share\\julia\\stdlib\\v1.6\\Distributed\\src\\remotecall.jl:394 [inlined]\r\n     [2] remotecall_fetch(f::Function, w::Distributed.Worker, args::Distributed.RRID)\r\n       @ Distributed C:\\buildbot\\worker\\package_win64\\build\\usr\\share\\julia\\stdlib\\v1.6\\Distributed\\src\\remotecall.jl:386\r\n     [3] #remotecall_fetch#146\r\n       @ C:\\buildbot\\worker\\package_win64\\build\\usr\\share\\julia\\stdlib\\v1.6\\Distributed\\src\\remotecall.jl:421 [inlined]\r\n     [4] remotecall_fetch\r\n       @ C:\\buildbot\\worker\\package_win64\\build\\usr\\share\\julia\\stdlib\\v1.6\\Distributed\\src\\remotecall.jl:421 [inlined]\r\n     [5] call_on_owner\r\n       @ C:\\buildbot\\worker\\package_win64\\build\\usr\\share\\julia\\stdlib\\v1.6\\Distributed\\src\\remotecall.jl:494 [inlined]\r\n     [6] fetch(r::Distributed.Future)\r\n       @ Distributed C:\\buildbot\\worker\\package_win64\\build\\usr\\share\\julia\\stdlib\\v1.6\\Distributed\\src\\remotecall.jl:533\r\n     [7] (::SymbolicRegression.var\"#57#89\"{Vector{Vector{Distributed.Future}}, Int64, Int64})()   \r\n       @ SymbolicRegression .\\task.jl:411\r\nin expression starting at C:\\Users\\ipunc\\AppData\\Local\\Temp\\tmp0ffjfong\\runfile.jl:7\r\n┌ Warning: Forcibly interrupting busy workers\r\n```\r\n\r\n(Continues stopping other processes below)\r\n\r\nAs you can see from the code above, I have tested both adding my own subtraction operator and a negative operator and both options do work as expected.  The order of operators does not matter and there is not any variation in the error (always worker 2).  I have also tested with some other equations (where I originally found the error) and they also consistently run into the same issue.  I'm really not sure what could be causing this and I think I can work around it but it should probably be looked into.\r\n\r\nThanks for your time :)",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Which version of PySR is this? Can you reproduce it on the latest version? ",
               "createdAt": "2021-08-23T01:02:19Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "CharFox1"
               },
               "body": "Looks like \"pip install pysr\" had given me version 0.6.12.post1.  I switched to 0.6.0 and all the tests listed above had the same results (the error still happens).",
               "createdAt": "2021-08-23T13:32:28Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "@kazewong - do you see something similar in your runs? (I know he has seen some worker issues with the latest version.)\r\n\r\n@CharFox1, does using the `multithreading=True` argument help at all?",
               "createdAt": "2021-08-24T17:23:37Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "CharFox1"
               },
               "body": "Setting `multithreading=True` in version 0.6.0 causes an unrecognized keyword error (but maybe that's expected) and in version 0.6.12.post1 I get a FileNotFoundError for the HOF csv.bkup file created during that run, despite it showing up in the usual place.  The full error for 0.6.12.post1 is below:\r\n\r\n```\r\nRunning on julia -O3 --threads 4 C:\\Users\\ipunc\\AppData\\Local\\Temp\\tmpu7lrlnbh\\runfile.jl\r\n  Activating environment at `C:\\Python39\\lib\\site-packages\\Project.toml`\r\n    Updating registry at `C:\\Users\\ipunc\\.julia\\registries\\General`\r\n    Updating git-repo `https://github.com/JuliaRegistries/General.git`\r\n  No Changes to `C:\\Python39\\Lib\\site-packages\\Project.toml`\r\n  No Changes to `C:\\Python39\\Lib\\site-packages\\Manifest.toml`\r\nStarted!Traceback (most recent call last):              ]  0.0 %\r\n  File \"C:\\Python39\\lib\\site-packages\\pysr\\sr.py\", line 1001, in get_hof\r\n    all_outputs = [pd.read_csv(str(equation_file) + \".bkup\", sep=\"|\")]\r\n  File \"C:\\Python39\\lib\\site-packages\\pandas\\util\\_decorators.py\", line 311, in wrapper\r\n    return func(*args, **kwargs)\r\n  File \"C:\\Python39\\lib\\site-packages\\pandas\\io\\parsers\\readers.py\", line 586, in read_csv\r\n    return _read(filepath_or_buffer, kwds)\r\n  File \"C:\\Python39\\lib\\site-packages\\pandas\\io\\parsers\\readers.py\", line 482, in _read\r\n    parser = TextFileReader(filepath_or_buffer, **kwds)\r\n  File \"C:\\Python39\\lib\\site-packages\\pandas\\io\\parsers\\readers.py\", line 811, in __init__\r\n    self._engine = self._make_engine(self.engine)\r\n  File \"C:\\Python39\\lib\\site-packages\\pandas\\io\\parsers\\readers.py\", line 1040, in _make_engine\r\n    return mapping[engine](self.f, **self.options)  # type: ignore[call-arg]\r\n  File \"C:\\Python39\\lib\\site-packages\\pandas\\io\\parsers\\c_parser_wrapper.py\", line 51, in __init__       \r\n    self._open_handles(src, kwds)\r\n  File \"C:\\Python39\\lib\\site-packages\\pandas\\io\\parsers\\base_parser.py\", line 222, in _open_handles      \r\n    self.handles = get_handle(\r\n  File \"C:\\Python39\\lib\\site-packages\\pandas\\io\\common.py\", line 701, in get_handle\r\n    handle = open(\r\nFileNotFoundError: [Errno 2] No such file or directory: 'hall_of_fame_2021-08-24_142150.653.csv.bkup'    \r\n\r\nDuring handling of the above exception, another exception occurred:\r\n\r\nTraceback (most recent call last):\r\n  File \"C:\\Users\\ipunc\\Desktop\\ATOMS Lab\\PySR Experiments\\subtractionError.py\", line 10, in <module>     \r\n    equations = pysr(X, y, niterations=5,\r\n  File \"C:\\Python39\\lib\\site-packages\\pysr\\sr.py\", line 478, in pysr\r\n    equations = get_hof(**kwargs)\r\n  File \"C:\\Python39\\lib\\site-packages\\pysr\\sr.py\", line 1003, in get_hof\r\n    raise RuntimeError(\r\nRuntimeError: Couldn't find equation file! The equation search likely exited before a single iteration completed.\r\n```",
               "createdAt": "2021-08-24T18:28:18Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Sorry for not following up on this. I just wanted to link this issue to this one: https://github.com/MilesCranmer/SymbolicRegression.jl/issues/43. I think I may have narrowed down the issue. It's a very subtle bug caused by a backend update in 0.6.10. I will let you know if this is truly the problem.",
               "createdAt": "2021-09-14T03:15:58Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I'm planning to revert the updated backend since it has caused several such issues. In PySR 0.6.13, the backend should be back to the stable version.\r\n\r\nUpdate: just pushed.",
               "createdAt": "2021-09-14T05:43:29Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This should be fixed in the latest versions.",
               "createdAt": "2022-02-03T17:00:23Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOPVhWCg=="
           }

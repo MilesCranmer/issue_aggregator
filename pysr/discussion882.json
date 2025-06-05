@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 882,
+        "title": "Updating the constants of obtained expressions on new data",
+        "body": "First of all, I would like to express my gratitude for providing such an excellent tool . However, as a beginner in both the Julia and PySR, I am unsure whether PySR already supports updating the constants of obtained expressions on new data. Although I noticed that you mentioned the optimize_constants tool in some discussions, as I previously stated, I am not proficient in using Julia.\r\n\r\nTherefore, I would like to ask if there is a convenient method to re-optimize the parameters of an already obtained expression when applying it to new data. Currently, my approach involves manually redefining the function and then using a fitting method similar to least squares to achieve this.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Unfortunately there isn't a \"convenient\" method for this, but I agree this would be nice to have. It would be perhaps the best to expose `optimize_constants` in the Python interface. \r\n\r\nAt the moment this is pretty hard unless you are willing to get your hands dirty with the Julia backend.\r\n\r\nBut you can also get the expression object in other forms like sympy, pytorch, or jax, which permit you to extra the numerical constants directly, and then optimize with something like scipy.",
+              "createdAt": "2025-03-27T15:07:32Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0yN1QxNTowNzozMiswMDowMM4AwOfy"
+          }
+        }
+      }
+    }
+  }
+}

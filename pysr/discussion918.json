@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 918,
+        "title": "Is possible to define arithmetical AND, OR and XOR?",
+        "body": "Hello, \r\n\r\ni am trying to get basic example working boolean operators & (and), | (or) and ^ (xor). I have found PySR does support logical variant of operators, but i need to have them defined as arithmetical, so for example:\r\nx = 10 and y = 7 then x & y = 2.\r\n\r\nIs something like this possible in PySR? I did try to define custom functions and operators, but usually end up with error \"Operator & is not well defined...\" and other similar preblems.\r\n\r\nHere is my latest iteration with latest PySR version (1.5.6):\r\n```python\r\nimport numpy as np  \r\nfrom pysr import PySRRegressor  \r\n  \r\ndef bw_and(x, y):  \r\n    return (x.astype(np.int32) & y.astype(np.int32)).astype(np.float32)  \r\n  \r\ndef bw_or(x, y):  \r\n    return (x.astype(np.int32) | y.astype(np.int32)).astype(np.float32)  \r\n  \r\ndef bw_xor(x, y):  \r\n    return (x.astype(np.int32) ^ y.astype(np.int32)).astype(np.float32)  \r\n  \r\ndef bw_not(x):  \r\n    return (~x.astype(np.int32)).astype(np.float32)  \r\n  \r\nN = 200  \r\nrng = np.random.default_rng(0)  \r\nx = rng.integers(0, 32, size=N)  \r\ny = rng.integers(0, 32, size=N)  \r\nX = np.column_stack((x, y)).astype(np.float32)  \r\n  \r\ny_target = (x ^ y) + 2 * (x & y)  \r\ny_target = y_target.astype(np.float32)  \r\n  \r\n# ---------- configure PySR ----------  \r\nmodel = PySRRegressor(  \r\n    binary_operators=[\"+\", \"-\", \"*\", \"&\", \"|\", \"^\"],  \r\n    #unary_operators=[\"neg\", \"~\"],  \r\n    extra_sympy_mappings={  \r\n        \"&\": bw_and,  \r\n        \"|\": bw_or,  \r\n        \"^\": bw_xor,  \r\n        \"~\": bw_not  \r\n    },  \r\n    niterations=300,  \r\n    model_selection=\"best\",  \r\n    elementwise_loss=\"loss(prediction, target) = (prediction - target)^2\",  \r\n)  \r\n  \r\n# ---------- fit ----------  \r\nmodel.fit(X, y_target, variable_names=[\"x\", \"y\"])  \r\n  \r\nprint(model)\r\n```\r\n\r\nI will be thankful for any hint or help.\r\n\r\nThanks,\r\nDaniel",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "How is this?\r\n\r\n```python\r\nimport sympy as sp\r\nimport numpy as np\r\nfrom pysr import PySRRegressor\r\n\r\n# SymPy functions\r\n\r\nclass bw_and(sp.Function):\r\n    ...\r\n\r\nclass bw_or(sp.Function):\r\n    ...\r\n\r\nclass bw_xor(sp.Function):\r\n    ...\r\n\r\nclass bw_not(sp.Function):\r\n    ...\r\n\r\n# Julia functions\r\n\r\njl_bw_and = \"\"\"bw_and(x::T, y::T) where {T} = begin\r\n    if typemin(Int32) <= x <= typemax(Int32) && typemin(Int32) <= y <= typemax(Int32)\r\n        T(round(Int32, x) & round(Int32, y))\r\n    else\r\n        T(NaN)\r\n    end\r\nend\"\"\"\r\n\r\njl_bw_or = \"\"\"bw_or(x::T, y::T) where {T} = begin\r\n    if typemin(Int32) <= x <= typemax(Int32) && typemin(Int32) <= y <= typemax(Int32)\r\n        T(round(Int32, x) | round(Int32, y))\r\n    else\r\n        T(NaN)\r\n    end\r\nend\"\"\"\r\n\r\njl_bw_xor = \"\"\"bw_xor(x::T, y::T) where {T} = begin\r\n    if typemin(Int32) <= x <= typemax(Int32) && typemin(Int32) <= y <= typemax(Int32)\r\n        T(xor(round(Int32, x), round(Int32, y)))\r\n    else\r\n        T(NaN)\r\n    end\r\nend\"\"\"\r\n\r\njl_bw_not = \"\"\"bw_not(x::T) where {T} = begin\r\n    if typemin(Int32) <= x <= typemax(Int32)\r\n        T(~round(Int32, x))\r\n    else\r\n        T(NaN)\r\n    end\r\nend\"\"\"\r\n\r\nmodel = PySRRegressor(  \r\n    binary_operators=[\r\n        \"+\",\r\n        \"-\",\r\n        \"*\", \r\n        jl_bw_or,\r\n        jl_bw_xor,\r\n        jl_bw_and,\r\n    ],\r\n    unary_operators=[\r\n        jl_bw_not,\r\n    ],\r\n    extra_sympy_mappings={  \r\n        \"bw_and\": bw_and,  \r\n        \"bw_or\": bw_or,  \r\n        \"bw_xor\": bw_xor,  \r\n        \"bw_not\": bw_not  \r\n    },  \r\n    batching=True,\r\n    batch_size=32,\r\n    niterations=500,\r\n)\r\n\r\nX = np.random.randint(-63, 64, size=(500, 3))\r\ny = (X[:, 0] & X[:, 1]) | (~X[:, 2] & 0x1F) ^ X[:, 0]\r\n\r\nmodel.fit(X.astype(np.float32), y.astype(np.float32))\r\n\r\nprint(model)\r\n\r\n```\r\n\r\nthe `T` here will be inferred from the types (by the Julia compiler), but for `precision=32` it is just equal to `Float32`. `T(x)` will just convert back to type `T`.\r\n\r\nThe `typemin(Int32) <= x <= typemax(Int32)` checks are necessary because the genetic algorithm can generate very large values, so we want to avoid errors from trying to round to an Int32. Returning `NaN` for invalid inputs is the right solution.\r\n\r\nThen if you want to numerically evaluate on the python side you would need to define the methods in the `sympy.Function` class. Or pass a lambda function with sympy calls. You can't pass a numpy function though, it needs to be sympy.\r\n\r\nHope this helps!",
+              "createdAt": "2025-05-11T21:11:23Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0xMVQyMjoxMToyMyswMTowMM4AyAy-"
+          }
+        }
+      }
+    }
+  }
+}

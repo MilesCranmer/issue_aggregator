@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 275,
         "title": "Time-Delayed Variables",
         "body": "Hi, \r\n\r\nI'm trying to use PySR to identify some equations with a certain $\\tau$ dependence on the past, similar to the following delayed differential equation,\r\n\r\n$$\\begin{align}\r\n    \\frac{\\mathrm{d}x}{\\mathrm{d}t} = \\frac{\\beta}{1+(x(t-\\tau))^n} - x.\r\n\\end{align}$$\r\n\r\nOne way of doing it is by introducing a new column with shifted data, but I was hoping for a method that allowed PySR itself to look for $\\tau$. I thought about defining a binary operator B(x, tau) that returns the value of x at tau time steps ago, but looking at the file that defines the operators, it seems they only work with a single scalar value as input, so it looks incompatible.\r\n\r\nIs there a way? Any suggestion? \r\n\r\nThanks.\r\n ",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @TadeuNP,\r\n\r\nVery interesting idea. I think implementing this really depends on specific requirements. If you just want to query x in the past, you could certainly create a unary operator that takes a scalar argument, converts it to integer inside the function (type conversion is allowed - see the prime number example in the docs page on code examples), and indexes the correct row. However, all operators assume they are applied element-wise without changing functional form, so if you need the row index of the x, you will need to do some hacking.\r\n\r\n~~If what you mean is a *functional*, rather than a numerical operator (ie the operator should change all of the variables in the subtree), that is not supported and would take a large amount of work.~~ (edit - see comment)\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2023-03-12T18:46:25Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wMy0xMlQxODo0NjoyNSswMDowMM4AUJzL"
           }

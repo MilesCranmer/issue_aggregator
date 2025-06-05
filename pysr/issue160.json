@@ -1,68 +1,56 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 160,
         "title": "[Feature] Support external julia libraries for custom operators",
         "body": "**Is your feature request related to a problem? Please describe.**\r\nI'd like to use a bessel function as a custom binary operator with PySR. It seems that I need to use an external library like `SpecialFunctions.jl`. However, I can not seem to figure out an easy way to use a library function with `binary_operators` argument. Everything I've tried so far ended up in `JULIA: AssertionError: Your configuration is invalid - one of your operators (besselj) is not well-defined over the real line.`, although I assume this means a compile rather then mathematical issue underneath.\r\n\r\n**Describe the solution you'd like**\r\nA custom parameter with library names to additionally load passed to PySRRegressor could probably be doable?\r\n\r\n**Additional context**\r\n I'm not a Julia user, so I might be missing something trivial.\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Great question. Two notes:\r\n\r\n- For loading external Julia libraries, you need to manually call a few Julia functions. See example below.\r\n- `besselj` actually assumes non-negative inputs. PySR assumes all operators are valid over the entire real line, so we need to create a modified operator that works for negative inputs.\r\n\r\nHere's a working example:\r\n\r\n```python\r\nimport numpy as np\r\n\r\n# Import bessel function:\r\nimport sympy\r\nimport scipy.special as sp\r\nimport pysr\r\n\r\n# Import PyJulia, and import other library:\r\njl = pysr.julia_helpers.init_julia()\r\n\r\n# If necessary:\r\njl.eval(\"using Pkg\")\r\njl.eval('Pkg.add(\"SpecialFunctions\")')\r\n\r\n# Import the library\r\njl.eval(\"using SpecialFunctions\")\r\n\r\nbessel_function = \"besselj_abs(x, y) = besselj(abs(x), abs(y))\"\r\n\r\nmodel = pysr.PySRRegressor(\r\n    binary_operators=[\"+\", \"*\", bessel_function],\r\n    extra_sympy_mappings={\r\n        \"besselj_abs\": lambda x, y: sympy.besselj(sympy.Abs(x), sympy.Abs(y))\r\n    },\r\n    # No bessel inside bessel:\r\n    nested_constraints={\"besselj_abs\": {\"besselj_abs\": 0}},\r\n)\r\n\r\nX = np.random.rand(500, 2) * 10\r\n\r\n# Actual function we wish to find:\r\ny = sp.jv(0, X[:, 0]) * sp.jv(1, X[:, 1])\r\n\r\nmodel.fit(X, y)\r\n```\r\n\r\nIt seems to correctly get the Bessel function for me!\r\n```python\r\n>>> model.sympy()\r\nbesselj(1.2737758e-9, Abs(x0))*besselj(1.0000007, Abs(x1))\r\n```",
               "createdAt": "2022-07-08T18:42:43Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "besselj seems to be really slow for large inputs (I guess that's a property of bessel functions?). Therefore, you could instead clip the inputs to the range [0, 5] so it is even faster:\r\n\r\n```python\r\nbessel_function = \"\"\"besselj_clip(x::T, y::T) where {T} = begin\r\n    # Same type as x and y:\r\n    zero = T(0)\r\n    five = T(5)\r\n\r\n    # Clip x, y to [0, 5]\r\n    x = max(x, zero)\r\n    x = min(x, five)\r\n    y = max(y, zero)\r\n    y = min(y, five)\r\n\r\n    # Call function:\r\n    return besselj(x, y)\r\nend\r\n\"\"\"\r\n```\r\n\r\nThe `::T` and `where {T}` is just templating the function to input type `T`. ",
               "createdAt": "2022-07-08T19:18:40Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "As a side note, I think I should just make all the `SpecialFunctions.jl` functions available by default in PySR, since it has a lot of useful functions. What do you think?",
               "createdAt": "2022-07-08T22:56:35Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "evilmav"
               },
               "body": "Wow, thank you for the fast response and all the work! This should do the trick =)\r\n\r\n> As a side note, I think I should just make all the `SpecialFunctions.jl` functions available by default in PySR, since it has a lot of useful functions. What do you think?\r\n\r\nI agree =)\r\n\r\nPS I'd be happy to buy you a beer for this amazing project - feel free to drop me a link if you wish.",
               "createdAt": "2022-07-08T23:00:12Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Awesome; will add it.\r\n\r\nHappy to hear you are enjoying the package! No need for the tip, but thanks for the offer – be sure to spread the word about PySR though :) (Although if we meet in person I will gladly take you up on a beer!)",
               "createdAt": "2022-07-08T23:18:13Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This feature should be fully supported now, see the `Primes.jl` example on https://astroautomata.com/PySR/examples/.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2023-03-27T23:17:30Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOWJJaHw=="
           }

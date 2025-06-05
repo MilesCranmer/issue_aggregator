@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 304,
         "title": "Constraints?",
         "body": "Is there a way to set some constraints on the results? I have a specific problem for which I know the solution must be positive, is there a way to indicate this?\r\n\r\nOther than that - great job on the package. Super fast, super intuitive to use. A game changer.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @tpoisot, sorry for my very late response! Just seeing this. Thanks for your kind words.\r\nI think this functionality would be nice to implement. Do you want to join the thread here https://github.com/MilesCranmer/PySR/discussions/69? Someone asked a related question and I described how it could be implemented.\r\n\r\nCheers!\r\nMiles",
               "createdAt": "2021-08-10T04:41:41Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Update: added `full_objective` (PySR) and `loss_function` (SymbolicRegression.jl) for this purpose.",
               "createdAt": "2023-04-21T19:34:32Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNC0yMVQyMDozNDozMiswMTowMM4AVtDx"
           }

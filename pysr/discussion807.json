@@ -1,0 +1,47 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 807,
+        "title": "Running PySR on Clusters with SLURM",
+        "body": "I submitted a job to SLURM with the following output:\r\n\r\n```\r\nInfo: Starting SLURM job julia-4064213: srun -J julia-4064213 -n 64 -D /home/agripinoneto/PYSR -o /home/agripinoneto/PYSR/./julia-4064213-17367861256-%4t.out /apps/local/opt/julia/1.11.2/bin/julia --heap-size=5939M --worker=6vgeZiAhFp11MoXB\r\n[ Info: Worker 0 (after 0 s): No output file \"/home/agripinoneto/PYSR/./julia-4064213-17367861256-0000.out\" yet\r\n[ Info: Worker 0 (after 1 s): No output file \"/home/agripinoneto/PYSR/./julia-4064213-17367861256-0000.out\" yet\r\n```\r\n\r\nThe job is running, but I'm not getting any output files, and it keeps showing \"No output file yet\" for a long time.\r\n\r\nI am using PySR with the following configuration:\r\n\r\n```\r\nmodel = PySRRegressor(\r\n    procs=128,\r\n    parallelism='multiprocessing',\r\n    cluster_manager=\"slurm\",\r\n)\r\n```\r\n\r\nAnd the job was submitted with the following SLURM command:\r\n\r\n`sbatch --qos=short --cpus-per-task=128 --nodes=2 ./script.sh`\r\n\r\nQuestions:\r\n    Is there any issue with the PySR configuration that could be causing this problem?\r\n    Could the issue be with SLURM's resource allocation or the distribution of nodes?\r\n    What should I check to ensure that the output files are generated correctly and that the job is using the requested resources properly?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "So the tricky thing about the slurm manager is you are only supposed to run it a single task inside that slurm allocation. It's easiest if you set up an interactive allocation with 2 nodes, and then ssh into the first node and run the script a single time.\r\n\r\nBtw, with https://github.com/MilesCranmer/PySR/pull/794 I'm hoping that this will make things a bit easier for \"standard\" slurm scripts. If you have some time to try it, I'd love to hear if that fixes it for you (run with `slurm_native` instead of `slurm`)",
+              "createdAt": "2025-01-13T17:52:14Z"
+            },
+            {
+              "author": {
+                "login": "zouzaxd"
+              },
+              "body": "\r\nI installed the SlurmClusterManager, but I encountered the following message:\r\n\r\n```\r\nWARNING: could not import ClusterManagers.addprocs_slurm_native into Main\r\nCompiling Julia backend...\r\nTraceback (most recent call last):\r\n  File \"/home/agripinoneto/PYSR/PySR_scrit.py\", line 141, in <module>\r\n    models, errors = train_and_store_models(X.reshape(-1,1),Y)\r\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/home/agripinoneto/PYSR/PySR_scrit.py\", line 134, in train_and_store_models\r\n    model.fit(treino_x, treino_y)  # Ajuste com pesos\r\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/home/agripinoneto/.local/lib/python3.12/site-packages/pysr/sr.py\", line 2279, in fit\r\n    self._run(X, y, runtime_params, weights=weights, seed=seed, category=category)\r\n  File \"/home/agripinoneto/.local/lib/python3.12/site-packages/pysr/sr.py\", line 1845, in _run\r\n    cluster_manager = _load_cluster_manager(cluster_manager)\r\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/home/agripinoneto/.local/lib/python3.12/site-packages/pysr/julia_helpers.py\", line 34, in _load_cluster_manager\r\n    return jl.seval(f\"addprocs_{cluster_manager}\")\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/home/agripinoneto/.julia/packages/PythonCall/Nr75f/src/JlWrap/module.jl\", line 27, in seval\r\n    return self._jl_callmethod($(pyjl_methodnum(pyjlmodule_seval)), expr)\r\n```\r\n\r\nIt seems there might be an issue with importing ClusterManagers.addprocs_slurm_native. I am using PySR for Python, and the error is arising in this context.",
+              "createdAt": "2025-01-13T19:17:56Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "You have to install pysr from that branch, since it’s not yet part of the released version yet",
+              "createdAt": "2025-01-13T20:05:40Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Sorry it turned out it was my fault. I fixed the PR: https://github.com/MilesCranmer/PySR/pull/794.\r\n\r\nHowever, this won't actually work yet, until these upstream PRs are merged:\r\n\r\n\r\n- https://github.com/kleinhenz/SlurmClusterManager.jl/pull/20\r\n- https://github.com/kleinhenz/SlurmClusterManager.jl/pull/30\r\n\r\nIn the meantime I would recommend trying to get the existing `\"slurm\"` cluster manager to work. I recommend using an interactive slurm allocation for this.",
+              "createdAt": "2025-01-14T04:25:08Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMS0xNFQwNDoyNTowOCswMDowMM4AtHjW"
+          }
+        }
+      }
+    }
+  }
+}

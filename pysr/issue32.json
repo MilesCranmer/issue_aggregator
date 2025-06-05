@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 32,
         "title": "Additional export options",
         "body": "@patrick-kidger has written an amazing SymPy->PyTorch export library https://github.com/patrick-kidger/sympytorch. Will be really nice to use this in PySR, so that equations can be directly exported to PyTorch!\r\n\r\nAlso might be nice to have a JAX export too - e.g., could export a function that takes `(x, parameters)` as arguments (in traditional JAX functional style...).",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Update: got a JAX one working: https://github.com/MilesCranmer/sympy2jax.\r\n\r\nThis is also built into PySR now (optional import). You can say `output_jax_format=True`, and it will give you another column of the equations dataframe with JAX callables and default parameters in a jax numpy array.\r\n\r\n@patrick-kidger - I guess for the PyTorch equivalent, it should output a module? What do you think?",
               "createdAt": "2021-02-27T06:57:26Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "patrick-kidger"
               },
               "body": "Based on a quick glance, sympy2jax looks good. I note that it doesn't have a reverse JAX->SymPy option though.\r\n\r\nIs having it as another option like that really the cleanest interface? (And a violation of SSOT.) There's already all of `best`, `best_latex`, `best_callable` etc. Perhaps always give the user an expression object with some methods:\r\n\r\n```python\r\nclass Expresion:\r\n    def __init__(self, *, sympy_expr, **kwargs):\r\n        super().__init__(**kwargs)\r\n        self.sympy_expr = sympy_expr\r\n    def as_sympy():\r\n        return self.sympy_expr\r\n    def as_jax():\r\n        return sympy2jax(self.sympy_expr)\r\n    def as_pytorch():\r\n        return sympytorch.SymPyModule(expressions=[sympy_expr])\r\n    def as_latex():\r\n        ...\r\n```\r\n\r\nFor PyTorch I agree that outputting modules sounds appropriate. (Conveniently what sympytorch already does.)",
               "createdAt": "2021-02-27T09:51:10Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOLulgTA=="
           }

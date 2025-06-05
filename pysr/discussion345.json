@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 345,
         "title": "Adding `asin` / \"configuration is invalid\" error",
         "body": "Hi sorry for the repeat questions, a bit new to this.\r\n\r\nI'm trying to add asin as a unary operator, I have the following:\r\n\r\n```\r\nunary_operators=[\"cos\", \"sin\", \"asin(x)=asin(x)\", \"tan\", \"atan\", \"abs\", \"sqrt\"],\r\nextra_sympy_mappings={\"atan2\": lambda x, y: sympy.atan(x,y),\r\n                          \"asin\": lambda x: sympy.asin(x)},\r\n```\r\n\r\n\r\nAnd I'm getting the error\r\n\r\n`Your configuration is invalid - one of your operators (asin) is not well-defined over the real line. You can get around this by returning `NaN` for invalid inputs.`\r\n\r\nShould I be defining the unary operator like this?\r\n\r\n`unary_operators=[\"cos\", \"sin\", \"asin(x)=x\", \"tan\", \"atan\", \"abs\", \"sqrt\"],`\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "You are almost there. Since `asin` is not valid for `abs(x)>1`, you need to create a new operator that either (1) clips the input to be valid, or (2) returns a NaN for invalid input.\r\n\r\nI generally prefer (2) as the output equations won't have weird steps in them. You could do this:\r\n\r\n```python\r\n\"my_asin(x) = abs(x) > 1 ? convert(typeof(x), NaN) : asin(x)\"\r\n```\r\n\r\nand then just give it the normal `sympy` definition by for `\"my_asin\"` instead.",
               "createdAt": "2023-06-06T16:41:00Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNi0wNlQxNzo0MTowMCswMTowMM4AXR-I"
           }

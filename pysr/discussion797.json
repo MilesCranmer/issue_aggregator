@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 797,
+        "title": "Jacobi elliptic functions",
+        "body": "Does PySR support Jacobi elliptic functions?\r\n\r\nThis question might seem oddly specific, but in my master's I'm numerically simulating a physical system that basically boils down to a non-linear damper, so it would be very useful to me if the library could handle such functions (but I can imagine that this is a whole challenge in of itself).\r\n\r\nAlso, I would like to congratulate Miles for taking the time and spending the effort to build and maintain this library!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks! \r\n\r\nNothing built in to it but you can call arbitrary Julia functions; there’s an example with the Primes.jl package here: https://ai.damtp.cam.ac.uk/pysr/examples/#7-julia-packages-and-types\r\n\r\nMaybe try defining an operator that calls this package? https://github.com/dominic-chang/JacobiElliptic.jl",
+              "createdAt": "2025-01-04T15:02:00Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMS0wNFQxNTowMjowMCswMDowMM4Asws6"
+          }
+        }
+      }
+    }
+  }
+}

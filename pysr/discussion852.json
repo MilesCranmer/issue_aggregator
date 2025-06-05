@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 852,
+        "title": "Using PySR, to perform integration and differentiation",
+        "body": "I'm interested in using PySR, to perform integration and differentiation. Has anyone successfully used for these purposes? I've been trying to use it, but I'm encountering some difficulties. Any guidance or advice would be greatly appreciated.\r\n\r\nCode Error:\r\n```python\r\nequation_results = []\r\nfor set_name, features in feature_sets.items():\r\nX = merged_soil_df[features]\r\npysr_regressor = PySRRegressor(\r\n    populations=40,\r\n    niterations=10,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\"],\r\n    unary_operators=[\"sqrt\", \"log\", \"integrate\"],\r\n)\r\npysr_regressor.fit(X, y)\r\nequations_df = pysr_regressor.equations_\r\n```\r\n\r\n```python\r\nC:\\Users\\ku03p\\anaconda3\\Lib\\site-packages\\pysr\\sr.py:2766: UserWarning: Note: it looks like you are running in Jupyter. The progress bar will be turned off.\r\nwarnings.warn(\r\nTraceback (most recent call last):\r\n\r\nCell In[248], line 10\r\npysr_regressor.fit(X, y)\r\n\r\nFile ~\\anaconda3\\Lib\\site-packages\\pysr\\sr.py:2279 in fit\r\nself._run(X, y, runtime_params, weights=weights, seed=seed, category=category)\r\n\r\nFile ~\\anaconda3\\Lib\\site-packages\\pysr\\sr.py:1940 in _run\r\njl_op = jl.seval(op)\r\n\r\nFile ~.julia\\packages\\PythonCall\\Nr75f\\src\\JlWrap\\module.jl:27 in seval\r\nreturn self._jl_callmethod($(pyjl_methodnum(pyjlmodule_seval)), expr)\r\n\r\nJuliaError: UndefVarError: integrate not defined in Main\r\nStacktrace:\r\n[1] top-level scope\r\n@ :0\r\n[2] eval\r\n@ .\\boot.jl:430 [inlined]\r\n[3] eval\r\n@ .\\Base.jl:130 [inlined]\r\n[4] pyjlmodule_seval(self::Module, expr::Py)\r\n@ PythonCall.JlWrap C:\\Users\\ku03p.julia\\packages\\PythonCall\\Nr75f\\src\\JlWrap\\module.jl:13\r\n[5] pyjl_callmethod(f::Any, self::Ptr{PythonCall.C.PyObject}, args_::Ptr{PythonCall.C.PyObject}, nargs::Int64)\r\n@ PythonCall.JlWrap C:\\Users\\ku03p.julia\\packages\\PythonCall\\Nr75f\\src\\JlWrap\\base.jl:67\r\n[6] _pyjl_callmethod(o::Ptr{PythonCall.C.PyObject}, args::Ptr{PythonCall.C.PyObject})\r\n@ PythonCall.JlWrap.Cjl C:\\Users\\ku03p.julia\\packages\\PythonCall\\Nr75f\\src\\JlWrap\\C.jl:63\r\n```",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @priya1809,\r\n\r\nThe operators available are listed on https://ai.damtp.cam.ac.uk/pysr/operators/\r\n\r\nYou can compute derivatives, but not as an operator, it has to be done in the context of a template expression spec: https://ai.damtp.cam.ac.uk/pysr/examples/#13-using-differential-operators\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2025-03-02T23:59:16Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0wMlQyMzo1OToxNiswMDowMM4AvLzy"
+          }
+        }
+      }
+    }
+  }
+}

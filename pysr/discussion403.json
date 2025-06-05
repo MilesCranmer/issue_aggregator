@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 403,
         "title": "Strange error when I try to define my own operator",
         "body": "I was trying to add to the model an unary operator to return a value from a Gaussian distribution, so I coded something like this:\r\n```\r\nmodel=PySRRegressor(\r\n...\r\nunary_operators=[\r\n        \"exp\",\r\n        \"gau(x) = exp(-0.5 * x^2.0)\",\r\n    ],\r\n...\r\n```\r\nbut this would raise a runtime error: \r\n`TypeError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: TypeError: in typeassert, expected Float32, got a value of type Float64`\r\n\r\nTherefore, I changed my code to:\r\n```\r\nmodel=PySRRegressor(\r\n...\r\nunary_operators=[\r\n        \"exp\",\r\n        \"gau(x::Float64) = exp(-0.5 * x^2.0)\",\r\n    ],\r\n...\r\n```\r\nThis produced another error:\r\n`RuntimeError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: AssertionError: Your configuration is invalid - one of your operators (gau) is not well-defined over the real line. You can get around this by returning `NaN` for invalid inputs.`\r\n\r\nThis error makes no sense because the function I wrote should be able to accept any real numbers. Anyway, I altered my code again:\r\n```\r\nmodel=PySRRegressor(\r\n...\r\nunary_operators=[\r\n        \"exp\",\r\n        \"gau(x::Float64) = isfinite(x) ? exp(-0.5 * x^2.0) : NaN\",\r\n    ],\r\n...\r\n```\r\nIt was yet giving the same error:\r\n`RuntimeError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: AssertionError: Your configuration is invalid - one of your operators (gau) is not well-defined over the real line. You can get around this by returning `NaN` for invalid inputs.`\r\n\r\nI am stuck at this point, does anyone have some advice on this? Thanks in advance!\r\n\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "If you are using `precision=32` (default), then your operators have to use only `Float32`. So either use `precision=64`, or write your operator like this:\r\n\r\n```\r\n        \"gau(x::T) where {T} = isfinite(x) ? exp(-T(0.5) * x^T(2)) : T(NaN)\",\r\n```",
               "createdAt": "2023-08-09T17:22:50Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wOC0wOVQxODoyMjo1MCswMTowMM4AZflE"
           }

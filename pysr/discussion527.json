@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 527,
         "title": "Coevolution with simultaneous function evaluation",
         "body": "Hello all and thank you for a great SR package! I am trying to use PySR to coevolve two expressions that depend on each other when one of the outputs has too few measurements (or none at all). Essentially I would like to find $f_0$ and $f_1$ such that $y_0=f_0(X)$ and $y_1=f_1(X, y_0)$. Since there is very little data for $y_0$, I would like to evaluate the fitness of both expressions together. Is there a simple way to implement this in PySR? I took a look at MulitSRRegressor, but that did not seem to work quite like this.\r\nThank you for your help!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @bengcohen,\r\n\r\nThanks and cool idea. I think you could do this with a custom objective that creates that specific structure, like this example: https://astroautomata.com/PySR/examples/#9-custom-objectives.\r\n\r\ne.g., say that you set the last column of X to be all 0. You can put `y0` into that column during the evaluation.\r\n\r\n```julia\r\ntree.degree != 2 && return L(1e10)\r\n\r\n# Split the tree at the root node\r\nf0 = tree.l\r\nf1 = tree.r\r\n\r\ny0, flag0 = eval_tree_array(f0, dataset.X, options)\r\n!flag0 && return L(1e9)  # Return a bit lower loss for this breakpoint, because at least it got this far\r\n\r\nmodified_X = copy(dataset.X)\r\nmodified_X[end, :] .= y0  # Set last column to y0\r\n\r\ny1, flag1 = eval_tree_array(f1, modified_X, options)\r\n!flag1 && return L(1e8)\r\n\r\n# Now you have y0 and y1 and can do your evaluation on them\r\n```\r\n\r\nHowever the one tricky thing is the printed expression (and the one returned to Python) is not really the same thing as the one you are evaluating inside the loss function. So you will need to manually interpret the results afterward. But see the custom objectives example for more discussion about this.\r\n\r\nAlso if you need to fit `y0` to a different ground truth than `y1`, what you could do is pass the `y1` ground truth to the \"weights\" and access it with `dataset.weights`.\r\n\r\nThis is a bit easier on the Julia side as there is the `dataset.extras` parameter for storing additional variables. But it would be great to have that in the Python side as well, I just need to find time to add it.",
               "createdAt": "2024-01-17T21:59:22Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMS0xN1QyMTo1OToyMiswMDowMM4AfIvE"
           }

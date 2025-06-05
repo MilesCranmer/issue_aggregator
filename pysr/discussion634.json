@@ -1,30 +1,30 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 634,
         "title": "high-complexity equations fitting",
         "body": "Dear Everynoe,\r\n\r\nI am currently using PySR to fit high-complexity equations such as the Arrhenius equation like y=A*x^n*exp(-E/R/x). However, I am encountering a problem where the loss function is extremely high, resulting in a failure to fit the model properly. Could you please suggest any methods to avoid such issues? Additionally, can you provide guidance on how to implement constraints or limitations within the fitting process?\r\n\r\nBelow is my code:\r\n```ruby\r\nimport pysr\r\nimport sympy\r\nimport numpy as np\r\nfrom matplotlib import pyplot as plt\r\nfrom pysr import PySRRegressor\r\nfrom sklearn.model_selection import train_test_split\r\nfrom math import exp\r\nA = 3.55*10**15\r\nn = -0.41\r\nE = 16.6  #  J/mol\r\nR = 8.314  #  J/(mol*K)\r\nX = np.linspace(250, 1250, 1000)\r\ny = A*X**n*np.exp(-E/R/X)\r\ndefault_pysr_params = dict(\r\n    populations=30,\r\n    model_selection=\"best\",\r\n    #random_state=42,\r\n    #proce=0,\r\n    #deterministic=True\r\n)\r\n# Learn equations\r\nmodel = PySRRegressor(\r\n    niterations=300,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\",\"^\"],\r\n    unary_operators=[\"exp\"],\r\n    #extra_sympy_mappings={\"inv\": lambda x:np.exp(1/x) },\r\n    **default_pysr_params,\r\n)\r\nX_train, X_test, y_train, y_test = train_test_split(X.reshape(-1, 1), y, test_size=0.2, random_state=42)\r\nmodel.fit(X_train, y_train)\r\nmodel.sympy()\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @Enqiliu125, did you try the tips on https://astroautomata.com/PySR/tuning/?",
               "createdAt": "2024-06-02T22:51:00Z"
+            },
+            {
+              "author": {
+                "login": "pukpr"
+              },
+              "body": "For Arrhenius-type equations, perhaps a good idea to log-scale values first to dynamically equalize values across the range?",
+              "createdAt": "2024-06-21T22:54:35Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
-            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0wMlQyMzo1MTowMCswMTowMM4Akx01"
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0yMVQyMzo1NDozNSswMTowMM4AljY-"
           }
         }
       }

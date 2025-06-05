@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 541,
         "title": "Constraints wrongly evaluated/applied???",
         "body": "Hello,\r\n\r\nI have the following constraint to an unitairy function 'myconst':  { \"myconst\":      4}\r\nThe variables have complexity 3, constants complexity 4 and basic operators have complexity 1.\r\n\r\nAs a result the expression 'X0 * 0.041657' has complexity 8.\r\n\r\nWhy do I see the following in the end result 'myconst(X0 * 0.041657)'. Shouldn't this be prevented by the constraints?\r\n\r\nYour help is appriciated!\r\n\r\nRegards,\r\nFrank\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Can you paste your full code here? ",
               "createdAt": "2024-02-03T10:29:00Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "fpmw"
               },
               "body": "Hello Miles,\r\n\r\nCan I send the code? I think it is cumbersome to put it here as a comment.\r\nIs there a easy way to get the pareto front?\r\n\r\nRegards,\r\nFrank\r\n\r\n",
               "createdAt": "2024-02-06T16:57:11Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMi0wNlQxNjo1NzoxMSswMDowMM4Af_K2"
           }

@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 297,
         "title": "possibility of defining operators with more than two variables",
         "body": "Dear Miles,\r\nI am new to the Pysr framework and wonder if it is possible to define operators with more than two variables using Pysr. For example, I would like to define some equations that I have shown below. I mean, the entire equation would be a single operator. My ultimate goal is to define a set of basic equations that relate to my process in the code and end up with a physical model.\r\nI thank you in advance for your time and help. \r\n\r\nσ=(2*F)/(π*d_c*h_c )\r\n\r\nρ_c=m_c / ((π/4)*〖d_c〗^2 * h_c )\r\n\r\nSSA=(6∑V_i/x_i )/(∑〖ρ_i∙V))\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Dear @Somayeh00,\r\n\r\nUnfortunately, it is not currently possible to define an operator with more than two inputs. However you might be able to define a custom objective function that performs this, if you want to have this \"operator\" at the outside of your expressions, with learned inputs for `d_c, h_c, F`, etc. See, e.g., https://github.com/MilesCranmer/PySR/discussions/299 and https://github.com/MilesCranmer/PySR/issues/285 for more info.\r\n\r\nIn the future I want to allow for fixed functional forms. See https://github.com/MilesCranmer/SymbolicRegression.jl/issues/193 for updates.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2023-04-19T18:31:39Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNC0xOVQxOTozMTozOSswMTowMM4AVnKV"
           }

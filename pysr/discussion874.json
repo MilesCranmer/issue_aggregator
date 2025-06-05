@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 874,
+        "title": "Installing PySR on cluster",
+        "body": "Hi Miles,\r\n\r\nThanks for the active support.\r\n\r\nI am trying to install PySR on a cluster. After building my Apptainer.def, when I load the .sif and import the PySR package (apptainer run my_container.sif /opt/venv/bin/python -c \"import pysr; print(pysr.__version__)\"), I get this error \"OSError: [Errno 30] Read-only file system: '/opt/venv/julia_env'\"\r\n\r\nBelow is my Apptainer.def:\r\n\r\n\"Bootstrap: docker\r\nFrom: quay.io/condaforge/miniforge3:latest\r\n\r\n%post\r\n    /opt/conda/bin/conda install -y pip numpy scipy sympy matplotlib pandas \\\r\n        scikit-learn tqdm julia--channel conda-forge\r\n\r\n    # Create a virtual environment inside the container\r\n    /opt/conda/bin/python -m venv /opt/venv\r\n\r\n    . /opt/venv/bin/activate\r\n\r\n    pip install pysr\r\n\"\r\n\r\nI wonder how I can solve this issue. Do you have any tips?\r\n\r\nAppreciate your help!\r\n\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "There is a working Apptainer.def here you could use: https://github.com/MilesCranmer/PySR/blob/master/Apptainer.def",
+              "createdAt": "2025-03-19T15:35:52Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0xOVQxNTozNTo1MiswMDowMM4Av44M"
+          }
+        }
+      }
+    }
+  }
+}

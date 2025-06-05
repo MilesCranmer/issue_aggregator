@@ -1,30 +1,65 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 94,
         "title": "[Feature] PySRSequenceRegressor",
         "body": "To define a symbolic regression model predict recurrent relations in sequences, I want to create a `PySRSequenceRegressor` (see #88 for scikit-learn API) that will automatically set this up for the user given a sequence `X`.\r\n\r\nThis would require basically no core modifications. It's just a preprocessing step. This could also be used to model any sort of fixed step size time series data, including differential equations (although the learned symbolic model would just be single-step prediction; not rollouts), so I think this would be a nice addition.\r\n\r\nThe required arguments for this would be: `history_length` which tells the data preprocessing how many historical features to allocate a single datapoint for it to predict the next step.\r\n\r\nThe user would be allowed to pass a 1D array (single sequence) or a 3D array (batch of sequences with multiple features each). This will not allow for 2D arrays as input since this is ambiguous with regard to batching vs multi-feature. Passing a 2D array will raise an error telling the user to pass a 3D array, and give the expected axis configuration. \r\n\r\nA 3D array as input will raise a warning letting the user know which axis is being interpreted as batch/feature. This warning could be silenced with a flag.\r\n\r\nThe user could also use `PySRRegressor` and do the preprocessing themselves.\r\n\r\n(cc @patrick-kidger @kazewong, in case of interest)",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "falknerdominik"
               },
               "body": "Hello,\r\n\r\nCould this be currently implemented? If yes can you specify how the preprocessing would look like (I might be interested to try this on data I currently work on).",
               "createdAt": "2024-02-21T15:35:48Z"
+            },
+            {
+              "author": {
+                "login": "wenbang24"
+              },
+              "body": "Hello,\r\n\r\nThis sounds really great for time series data, but as falknerdominik said, how would the preprocessing work?\r\nAnyway, I would also be interested in working on this :)",
+              "createdAt": "2024-07-15T11:42:07Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "It should be fairly straightforward to implement. Just need to find some time to do it. I think it could wrap `PySRRegressor` with a fixed `loss_function`, and handle flattening/unflattening the data to predict and fit.\r\n\r\nSince I've evidently been too busy to add this so far, let me know if one of you would be interested in working on it and I can point you in the right direction.",
+              "createdAt": "2024-07-15T13:34:22Z"
+            },
+            {
+              "author": {
+                "login": "wenbang24"
+              },
+              "body": "I would be happy to work on this!",
+              "createdAt": "2024-07-15T23:21:02Z"
+            },
+            {
+              "author": {
+                "login": "wenbang24"
+              },
+              "body": "@MilesCranmer can you assign this to me pls?",
+              "createdAt": "2024-07-20T07:27:59Z"
+            },
+            {
+              "author": {
+                "login": "wenbang24"
+              },
+              "body": "@MilesCranmer I'm writing a research paper on symbolic regression for recurrence relations; can I pls use this in my paper?",
+              "createdAt": "2024-07-21T00:53:57Z"
+            },
+            {
+              "author": {
+                "login": "wenbang24"
+              },
+              "body": "also is it\r\n\r\n$f(x_t) = f(x_{t-1}) + f(x_{t-2}) +$ whatever\r\n\r\nor\r\n\r\n$f(x_t) = x_{t-1} + x_{t-2} +$ whatever",
+              "createdAt": "2024-07-21T01:34:23Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
-            "endCursor": "Y3Vyc29yOnYyOpHOdKUPKw=="
+            "endCursor": "Y3Vyc29yOnYyOpHOhZielQ=="
           }
         }
       }

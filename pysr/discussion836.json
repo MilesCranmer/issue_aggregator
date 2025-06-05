@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 836,
+        "title": "Incompatibility of loss_function_expression and eval_grad_tree_array.",
+        "body": "I cannot use eval_grad_tree_array within loss_function_expression. I wasn't sure if this was a bug or intentional so I haven't posted it as an issue. \r\n\r\nVersion: SR.jl v1.8.0\r\n```julia\r\nexpression_spec = @template_spec(expressions=(f,)) do x1, x2, x3, x4, x5, x6\r\n    return f(x1, x2, x3, x4, x5, x6)\r\nend\r\n\r\nfunction loss_fnc(tree, dataset::Dataset{T,L}, options) where {T,L}    \r\n    X = dataset.X\r\n    y = dataset.y\r\n    prediction, grad, complete = eval_grad_tree_array(tree, X, options; variable=true)\r\n    !complete && return L(Inf)\r\n    any(>(0.0f0), @view grad[1:3, :]) && return L(Inf)\r\n    #....remaining code\r\n\r\nmodel = SRRegressor(\r\n    #...othercode\r\n    expression_spec = expression_spec,\r\n    loss_function_expression = loss_fnc,\r\n )\r\nmach = machine(model, X, y, weightsIn)\r\nfit!(mach)\r\n```\r\nThis results in error: \r\n```julia\r\nERROR: BoundsError: attempt to access 1-element Vector{ComposableExpression{Float32, DynamicExpressions.NodeModule.Node{Float32}, @NamedTuple{operators::OperatorEnum{Tuple{typeof(+), typeof(-), typeof(*), typeof(/)}, Tuple{}}, variable_names::Nothing, eval_options::EvalOptions{true, true, true, Nothing}}}} at index [2]\r\n```\r\n\r\nRationale: Apply monotonicity constraints via AD on multiple functions and parameters within `@template_spec` on baseline variables to `prediction` without complicated chain and quotient rules with D(...) within expression_spec. I thought with `loss_function_expression` it would be much more straight forward to apply.\r\n\r\nIf this is not possible, it would be a great feature to have. Although with some know-how, it is relatively straightforward to code monotonicity checks in PySR and SR.jl, but it would be cool to be able to input monotonic constraints like is possible with XGBoost, LGBM, Cat Boost etc. I would say it would have saved me a few months of getting my head round it when I first started. It does get very complicated to enforce monotonicity with multiple functions if eval_grad_tree_array is not possible. Any ideas would be welcome!\r\n\r\nIt could be something like, monotonic_constraints=[-1,-1,-1, 0, 0, 0] and it would automatically perform eval_grad_tree_array and test the variables in grad that correspond to the constraints input, which should be compatible with both a normal run and template_spec.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "This unfortunately won't work out-of-the-box with TemplateExpressions as it would have to do autodiff through the template itself, like with Zygote.jl. Maybe it's possible though haven't tried yet. (evidently the error message isn't great for this; it gives the appearance of a bug rather than missing functionality.)\r\n\r\nActually I guess one temporary workaround is to attempt conversion to a single binary tree before evaluation:\r\n\r\n```julia\r\n    prediction, grad, complete = eval_grad_tree_array(SymbolicRegression.get_tree(tree), X, options; variable=true)\r\n```\r\n\r\nNote that this only works for simple templates that use operators contained in the options. Stuff like `f(x, y) + g(z)` if `+` is an operator should work. But other stuff might not. The `D` operator, for example, would not be compatible.\r\n\r\n",
+              "createdAt": "2025-02-23T19:58:14Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Unfortunately I don't think there's an easy way to check for monotonicity for arbitrary symbolic expressions unless you restrict the form to be something like only sums of monotonic functions (which would severely restrict the search space). This is how XGBoost/Catboost are able to enforce this easily—they just restrict the form of individual decision trees to have increasing child nodes w.r.t. input feature. But for arbitrary symbolic expressions it's much harder. I think basically the only option is, as you have done, to numerically evaluate them, otherwise it seems too hard to efficiently figure out that things like `exp(x) * (sin(x)^2 + cos(x)^2)` is monotonic. Especially for user-defined operators, it would get quite tricky.",
+              "createdAt": "2025-02-23T20:05:37Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Also, instead of returning `Inf` for non-monotonicity, I would suggest relaxing the regularization, so that the genetic algorithm is pointed in the right direction to go. Something like:\r\n\r\n```julia\r\n    any(>(0.0f0), @view grad[1:3, :]) && return L(10^6 * count(>(0.0f0), @view grad[1:3, :]))\r\n```\r\n\r\n(Shouldn't this be `<(0.0f0)` though, btw?)",
+              "createdAt": "2025-02-23T20:12:30Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMi0yM1QyMDoxMjozMCswMDowMM4Au5dD"
+          }
+        }
+      }
+    }
+  }
+}

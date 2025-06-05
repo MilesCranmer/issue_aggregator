@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 892,
+        "title": "Question about \"symbolic_to_node\"",
+        "body": "Hi @MilesCranmer,\r\n\r\nI noticed that the file `SymbolicRegression.jl/ext/SymbolicRegressionSymbolicUtilsExt.jl` defines the functions `node_to_symbolic` and `symbolic_to_node` as follows:\r\n\r\n```\r\nfunction node_to_symbolic(tree::Union{AbstractExpressionNode,AbstractExpression}, options::Options; kws...)\r\n    return node_to_symbolic(get_tree(tree), get_operators(tree, options); kws...)\r\nend\r\n\r\nfunction node_to_symbolic(tree::Union{AbstractExpressionNode,AbstractExpression}, m::AbstractSymbolicRegressor; kws...)\r\n    return node_to_symbolic(tree, get_options(m); kws...)\r\nend\r\n\r\nfunction symbolic_to_node(eqn::Symbolic, options::Options; kws...)\r\n    return symbolic_to_node(eqn, options.operators; kws...)\r\nend\r\n\r\nfunction symbolic_to_node(eqn::Symbolic, m::AbstractSymbolicRegressor; kws...)\r\n    return symbolic_to_node(eqn, get_options(m); kws...)\r\nend\r\n\r\n```\r\n\r\nHowever, I'm encountering an error when trying to use symbolic_to_node, and I can't figure out why.\r\n\r\nWhat I'm trying to do is:\r\nDuring symbolic regression training, I want to obtain the first derivative of the expression tree (which is of type Node{Float64}), and find the root of that derivative. Since differentiating the expression requires converting it into an Expression type using DynamicExpressions.jl, I started by manually constructing an Expression to validate the pipeline before applying it to actual training trees.\r\n\r\n```\r\nusing DynamicDiff: D\r\n\r\nbinary_ops = (+, -, *, /)\r\nunary_ops  = (sin, exp)\r\noperators = OperatorEnum(binary_operators=binary_ops, unary_operators=unary_ops)\r\nx = Expression(Node{Float64}(feature=1); operators, variable_names=[\"x\"])\r\n\r\nexpr_f = exp(exp(x / x))\r\nprintln(expr_f)                    # result: exp(exp(x / x))\r\n\r\nexpr_dfdx = D(expr_f, 1)\r\nprintln(expr_dfdx)              # result: exp(exp(x / x)) * (exp(x / x) * (∂₁[/](x, x) + ∂₂[/](x, x)))\r\n\r\nexpr_str_dfdx = string(expr_dfdx)\r\n\r\nusing Symbolics\r\n\r\n@variables x\r\nsymbolics_expr_dfdx = eval(Meta.parse(expr_str_dfdx))\r\n\r\n# UndefVarError: `∂₁` not defined in `Main`\r\n# Suggestion: check for spelling errors or missing imports.\r\n# \r\n# Stacktrace:\r\n#  [1] top-level scope\r\n#    @ none:1\r\n#  [2] eval\r\n#    @ ./boot.jl:430 [inlined]\r\n#  [3] eval(x::Expr)\r\n#    @ Main ./sysimg.jl:48\r\n#  [4] top-level scope\r\n#    @ In[10]:4\r\n\r\n```\r\n\r\nBut even when I try a simple example, I run into issues calling `symbolic_to_node`. I thought the above method could handle this conversion instead, but I'm not sure what's wrong.\r\n\r\n```\r\nusing SymbolicUtils\r\n\r\nsymbolic_to_node(symbolics_expr_dfdx, operatos)\r\n\r\n# Please load the `SymbolicUtils` package to use `symbolic_to_node`.\r\n\r\n# Stacktrace:\r\n#  [1] error(s::String)\r\n#    @ Base ./error.jl:35\r\n#  [2] symbolic_to_node(::String, ::Vararg{Any}; kws::@Kwargs{})\r\n#    @ DynamicExpressions.ExtensionInterfaceModule ~/.julia/packages/DynamicExpressions/3sROs/src/ExtensionInterface.jl:7\r\n#  [3] symbolic_to_node(::String, ::OperatorEnum{Tuple{typeof(+), typeof(-), typeof(*), typeof(/)}, Tuple{typeof(sin), typeof(exp)}})\r\n#    @ DynamicExpressions.ExtensionInterfaceModule ~/.julia/packages/DynamicExpressions/3sROs/src/ExtensionInterface.jl:6\r\n#  [4] top-level scope\r\n#    @ In[13]:3\r\n```\r\n\r\n\r\n\r\nAny ideas on what might be causing this?",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

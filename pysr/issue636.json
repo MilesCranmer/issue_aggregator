@@ -1,92 +1,77 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 636,
         "title": "[BUG]: libpcre2-8 bug on Windows",
         "body": "### What happened?\r\n\r\nI have been using the Julia1.9 version, and pysr can run normally\r\nHowever, when I add the dimension calculation, the following error occurs：\r\n\r\n```python\r\nRuntimeError                              Traceback (most recent call last)\r\nCell In[32], line 28\r\n     21 X = pd.DataFrame(dict(\r\n     22     M=M.to(\"M_sun\").value,\r\n     23     m=m.to(\"kg\").value,\r\n     24     r=r.to(\"R_earth\").value,\r\n     25 ))\r\n     26 y = F.value\r\n---> 28 model.fit(\r\n     29     X,\r\n     30     y,\r\n     31     X_units=[\"Constants.M_sun\", \"kg\", \"Constants.R_earth\"],\r\n     32     y_units=\"kg * m / s^2\"\r\n     33 )\r\n\r\nFile ~\\AppData\\Roaming\\Python\\Python311\\site-packages\\pysr\\sr.py:1970, in PySRRegressor.fit(self, X, y, Xresampled, weights, variable_names, X_units, y_units)\r\n   1967     self._checkpoint()\r\n   1969 # Perform the search:\r\n-> 1970 self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n   1972 # Then, after fit, we save again, so the pickle file contains\r\n   1973 # the equations:\r\n   1974 if not self.temp_equation_file:\r\n\r\nFile ~\\AppData\\Roaming\\Python\\Python311\\site-packages\\pysr\\sr.py:1800, in PySRRegressor._run(self, X, y, mutated_params, weights, seed)\r\n   1796     y_variable_names = [f\"y{_subscriptify(i)}\" for i in range(y.shape[1])]\r\n   1798 # Call to Julia backend.\r\n   1799 # See https://github.com/MilesCranmer/SymbolicRegression.jl/blob/master/src/SymbolicRegression.jl\r\n-> 1800 self.raw_julia_state_ = SymbolicRegression.equation_search(\r\n   1801     Main.X,\r\n   1802     Main.y,\r\n   1803     weights=Main.weights,\r\n   1804     niterations=int(self.niterations),\r\n   1805     variable_names=self.feature_names_in_.tolist(),\r\n   1806     display_variable_names=self.display_feature_names_in_.tolist(),\r\n   1807     y_variable_names=y_variable_names,\r\n   1808     X_units=self.X_units_,\r\n   1809     y_units=self.y_units_,\r\n   1810     options=options,\r\n   1811     numprocs=cprocs,\r\n   1812     parallelism=parallelism,\r\n   1813     saved_state=self.raw_julia_state_,\r\n   1814     return_state=True,\r\n   1815     addprocs_function=cluster_manager,\r\n   1816     progress=progress and self.verbosity > 0 and len(y.shape) == 1,\r\n   1817     verbosity=int(self.verbosity),\r\n   1818 )\r\n   1820 # Set attributes\r\n   1821 self.equations_ = self.get_hof()\r\n\r\nRuntimeError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: MethodError: no method matching _method_instances(::Type{typeof(*)}, ::Type{Tuple{SymbolicRegression.DimensionalAnalysisModule.WildcardQuantity{DynamicQuantities.Quantity{Float32, DynamicQuantities.Dimensions{DynamicQuantities.FixedRational{Int32, 25200}}}}, SymbolicRegression.DimensionalAnalysisModule.WildcardQuantity{DynamicQuantities.Quantity{Float32, DynamicQuantities.Dimensions{DynamicQuantities.FixedRational{Int32, 25200}}}}}})\r\nThe applicable method may be too new: running in world age 45094, while current world is 54814.\r\n```\r\n\r\nAs #420  says, I replaced the julia version with 1.10.0 and the latest 1.10.3. However, the following errors occurred :\r\n\r\n```julia\r\nfatal: error thrown and no exception handler available.\r\nInitError(mod=:Sys, error=ErrorException(\"could not load library \"libpcre2-8\"\r\nThe specified module could not be found. \"))\r\nijl_errorf at C:/workdir/src\\rtutils.c:77\r\n```\r\n\r\njust like #566 . I want to know which version of julia I should adjust when I want to introduce the dimension into pysr for calculation ? Thank you.\r\n\r\n### Version\r\n\r\n0.16.3\r\n\r\n### Operating System\r\n\r\nWindows\r\n\r\n### Package Manager\r\n\r\nNone\r\n\r\n### Interface\r\n\r\nJupyter Notebook\r\n\r\n### Relevant log output\r\n\r\n_No response_\r\n\r\n### Extra Info\r\n\r\n_No response_",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Ah, this issue. This issue has been driving me crazy for a while. It only happens on Windows, and it's only for a few users. \r\n\r\nIt is a reported bug on Julia but with no solution: https://github.com/JuliaLang/julia/issues/52205. Only a few users have reported it, and I really haven't been able to figure out what is special about those windows installations which causes this bug.\r\n\r\n@tbuckworth were you ever able to solve this?\r\n\r\n@zhuyi-bjut my advice is to try installing Julia a different way. My recommendation is to use JuliaUp: https://github.com/JuliaLang/juliaup. \r\n\r\nYou should make sure that juliacall is actually using the Julia version installed by JuliaUp. To do that you can use\r\n\r\n```python\r\nimport os\r\nos.environ[\"PYTHON_JULIACALL_BINDIR\"] = \"/path/to/your/julia/bin/folder\"\r\n```\r\n\r\nmake sure to do this before you import PySR.\r\n\r\nOne thing I think might be happening is juliacall is installing a version without this particular dll for some reason. But if you can install the version yourself using juliaup I think it should carry it.\r\n\r\n@cjdoris do you have any idea what this is? Sometimes PySR users on Windows will run into it. But only sometimes. I haven't been able to reproduce this once so I figure it must be something missing in the system libraries they have installed. Maybe juliacall is installing a julia binary without some dll?\r\n",
               "createdAt": "2024-06-02T23:08:11Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Is this related at all I wonder: https://github.com/JuliaLang/julia/issues/52007",
               "createdAt": "2024-06-02T23:12:54Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "cjdoris"
               },
               "body": "The OP's error message is from PyCall not PythonCall - does that mean they are on an old version of PySR?",
               "createdAt": "2024-06-03T12:36:27Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Oh I didn't even notice that, good catch!! Yeah @zhuyi-bjut the latest version of PySR is 0.18.4 but you are on 0.16.3. Can you please try upgrading?",
               "createdAt": "2024-06-03T13:43:51Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "zhuyi-bjut"
               },
               "body": "I am very happy to tell you that I have solved this problem by updating the version of pysr ! Obviously I made a stupid mistake before. Anyway, thank you for your help @MilesCranmer @cjdoris \r\n",
               "createdAt": "2024-06-03T14:12:47Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Awesome :) ",
               "createdAt": "2024-06-03T16:40:30Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "tbuckworth"
               },
               "body": "> @tbuckworth were you ever able to solve this?\r\n\r\nNo, I ended up installing Ubuntu instead",
               "createdAt": "2024-06-03T17:29:33Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "@tbuckworth if you try installing the latest PySR it might just work? (On Windows too)",
               "createdAt": "2024-06-03T17:52:10Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Seems like @Angelld23 found a workaround on https://github.com/JuliaLang/julia/issues/52007#issuecomment-2173945505. Copying here for visibility:\r\n\r\n```python\r\nimport os import ctypes import glob\r\n\r\n# Path to the bin directory of your Julia installation\r\njulia_bin_path = \"C:\\path\\to\\your\\dll_directory\" # (which is the same as the julia.exe)\r\n\r\n# Add the bin directory to PATH\r\nos.environ[\"PATH\"] += \";\" + julia_bin_path\r\n\r\n# Load each DLL file in the bin directory\r\nfor dll_path in glob.glob(os.path.join(julia_bin_path, \"*.dll\")):\r\n    try:\r\n        ctypes.CDLL(dll_path)\r\n        print(f\"Loaded {dll_path} successfully.\")\r\n    except OSError as e:\r\n        print(f\"Could not load {dll_path}: {e}\")\r\n\r\nfrom pysr import PySRRegressor\r\n```\r\n",
               "createdAt": "2024-06-17T18:08:38Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOgZTsxw=="
           }

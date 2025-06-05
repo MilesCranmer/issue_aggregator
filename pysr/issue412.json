@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 412,
         "title": "[BUG]: BlockingIOError",
         "body": "First mentioned by @villrv in #411 \r\n\r\nLooks like it shows up sometimes for me as well. For example:\r\n\r\n```python\r\n  File \"/Users/mcranmer/Documents/PySR/.venv/bin/ipython\", line 8, in <module>\r\n    sys.exit(start_ipython())\r\n  File \"/Users/mcranmer/Documents/PySR/.venv/lib/python3.10/site-packages/IPython/__init__.py\", line 129, in start_ipython\r\n    return launch_new_instance(argv=argv, **kwargs)\r\n  File \"/Users/mcranmer/Documents/PySR/.venv/lib/python3.10/site-packages/traitlets/config/application.py\", line 1043, in launch_instance\r\n    app.start()\r\n  File \"/Users/mcranmer/Documents/PySR/.venv/lib/python3.10/site-packages/IPython/terminal/ipapp.py\", line 318, in start\r\n    self.shell.mainloop()\r\n  File \"/Users/mcranmer/Documents/PySR/.venv/lib/python3.10/site-packages/IPython/terminal/interactiveshell.py\", line 888, in mainloop\r\n    self.interact()\r\n  File \"/Users/mcranmer/Documents/PySR/.venv/lib/python3.10/site-packages/IPython/terminal/interactiveshell.py\", line 870, in interact\r\n    print(self.separate_in, end='')\r\nBlockingIOError: [Errno 35] write could not complete without blocking\r\nError in sys.excepthook:\r\nTraceback (most recent call last):\r\n  File \"/Users/mcranmer/Documents/PySR/.venv/lib/python3.10/site-packages/IPython/core/application.py\", line 286, in excepthook\r\n    return crashhandler.crash_handler_lite(etype, evalue, tb)\r\n  File \"/Users/mcranmer/Documents/PySR/.venv/lib/python3.10/site-packages/IPython/core/crashhandler.py\", line 226, in crash_handler_lite\r\n    traceback.print_exception(etype, evalue, tb)\r\n  File \"/Users/mcranmer/.pyenv/versions/3.10.10/lib/python3.10/traceback.py\", line 121, in print_exception\r\n    print(line, file=file, end=\"\")\r\nBlockingIOError: [Errno 35] write could not complete without blocking\r\n\r\nOriginal exception was:\r\nTraceback (most recent call last):\r\n  File \"/Users/mcranmer/Documents/PySR/.venv/bin/ipython\", line 8, in <module>\r\n    sys.exit(start_ipython())\r\n  File \"/Users/mcranmer/Documents/PySR/.venv/lib/python3.10/site-packages/IPython/__init__.py\", line 129, in start_ipython\r\n    return launch_new_instance(argv=argv, **kwargs)\r\n  File \"/Users/mcranmer/Documents/PySR/.venv/lib/python3.10/site-packages/traitlets/config/application.py\", line 1043, in launch_instance\r\n    app.start()\r\n  File \"/Users/mcranmer/Documents/PySR/.venv/lib/python3.10/site-packages/IPython/terminal/ipapp.py\", line 318, in start\r\n    self.shell.mainloop()\r\n  File \"/Users/mcranmer/Documents/PySR/.venv/lib/python3.10/site-packages/IPython/terminal/interactiveshell.py\", line 888, in mainloop\r\n    self.interact()\r\n  File \"/Users/mcranmer/Documents/PySR/.venv/lib/python3.10/site-packages/IPython/terminal/interactiveshell.py\", line 870, in interact\r\n    print(self.separate_in, end='')\r\nBlockingIOError: [Errno 35] write could not complete without blocking\r\n```\r\n\r\nThis is with Julia 1.9. I didn't see it on Julia 1.10. I wonder if it's some conflict between the latest IPython versions and PyJulia?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I think this error happens when Julia encounters an error within a thread other than the main thread.\r\n\r\nA workaround would be to suppress all output from individual threads, and print them in the main thread.",
               "createdAt": "2023-08-20T22:40:42Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Need to find a reliable way to reproduce this in a unit test...",
               "createdAt": "2023-08-21T04:06:11Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOZHhX8g=="
           }

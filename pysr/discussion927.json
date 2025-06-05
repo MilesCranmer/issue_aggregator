@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 927,
+        "title": "Variable-specific operators",
+        "body": "Hi SymbolicRegression developers!\n\nI have a situation where I would like to constrain the regression in a way that certain operators cannot be used on specific variables. E.g. I have two variables, x1 and x2. On x1, I would like to give the regression to the option to use the log operator, but not on x2. Is there a way to specify this?\n\nThank you so much for your help!\n\nPierre",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @pw0908,\r\n\r\nJust a quick note: if you are doing this for dimensional analysis checks (?), there is a built-in way to enforce that.\r\n\r\nIf you are doing this more generally, you could do this with a custom loss function. For example:\r\n\r\n```julia\r\nfunction my_loss(tree, dataset::Dataset{T,L}, options) where {T,L}\r\n    idx_of_log = 1  # CHANGE ME\r\n    num_bad_nodes = 0\r\n    for node in tree  # Default iteration is depth-first traversal\r\n        if node.degree == 1 && node.op == idx_of_log  # is log()\r\n            for subnode in node.l  # Traverse children of this node\r\n                if subnode.degree == 0 && !subnode.constant && subnode.feature == 2  # is x2\r\n                    num_bad_nodes += 1\r\n                end\r\n            end\r\n        end\r\n    end\r\n    # Note you can do the above code block with slightly fewer allocations if you do:\r\n    #     `sum(n -> n.degree == 1 && n.op == 1 ? count(s -> s.degree == 0 && !s.constant && s.feature == 2, n.l) : 0, tree)`\r\n    # This is because the `iterate(::Node)` allocates a stack, while functional methods like `foreach/count/map/sum` will just\r\n    # directly traverse the tree! See https://ai.damtp.cam.ac.uk/dynamicexpressions/dev/examples/base_operations/\r\n    # for details\r\n\r\n    if num_bad_nodes > 0\r\n        big_number = 100_000\r\n        return L(big_number * num_bad_nodes)\r\n    end\r\n    prediction, valid = eval_tree_array(tree, dataset.X, options)\r\n    if !valid\r\n        return L(Inf)\r\n    end\r\n    y = dataset.y\r\n    mse = sum(i -> abs2(prediction[i] - y[i]), eachindex(prediction, y)) / length(y)\r\n    return mse\r\nend\r\n```\r\n\r\nand then pass this as `loss_function`. \r\n\r\nThis basically will return a huge loss if there are any bad nodes.\r\n\r\nThe reason this is not `return L(Inf)` is just because it tends to be better for the evolution to have soft penalties rather than hard. That way the genetic algorithm knows a direction to travel (whereas if it had 5 instances of log(x2), it would have no clue).\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2025-05-16T19:32:53Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0xNlQyMDozMjo1MyswMTowMM4AyQcJ"
+          }
+        }
+      }
+    }
+  }
+}

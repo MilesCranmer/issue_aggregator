@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 299,
         "title": "Taking Derivatives of Candidate Expression Inside Custom Loss Function",
         "body": "Hi Miles,\r\n\r\nI'm working on a problem in which I would like to define a custom loss function that doesn't just use the predicted values of the candidate expression given the training data ( y_pred | X ), but instead evaluates the candidate expression and its derivatives at a number of new (necessarily unknown at the beginning) points while evaluating the loss function. To draw an analogy with neural networks, assume the NN loss function has its own copy of the entire network at each step of the optimization that it uses to make predictions and take derivatives at a number of inputs previously unseen in the training set. Do you have any thoughts on how easy or tricky it would be to make something like this work? If this sounds too vague/confusing, I'd be happy to connect with you over email to provide more details about the problem. Thanks!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @gopal-iyer,\r\n\r\nGreat question. This is possible by defining the `full_objective` parameter. See the docs here: https://astroautomata.com/PySR/api/#the-objective.\r\n\r\nFor example:\r\n\r\n```py\r\nmodel = PySRRegressor(\r\n    ...\r\n    full_objective=\"\"\"function my_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n        prediction, grad, complete = eval_grad_tree_array(tree, dataset.X, options; variable=true)\r\n        if !complete\r\n            return L(Inf)\r\n        end\r\n        loss = sum((prediction .- dataset.y) .^ 2) / dataset.n\r\n    \r\n        # The \"grad\" is a Julia array which contains the gradient with shape (num_features, num_rows)\r\n        # e.g., loss += sum(grad)\r\n    \r\n        return loss\r\n    end\"\"\",\r\n)\r\n```\r\n\r\nThe specific Julia call that is getting the derivatives is documented here: https://astroautomata.com/SymbolicRegression.jl/stable/api/#Derivatives.\r\n\r\nLet me know if this helps.\r\nCheers,\r\nMiles",
               "createdAt": "2023-04-19T18:24:02Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "gopal-iyer"
               },
               "body": "Hi Miles,\r\nA follow-up question: If I needed to export the expression contained in the variable `tree` _and its gradient expressions_ to a format (SymPy?) where it can be used by a Python script (which gets called inside the loss function), how would I do this?\r\nThanks so much for your response! This gives me a good starting point.",
               "createdAt": "2023-04-25T02:46:02Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNC0yNVQwMzo0NjowMiswMTowMM4AVzJb"
           }

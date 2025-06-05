@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 475,
         "title": "Objective that encourages use of exactly two sinusoids",
         "body": "For example, if I wanted to encourage the use of 2 sin functions, can I somehow implement that in Julia? I specifically need the nodes in string form, for down-the-line applications.\r\n\r\nAs a first step, I tried first converting the Tree into symbols, but I am getting the following error: \"JULIA: Please load the `SymbolicUtils` package to use `node_to_symbolic(::Node, ::AbstractOperatorEnum; kws...)`.\" I tried importing inside the function but that didn't work either.\r\n\r\nFor example, if I wanted to encourage the use of 2 sin functions, can I somehow implement that in Julia? I specifically need the nodes in string form, for down-the-line applications.\r\n\r\nAs a first step, I tried first converting the Tree into symbols, but I am getting the following error: \"JULIA: Please load the `SymbolicUtils` package to use `node_to_symbolic(::Node, ::AbstractOperatorEnum; kws...)`.\" I tried importing inside the function but that didn't work either.\r\n\r\n```python\r\nmodel = PySRRegressor(\r\n    niterations=40,  # < Increase me for better results\r\n    binary_operators=[\"+\", \"*\"],\r\n    unary_operators=[\r\n        \"sin\",\r\n        \"cos\",\r\n        \"inv(x) = 1/x\",\r\n        \"tanh\",\r\n        \"exp\"\r\n       # \"inv(x) = 1/x\",\r\n        # ^ Custom operator (julia syntax)\r\n    ],\r\n    extra_sympy_mappings={\"inv\": lambda x: 1 / x},\r\n    # ^ Define operator for SymPy as well\r\n    full_objective=\"\"\" \r\n            import Pkg; Pkg.add(\"SymbolicUtils\")\r\n            using SymbolicUtils\r\n            function my_objective(tree::Node{T}, dataset::Dataset{T}, options::Options) where T \r\n                 prediction, flag = eval_tree_array(tree, dataset.X, options) \r\n                 print(node_to_symbolic(tree))\r\n                 !flag && return T(Inf) \r\n                 abs3(x) = abs(x) ^ 3 \r\n                 return sum(abs3, prediction .- dataset.y) / length(prediction) \r\n            end \r\n            \"\"\",\r\n    )\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Yeah, you can do this by, e.g., (for `full_objective`)\r\n```julia\r\nfunction my_objective(tree::Node{T}, dataset::Dataset{T,L}, options::Options) where {T,L}\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    !flag && return convert(L, Inf)\r\n\r\n    sin_idx = 1  # Change if you change the order you put `sin`, or use `findfirst(==(sin), options.operators.unaops)::Int`\r\n    \r\n    prediction_loss = sum(i -> abs(prediction[i] - dataset.y[i])^3, eachindex(dataset.y)) / length(dataset.y)\r\n\r\n\r\n    # Count number of sinusoids:\r\n    num_sins = count(node -> node.degree == 1 && node.op == sin_idx, tree)\r\n    \r\n    # Add penalty of 10 for every sinusoids off from 2:\r\n    regularization = convert(L, 10 * abs(num_sins - 2))\r\n    \r\n    return prediction_loss + regularization\r\nend\r\n```\r\n\r\nA lot of nice functions like `count`, `sum`, etc are implemented in https://github.com/SymbolicML/DynamicExpressions.jl/blob/master/src/base.jl, so there's no need to convert to SymbolicUtils.jl.",
               "createdAt": "2023-11-27T22:15:44Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMS0yN1QyMjoxNTo0NCswMDowMM4AdUeX"
           }

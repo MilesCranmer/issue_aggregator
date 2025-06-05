@@ -1,52 +1,42 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 360,
         "title": "comparion between python and julia version of symbolic regression",
         "body": "Dear Miles,\r\n\r\nThank you very much for the powerful code.\r\nPlease help check the following problems.\r\n\r\nRecently, I have compared the Pysr and the Julia version to fit the same formula:\r\ny = 4*log(1+exp(2*pi*(x-100)/4)/2/x.\r\n\r\nThe codes are in the attached zip file.\r\n\r\nTwo serious problems were found:\r\n\r\n1)\r\nIn Julia, it takes only few minutes to obtain the correct formula using only two cpus.\r\nIn Python, I have tried for more than one day using even twenty cpu, however, I still could not get the right result.\r\nI have also tried different parameters and could still not find the correct answer.\r\n\r\nMay I ask why this happens, and how to improve the python script to get the correct results?\r\n\r\n2)\r\nIn julia, hundreds of G RAM memory are needed in my servers for the running for example using numprocs=20.\r\nIn python, no large RAM memroy is needed in my test.\r\nIs there any  way to release the memory during the running of Julia code?\r\n\r\nThank you very much in advance.\r\n\r\n[log1p-v2.zip](https://github.com/MilesCranmer/PySR/files/11912030/log1p-v2.zip)\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Dear @wenpw,\r\nThanks for posting. It looks like your search settings are different in Julia vs Python. Could you please try with the same settings?\r\n\r\nAlso can  you paste the code into your answer directly rather than through a zip file? \r\nThanks,\r\nMiles",
               "createdAt": "2023-06-30T02:25:56Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "(e.g., you requested 400 cores in PySR, but only 2 cores in SymbolicRegression.jl)",
               "createdAt": "2023-06-30T02:26:28Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "> Even when I use 400 cores in Pysr, I could not get the correct answer for more than 1 day's running.\r\n\r\nJust to be clear – if you only have 20 cores, then you should not set a higher number than 20 for procs. Even if it is working, that would slow things down quite a bit as it overload the CPU scheduler.",
               "createdAt": "2023-06-30T02:43:41Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I noticed you have `parallelism=:multiprocessing` in the Julia version. Could you try using that for Python as well? In the Python version, that would be `multithreading=False`.",
               "createdAt": "2023-06-30T02:46:03Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNi0zMFQwMzo0NjowMyswMTowMM4AYHNv"
           }

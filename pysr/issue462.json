@@ -1,18 +1,13 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 462,
         "title": "[Feature]: Big Data and partial differential operator",
         "body": "### Feature Request\n\nI have some questions at the moment. I am recently using pysr to perform regression on data where the input x, y, z output is temperature. However, the data volume is relatively large, with 300k rows of data, and the fitting effect is not very good. Could you please give me some advice? In addition, I would like to ask whether pysr can perform regression on partial differential operators, such as data simulated by cfd that solves ns equations. Thank you very much.",
-        "comments":
-        {
+        "comments": {
           "nodes": [],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": null
           }

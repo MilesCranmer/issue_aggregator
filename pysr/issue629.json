@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 629,
         "title": "[Feature]: Unary operator to pick an item at index from current X",
         "body": "### Feature Request\r\n\r\nIs there a way to define a custom unary operator `getXAt` that takes an integer `i` as a parameter and returns `X_i`? This could possibly allow creating a similar mechanism to attention.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Not yet but all we need to do is make SymbolicRegression.jl compatible with `GenericOperatorEnum` – see https://github.com/SymbolicML/DynamicExpressions.jl?tab=readme-ov-file#tensors. Then the operators could do anything at all – even operations on non-numerical data.\r\n\r\nRight now it is fixed to only use `OperatorEnum` by this line: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/71447ee7bee18fc836a7d7bb4c8ce5d249bc0e7c/src/Options.jl#L718-L722. \r\n\r\nWe would need to change that to allow the user to specify the `AbstractOperatorEnum` type, and then basically fix up all the error messages that will show up. But I feel like it wouldn't be too bad.\r\n\r\n(There are also n-ary operators planned which someone is working on, those could be useful here as well)",
               "createdAt": "2024-05-22T14:26:45Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOfqgKmA=="
           }

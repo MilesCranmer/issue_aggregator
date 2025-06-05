@@ -1,116 +1,98 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 448,
         "title": "[BUG]: Julia interface fails on conda environments",
         "body": "### What happened?\n\nI get the following error with a fresh install in a fresh conda environment with pysr installed with pip.\r\n\r\n```python\r\nImportError: cannot import name 'Main' from 'julia' (C:\\Users\\ilyao\\miniforge3\\envs\\pysr_std\\Lib\\site-packages\\julia\\__init__.py)\r\n```\r\n\n\n### Version\n\n0.16.3\n\n### Operating System\n\nWindows\n\n### Package Manager\n\nOther (specify below)\n\n### Interface\n\nIPython Terminal\n\n### Relevant log output\n\n```shell\n>>> model.fit(X, y)\r\nCompiling Julia backend...\r\nTraceback (most recent call last):\r\n  File \"<stdin>\", line 1, in <module>\r\n  File \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_std\\Lib\\site-packages\\pysr\\sr.py\", line 1970, in fit\r\n    self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n  File \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_std\\Lib\\site-packages\\pysr\\sr.py\", line 1625, in _run\r\n    Main = init_julia(self.julia_project, julia_kwargs=julia_kwargs)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_std\\Lib\\site-packages\\pysr\\julia_helpers.py\", line 216, in init_julia\r\n    from julia import Main as _Main\r\nImportError: cannot import name 'Main' from 'julia' (C:\\Users\\ilyao\\miniforge3\\envs\\pysr_std\\Lib\\site-packages\\julia\\__init__.py)\n```\n\n\n### Extra Info\n\nMy julia version is 1.9.3, installed with juliaup.\r\n\r\nIn the fresh environment I can get pyjulia working but only with the lower level interface\r\n\r\n```python\r\nimport julia\r\njulia.core.Julia() # works\r\nfrom julia import Main #fails\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Did you run the `python -m pysr install` step? Any issues from it?",
               "createdAt": "2023-10-27T01:24:13Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Also what is your PyJulia version?",
               "createdAt": "2023-10-27T01:25:33Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "IlyaOrson"
               },
               "body": "I should have specified that I am trying to use a local clone of the back end.\r\nMy PyJulia version is `0.6.1`.\r\n\r\nI built PyCall manually within the local `SymbolicRegression.jl` project so that that it points to the python within the `pysr` conda environment.\r\nWhen I run `import pysr; pysr.install(julia_project)` the output looks fine:\r\n\r\n```julia\r\n...\r\nJULIA_PROJECT = D:\\ilyao\\Documents\\research\\coding\\physics_informed_ADoK\\SymbolicRegression.jl\r\n[ Info: Julia executable: C:\\Users\\ilyao\\.julia\\juliaup\\julia-1.9.3+0.x64.w64.mingw32\\bin\\julia.exe\r\n[ Info: Trying to import PyCall...\r\n┌ Info: PyCall is already installed and compatible with Python executable.\r\n│\r\n│ PyCall:\r\n│     python: C:\\Users\\ilyao\\miniforge3\\envs\\pysr\\python.exe\r\n│     libpython: C:\\Users\\ilyao\\miniforge3\\envs\\pysr\\python312.dll\r\n│ Python:\r\n│     python: C:\\Users\\ilyao\\miniforge3\\envs\\pysr\\python.exe\r\n└     libpython: C:\\Users\\ilyao\\miniforge3\\envs\\pysr\\python312.dll\r\n  Activating project at `D:\\ilyao\\Documents\\research\\coding\\physics_informed_ADoK\\SymbolicRegression.jl`\r\nPrecompiling project...\r\n  11 dependencies successfully precompiled in 91 seconds. 75 already precompiled.\r\n```\r\n\r\nI can run the regression directly on the local backend from `pyjulia` as well:\r\n```python\r\nimport julia\r\nj = julia.core.Julia()\r\nj.eval(\"Base.active_project()\")  # 'D:\\\\ilyao\\\\Documents\\\\research\\\\coding\\\\physics_informed_ADoK\\\\SymbolicRegression.jl\\\\Project.toml'\r\nj.eval(\"\"\"\r\nimport SymbolicRegression: Options, equation_search\r\n\r\nX = randn(2, 100)\r\ny = 2 * cos.(X[2, :]) + X[1, :] .^ 2 .- 2\r\n\r\noptions = Options(\r\n    binary_operators=[+, *, /, -],\r\n    unary_operators=[cos, exp],\r\n    populations=20\r\n)\r\n\r\nhall_of_fame = equation_search(\r\n    X, y, niterations=40, options=options,\r\n    parallelism=:multithreading\r\n)  # works!\r\n\"\"\"\r\n)\r\n```\r\n\r\nBut I cannot import any module directly from `pyjulia`\r\n```python\r\nfrom julia import SymbolicRegression  # (Base and Main also fail)\r\nImportError: cannot import name 'SymbolicRegression' from 'julia' (C:\\Users\\ilyao\\miniforge3\\envs\\pysr\\Lib\\site-packages\\julia\\__init__.py)\r\n```",
               "createdAt": "2023-10-30T11:35:38Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Can you instead try with\r\n\r\n```python\r\nfrom pysr.julia_helpers import init_julia\r\ninit_julia(julia_project=\"/path/to/your/julia/project\")\r\n```\r\n\r\nand then `from julia import Main; from julia import SymbolicRegression`?",
               "createdAt": "2023-10-30T11:40:09Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "IlyaOrson"
               },
               "body": "I get the same error\r\n```python\r\nIn [1]: from pysr.julia_helpers import init_julia\r\n\r\nIn [2]: julia_project = \"D:\\\\ilyao\\\\Documents\\\\research\\\\coding\\\\physics_informed_ADoK\\\\SymbolicRegression.jl\"\r\n\r\nIn [3]: init_julia(julia_project)\r\nOut[3]: <julia.core.Julia at 0x1f20a2ec860>\r\n\r\nIn [4]: from julia import Main\r\n---------------------------------------------------------------------------\r\nImportError                               Traceback (most recent call last)\r\nCell In[4], line 1\r\n----> 1 from julia import Main\r\n\r\nImportError: cannot import name 'Main' from 'julia' (C:\\Users\\ilyao\\miniforge3\\envs\\pysr\\Lib\\site-packages\\julia\\__init__.py)\r\n```",
               "createdAt": "2023-10-30T11:48:18Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "That’s weird. This is an issue I’ve never seen before.\r\n\r\nI guess this is PyJulia-specific as there’s no PySR-specific parts. Maybe check if there are any related issues on the PyJulia side? Also there is this troubleshooting guide: https://pyjulia.readthedocs.io/en/stable/troubleshooting.html#\r\n\r\nBtw, does it work outside of the custom environment? Like just in a normal PySR env (run the quickstart example)? I don’t quite understand how it seems to correctly select the custom project if you just run `Julia()`, are you running anything before that?",
               "createdAt": "2023-10-30T11:55:37Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Also you mentioned you are using PySR installed with pip inside a conda env. Is PyJulia also installed with pip?",
               "createdAt": "2023-10-30T11:56:08Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "IlyaOrson"
               },
               "body": "Pip installed PyJulia as well while installing pysr.\r\nI avoided using conda to install pysr to be able to get the latest version on windows, I am just using it for the environment management in python (I use mamba really but the environment management is done by conda afaik).\r\n\r\nI just tried to install pysr without the custom backend on a fresh conda environment and I got the same error.\r\n\r\nIn a fresh conda environment I just add pip to make sure it is the one within the conda environment.\r\n```python\r\nconda create -n pysr_mamba\r\nconda activate pysr_mamba\r\nmamba install pip -Y\r\n\r\npython -m pysr install\r\n\r\n[ Info: Julia version info\r\nJulia Version 1.9.3\r\n...\r\nJULIA_PROJECT = @pysr-0.16.3\r\n...\r\n[ Info: Julia executable: C:\\Users\\ilyao\\.julia\\juliaup\\julia-1.9.3+0.x64.w64.mingw32\\bin\\julia.exe\r\n[ Info: Trying to import PyCall...\r\n┌ Info: PyCall is already installed but not compatible with this Python\r\n└ executable.  Re-building PyCall...\r\n[ Info: Run `Pkg.build(\"PyCall\"; verbose=true)`\r\n    Building Conda ─→ `C:\\Users\\ilyao\\.julia\\scratchspaces\\44cfe95a-1eb2-52ea-b672-e2afdf69b78f\\8c86e48c0db1564a1d49548d3515ced5d604c408\\build.log`\r\n    Building PyCall → `C:\\Users\\ilyao\\.julia\\scratchspaces\\44cfe95a-1eb2-52ea-b672-e2afdf69b78f\\43d304ac6f0354755f1d60730ece8c499980f7ba\\build.log`\r\n[ Info: PyCall is using C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\python.exe (Python 3.12.0) at C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\python.exe, libpython = C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\python312.dll\r\n[ Info: C:\\Users\\ilyao\\.julia\\packages\\PyCall\\ilqDX\\deps\\deps.jl has been updated\r\n[ Info: C:\\Users\\ilyao\\.julia\\prefs\\PyCall has been updated\r\nPrecompiling project...\r\n  ✓ PyCall\r\n  1 dependency successfully precompiled in 18 seconds. 11 already precompiled.\r\n  1 dependency precompiled but a different version is currently loaded. Restart julia to access the new version\r\n[ Info: `C:\\Users\\ilyao\\.julia\\packages\\PyCall\\ilqDX\\src\\..\\deps\\deps.jl`\r\nconst python = \"C:\\\\Users\\\\ilyao\\\\miniforge3\\\\envs\\\\pysr_mamba\\\\python.exe\"\r\nconst libpython = \"C:\\\\Users\\\\ilyao\\\\miniforge3\\\\envs\\\\pysr_mamba\\\\python312.dll\"\r\nconst pyprogramname = \"C:\\\\Users\\\\ilyao\\\\miniforge3\\\\envs\\\\pysr_mamba\\\\python.exe\"\r\nconst pyversion_build = v\"3.12.0\"\r\nconst PYTHONHOME = \"C:\\\\Users\\\\ilyao\\\\miniforge3\\\\envs\\\\pysr_mamba\"\r\n\r\n\"True if we are using the Python distribution in the Conda package.\"\r\nconst conda = false\r\n\r\nPrecompiling PyCall...\r\nPrecompiling PyCall... DONE\r\nPyCall is installed and built successfully.\r\nTraceback (most recent call last):\r\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\r\n  File \"<frozen runpy>\", line 88, in _run_code\r\n  File \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\Lib\\site-packages\\pysr\\__main__.py\", line 4, in <module>\r\n    _cli(prog_name=\"pysr\")\r\n  File \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\Lib\\site-packages\\click\\core.py\", line 1157, in __call__\r\n    return self.main(*args, **kwargs)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\Lib\\site-packages\\click\\core.py\", line 1078, in main\r\n    rv = self.invoke(ctx)\r\n         ^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\Lib\\site-packages\\click\\core.py\", line 1688, in invoke\r\n    return _process_result(sub_ctx.command.invoke(sub_ctx))\r\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\Lib\\site-packages\\click\\core.py\", line 1434, in invoke\r\n    return ctx.invoke(self.callback, **ctx.params)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\Lib\\site-packages\\click\\core.py\", line 783, in invoke\r\n    return __callback(*args, **kwargs)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\Lib\\site-packages\\pysr\\_cli\\main.py\", line 37, in _install\r\n    install(julia_project, quiet, precompile)\r\n  File \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\Lib\\site-packages\\pysr\\julia_helpers.py\", line 98, in install\r\n    Main, init_log = init_julia(julia_project, quiet=quiet, return_aux=True)\r\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\Lib\\site-packages\\pysr\\julia_helpers.py\", line 216, in init_julia\r\n    from julia import Main as _Main\r\nImportError: cannot import name 'Main' from 'julia' (C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\Lib\\site-packages\\julia\\__init__.py)\r\n```\r\n\r\nIf I try to use the lower-level pyjulia interface I get the following error:\r\n```python\r\n>>> import julia\r\n>>> j = julia.core.Julia()\r\nTraceback (most recent call last):\r\n  File \"<stdin>\", line 1, in <module>\r\n  File \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\Lib\\site-packages\\julia\\core.py\", line 489, in __init__\r\n    raise UnsupportedPythonError(jlinfo)\r\njulia.core.UnsupportedPythonError: It seems your Julia and PyJulia setup are not supported.\r\n\r\nJulia executable:\r\n    julia\r\nPython interpreter and libpython used by PyCall.jl:\r\n    None\r\n    None\r\nPython interpreter used to import PyJulia and its libpython.\r\n    C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\python.exe\r\n    C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\python312.dll\r\n    \r\nIn Julia >= 0.7, above two paths to `libpython` have to match exactly\r\nin order for PyJulia to work out-of-the-box.  To configure PyCall.jl to use\r\nPython interpreter \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\python.exe\",\r\nrun the following code in the Python REPL:\r\n\r\n    >>> import julia\r\n    >>> julia.install()\r\n\r\nFor more information, see:\r\n\r\n    https://pyjulia.readthedocs.io/en/latest/troubleshooting.html\r\n```\r\n\r\nAfter following the suggestion I can load the julia object but still can't import the modules directly\r\n```python\r\n>>> julia.install()\r\n[ Info: Julia executable: C:\\Users\\ilyao\\.julia\\juliaup\\julia-1.9.3+0.x64.w64.mingw32\\bin\\julia.exe\r\n[ Info: Trying to import PyCall...\r\n┌ Error: `import PyCall` failed\r\n...  # The JULIA_PROJECT env variable is not defined this time\r\n[ Info: Installing PyCall...\r\n   Resolving package versions...\r\n    Updating `C:\\Users\\ilyao\\.julia\\environments\\v1.9\\Project.toml`\r\n  [438e738f] + PyCall v1.96.1\r\n    Updating `C:\\Users\\ilyao\\.julia\\environments\\v1.9\\Manifest.toml`\r\n  [8f4d0f93] + Conda v1.9.1\r\n  [1914dd2f] + MacroTools v0.5.11\r\n  [438e738f] + PyCall v1.96.1\r\n  [81def892] + VersionParsing v1.3.0\r\nPrecompiling project...\r\n  1 dependency successfully precompiled in 2 seconds. 71 already precompiled.\r\n\r\nPrecompiling PyCall...\r\nPrecompiling PyCall... DONE\r\nPyCall is installed and built successfully.\r\n\r\n>>> j = julia.core.Julia()\r\n>>> j.eval('import PyCall; println(PyCall.libpython)')\r\nC:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\python312.dll\r\n>>> j.eval(\"Base.active_project()\")\r\n'C:\\\\Users\\\\ilyao\\\\.julia\\\\environments\\\\v1.9\\\\Project.toml'\r\n\r\n>>> from julia import Main\r\nTraceback (most recent call last):\r\n  File \"<stdin>\", line 1, in <module>\r\nImportError: cannot import name 'Main' from 'julia' (C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\Lib\\site-packages\\julia\\__init__.py)\r\n\r\n>>> from julia import SymbolicRegression\r\nTraceback (most recent call last):\r\n  File \"<stdin>\", line 1, in <module>\r\nImportError: cannot import name 'SymbolicRegression' from 'julia' (C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\Lib\\site-packages\\julia\\__init__.py)\r\n```\r\n\r\n\r\nI have not built python from scratch but the rest of the work arounds do not seem to work in the same fresh environment with pysr:\r\n```python\r\npython-jl -c 'from julia.Base import banner; banner()'\r\n\r\nTraceback (most recent call last):\r\n  File \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\Lib\\site-packages\\julia\\pseudo_python_cli.py\", line 308, in main\r\n    python(**vars(ns))\r\n  File \"C:\\Users\\ilyao\\miniforge3\\envs\\pysr_mamba\\Lib\\site-packages\\julia\\pseudo_python_cli.py\", line 52, in python\r\n    exec(command, scope)\r\n  File \"<string>\", line 1, in <module>\r\nModuleNotFoundError: No module named 'julia.Base'\r\n```\r\n\r\n```python\r\n>>> from julia.api import Julia\r\n>>> jl = Julia(compiled_modules=False)\r\n>>> from julia.Base import banner; banner()\r\nTraceback (most recent call last):\r\n  File \"<stdin>\", line 1, in <module>\r\nModuleNotFoundError: No module named 'julia.Base'\r\n```",
               "createdAt": "2023-10-30T14:17:42Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I'm just seeing that you are using Python 3.12. Have you tried on Python 3.11? But we should probably add testing on 3.12 now that it is out.",
               "createdAt": "2023-10-30T15:07:51Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "IlyaOrson"
               },
               "body": "I just realized that conda environments are not supported by PyJulia at the bottom of the troubleshooting guide.\r\n\r\nAfter creating a fresh env with venv instead and installing SymbolicRegression manually I got it to work\r\n\r\n```bash\r\npython -m venv pysr\r\npysr\\Scripts\\activate\r\n(pysr) python -m pip install pysr\r\n```\r\n\r\n```python\r\n(pysr) python -m pysr install\r\n\r\n...\r\nJULIA_PROJECT = @pysr-0.16.3\r\n...\r\n[ Info: Julia executable: C:\\Users\\ilyao\\.julia\\juliaup\\julia-1.9.3+0.x64.w64.mingw32\\bin\\julia.exe\r\n[ Info: Trying to import PyCall...\r\n┌ Info: PyCall is already installed but not compatible with this Python\r\n└ executable.  Re-building PyCall...\r\n[ Info: Run `Pkg.build(\"PyCall\"; verbose=true)`\r\n...\r\nPrecompiling PyCall...\r\nPrecompiling PyCall... DONE\r\nPyCall is installed and built successfully.\r\n    Updating registry at `C:\\Users\\ilyao\\.julia\\registries\\General`\r\nTraceback (most recent call last):\r\n  File \"C:\\Users\\ilyao\\miniforge3\\lib\\runpy.py\", line 196, in _run_module_as_main\r\n    return _run_code(code, main_globals, None,\r\n  File \"C:\\Users\\ilyao\\miniforge3\\lib\\runpy.py\", line 86, in _run_code\r\n    exec(code, run_globals)\r\n  File \"D:\\ilyao\\Documents\\research\\coding\\physics_informed_ADoK\\pysr\\lib\\site-packages\\pysr\\__main__.py\", line 4, in <module>\r\n    _cli(prog_name=\"pysr\")\r\n  File \"D:\\ilyao\\Documents\\research\\coding\\physics_informed_ADoK\\pysr\\lib\\site-packages\\click\\core.py\", line 1157, in __call__\r\n    return self.main(*args, **kwargs)\r\n  File \"D:\\ilyao\\Documents\\research\\coding\\physics_informed_ADoK\\pysr\\lib\\site-packages\\click\\core.py\", line 1078, in main\r\n    rv = self.invoke(ctx)\r\n  File \"D:\\ilyao\\Documents\\research\\coding\\physics_informed_ADoK\\pysr\\lib\\site-packages\\click\\core.py\", line 1688, in invoke\r\n    return _process_result(sub_ctx.command.invoke(sub_ctx))\r\n  File \"D:\\ilyao\\Documents\\research\\coding\\physics_informed_ADoK\\pysr\\lib\\site-packages\\click\\core.py\", line 1434, in invoke\r\n    return ctx.invoke(self.callback, **ctx.params)\r\n  File \"D:\\ilyao\\Documents\\research\\coding\\physics_informed_ADoK\\pysr\\lib\\site-packages\\click\\core.py\", line 783, in invoke\r\n    return __callback(*args, **kwargs)\r\n  File \"D:\\ilyao\\Documents\\research\\coding\\physics_informed_ADoK\\pysr\\lib\\site-packages\\pysr\\_cli\\main.py\", line 37, in _install\r\n    install(julia_project, quiet, precompile)\r\n  File \"D:\\ilyao\\Documents\\research\\coding\\physics_informed_ADoK\\pysr\\lib\\site-packages\\pysr\\julia_helpers.py\", line 109, in install\r\n    _add_sr_to_julia_project(Main, io_arg)\r\n  File \"D:\\ilyao\\Documents\\research\\coding\\physics_informed_ADoK\\pysr\\lib\\site-packages\\pysr\\julia_helpers.py\", line 262, in _add_sr_to_julia_project\r\n    Main.eval(\"Pkg.Registry.update()\")\r\n  File \"D:\\ilyao\\Documents\\research\\coding\\physics_informed_ADoK\\pysr\\lib\\site-packages\\julia\\core.py\", line 627, in eval\r\n    ans = self._call(src)\r\n  File \"D:\\ilyao\\Documents\\research\\coding\\physics_informed_ADoK\\pysr\\lib\\site-packages\\julia\\core.py\", line 555, in _call\r\n    self.check_exception(src)\r\n  File \"D:\\ilyao\\Documents\\research\\coding\\physics_informed_ADoK\\pysr\\lib\\site-packages\\julia\\core.py\", line 609, in check_exception\r\n    raise JuliaError(u'Exception \\'{}\\' occurred while calling julia code:\\n{}'\r\njulia.core.JuliaError: Exception 'could not load library \"libgit2\"\r\nThe specified module could not be found. ' occurred while calling julia code:\r\nPkg.Registry.update()\r\n```\r\n\r\n```python\r\n>>> import julia\r\n>>> from julia import Main  # works!\r\n>>> j = julia.core.Julia()\r\n>>> j.eval('import Pkg; Pkg.add(\"SymbolicRegression\")')\r\n   Resolving package versions...\r\n   Installed DynamicQuantities ── v0.6.3\r\n   Installed SymbolicRegression ─ v0.22.4\r\n    Updating `C:\\Users\\ilyao\\.julia\\environments\\v1.9\\Project.toml`\r\n  [8254be44] + SymbolicRegression v0.22.4\r\n...\r\nPrecompiling project...\r\n  4 dependencies successfully precompiled in 84 seconds. 134 already precompiled.\r\n```\r\n\r\n```python\r\n>>> import numpy as np\r\n>>>\r\n>>> X = 2 * np.random.randn(100, 5)\r\n>>> y = 2.5382 * np.cos(X[:, 3]) + X[:, 0] ** 2 - 0.5\r\n>>> from pysr import PySRRegressor\r\n>>>\r\n>>> model = PySRRegressor(\r\n...     niterations=40,  # < Increase me for better results\r\n...     binary_operators=[\"+\", \"*\"],\r\n...     unary_operators=[\r\n...         \"cos\",\r\n...         \"exp\",\r\n...         \"sin\",\r\n...         \"inv(x) = 1/x\",\r\n...         # ^ Custom operator (julia syntax)\r\n...     ],\r\n...     extra_sympy_mappings={\"inv\": lambda x: 1 / x},\r\n...     # ^ Define operator for SymPy as well\r\n...     loss=\"loss(prediction, target) = (prediction - target)^2\",\r\n...     # ^ Custom loss function (julia syntax)\r\n... )\r\n>>> model.fit(X, y)\r\nCompiling Julia backend...\r\n┌ Warning: You are using multithreading mode, but only one thread is available. Try starting julia with `--threads=auto`.\r\n└ @ SymbolicRegression C:\\Users\\ilyao\\.julia\\packages\\SymbolicRegression\\XKtla\\src\\SymbolicRegression.jl:546\r\nStarted!\r\n99.0%┣██████████████████████████████████████████████████████████████████████████████████▏┫ 594/600 [00:09<00:00, 63it/s]\r\nExpressions evaluated per second: 1.44e+05. Head worker occupation: 5.5%\r\n...  # works!\r\n```\r\n",
               "createdAt": "2023-10-30T15:30:14Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "IlyaOrson"
               },
               "body": "I just tried to use the local backend and it works as well!\r\nSo I think it is a matter of avoiding conda environments and using venv instead.",
               "createdAt": "2023-10-30T15:38:49Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "So after going deeper into this, I think this it is just due to #451, so going to move to that issue there.",
               "createdAt": "2023-10-30T23:54:54Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOanecrQ=="
           }

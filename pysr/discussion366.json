@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 366,
         "title": "How to detect if function f(x) blows up to positive infinity (or negative infinity) over a finite-sized domain of x?",
         "body": "I am trying to use the PySR regressor model to find a function.\r\nNow, I am only giving the regressor a domain from x=0 to x=1, because I figure that the model would be able to better predict a function that only exists over a finite-sized domain than a function that exists over the infinite-sized domain (-infinity, +infinity).\r\n\r\nI want to tell the model to not accept (to not return) a function which blows up to positive infinity or negative infinity.\r\n\r\nI tried one approach (but it ended up not working, because the PySR model still found a final function that does blow up to infinity, so this approach has a possibility of false negatives, where the approach fails to detect a function that does in fact blow up to infinity). This approach is basically: In my custom objective function if the value of the value of the guessed function\r\n1. on any one of the dataset points, OR\r\n2. on any one of the x values 0/200, 1/200, 2/200, up to 200/200\r\nis greater than 10000 or less than 0, then I return positive infinity in Julia to signal to the model to reject this function.\r\n\r\nBut obviously this approach is flawed because it's very likely that the model will just change the values of certain parameters so slightly so that the function blows up in reality over the real-values from 0 to 1 but does NOT blow up over any one of the dataset points and does NOT blow up on any one of the x values 0/200, 1/200, 2/200, up to 200/200.\r\n\r\n\r\nFor example, the given dataset is 100 data points. Each data point is 1-dimensional, has a real-value from the uniform distribution over x=[0,1). So that means the value of all my datapoints are in between 0 (inclusive) and 1 (exclusive).\r\n\r\nNote that my objective function first squares the function represented by the tree \"tree\", then (badly) approximates its integral from x=0 to x=1 which is its approximation of the normalization constant, then divides by that normalization constant.\r\n```\r\nobjective = \"\"\"\r\nfunction eval_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    MAX_THRESHOLD_ALLOWED = 10000\r\n\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    !flag && return L(Inf)\r\n    \r\n    num_points = length(prediction)\r\n    \r\n    for i in 1:num_points\r\n        cur_expr_val = prediction[i]\r\n        if (cur_expr_val > MAX_THRESHOLD_ALLOWED)\r\n            return Inf\r\n        end\r\n        if (cur_expr_val < 0)\r\n            return Inf\r\n        end\r\n    end\r\n    \r\n    num_rectangles = 200\r\n    \r\n    # You make sure that this object is of type Matrix, not Vector and not Array.\r\n    evenly_spaced_numbers = reshape([LinRange(0, 1, num_rectangles + 1);], 1, num_rectangles + 1)\r\n    evenly_spaced_numbers = Float32.(evenly_spaced_numbers)\r\n    \r\n    prediction_on_evenly_spaced_numbers, flag_on_evenly_spaced_numbers = eval_tree_array(tree, evenly_spaced_numbers, options)\r\n    \r\n    \r\n\r\n    norm_constant = 0\r\n    prev_expr_val = -1\r\n    for i in 0:num_rectangles\r\n        cur_expr_val = prediction_on_evenly_spaced_numbers[i+1]\r\n        if (cur_expr_val > MAX_THRESHOLD_ALLOWED)\r\n            return Inf\r\n        end\r\n        if (cur_expr_val < 0)\r\n            return Inf\r\n        end\r\n        \r\n        cur_expr_val = cur_expr_val * cur_expr_val\r\n        if (i > 0)\r\n            cur_trapezoid_area = (cur_expr_val + prev_expr_val) / (2.0 * num_rectangles)\r\n            norm_constant += cur_trapezoid_area\r\n        end\r\n        \r\n        prev_expr_val = cur_expr_val\r\n    end\r\n    \r\n    prediction = (prediction .* prediction)\r\n    \r\n    actual_probs = (prediction) / norm_constant\r\n    \r\n    # println(\"HELLO WORLD\")\r\n    \r\n    # length(actual_probs) equals length(prediction)\r\n    return exp(-1 * sum(log.(actual_probs)) / (length(prediction)))\r\nend\r\n\"\"\"\r\nmodel = PySRRegressor(\r\n    niterations=40,  # < Increase me for better results\r\n    binary_operators=[\"+\", \"*\", \"-\", \"/\"],\r\n    unary_operators=[\r\n         \"exp\",\r\n     ],\r\n    # ^ Define operator for SymPy as well\r\n    full_objective=objective\r\n    # ^ Custom loss function (julia syntax)\r\n)\r\n```\r\n\r\nThis resulted in the model ending up finding this function:\r\n\"4  >>>>       inf  exp(-0.0075005013 / (0.45609152 - x0))  0.000000   6\"\r\nThe score was \"inf\", the loss was exactly 0.\r\n\r\nThe orange line is the model's guessed function: exp(-0.0075005013/(0.45609152-x))\r\nThe red line is the model's guessed function but squared and then divided by the code's approximation of the normalization constant 1.2598633:\r\nThe green line is the true probability function (the uniform function over x=[0, 1)).\r\n\r\nMy thoughts for ways to get around this: Possibly I could use calculus? I know about Newton's method to detect x-values of roots. If I take the reciprocal of the model's guessed function, then I implement Newton's method, perhaps in my objective function I could be able to detect more functions that blow up and reject them by returning positive infinity in my objective function.\r\n\r\n\r\n<img width=\"541\" alt=\"Screen Shot 2023-07-02 at 6 35 16 PM\" src=\"https://github.com/MilesCranmer/PySR/assets/60202695/7d353449-d03b-4ea6-80cb-5b607fb561f3\">\r\n\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I guess the issue is that it is finding ways to exploit inaccuracies in your integration by putting in blow-ups outside of the points you sample? One option is you could use an adaptive integrator like QuadGK.jl inside the objective function: https://github.com/JuliaMath/QuadGK.jl. See https://astroautomata.com/PySR/examples/#7-julia-packages-and-types for using external packages in the objective. You would probably want to limit the number of steps it can take, and simply return `L(Inf)` if the integration does not converge.",
               "createdAt": "2023-07-02T23:49:28Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNy0wM1QwMDo0OToyOCswMTowMM4AYLn_"
           }

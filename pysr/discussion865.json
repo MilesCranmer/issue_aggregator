@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 865,
+        "title": "How to get the equations for TemplateExpressionSpec and how to use it to define a custom objective function",
+        "body": "Hi!! \r\nI am new to PySR and am trying to use it to create symbolic equations within a larger predefined expression:\r\n$$y=\\alpha_1 * f(x_1, x_2) + \\alpha_2 * g(x_1, x_2, x_3)$$\r\nHere is the code I am using:\r\n```\r\ntemplate = TemplateExpressionSpec(\r\n    expressions=[\"f\", \"g\"],\r\n    variable_names=['x1', 'x2', 'x3', 'x4'],\r\n    parameters={\"p1\": 1, \"p2\": 1},\r\n    combine=\"p1[1] * f(x1, x2) + p2[1] * g(x1, x3, x4)\",\r\n)\r\n```\r\n\r\nI have two questions regarding the implementation of this problem:\r\n1. Can I export the equations to LaTeX when using TemplateExpressionSpec with multiple expressions? I am encountering the following error:\r\n\r\n```\r\nmodel.latex()\r\nValueError: `expression_spec=<pysr.expression_specs.TemplateExpressionSpec object at 0x000002AF10F06810>` does not support latex export.\r\n```\r\nAlso, I am using Spyder and cannot visualize the variable I saved with the equations as: equations = model.equations_.\r\n\r\n2.  I would like to perform optimization by adjusting a loss function structured as follows:\r\n\r\n$$F =(y_{real}-y_{predicted})+\\beta_1 * (f_{real}-f_{predicted}) + \\beta_2 * (g_{real}-g_{predicted})$$\r\nwhere $\\beta_1$ and $\\beta_2$ are weight coefficients that I will define. I am unsure how to incorporate the expressions f and g into the loss function.\r\n\r\nP.S. I want to thank Miles for his work on the development of PySR. It is an excellent tool, very well documented, and a pleasure to use so far.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "1. Correct, template expressions do not support exporting to latex. (Let me know if you have any suggestions to make the error message a bit more clear? I wasn't sure how I could put this in an error message to make it clear that it is not supported.)\r\n2. For this I would add the additional labels as features:\r\n\r\n```python\r\nbeta_1 = 1.0  # SET ME\r\nbeta_2 = 2.0  # SET ME\r\n\r\ntemplate = TemplateExpressionSpec(\r\n    expressions=[\"f\", \"g\"],\r\n    variable_names=[\"x1\", \"x2\", \"x3\", \"x4\", \"y_real\", \"f_real\", \"g_real\"]\r\n    parameters={\"p\": 2},\r\n    combine=f\"\"\"\r\n        f_predicted = f(x1, x2)\r\n        g_predicted = g(x1, x3, x4)\r\n        y_predicted = p[1] * f_predicted + p[2] * g_predicted\r\n        \r\n        (y_real - y_predicted)^2 + {beta_1} * (f_real - f_predicted)^2 + {beta_2} * (g_real - g_predicted)^2\r\n    \"\"\",\r\n)\r\n\r\nmodel = PySRRegressor(expression_spec=template, elementwise_loss=\"L1DistLoss()\", **kwargs)\r\n\r\n# Set the target to be 0:\r\nmodel.fit(X, np.zeros(X.shape[0]))\r\n```\r\n\r\nI'm assuming you want to take the mean-squared error (?) which is why I wrote these out as `^2`. \r\n\r\nI use `L1DistLoss()` here so that we don't apply the square twice (regular is `L2DistLoss()`).\r\n\r\nNote that we would need to pass `y_real`, `f_real`, and `g_real` as additional **features** of X. Note also that we set the `y` target to simply be 0.0, as a workaround because we have the template expression outputting 0.0 for all rows if the loss is perfect.\r\n\r\nThe tricky thing about a loss like this is that you can't use `model.predict`, because you have repurposed the template as a loss function. If you need that it may be better to use the Julia backend directly (allows more flexibility in the objects you pass - you can just fit on 3-tuples directly), or write a custom `loss_function_expression` (see other examples on the forum, like from `@gm89uk`).\r\n\r\n---\r\n\r\nThanks for the kind message!",
+              "createdAt": "2025-03-18T16:35:51Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Btw, for 1, you can just do `list(model.equations_.equation)` to get the string representations for each expression",
+              "createdAt": "2025-03-18T16:42:37Z"
+            },
+            {
+              "author": {
+                "login": "cristinarg9"
+              },
+              "body": "Hi Miles!\r\nThanks a lot for your detailed answer, really appreciated! 😊\r\n\r\n1 - I was just wondering if the LaTeX export was being developed, but it’s totally fine if it’s not. I’ll manage with model.equations_.\r\n2 - The option of including predictions in X seems like a viable approach for my problem. If I need to push further, I’ll explore the Julia backend. In any case, it’s very helpful to know how far I can go with Python.\r\n",
+              "createdAt": "2025-03-26T13:31:15Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0yNlQxMzozMToxNSswMDowMM4AwLJw"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,84 +1,70 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 411,
         "title": "[BUG]: MethodError when creating custom objective",
         "body": "### What happened?\n\nI am unable to run the custom objective function [example](https://astroautomata.com/PySR/examples/#9-custom-objectives). When I run `model.fit`, I get the following error (truncated to what I think is the relevant bit):\r\n\r\n\r\n```\r\nRuntimeError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: MethodError: no method matching _method_instances(::Type{typeof(my_custom_objective)}, ::Type{Tuple{Node{Float32}, Dataset{Float32, Float32, Matrix{Float32}, Vector{Float32}, Nothing, NamedTuple{(), Tuple{}}, Nothing, Nothing, Nothing, Nothing}, Options{Int64, DynamicExpressions.OperatorEnumModule.OperatorEnum, false, Optim.Options{Float64, Nothing}, StatsBase.Weights{Float64, Float64, Vector{Float64}}}, Nothing}})\r\nThe applicable method may be too new: running in world age 44885, while current world is 54430.\r\n```\r\n\r\nThis error appears in Jupyter notebook and pure python, so I don't believe it is related to my notebook. Running pysr without the custom objective works fine.\r\n\n\n### Version\n\n0.16.2\n\n### Operating System\n\nmacOS\n\n### Package Manager\n\nConda\n\n### Interface\n\nJupyter Notebook\n\n### Relevant log output\n\n```shell\nCompiling Julia backend...\r\n/opt/homebrew/Caskroom/miniforge/base/envs/myenv/lib/python3.8/site-packages/pysr/julia_helpers.py:208: UserWarning: Your system's Python library is static (e.g., conda), so precompilation will be turned off. For a dynamic library, try using `pyenv` and installing with `--enable-shared`: https://github.com/pyenv/pyenv/blob/master/plugins/python-build/README.md#building-with---enable-shared.\r\n  warnings.warn(\r\nTraceback (most recent call last):\r\n  File \"<stdin>\", line 1, in <module>\r\n  File \"/opt/homebrew/Caskroom/miniforge/base/envs/myenv/lib/python3.8/site-packages/pysr/sr.py\", line 1970, in fit\r\n    self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n  File \"/opt/homebrew/Caskroom/miniforge/base/envs/myenv/lib/python3.8/site-packages/pysr/sr.py\", line 1800, in _run\r\n    self.raw_julia_state_ = SymbolicRegression.equation_search(\r\nRuntimeError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: MethodError: no method matching _method_instances(::Type{typeof(my_custom_objective)}, ::Type{Tuple{Node{Float32}, Dataset{Float32, Float32, Matrix{Float32}, Vector{Float32}, Nothing, NamedTuple{(), Tuple{}}, Nothing, Nothing, Nothing, Nothing}, Options{Int64, DynamicExpressions.OperatorEnumModule.OperatorEnum, false, Optim.Options{Float64, Nothing}, StatsBase.Weights{Float64, Float64, Vector{Float64}}}, Nothing}})\r\nThe applicable method may be too new: running in world age 44848, while current world is 54489.\r\n\r\nClosest candidates are:\r\n  _method_instances(::Any, ::Any) (method too new to be called from this world context.)\r\n   @ Tricks ~/.julia/packages/Tricks/7oAyo/src/Tricks.jl:150\r\n\r\nStacktrace:\r\n  [1] #s1771#1\r\n    @ ~/.julia/packages/Tricks/7oAyo/src/Tricks.jl:16 [inlined]\r\n  [2] var\"#s1771#1\"(T::Any, ::Any, f::Any, t::Any)\r\n    @ Tricks ./none:0\r\n  [3] (::Core.GeneratedFunctionStub)(::Any, ::Vararg{Any})\r\n    @ Core ./boot.jl:602\r\n  [4] evaluator(f::typeof(my_custom_objective), tree::Node{Float32}, dataset::Dataset{Float32, Float32, Matrix{Float32}, Vector{Float32}, Nothing, NamedTuple{(), Tuple{}}, Nothing, Nothing, Nothing, Nothing}, options::Options{Int64, DynamicExpressions.OperatorEnumModule.OperatorEnum, false, Optim.Options{Float64, Nothing}, StatsBase.Weights{Float64, Float64, Vector{Float64}}}, idx::Nothing)\r\n    @ SymbolicRegression.LossFunctionsModule ~/.julia/packages/SymbolicRegression/FgFra/src/LossFunctions.jl:78\r\n  [5] eval_loss(tree::Node{Float32}, dataset::Dataset{Float32, Float32, Matrix{Float32}, Vector{Float32}, Nothing, NamedTuple{(), Tuple{}}, Nothing, Nothing, Nothing, Nothing}, options::Options{Int64, DynamicExpressions.OperatorEnumModule.OperatorEnum, false, Optim.Options{Float64, Nothing}, StatsBase.Weights{Float64, Float64, Vector{Float64}}}; regularization::Bool, idx::Nothing)\r\n    @ SymbolicRegression.LossFunctionsModule ~/.julia/packages/SymbolicRegression/FgFra/src/LossFunctions.jl:105\r\n  [6] eval>>> print(model)\r\nPySRRegressor.equations_ = None\r\n_loss\r\n    @ ~/.julia/packages/SymbolicRegression/FgFra/src/LossFunctions.jl:94 [inlined]\r\n  [7] update_baseline_loss!(dataset::Dataset{Float32, Float32, Matrix{Float32}, Vector{Float32}, Nothing, NamedTuple{(), Tuple{}}, Nothing, Nothing, Nothing, Nothing}, options::Options{Int64, DynamicExpressions.OperatorEnumModule.OperatorEnum, false, Optim.Options{Float64, Nothing}, StatsBase.Weights{Float64, Float64, Vector{Float64}}})\r\n    @ SymbolicRegression.LossFunctionsModule ~/.julia/packages/SymbolicRegression/FgFra/src/LossFunctions.jl:202\r\n  [8] _equation_search(#unused#::Val{:multithreading}, #unused#::Val{1}, datasets::Vector{Dataset{Float32, Float32, Matrix{Float32}, Vector{Float32}, Nothing, NamedTuple{(), Tuple{}}, Nothing, Nothing, Nothing, Nothing}}, niterations::Int64, options::Options{Int64, DynamicExpressions.OperatorEnumModule.OperatorEnum, false, Optim.Options{Float64, Nothing}, StatsBase.Weights{Float64, Float64, Vector{Float64}}}, numprocs::Nothing, procs::Nothing>>> \r\n, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing, verbosity::Int64, progress::Bool, #unused#::Val{true})\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/FgFra/src/SymbolicRegression.jl:572\r\n  [9] equation_search(datasets::Vector{Dataset{Float32, Float32, Matrix{Float32}, Vector{Float32}, Nothing, NamedTuple{(), Tuple{}}, Nothing, Nothing, Nothing, Nothing}}; niterations::Int64, options::Options{Int64, DynamicExpressions.OperatorEnumModule.OperatorEnum, false, Optim.Options{Float64, Nothing}, StatsBase.Weights{Float64, Float64, Vector{Float64}}}, parallelism::String, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing, return_state::Bool, verbosity::Int64, progress::Bool, v_dim_out::Val{1})\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/FgFra/src/SymbolicRegression.jl:507\r\n [10] equation_search(X::Matrix{Float32}, y::Matrix{Float32}; niterations::Int64, weights::Nothing, options::Options{Int64, DynamicExpressions.OperatorEnumModule.OperatorEnum, false, Optim.Options{Float64, Nothing}, StatsBase.Weights{Float64, Float64, Vector{Float64}}}, variable_names::Vector{String}, display_variable_names::Vector{String}, y_variable_names::Nothing, parallelism::String, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing, return_state::Bool, loss_type::Type{Nothing}, verbosity::Int64, progress::Bool, X_units::Nothing, y_units::Nothing, v_dim_out::Val{1}, multithreaded::Nothing, varMap::Nothing)\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/FgFra/src/SymbolicRegression.jl:385\r\n [11] equation_search\r\n    @ ~/.julia/packages/SymbolicRegression/FgFra/src/SymbolicRegression.jl:330 [inlined]\r\n [12] #equation_search#24\r\n    @ ~/.julia/packages/SymbolicRegression/FgFra/src/SymbolicRegression.jl:414 [inlined]\r\n [13] invokelatest(::Any, ::Any, ::Vararg{Any}; kwargs::Base.Pairs{Symbol, Any, NTuple{15, Symbol}, NamedTuple{(:weights, :niterations, :variable_names, :display_variable>>> \r\n_names, :y_variable_names, :X_units, :y_units, :options, :numprocs, :parallelism, :saved_state, :return_state, :addprocs_function, :progress, :verbosity), Tuple{Nothing, Int64, Vector{String}, Vector{String}, Nothing, Nothing, Nothing, Options{Int64, DynamicExpressions.OperatorEnumModule.OperatorEnum, false, Optim.Options{Float64, Nothing}, StatsBase.Weights{Float64, Float64, Vector{Float64}}}, Nothing, String, Nothing, Bool, Nothing, Bool, Int64}}})\r\n    @ Base ./essentials.jl:818\r\n [14] _pyjlwrap_call(f::Function, args_::Ptr{PyCall.PyObject_struct}, kw_::Ptr{PyCall.PyObject_struct})\r\n    @ PyCall ~/.julia/packages/PyCall/ilqDX/src/callback.jl:32\r\n [15] pyjlwrap_call(self_::Ptr{PyCall.PyObject_struct}, args_::Ptr{PyCall.PyObject_struct}, kw_::Ptr{PyCall.PyObject_struct})\r\n    @ PyCall ~/.julia/packages/PyCall/ilqDX/src/callback.jl:44>\n```\n\n\n### Extra Info\n\nmy Julia version is 1.9.2. It has PyCall and Symbolic Regression installed.\r\n\r\nHere are my versions for python requirements:\r\nsympy - 1.12\r\npandas - 2.0.2\r\nnumpy - 1.24.3\r\nscikit_learn - 1.2.2\r\njulia - 0.6.0 (also tried 0.6.1)\r\nclick - 8.1.3\r\nsetuptools - 68.0.0\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks very much for making this bug report, it is quite helpful.\r\n\r\nCould you include the exact Python code you are running? I do have a unittest for this so it is surprising to see this error https://github.com/MilesCranmer/PySR/blob/d38be42d5c71e07f314db5680453d1b54955c050/pysr/test/test.py#L77-L98 . I wonder if it could be some race condition.",
               "createdAt": "2023-08-20T02:19:41Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "villrv"
               },
               "body": "Yes, my code is below. I also tried switching out my objective function with the one in your unit test, with the same error.\r\n\r\n```python\r\nimport numpy as np\r\n\r\nX = 2 * np.random.randn(10000, 5)\r\ny = 2.5382 * np.cos(X[:, 3]) + 1/X[:, 0] ** 2 - 0.5\r\n\r\nfrom pysr import PySRRegressor\r\n\r\nobjective = \"\"\"\r\nfunction my_custom_objective(tree, dataset::Dataset{T,L}, options) where {T,L}\r\n    # Require root node to be binary, so we can split it,\r\n    # otherwise return a large loss:\r\n    tree.degree != 2 && return L(Inf)\r\n    P = tree.l\r\n    Q = tree.r\r\n    # Evaluate numerator:\r\n    P_prediction, flag = eval_tree_array(P, dataset.X, options)\r\n    !flag && return L(Inf)\r\n    # Evaluate denominator:\r\n    Q_prediction, flag = eval_tree_array(Q, dataset.X, options)\r\n    !flag && return L(Inf)\r\n    # Impose functional form:\r\n    prediction = P_prediction ./ Q_prediction\r\n    diffs = prediction .- dataset.y\r\n    return sum(diffs .^ 2) / length(diffs)\r\nend\r\n\"\"\"\r\n\r\n\r\nmodel = PySRRegressor(\r\n    niterations=100,\r\n    binary_operators=[\"*\", \"+\", \"-\"],\r\n    full_objective=objective,\r\n)\r\n\r\nmodel.fit(X, y)\r\nprint(model)\r\n```",
               "createdAt": "2023-08-20T19:52:19Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "villrv"
               },
               "body": "Actually I want to add that, even without the custom objective function, I occasionally get the following error:\r\n\r\n```\r\nBlockingIOError: [Errno 35] write could not complete without blocking\r\n```\r\n\r\nI don't know if this is related.",
               "createdAt": "2023-08-20T21:46:07Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I can't reproduce the error on my machine for some reason. Does the error come up randomly or is it every time you run it? And does the error only appear after you have executed some other code first?",
               "createdAt": "2023-08-20T22:31:44Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Wait, I was just able to reproduce it. I reproduced it by:\r\n\r\n1. Using Julia 1.9.2 (before I was using Julia 1.10 - where the error goes away), and\r\n2. Running in normal Python rather than IPython (the BlockingIOError seems to be random, depending on which thread runs into the error first)\r\n\r\nWill try to fix it soon",
               "createdAt": "2023-08-20T22:44:25Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Okay this should be fixed by https://github.com/MilesCranmer/SymbolicRegression.jl/pull/258. Will be ready in PySR v0.16.3 in maybe a few hours after all the CI testing finishes",
               "createdAt": "2023-08-20T22:57:07Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Fixed by #413 ",
               "createdAt": "2023-08-21T00:28:25Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "The Conda version should get released in the next ~10 hours or so. Let me know if there are further issues!",
               "createdAt": "2023-08-21T00:44:32Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOZHYKSg=="
           }

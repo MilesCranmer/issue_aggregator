@@ -1,76 +1,63 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 6,
         "title": "Sympy export",
         "body": "Dear @MilesCranmer,\r\n\r\nI just tried out this package. It works! Fantastic.\r\n\r\nI see that the result is a pandas DataFrame. The equation is stored as a string. It seems difficult to parse this back into something usable automatically.\r\n\r\nI wonder if it would be easy to add an export to a sympy formula. \r\n\r\nSympy then supports exporting formulas into python functions and also efficient numpy functions. This would allow automatic use of PySR's results. Also, sympy can print formulas with pprint in a easily readable form.\r\n\r\nCheers,\r\n             Johannes",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "JohannesBuchner"
               },
               "body": "Here is an example:\r\n\r\n```\r\nfrom sympy import Symbol, Add, Mul, exp, log\r\n\r\nx = Symbol('x')                                                         \r\ny = Symbol('y')                                                         \r\n\r\nformula = Mul(Add(x, y), 3.21)                                                    \r\n\r\nprint(formula)\r\n# --> 3.21*x + 3.21*y\r\n\r\nfrom sympy import lambdify\r\nfunc = sympy.lambdify((x, y), formula)\r\nprint(func(0.21, 0.32))\r\n# --> 1.7013\r\n```",
               "createdAt": "2020-09-28T10:20:39Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "JohannesBuchner"
               },
               "body": "One motivation to ask for this feature is to be able to plot the equations automatically.",
               "createdAt": "2020-09-28T10:32:03Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Awesome that it works for you @JohannesBuchner!\r\n\r\nThanks for this post; this would definitely be useful to have. This is on my TODO list, and I think I've reached a point of diminishing returns with backend optimizations so I can look at this now.\r\n\r\nI've looked into this in the past, and basically we need to provide a dict of \"locals.\" These are mappings from a string to a sympy function. E.g.,\r\n\r\n```python\r\nimport sympy\r\nfrom sympy import sympify\r\nlocals = {\r\n    'div': lambda x, y : x/y,\r\n    'mult': lambda x, y : x*y,\r\n    'plus': lambda x, y : x + y,\r\n    'neg': lambda x    : -x,\r\n    'pow': lambda x, y : x**y,\r\n    'cos': lambda x    : sympy.cos(x)\r\n}\r\nsympy_equation = sympify(program_string, locals=locals)\r\n```\r\nwhere `program_string` is the output equation. This dictionary is a map from the operators to the sympy equivalents. Then we would declare a list of symbols for each `['x%d' for i in range(X.shape[1])]`. Then, this should transform it to sympy and one can use it for anything downstream.\r\n\r\nOne question for you: do you think the user provide the sympy functions? Or should those be pre-set somewhere for common strings? I ask because it is possible to provide custom operators... so perhaps the user would want to pass custom sympy code too.\r\n\r\nI guess the API could look like this:\r\n\r\n```python\r\npysr(X, y, ...., binary_operators=[...., \"special(x, y)=x^2 + y\"], extra_sympy_mappings={'special': x**2 + y})\r\n```\r\n\r\nThen that `extra_sympy_mappings` could be concatenated with a pre-set list of sympy mappings, and used to \"sympify\" the output. \r\n\r\nThoughts on this?\r\n\r\nOne other future issue on my TODO list (bottom of the readme) is state saving. I think it would be useful to provide starter equations to the pysr backend that could be used to help discover new equations. Perhaps these could be passed as sympy equations, or simply strings?\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2020-09-28T11:00:53Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Alright, added on master! It now outputs three additional columns:\r\n\r\n- `sympy_format` - the sympy equation format.\r\n- `lambda_format` - the lambdify format, so you can use the equation as a function (args are x0, x1, x2, .... - it follows the same axis order as you passed with X).\r\n- `score` - the scoring metric I mentioned in #7 (previously, this was just printed).\r\n",
               "createdAt": "2020-09-28T12:00:58Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "JohannesBuchner"
               },
               "body": "You are fast. Is it documented somewhere how to use this?\r\n\r\nIt would seem more user-friendly to me to -- instead of expanding the table to something unwieldy -- provide a function that transforms the result into a sympy formula or lambda function. Unless this makes things much more complicated because internals need to be accessed.",
               "createdAt": "2020-09-28T12:16:53Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "That's a good idea; I'll weigh these two options a bit more.\r\n\r\nRe: documentation, here's an example with custom operators as on the README:\r\n```python\r\nequations = pysr.pysr(X, y, niterations=100,\r\n    binary_operators=[\"mult\", \"plus\", \"special(x, y) = x^2 + y\"],\r\n    extra_sympy_mappings={'special': lambda x, y: x**2 + y},\r\n    unary_operators=[\"cos\"])\r\n```\r\n\r\nSo, you can access the sympy equations with, e.g., `equations.loc[2, 'sympy_format']` - to get the sympy equation for row 2. Then that can be used with sympy functionality, e.g., latex: https://docs.sympy.org/latest/tutorial/printing.html.\r\n\r\nTo get something to evaluate (maybe I can provide something to generate plots later?), use eg `y = equations.loc[2, 'lambda_format'](x0, x1, ...)` for whatever input values of x0, x1 you want.",
               "createdAt": "2020-09-28T13:12:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I think your plot idea is a really nice one. It would be great to be able to use PySR in a Jupyter notebook and get to plot out each equation on the data, and have them shown in LaTeX too. Perhaps the Pandas table is a good option, since it would contain everything necessary for downstream options? Since one can then pass all the equations to a function, or a single equation at a time.",
               "createdAt": "2020-09-28T13:22:32Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOKbkz3Q=="
           }

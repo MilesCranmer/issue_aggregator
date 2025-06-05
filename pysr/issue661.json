@@ -1,198 +1,177 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 661,
         "title": "[BUG]: EXCEPTION_ACCESS_VIOLATION during garbage collection in PySR",
         "body": "### What happened?\n\nThe program crashed while using PySR, with an error message indicating a memory access violation (EXCEPTION_ACCESS_VIOLATION). This error occurred during the garbage collection process.\n\n### Version\n\nv0.19.0\n\n### Operating System\n\nWindows\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\n[ Info: Automatically setting `--heap-size-hint=2730M` on each Julia process. You can configure this with the `heap_size_hint_in_bytes` parameter.\r\n[ Info: Importing SymbolicRegression on workers as well as extensions Bumper, LoopVectorization.\r\n[ Info: Finished!\r\n[ Info: Copying definition of loss_fnc to workers...\r\n[ Info: Finished!\r\n[ Info: Started!\r\n32.1%┣█████████████████████████████████████████████████████████████████████████████████████████████████████████████                                                                                                                                                                                                                                      ┫ 1.0k/3.2k [00:40<01:26, 25it/s]\r\nPlease submit a bug report with steps to reproduce this fault, and any error messages that follow (in their entirety). Thanks.\r\nException: EXCEPTION_ACCESS_VIOLATION at 0x7ffa6106a6b0 -- gc_mark_outrefs at C:/workdir/src\\gc.c:2527 [inlined]\r\ngc_mark_and_steal at C:/workdir/src\\gc.c:2746\r\nin expression starting at none:0---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\r\ngc_mark_outrefs at C:/workdir/src\\gc.c:2527 [inlined]\r\ngc_mark_and_steal at C:/workdir/src\\gc.c:2746\r\ngc_mark_loop_parallel at C:/workdir/src\\gc.c:2885\r\njl_gc_mark_threadfun at C:/workdir/src\\partr.c:142\r\nuv__thread_start at /workspace/srcdir/libuv\\src/win\\thread.c:111\r\nbeginthreadex at C:\\Windows\\System32\\msvcrt.dll (unknown line)\r\nendthreadex at C:\\Windows\\System32\\msvcrt.dll (unknown line)\r\nBaseThreadInitThunk at C:\\Windows\\System32\\KERNEL32.DLL (unknown line)\r\nRtlUserThreadStart at C:\\Windows\\SYSTEM32\\ntdll.dll (unknown line)\r\nAllocations: 9815735891 (Pool: 9517376769; Big: 298359122); GC: 69400\n```\n\n\n### Extra Info\n\nturbo=True, bumper=True",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Can you try with `turbo=False, bumper=False`? Those options are experimental and get PySR to use libraries which are bleeding edge. When they work, they are really fast, but they can also cause crashes (especially on Windows).",
               "createdAt": "2024-07-05T09:42:43Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "zzccchen"
               },
               "body": "Regrettably. I tried `turbo=False, bumper=False` parameter and the crash problem still occurred.",
               "createdAt": "2024-07-09T04:42:57Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "zzccchen"
               },
               "body": "Could automatically setting `--heap-size-hint=2730M` cause this problem?",
               "createdAt": "2024-07-09T04:44:09Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hm, Can you show the rest of your code? ",
               "createdAt": "2024-07-09T06:34:58Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "zzccchen"
               },
               "body": "```python\r\nfrom pysr import PySRRegressor\r\n\r\n# data load code\r\n\r\nX_123e = data_X_123e.to_numpy()\r\ny_123e = data_y_123e.to_numpy()\r\n\r\nsr_model = PySRRegressor(\r\n    binary_operators=[\r\n        \"*\",\r\n        \"+\",\r\n        \"-\",\r\n        \"/\",\r\n    ],\r\n    unary_operators=[\"square\", \"cube\", \"exp\", \"log\", \"sqrt\"],\r\n    maxsize=80, \r\n    maxdepth=10,  \r\n    niterations=100, \r\n    populations=32, \r\n    population_size=100, \r\n    ncycles_per_iteration=550, \r\n    constraints={\r\n        \"/\": (-1, 9),\r\n        \"^\": (-1, 5),\r\n        \"exp\": 6,\r\n        \"square\": 6,\r\n        \"cube\": 6,\r\n        \"log\": 6,\r\n        \"sqrt\": 6,\r\n        \"abs\": 9,\r\n    },\r\n    nested_constraints={\r\n        \"square\": {\"square\": 0, \"cube\": 0, \"exp\": 1},\r\n        \"cube\": {\"square\": 0, \"cube\": 0, \"exp\": 1},\r\n        \"exp\": {\"square\": 0, \"cube\": 0, \"exp\": 0},\r\n        \"sqrt\": {\"sqrt\": 0, \"log\": 0},\r\n        \"log\": {\"log\": 0},\r\n    },\r\n    complexity_of_operators={\r\n        \"square\": 2,\r\n        \"cube\": 3,\r\n        \"exp\": 3,\r\n        \"log\": 3,\r\n        \"sqrt\": 2,\r\n    },\r\n    complexity_of_constants=4,\r\n    adaptive_parsimony_scaling=150.0,\r\n    weight_add_node=0.79,\r\n    weight_insert_node=5.1,\r\n    weight_delete_node=1.7,\r\n    weight_do_nothing=0.21,\r\n    weight_mutate_constant=0.048,\r\n    weight_mutate_operator=0.47,\r\n    weight_swap_operands=0.1,\r\n    weight_randomize=0.23,\r\n    weight_simplify=0.5,\r\n    weight_optimize=0.5,\r\n    crossover_probability=0.066,\r\n    perturbation_factor=0.076,\r\n    cluster_manager=None,\r\n    precision=32,\r\n    turbo=True,\r\n    bumper=True,\r\n    progress=True,\r\n    elementwise_loss=\"\"\"\r\n    function loss_fnc(prediction, target)\r\n        percentage_error = abs((prediction - target) / target) * 100\r\n        return percentage_error\r\n    end\r\n    \"\"\",\r\n    multithreading=False,\r\n    equation_file=symbol_regression_csv_path,\r\n)\r\n\r\ncomplexity_of_variables = [] # list of complexity\r\nsr_model.fit(\r\n    X_123e, y_123e, complexity_of_variables=complexity_of_variables\r\n)\r\n```\r\nhere is the main code of the workflow.",
               "createdAt": "2024-07-09T09:01:51Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "zzccchen"
               },
               "body": "At the same time, I will put the above code in a multi-layer loop to test different feature data sets and the stability of the symbolic regression results. A single loop takes about 2.2 minutes. The program crashes after running for 3-4 hours, running about 80-110 rounds.",
               "createdAt": "2024-07-09T09:04:39Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "That looks good. Great to see all those options being used! 🙂 \r\n\r\n(Random comment: your element wise loss divides by the target, so make sure the target > 0, otherwise one target will dominate. But I’m assuming you’re aware of that!)\r\n\r\nOther comment: can you try with `multithreading=True`? With it set to `False`, and with `procs>0` (the default), it will use multiple Julia processes. But if you just use multi-threading instead, it will start up much faster and hopefully be more stable. With multi-processing it is launching new Julia processes every single time it searches. (This is a weakness in the current codebase; I would like to eventually store the processes within PySRRegressor so multiprocessing has fast startup too.)\r\n\r\nYou can also set `multithreading=False, procs=0` to use serial mode.\r\n\r\nBut it’s curious that it crashes. Since it runs for a few hours, did you notice anything else happening, like the memory usage gradually increasing over that time and not going down?",
               "createdAt": "2024-07-09T11:15:43Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "zzccchen"
               },
               "body": "If I use multithreading instead of multiprocessing, the calculation speed will drop from 30it/s to 7it/s on my device, which is a bit unacceptable to me. In addition, I have made sure that my y_true values ​​are all greater than 0. And the memory usage does not fluctuate when the program crashes, occupying only 30% of the total memory.",
               "createdAt": "2024-07-09T13:48:05Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Maybe try `multithreading=True` again, but this time, before loading PySR, set a larger thread count:\r\n```python\r\nimport os\r\nos.environ[\"PYTHON_JULIACALL_THREADS\"] = (num_cores) * 2\r\n```\r\nWhere `num_cores` is the number of CPU cores. The factor of 2 is so there’s some redundancy but you could try more or less depending on performance.\r\n\r\nThe default behavior of PySR is to start Julia with `--threads='auto'` which is actually fewer than the number of available cores (so it doesn’t take up the whole CPU). But for high performance you can increase the usage.\r\n\r\n\r\nThe full list of available juliacall environment variables is here: https://juliapy.github.io/PythonCall.jl/stable/juliacall/#julia-config ",
               "createdAt": "2024-07-09T21:59:28Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "zzccchen"
               },
               "body": "I tried\r\n```python\r\nimport os\r\nos.environ[\"PYTHON_JULIACALL_THREADS\"] = \"64\"\r\n# or\r\nos.environ[\"PYTHON_JULIACALL_THREADS\"] = \"64\"\r\nos.environ[\"PYTHON_JULIACALL_PROCS\"] = \"64\"\r\n```\r\nBut it did not improve the calculation speed, the processor usage was only 20-30%, I am using a 24c32t 14900k processor.",
               "createdAt": "2024-07-10T02:07:32Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "To confirm, this was before importing PySR right? As a test, if you set it to 1, the CPU usage should only be 1 core.\r\n\r\nAlso note that the `PROCS` env variable won’t have any effect.",
               "createdAt": "2024-07-10T10:05:42Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "zzccchen"
               },
               "body": "I had a similar problem when I gave up Windows and moved to Ubuntu 24.04 lts. I also used a tool (tm5) to test the memory. After testing for 1 hour, there was no error and the temperature was stable at 45℃. It doesn't seem to be a hardware problem. This problem is so strange.\r\n\r\n```bash\r\nTraceback (most recent call last):\r\n  File \"/home/zc/Documents/GitHub/MLPIP/notebooks/TC/S2_symbol_regression/S202_sr_123e.py\", line 192, in <module>\r\n    sr_model.fit(\r\n  File \"/home/zc/miniconda3/envs/MLPIP_ENV_PIP/lib/python3.11/site-packages/pysr/sr.py\", line 2088, in fit\r\n    self._run(X, y, runtime_params, weights=weights, seed=seed)\r\n  File \"/home/zc/miniconda3/envs/MLPIP_ENV_PIP/lib/python3.11/site-packages/pysr/sr.py\", line 1890, in _run\r\n    out = SymbolicRegression.equation_search(\r\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/home/zc/.julia/packages/PythonCall/S5MOg/src/JlWrap/any.jl\", line 223, in __call__\r\n    return self._jl_callmethod($(pyjl_methodnum(pyjlany_call)), args, kwargs)\r\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nUnhandled Task ERROR: IOError: read: connection reset by peer (ECONNRESET)\r\nStacktrace:\r\n  [1] wait_readnb(x::Sockets.TCPSocket, nb::Int64)\r\n    @ Base ./stream.jl:410\r\n  [2] (::Base.var\"#wait_locked#739\")(s::Sockets.TCPSocket, buf::IOBuffer, nb::Int64)\r\n    @ Base ./stream.jl:949\r\n  [3] unsafe_read(s::Sockets.TCPSocket, p::Ptr{UInt8}, nb::UInt64)\r\n    @ Base ./stream.jl:955\r\n  [4] unsafe_read\r\n    @ ./io.jl:774 [inlined]\r\n  [5] unsafe_read(s::Sockets.TCPSocket, p::Base.RefValue{NTuple{4, Int64}}, n::Int64)\r\n    @ Base ./io.jl:773\r\n  [6] read!\r\n    @ ./io.jl:775 [inlined]\r\n  [7] deserialize_hdr_raw\r\n    @ ~/miniconda3/envs/MLPIP_ENV_PIP/julia_env/pyjuliapkg/install/share/julia/stdlib/v1.10/Distributed/src/messages.jl:167 [inlined]\r\n  [8] message_handler_loop(r_stream::Sockets.TCPSocket, w_stream::Sockets.TCPSocket, incoming::Bool)\r\n    @ Distributed ~/miniconda3/envs/MLPIP_ENV_PIP/julia_env/pyjuliapkg/install/share/julia/stdlib/v1.10/Distributed/src/process_messages.jl:172\r\n  [9] process_tcp_streams(r_stream::Sockets.TCPSocket, w_stream::Sockets.TCPSocket, incoming::Bool)\r\n    @ Distributed ~/miniconda3/envs/MLPIP_ENV_PIP/julia_env/pyjuliapkg/install/share/julia/stdlib/v1.10/Distributed/src/process_messages.jl:133\r\n [10] (::Distributed.var\"#103#104\"{Sockets.TCPSocket, Sockets.TCPSocket, Bool})()\r\n    @ Distributed ~/miniconda3/envs/MLPIP_ENV_PIP/julia_env/pyjuliapkg/install/share/julia/stdlib/v1.10/Distributed/src/process_messages.jl:121\r\njuliacall.JuliaError: TaskFailedException\r\nStacktrace:\r\n  [1] wait\r\n    @ ./task.jl:352 [inlined]\r\n  [2] fetch\r\n    @ ./task.jl:372 [inlined]\r\n  [3] _main_search_loop!(state::SymbolicRegression.SearchUtilsModule.SearchState{Float32, Float32, Node{Float32}, Distributed.Future, Distributed.RemoteChannel}, datasets::Vector{Dataset{Float32, Float32, Matrix{Float32}, Vector{Float32}, Nothing, @NamedTuple{}, Nothing, Nothing, Nothing, Nothing}}, ropt::SymbolicRegression.SearchUtilsModule.RuntimeOptions{:multiprocessing, 1, true}, options::Options{SymbolicRegression.CoreModule.OptionsStructModule.ComplexityMapping{Int64, Vector{Int64}}, DynamicExpressions.OperatorEnumModule.OperatorEnum, Node, true, true, nothing, StatsBase.Weights{Float64, Float64, Vector{Float64}}})\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/9q4ZC/src/SymbolicRegression.jl:882\r\n  [4] _equation_search(datasets::Vector{Dataset{Float32, Float32, Matrix{Float32}, Vector{Float32}, Nothing, @NamedTuple{}, Nothing, Nothing, Nothing, Nothing}}, ropt::SymbolicRegression.SearchUtilsModule.RuntimeOptions{:multiprocessing, 1, true}, options::Options{SymbolicRegression.CoreModule.OptionsStructModule.ComplexityMapping{Int64, Vector{Int64}}, DynamicExpressions.OperatorEnumModule.OperatorEnum, Node, true, true, nothing, StatsBase.Weights{Float64, Float64, Vector{Float64}}}, saved_state::Nothing)\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/9q4ZC/src/SymbolicRegression.jl:599\r\n  [5] equation_search(datasets::Vector{Dataset{Float32, Float32, Matrix{Float32}, Vector{Float32}, Nothing, @NamedTuple{}, Nothing, Nothing, Nothing, Nothing}}; niterations::Int64, options::Options{SymbolicRegression.CoreModule.OptionsStructModule.ComplexityMapping{Int64, Vector{Int64}}, DynamicExpressions.OperatorEnumModule.OperatorEnum, Node, true, true, nothing, StatsBase.Weights{Float64, Float64, Vector{Float64}}}, parallelism::String, numprocs::Int64, procs::Nothing, addprocs_function::Nothing, heap_size_hint_in_bytes::Nothing, runtests::Bool, saved_state::Nothing, return_state::Bool, verbosity::Int64, progress::Bool, v_dim_out::Val{1})\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/9q4ZC/src/SymbolicRegression.jl:571\r\n  [6] equation_search\r\n    @ ~/.julia/packages/SymbolicRegression/9q4ZC/src/SymbolicRegression.jl:449 [inlined]\r\n  [7] #equation_search#26\r\n    @ ~/.julia/packages/SymbolicRegression/9q4ZC/src/SymbolicRegression.jl:412 [inlined]\r\n  [8] equation_search\r\n    @ ~/.julia/packages/SymbolicRegression/9q4ZC/src/SymbolicRegression.jl:360 [inlined]\r\n  [9] #equation_search#28\r\n    @ ~/.julia/packages/SymbolicRegression/9q4ZC/src/SymbolicRegression.jl:442 [inlined]\r\n [10] pyjlany_call(self::typeof(equation_search), args_::Py, kwargs_::Py)\r\n    @ PythonCall.JlWrap ~/.julia/packages/PythonCall/S5MOg/src/JlWrap/any.jl:36\r\n [11] _pyjl_callmethod(f::Any, self_::Ptr{PythonCall.C.PyObject}, args_::Ptr{PythonCall.C.PyObject}, nargs::Int64)\r\n    @ PythonCall.JlWrap ~/.julia/packages/PythonCall/S5MOg/src/JlWrap/base.jl:72\r\n [12] _pyjl_callmethod(o::Ptr{PythonCall.C.PyObject}, args::Ptr{PythonCall.C.PyObject})\r\n    @ PythonCall.JlWrap.Cjl ~/.julia/packages/PythonCall/S5MOg/src/JlWrap/C.jl:63\r\n\r\n    nested task error: Distributed.ProcessExitedException(423)\r\n    Stacktrace:\r\n      [1] try_yieldto(undo::typeof(Base.ensure_rescheduled))\r\n        @ Base ./task.jl:931\r\n      [2] wait()\r\n        @ Base ./task.jl:995\r\n      [3] wait(c::Base.GenericCondition{ReentrantLock}; first::Bool)\r\n        @ Base ./condition.jl:130\r\n      [4] wait\r\n        @ ./condition.jl:125 [inlined]\r\n      [5] take_buffered(c::Channel{Any})\r\n        @ Base ./channels.jl:477\r\n      [6] take!(c::Channel{Any})\r\n        @ Base ./channels.jl:471\r\n      [7] take!(::Distributed.RemoteValue)\r\n        @ Distributed ~/miniconda3/envs/MLPIP_ENV_PIP/julia_env/pyjuliapkg/install/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:726\r\n      [8] remotecall_fetch(f::Function, w::Distributed.Worker, args::Distributed.RRID; kwargs::@Kwargs{})\r\n        @ Distributed ~/miniconda3/envs/MLPIP_ENV_PIP/julia_env/pyjuliapkg/install/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:461\r\n      [9] remotecall_fetch(f::Function, w::Distributed.Worker, args::Distributed.RRID)\r\n        @ Distributed ~/miniconda3/envs/MLPIP_ENV_PIP/julia_env/pyjuliapkg/install/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:454\r\n     [10] remotecall_fetch\r\n        @ ~/miniconda3/envs/MLPIP_ENV_PIP/julia_env/pyjuliapkg/install/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:492 [inlined]\r\n     [11] call_on_owner\r\n        @ ~/miniconda3/envs/MLPIP_ENV_PIP/julia_env/pyjuliapkg/install/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:565 [inlined]\r\n     [12] fetch(r::Distributed.Future)\r\n        @ Distributed ~/miniconda3/envs/MLPIP_ENV_PIP/julia_env/pyjuliapkg/install/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:619\r\n     [13] (::SymbolicRegression.var\"#67#72\"{SymbolicRegression.SearchUtilsModule.SearchState{Float32, Float32, Node{Float32}, Distributed.Future, Distributed.RemoteChannel}, Int64, Int64})()\r\n        @ SymbolicRegression ~/.julia/packages/SymbolicRegression/9q4ZC/src/SymbolicRegression.jl:984\r\n```",
               "createdAt": "2024-07-15T18:26:16Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Just to confirm, there is no crash now? Just that this message is printed?\r\n\r\nI see this message sometimes during testing. So far, it has seemed to be harmless, and has never caused a crash – it simply indicates that one of the worker processes has exited, due to the search returning, and the `@async fetch` call on that worker failed. \r\n\r\nHowever, if this is what is calling the error, perhaps it is not harmless, and we should close the asynchronous `fetch` tasks before the worker processes are killed.\r\n",
               "createdAt": "2024-07-15T18:55:10Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I do think it would be better if there was a way to get multithreading to be faster, by increasing `PYTHON_JULIACALL_THREADS` before importing pysr. Windows multiprocessing seems to occasionally have issues for unknown reasons, and has been quite hard to debug, whereas multithreading has been quite stable.",
               "createdAt": "2024-07-15T18:59:00Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "zzccchen"
               },
               "body": "This message appears when the search process reaches about 30%, and then the search process stops. I can try to reproduce it again to see if it crashes. Also, does using the slurm backend help avoid this problem?",
               "createdAt": "2024-07-15T19:01:05Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks. So if this reproduces on ubuntu, it seems like a deeper issue. Can you share your data so that I can reproduce it on my machine? If there is some script I can run which reproduces the error exactly on my computer it will be easier to help debug it.\r\n\r\nAlso, the more minimal the code, the easier it will be for me to debug it. So perhaps try (1) reducing the dataset size, (2) creating conditions that cause the error to occur **earlier** during training, (3) using fewer parameters of PySR.\r\n\r\nI guess this might be hard to make a smaller MWE but (2) would be most useful.\r\n\r\n\r\n---\r\n\r\nThe Slurm backend is only if you’re using a Slurm computing cluster, but won’t be available otherwise.",
               "createdAt": "2024-07-15T19:11:31Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "zzccchen"
               },
               "body": "> To confirm, this was before importing PySR right? As a test, if you set it to 1, the CPU usage should only be 1 core.\r\n> \r\n> Also note that the `PROCS` env variable won’t have any effect.\r\n\r\nI have confirmed this point. If I use os.environ[\"PYTHON_JULIACALL_THREADS\"] = \"1\", it will warn Warning: You are using multithreading mode, but only one thread is available. Try starting julia with `--threads=auto`.",
               "createdAt": "2024-07-15T19:14:12Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "zzccchen"
               },
               "body": "> Thanks. So if this reproduces on ubuntu, it seems like a deeper issue. Can you share your data so that I can reproduce it on my machine? If there is some script I can run which reproduces the error exactly on my computer it will be easier to help debug it.\r\n> \r\n> Also, the more minimal the code, the easier it will be for me to debug it. So perhaps try (1) reducing the dataset size, (2) creating conditions that cause the error to occur **earlier** during training, (3) using fewer parameters of PySR.\r\n> \r\n> I guess this might be hard to make a smaller MWE but (2) would be most useful.\r\n> \r\n> The Slurm backend is only if you’re using a Slurm computing cluster, but won’t be available otherwise.\r\n\r\nThank you very much. I need to apply for the relevant code and data to be provided. In addition, I have an Ubuntu 20 server running a single-node slurm. In the preliminary test, the calculation speed is consistent with multi-process. I can test on that device to confirm whether it is a device problem.",
               "createdAt": "2024-07-15T19:19:42Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "zzccchen"
               },
               "body": "> Just to confirm, there is no crash now? Just that this message is printed?\r\n> \r\n> I see this message sometimes during testing. So far, it has seemed to be harmless, and has never caused a crash – it simply indicates that one of the worker processes has exited, due to the search returning, and the `@async fetch` call on that worker failed.\r\n> \r\n> However, if this is what is calling the error, perhaps it is not harmless, and we should close the asynchronous `fetch` tasks before the worker processes are killed.\r\n\r\nI have confirmed that this prompt will cause the search process to be interrupted. I temporarily bypassed the crash by using ```try...except Exception...``` in the Python code, but the memory requested by Julia was not released. This caused my memory to be full after crashing 3 times. Can we use the ```try-finally ``` block in the Julia source code to improve the stability of the program?\r\n\r\n[error_log.txt](https://github.com/user-attachments/files/16248400/error_log.txt)\r\n",
               "createdAt": "2024-07-16T12:06:42Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "zzccchen"
               },
               "body": "I think I have found a temporary solution for the time being, which is to manually end the julia process after each search.\r\n```python\r\nimport time, os\r\ntime.sleep(10)\r\nos.system(\"killall julia\")\r\n```",
               "createdAt": "2024-07-18T15:39:27Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks. That is good to know. \r\n\r\nI do think the way SymbolicRegression.jl launches processes is a bit problematic for large-scale use-cases at the moment. The way it works is that it calls [`addprocs` from within `SymbolicRegression.equation_search`](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/cd23a6e25c64d00565c3ae3905d06dc3c63033ed/src/Configure.jl#L322). This was designed for convenience of users, especially on the Python side, but as far as I can tell it's not well-supported behavior in Julia, which means it needs to do some very fragile things like [manually copying function definitions to workers](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/cd23a6e25c64d00565c3ae3905d06dc3c63033ed/src/Configure.jl#L115). \r\n\r\nWhat would be better is if PySR did one of the following alternative strategies:\r\n\r\n1. For big jobs, use MPI directly, via [MPI.jl](https://github.com/JuliaParallel/MPI.jl). However, this would require the user to call `mpiexec` manually, rather than launch the multi-processor search from a single Python session. However, it is nice that MPI has support as a standard on every cluster, so we wouldn't need to rely on different cluster manager-specific scripts.\r\n2. Explore @oschulz's [ParallelProcessingTools.jl](https://github.com/oschulz/ParallelProcessingTools.jl) as an alternative. This uses an elastic manager – which is actually designed for the things PySR is doing, like adding and removing workers. (Right now PySR basically misuses Distributed.jl to start new processes, send code to them, and finally kill them at the end of a search. It works and it's convenient, but I'm not sure it is a sustainable solution)\r\n3. Start the workers from the Python side, rather than within Julia. Basically, the `PySRRegressor` object itself would call `addprocs`, and store the processes as an attribute of the regressor object. It can pass these to `equation_search` via the `procs` keyword argument, in which case SymbolicRegression.jl will simply use them.\r\n    - However, this would require rewriting some of the Python side of things so that each `jl.seval` is called with an [`@everywhere`](https://docs.julialang.org/en/v1/stdlib/Distributed/#Distributed.@everywhere) in front of it – thus executing each Julia snippet on all processes. This also means that it would be harder for users to use `jl.seval` themselves.\r\n    - This approach would also mean that we could wrap PySR in a Julia module, rather than the current approach of running everything in Julia's `Main` context – which might interfere with other Python+Julia packages in the future.\r\n  \r\nI'm not sure how much work each of these options would be. They might be fairly easy to get working though. But it would definitely require some Julia coding (if you are up for it).",
               "createdAt": "2024-07-18T18:25:24Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Just going to keep this open until there's a better solution than a manual workaround. Ideally the workaround shouldn't be needed",
               "createdAt": "2024-07-19T14:04:38Z"
+            },
+            {
+              "author": {
+                "login": "buttrs2013"
+              },
+              "body": "i had exact same issue as original post - this guy: Exception: EXCEPTION_ACCESS_VIOLATION at 0x7ffa6106a6b0 -- gc_mark_outrefs\n\ni believe its related to hardware. i was running on an amd ryzen 9 that had been OC'ed by the pc builder...id had similar issues with other high intensity applications and decided to just try factory resetting the thing. lo and behold this issue has gone away. so at least in my case clearly related to a poorly configured / messed with processor",
+              "createdAt": "2025-02-01T03:05:06Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
-            "endCursor": "Y3Vyc29yOnYyOpHOhXhggQ=="
+            "endCursor": "Y3Vyc29yOnYyOpHOnK87Kw=="
           }
         }
       }

@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 859,
+        "title": "How to track the current iteration number in a custom loss function?",
+        "body": "Hi,\r\nI'm training a symbolic regression model in Julia (not using PySR) and defining a custom loss function. My loss function includes two additional conditions, and I manually assign different weights to each term, like this:\r\n\r\n```julia\r\nw_a, w_b, w_c = Ref(0.1), Ref(0.4), Ref(0.4)\r\n\r\nfunction custom_loss(tree::Node, dataset::Dataset{T,L}, options::Options) where {T,L}\r\n    ...\r\n    loss = L_a * w_a + L_b * w_b + L_c * w_c\r\n    return loss\r\nend\r\n\r\nmodel = SRRegressor(\r\n    niterations=1000,\r\n    binary_operators=[+, -, *, /],\r\n    unary_operators=[sin, cos, exp, log],\r\n    population_size=50,\r\n    loss_function=custom_loss\r\n)\r\n\r\nmach = machine(model, x, y)\r\nfit!(mach)\r\n```\r\n\r\nI’d like to adjust the weights of my loss terms dynamically based on the current iteration.\r\nIs there a built-in variable that keeps track of the iteration count inside the custom_loss function? Or is there another way to access the current iteration during training?\r\n\r\nAny help would be much appreciated! Thanks! 😊\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @GFODK,\r\n\r\nUnfortunately you cannot have a dynamic loss function, because it is cached at various points in the search rather than re-computing each time. So if your loss function changes, it will break some assumptions in the code.\r\n\r\nWhat you _can_ do though is adjust the loss function and call `fit!` again—it will start where it left off, and recompute all the losses on _existing_ populations of expressions. So, for example:\r\n\r\n```julia\r\nmodel = SRRegressor(\r\n    niterations=1,\r\n    binary_operators=[+, -, *, /],\r\n    unary_operators=[sin, cos, exp, log],\r\n    population_size=50,\r\n    loss_function=loss_functions[1]\r\n)\r\nmach = machine(model, x, y)\r\nfit!(mach)\r\n\r\nfor i in 2:100\r\n    mach.model.loss_function = loss_functions[i]\r\n    mach.model.niterations += 1\r\n    fit!(mach)\r\nend\r\n```\r\n\r\nor something like this. You might want to build some callable struct that has parameters you can declare, like\r\n\r\n```julia\r\nstruct LossContext <: Function\r\n    w_a::Float64\r\n    w_b::Float64\r\n    w_c::Float64\r\nend\r\n\r\nfunction (ctx::LossContext)(tree::Node, dataset::Dataset{T,L}, options::Options) where {T,L}\r\n    ...\r\n    return L_a * ctx.w_a + L_b * ctx.w_b + L_c * ctx.w_c\r\nend\r\n```\r\n\r\nand then you can just define the loss like\r\n\r\n```julia\r\n    SRRegressor(loss_function=LossContext(0.1, 0.4, 0.4))\r\n```\r\n",
+              "createdAt": "2025-03-05T15:28:52Z"
+            },
+            {
+              "author": {
+                "login": "GFODK"
+              },
+              "body": "Hi @MilesCranmer, \r\nI went through the code line by line to figure out where the updated loss weight variables weren’t being passed correctly. Starting from the second iteration, I used a for loop, and I first confirmed that the weights were being updated with the following line:\r\n\r\n`w_a_updated, w_b_updated, w_c_updated = update_weights(losses_lists;)`\r\n\r\nAfter the loop for the second iteration finished, I checked the model using println(mach.model), and here’s what I saw:\r\n\r\n```\r\nSRRegressor(\r\n  defaults = nothing, \r\n  binary_operators = Function[+, -, *, /], \r\n  unary_operators = Function[sin, cos, exp, log], \r\n  maxsize = 30, \r\n  maxdepth = nothing, \r\n  expression_type = Expression, \r\n  expression_options = NamedTuple(), \r\n  populations = nothing, \r\n  population_size = 100, \r\n  loss_function = LossContext(0.1660787615043684, 0.7782148007295373, 0.029241360342336993, 0.026463022423237673), \r\n  ...\r\n  niterations = 2, \r\n  ...\r\n)\r\n```\r\n\r\nFrom this, I could confirm that niterations was updated to 2, and the updated weights were also reflected in loss_function. However, when I printed out the weights inside the custom loss function like this:\r\n```\r\nprintln()\r\nprintln()\r\nprintln(\"A loss weight: \", ctx.w_a)\r\nprintln(\"B loss weight: \", ctx.w_b)\r\nprintln(\"C loss weight: \", ctx.w_c)\r\nprintln()\r\nprintln()\r\n```\r\n\r\nI still saw only the initial values of 1.0 being printed every time.\r\n\r\nNow I’m wondering — could it be that internally mach.model is being cloned or copied, so the loss_function gets fixed at initialization and doesn’t actually update afterward? If that’s the case, and I need to recreate the machine object to apply the updated loss_function, wouldn’t that mean I’m losing all progress from the previous training iterations?",
+              "createdAt": "2025-03-24T14:17:13Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0yNFQxNDoxNzoxMyswMDowMM4AwE55"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 948,
+        "title": "Help for high-dimensional dataset",
+        "body": "Hello! I am trying to use PySR to find a complex cosmological function, which depends on 16 input variables. I have been running PySR on my dataset for 2-3 days, and I have gotten down to a MSE of 37.8. I would like to get the MSE far lower, but I recently read that genetic algorithms like PySR are not adapted to fitting functions with this many input parameters. My dataset has about 7,500 points. Here is the model that I am using:\r\n```\r\n    parallelism     = \"multithreading\",\r\n    model_selection = \"best\",\r\n    niterations     = 5000,\r\n    warm_start      = True,\r\n    populations     = 10,\r\n    population_size = 300,\r\n    maxsize         = 150,\r\n    logger_spec     = logger_spec,\r\n    verbosity       = 0,\r\n    binary_operators = [\"+\",\"*\",\"^\",\"-\",\"/\"],\r\n    unary_operators  = [\r\n        \"safe_sin(x) = isfinite(x) ? sin(x) : zero(x)\",\r\n        \"tanh\", \"abs\", \"atan\",\r\n        \"safe_log(x) = (x > 0) ? log(x) : zero(x)\",\r\n        \"exp\", \"cosh\", \"sinh\"\r\n    ],\r\n    output_directory=\"outputs/models\",\r\n    run_id          = runid,\r\n    constraints        = {\"^\": (-1, 2)},\r\n    nested_constraints = {\r\n        op: {\"safe_sin\":1,\"tanh\":1,\"sinh\":1,\"atan\":1,\"cosh\":1}\r\n        for op in [\"safe_sin\",\"tanh\",\"sinh\",\"atan\",\"cosh\"]\r\n    },\r\n    parsimony       = 0.0005,\r\n    weight_optimize = 0.25,\r\n    batching    = True,\r\n    batch_size  = 1000,\r\n    fast_cycle  = True,\r\n    turbo       = True,\r\n    extra_sympy_mappings = {\r\n        \"safe_sin\": lambda x: sin(x),\r\n        \"safe_log\": lambda x: log(x),\r\n    },\r\n```\r\n\r\nDo any of the settings that I am using jump out as something that could harm the quality of my runs? Are there things that I should maybe think about changing? Or do I just need to let it run for really long?\r\n\r\nI also found the article on symbolic deep learning to be interesting in the context of a function like mine which has so many input dimensions. Am I better off trying to first work with the deep learning model rather than to directly run PySR on this 16-input function? What is roughly the max number of input variables that PySR can take and still perform well with?\r\n\r\nThanks a lot for the help.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Just to check, do you have 7,500 features/columns, or do you mean 7,500 rows?\r\n\r\nBe sure to check the advice here: https://ai.damtp.cam.ac.uk/pysr/tuning/",
+              "createdAt": "2025-05-29T20:10:33Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "By the way, you can just use regular `log` and `sin`. They have safe versions internally anyways ",
+              "createdAt": "2025-05-29T20:12:03Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Other advice:\r\n\r\n- Turn off most of those unary operators. Generally you want to avoid having degenerate operators. For example, exp and `^` are degenerate. As are sinh, cosh, and tanh. So you could remove those ones.\r\n  - Also I feel like `abs` probably is not physical, so you could turn that off too?\r\n- Depending on your dataset, it might be easier if you pass the logarithm of certain features. For example if you expect a power law, it's easier to fit it in log space from the start.\r\n- Consider other loss functions based on the physics you are fitting.\r\n- Consider a template expression, if you already have a good guess for the functional form.\r\n- Much smaller batch size\r\n- Turn down weight_optimize; that one is quite large and would result in many steps doing BFGS optimization, which is very expensive.\r\n- Generally for most hyperparameters, you are often better sticking with the default unless you have tuned it and found it to work better. For example, the `populations` you have is quite small. Is that based on tuning it?\r\n- The maxsize is a little bit large. Maybe you need it because of the higher number of features (?) but you could try a lower value just to see. Also maybe try the option related to warming up maxsize.\r\n- fast_cycle is deprecated. I guess maybe there is a docs page somewhere that suggests it? (Could you let me know where you read it, so I can go update the docs)",
+              "createdAt": "2025-05-29T20:23:41Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I'd also recommend fitting some other ML model (XGBoost or random forest) to quickly check what a \"good\" loss is. This would tell you: Is a lower MSE actually achievable? If the model does get a lower MSE, does that hurt generalisation to some part of the space of physical parameters? This would tell you what bar to aim for here.",
+              "createdAt": "2025-05-29T20:28:46Z"
+            },
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "I excluded some variables when running SR. I then ran XGBoost with crossvalidation to predict the residuals from the SR model. The SHAP values of the XGBoost model will then give you an an idea if any of the remaining variables carry any useful predictability.",
+              "createdAt": "2025-05-31T14:16:42Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0zMVQxNToxNjo0MiswMTowMM4Ay2Pf"
+          }
+        }
+      }
+    }
+  }
+}

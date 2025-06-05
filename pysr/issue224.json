@@ -1,68 +1,56 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 224,
         "title": "[BUG] Installation failure at \"juliainfo.py\" with \"subprocess.CalledProcessError\"",
         "body": "**Describe the bug**\r\nInstallation failure with \"subprocess.CalledProcessError\"\r\n\r\nI installed julia in WSL Ubuntu by command line.\r\nThen, run: pip install -U pysr\r\nYet, python -c 'import pysr; pysr.install()'  did not work.\r\nPlease see error message below.\r\n\r\n\r\n**Version (please include the following information):**\r\n- OS: Win 10, WSL2, Ubuntu 20.04\r\n- julia version 1.4.1\r\n-  Python 3.8.10\r\n- pip\r\n- PySR version 0.11.9\r\n- Does the bug still appear with the latest version of PySR?       Yes\r\n\r\n**Configuration**\r\n- What are your PySR settings?      Still installing\r\n- What dataset are you running on?      NA\r\n- If possible, please share a minimal code example that produces the error.      NA\r\n\r\n**Error message**\r\nAdd the error message here, or whatever other information would be useful for debugging.\r\nlog below:\r\n~/pysr$ python3 -c 'import pysr; pysr.install()'\r\nTraceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\n  File \"/home/flyme2004/.local/lib/python3.8/site-packages/pysr/julia_helpers.py\", line 74, in install\r\n    _julia_version_assertion()\r\n  File \"/home/flyme2004/.local/lib/python3.8/site-packages/pysr/julia_helpers.py\", line 223, in _julia_version_assertion\r\n    if not is_julia_version_greater_eq(version=(1, 6, 0)):\r\n  File \"/home/flyme2004/.local/lib/python3.8/site-packages/pysr/julia_helpers.py\", line 122, in is_julia_version_greater_eq\r\n    juliainfo = _load_juliainfo()\r\n  File \"/home/flyme2004/.local/lib/python3.8/site-packages/pysr/julia_helpers.py\", line 23, in _load_juliainfo\r\n    juliainfo = JuliaInfo.load(julia=\"julia\")\r\n  File \"/home/flyme2004/.local/lib/python3.8/site-packages/julia/juliainfo.py\", line 87, in load\r\n    raise subprocess.CalledProcessError(\r\nsubprocess.CalledProcessError: Command '['julia', '-e', '...']' returned non-zero exit status 1.\r\n\r\n**Additional context**\r\nI have searched the issue log, yet could not find any clue. Appreciate any comment. Looking forward to apply PySR in my new paper.\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "Zhonglu"
               },
               "body": "testing newer version of julia",
               "createdAt": "2022-11-14T19:14:33Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Looks like it can’t find the location of Julia. Check your PATH variable?",
               "createdAt": "2022-11-14T20:14:14Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "> julia version 1.4.1\r\n\r\nthis also won’t work, you need Julia 1.6 or higher",
               "createdAt": "2022-11-14T20:15:41Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "(Didn’t mean to close)",
               "createdAt": "2022-11-14T20:16:06Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "Zhonglu"
               },
               "body": "Hi Miles,\r\n\r\nThank you. I believe I have resolved it. The PySR runs well with the example!\r\n\r\nAnother Note:\r\nI could not download package in Julia unless changing the source:\r\nexport JULIA_PKG_SERVER=\"https://mirrors.bfsu.edu.cn/julia\"\r\nin the ubuntu terminal. Perhaps because I am using it from China.\r\n\r\nWith kind regards,\r\n\r\nMike\r\n\r\n\r\n\r\n",
               "createdAt": "2022-11-15T06:07:09Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Awesome! Glad to hear it’s working. ",
               "createdAt": "2022-11-15T09:21:59Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOTmGq_Q=="
           }

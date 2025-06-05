@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 878,
+        "title": "Output files when submitting a job on the cluster",
+        "body": "Hi Miles,\r\n\r\nI am running a job on the cluster. It returns an \"output\" folder containing \"hall_of_fame.csv\" and \"checkpoint.pkl\". However, I want to get also the best model (in addition to some other outputs from my code for the post-processing part). As far as I understood, I should get back the outputs from my container to the local disk and then, from the local disk to e.g. my submission directory. I wonder if, for the former, I should bind-mount the container to a host directory, or if there is another way to get back my desired results from the container.\r\n\r\nI have another question as well. On Windows, in addition to the .csv file, a .pkl file is also returned, containing e.g. the best model and some other information. I cannot get that .pkl file when submitting a job on the cluster. Is there any way that I get that .pkl file on the cluster as well?\r\n\r\nThank you for your help.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "1. I think \"bind-mount the container to a host directory\" sounds good. I'm not sure another way if you are containerising it. Note you can change the output dir with `output_directory` parameter.\r\n\r\n2. It should output a `.pkl` file on any operating system, it's not OS specific. Maybe you had different hyperparameters or pickle had some issue? It won't throw an error if pickle fails, but it might show up in the logs",
+              "createdAt": "2025-03-23T17:31:26Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0yM1QxNzozMToyNiswMDowMM4AwCuF"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 290,
         "title": "1) Constraining powers to integers, 2) Optimal number of cores to use with pySR",
         "body": "Hi Miles,\r\n\r\nI hope you are doing well! \r\n\r\nI have two questions about pySR that came up during my research:\r\n   1) Is there a way I can constrain the powers in an equation search to only integer numbers (or variables)?\r\n   2) What is the default number of processors that pySR uses? If my computer has 8 cores (MacBookAir 10,1 ; AppleM1 chip), what is the optimal number of cores I should allow pySR to use?\r\n\r\nThanks so much in advance for your help!\r\n\r\nBest,\r\nFesta",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @festabc,\r\n\r\nGreat questions!\r\n\r\n1. Yes, you can do this by defining a custom power law operator that converts its exponent to an integer:\r\n\r\n```python\r\nimport sympy\r\n\r\nPySRRegressor(\r\n    binary_operators=[..., \"pow_int(x, y) = pow(x, round(y))\"]\r\n    extra_sympy_operators={\"pow_int\": lambda x, y: x ** sympy.ceiling(y-0.5)},\r\n    ....\r\n)\r\n```\r\n\r\n2. It automatically should use all the cores (it sets `procs=cpu_count()`). So in your case, 8 should be good. If it doesn't occupy them all, you could try a higher number to saturate it.\r\n\r\nCheers!\r\nMiles",
               "createdAt": "2023-04-07T20:29:46Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "festabc"
               },
               "body": "Thank you very much for your answer Miles! This is very helpful indeed!",
               "createdAt": "2023-04-17T17:50:34Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNC0xN1QxODo1MDozNCswMTowMM4AVhBB"
           }

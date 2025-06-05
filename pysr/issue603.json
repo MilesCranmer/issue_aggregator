@@ -1,18 +1,13 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 603,
         "title": "[Feature]: Warn user about low `niterations`",
         "body": "### Feature Request\n\nI see a lot of people using the default niterations (purposefully small) for “production runs” and not getting as good results. Either the default `niterations` should be higher, or, unless set explicitly, should raise a warning and point the user to the tuning page.",
-        "comments":
-        {
+        "comments": {
           "nodes": [],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": null
           }

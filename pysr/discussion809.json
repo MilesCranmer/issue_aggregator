@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 809,
+        "title": "Using PySR scoring methodology to compare the accuracy of thousands of automation results",
+        "body": "Apologies if this is not relevant for this, I am relatively new to regression methods and have so far been focused primarily on automation techniques in python.\r\n\r\nI have developed an automation script that runs approximately 3,200 simulations and completes some basic statistical calculations to determine the accuracy of the output graphs (temperature profiles) to experimental data. The goal is to find a simulation configuration that provides the best agreement.\r\n\r\nFrom my understanding PySR is capable of determining the equation of a line, so I was wondering how difficult it would be to expand the applicability to be able to determine the best agreement between thousands of simulation data graphs and a couple of experimental data sets. \r\n\r\nThe basic idea would be as follows:\r\n\r\n1) Use PySR to approximate the equation for the experimental data\r\n2) Use PySR to approximate the equation for an individual simulation data set\r\n3) Use the PySR \"scoring\" method to determine the difference between the experimental and simulation data\r\n4) Store and compare these \"score\" values and compare them across the simulation data to achieve the best fit to real-life conditions.\r\n\r\nI am going to work through this concept with one of my colleagues (who is much more well versed in regression methods than I am) over the coming weeks, but it would be very helpful if someone who is more familiar with PySR is able to confirm if this would even be possible in the meantime!\r\n\r\nThank you in advance for any responses!",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

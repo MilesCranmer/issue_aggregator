@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 326,
         "title": "Citation for Scoring Metric",
         "body": "Hi! I remember seeing somewhere that there were separate citations for the pySR software and, I think, the scoring metric. I can't seem to find these separate citations now, could someone point me to them?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "The paper you are thinking of is https://arxiv.org/abs/2006.11287\r\n\r\n(maybe I should add it back to a combined citation file?)\r\n\r\ncheers,\r\nMiles",
               "createdAt": "2023-05-10T16:33:56Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNS0xMFQxNzozMzo1NiswMTowMM4AWXdh"
           }

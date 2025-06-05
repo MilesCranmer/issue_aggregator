@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 443,
         "title": "Create Hall of fame manually",
         "body": "Can you, please, provide an example of how to create Hall of fame manually ?\r\n\r\nI ve created an expression before assigning it to `self.raw_julia_state_`:\r\n\r\n\r\n```\r\n           e = SymbolicRegression.Node(val=3.2)\r\n            x1 = SymbolicRegression.Node(feature=1)\r\n            xsi = SymbolicRegression.Node(val=1.224)\r\n            one = SymbolicRegression.Node(val=1)\r\n            two = SymbolicRegression.Node(val=2)\r\n            mtwo = SymbolicRegression.Node(val=-2)\r\n\r\n            r_cut = SymbolicRegression.Node(val=2.556)\r\n            q = SymbolicRegression.Node(val=2.27)\r\n\r\n            A = SymbolicRegression.Node(val=0.0855)\r\n            p = SymbolicRegression.Node(val=-10.960)\r\n            tree_rep = SymbolicRegression.Node(3,\r\n            SymbolicRegression.Node(5, xsi, two),SymbolicRegression.Node(5,\r\n             e, SymbolicRegression.Node(3,\r\n              SymbolicRegression.Node(3,\r\n               SymbolicRegression.Node(2,\r\n                SymbolicRegression.Node(4,\r\n                 x1, r_cut), one), q), mtwo)))\r\n\r\n            tree_att = SymbolicRegression.Node(3,\r\n            A, SymbolicRegression.Node(5,\r\n             e, SymbolicRegression.Node(3,\r\n              SymbolicRegression.Node(2,\r\n               SymbolicRegression.Node(4,\r\n                 x1, r_cut), one), p)))\r\n            tree = SymbolicRegression.Node(2, tree_rep, SymbolicRegression.Node(5, tree_att, two))\r\n\r\n```\r\n(May be there more efficient way to do it)\r\nBut im struggling to put it in hof.\r\nI planned to create hof and pass it here as `self.raw_julia_state_ `: [sr.py](https://github.com/MilesCranmer/PySR/blob/57dd7d2f9a2b214599e482cd7335ab0e815e8f1c/pysr/sr.py#L1800)\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This will be easier once this PR is finished: https://github.com/MilesCranmer/PySR/pull/429 since it will store the `.sr_options` for use in creating a hall of fame object. I guess we also need to store the `.sr_dataset` object, but that will be trickier to do generally.\r\n\r\nIn Julia, the way I would do it is\r\n\r\n```julia\r\nusing SymbolicRegression\r\n\r\ne = Node(val=3.2)\r\nx1 = Node(feature=1)\r\nxsi = Node(val=1.224)\r\none = Node(val=1)\r\ntwo = Node(val=2)\r\nmtwo = Node(val=-2)\r\n\r\nr_cut = Node(val=2.556)\r\nq = Node(val=2.27)\r\n\r\nA = Node(val=0.0855)\r\np = Node(val=-10.960)\r\n\r\noptions = Options(binary_operators=[+, -, *, /], unary_operators=[cos, exp])\r\n# ^ Default options will automatically create the associated operators for use on `Node` directly\r\ndataset = Dataset(X, y)\r\n\r\n# Create data:\r\ntree1 = exp(e + x1)\r\ntree2 = cos(A + exp(p * x1))\r\n\r\n# Format to PopMember:\r\nmember1 = PopMember(dataset, tree1, options)\r\nmember2 = PopMember(dataset, tree2, options)\r\n\r\n# Create empty hall of fame:\r\nhof = HallOfFame(options, Float32, Float32)\r\n\r\nfor member in (member1, member2)\r\n    hof.members[member.complexity] = member\r\n    hof.exists[member.complexity] = true\r\nend\r\n```\r\n\r\nthen the `hof` will be ready.",
               "createdAt": "2023-10-17T15:22:54Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMC0xN1QxNjoyMjo1NCswMTowMM4Ab3je"
           }

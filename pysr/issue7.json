@@ -1,108 +1,91 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 7,
         "title": "loglog linear regression",
         "body": "Hi,\r\n\r\nI am trying to use pysr on a small two-parameter data set (copied below):\r\n\r\n```\r\nd N y yerr\r\n2 100 0.19249134909744509 0.04077703830057178\r\n2 400 0.08870348931017269 0.01895750658969715\r\n2 1000 0.05821684947429505 0.012249467489932532\r\n2 2000 0.04032440345198765 0.008654963536388066\r\n4 100 0.23360598541676597 0.04362116436976535\r\n4 400 0.10665517789216333 0.019831288300079426\r\n4 1000 0.07050647598930485 0.012405873462707294\r\n4 2000 0.048513209353925904 0.0075021625933293\r\n8 100 0.2816349422941111 0.04964869605998312\r\n8 400 0.130359187678827 0.021744784316440224\r\n8 1000 0.07822205145626468 0.01152860301070966\r\n8 2000 0.0550522314381573 0.007979675849630921\r\n16 100 0.39596679080632924 0.05729090287732478\r\n16 400 0.1491729565911473 0.023822175408619892\r\n16 1000 0.0888737514210574 0.014375093411499607\r\n16 2000 0.06228894224329333 0.01037101974545278\r\n32 100 0.681255101544107 0.07566014207326285\r\n32 400 0.18976634920594035 0.027296960851153632\r\n32 1000 0.10745312825997176 0.014599730019972569\r\n32 2000 0.07072727755630769 0.009862489071337315\r\n#64 40 17.283403958973132 0.5238893803671024\r\n#64 100 16.87138083788046 0.1\r\n64 400 0.25662700332371974 0.027683868929782498\r\n64 1000 0.12962634673162354 0.016299677455956965\r\n```\r\n\r\nI later realised that when plotting the logs of all variables, it seems to be a linear regression:\r\n![b](https://user-images.githubusercontent.com/51015/94425091-9a8dd380-018b-11eb-8fb7-9290ccd7e713.png)\r\n\r\nHere is my code trying to discover a relation. I already knew there should be some logs of the parameters involved, so I added log and exp as unary operators:\r\n```\r\ndata = np.loadtxt('/tmp/b.txt', skiprows=1)\r\nX = data[:,:2]\r\ny = data[:,2]\r\nyerr = data[:,3]\r\n\r\n# Learn equations\r\nequations = pysr(\r\n\tX, y, #weights=1/yerr**2,\r\n\tniterations=5,\r\n\tbinary_operators=[\"plus\", \"mult\", \"pow\"],\r\n\tunary_operators=[\"log\", \"exp\"],\r\n)\r\n\r\nprint(equations)\r\n```\r\n\r\nOutput:\r\n```\r\nHall of Fame:\r\n-----------------------------------------\r\nComplexity  MSE        Score     Equation\r\n0           3.616e+01  0.000e+00  0.003592\r\n3           4.654e+00  6.835e-01  pow(x1, -0.36609524)\r\n9           3.686e+00  3.884e-02  plus(pow(plus(mult(x1, 0.9665345), -1.3750538), -0.24685867), -0.10109954)\r\n10          2.127e+00  5.500e-01  pow(plus(plus(x1, log(pow(0.048317507, x0))), -0.3589894), -0.38382408)\r\n13          1.372e+00  1.461e-01  pow(plus(plus(plus(mult(x1, 0.29219225), -2.124579), mult(-0.75662184, x0)), -0.08665135), -0.4488404)\r\n14          9.712e-01  3.454e-01  mult(pow(x1, -0.52433586), log(plus(plus(plus(log(exp(x0)), 0.32484704), 4.402428), x0)))\r\n17          8.664e-01  3.808e-02  mult(pow(plus(x1, 2.4464433), -0.9689093), plus(mult(log(x1), log(x1)), mult(plus(x0, -1.6077209), 1.0596043)))\r\n```\r\n\r\nAm I doing something wrong, or is there a better way? Or do I just need to run it longer?\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "`niterations=5` is just to test that it runs at all, in practice you should use much much longer - maybe try `niterations=100` or `1000`? How long does `niterations=5` take on your machine? Usually I just run it with some very very large `niterations`, and then copy-paste the hall of fame when I am happy with it.\r\n\r\nAlso, set `procs=...` for the number of processors you have. That will let it use all your cores. You can also set `populations=...` to be larger than the number of processors - having multiple populations running on each processor helps efficiency. Also, if you have a compute cluster, I'd recommend you run there instead of a personal computer so you can really do a good search.",
               "createdAt": "2020-09-28T11:19:52Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "(but since it's a small dataset and low features, it's probably fine to run it locally!)",
               "createdAt": "2020-09-28T11:21:21Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "By the way, the score column is a metric for which value you should select (think of it like Occam's razor, quantified). In your output, it looks like `pow(x1, -0.36609524)` gives the best score - is that a reasonable result?",
               "createdAt": "2020-09-28T11:22:27Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "JohannesBuchner"
               },
               "body": "I thought the problem may be that the MSE is defined in the target variable, and perhaps I can get a better result by passing `np.log10(y)`. Here is the result after 100 iterations. I left nproc and npop at the default (4 and 1000) for now, speed is acceptable.\r\n\r\n```\r\nCycles per second: 6.600e+03\r\nHall of Fame:\r\n-----------------------------------------\r\nComplexity  MSE        Score     Equation\r\n0           9.607e-02  0.000e+00  -0.919940\r\n8           2.017e-02  1.951e-01  mult(plus(log(pow(x1, 0.2715127)), -0.7302638), -0.9405081)\r\n9           8.813e-03  8.280e-01  mult(pow(plus(x1, mult(x0, -3.1123588)), 0.24454536), -0.20063713)\r\n12          1.961e-03  5.009e-01  mult(log(plus(pow(mult(x1, pow(x0, -0.5015479)), 0.19726628), -0.43751913)), -1.0977443)\r\n13          3.069e-04  1.855e+00  mult(log(plus(pow(x1, 0.24896593), mult(-0.52952695, pow(log(x0), 1.0098028)))), -0.74113154)\r\n18          2.534e-04  3.828e-02  mult(log(mult(plus(mult(plus(plus(x1, 1.3036114), mult(x0, 1.3497173)), -0.61648715), x1), pow(x0, -0.44053754))), -0.21931669)\r\n```\r\n\r\n> By the way, the score column is a metric for which value you should select (think of it like Occam's razor, quantified). In your output, it looks like pow(x1, -0.36609524) gives the best score - is that a reasonable result?\r\n\r\nNot really. Looking at the data, one can see a clear dependence on both variables.\r\n\r\nIs there a easy way to test the score the equation `mult(pow(log10(x0), 0.27), pow(mult(log10(x1), 0.2), -0.6))` would receive? \r\nMaybe I would have to fiddle with the scoring function.\r\n",
               "createdAt": "2020-09-28T12:13:16Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "JohannesBuchner"
               },
               "body": "I made another modification, by also passing the log of all input variables.\r\n\r\n```\r\nequations = pysr(\r\n\tnp.hstack((X, np.log10(X))), np.log10(y), #weights=1/yerr**2,\r\n\tniterations=100,\r\n\tbinary_operators=[\"plus\", \"mult\", \"pow\"],\r\n\tunary_operators=[\"log\", \"exp\"],\r\n)\r\n```\r\n\r\nThis gives me:\r\n\r\n```\r\nCycles per second: 7.800e+03\r\nHall of Fame:\r\n-----------------------------------------\r\nComplexity  MSE        Score     Equation\r\n0           9.607e-02  0.000e+00  -0.919940\r\n8           6.466e-04  6.251e-01  mult(log(plus(x3, mult(-0.524515, x2))), -1.2039071)\r\n11          6.392e-04  3.805e-03  log(pow(0.2987257, log(plus(x3, mult(-0.53332794, pow(x2, 0.9660922))))))\r\n15          6.038e-04  1.428e-02  mult(log(plus(plus(mult(-0.38973495, log(pow(pow(2.5241623, x2), 1.3924866))), x3), -0.0399157)), -1.2157284)\r\n21          4.894e-04  3.499e-02  plus(mult(-0.43352517, x3), mult(plus(pow(plus(x1, mult(plus(plus(mult(x0, 1.3807411), x3), 1.5238541), -1.4354807)), -0.323529), 0.10576203), x2))\r\n```\r\n\r\nThe equation `mult(log(plus(x3, mult(-0.524515, x2))), -1.2039071)` here uses only the log variables, and looks very good.\r\n\r\nThen it is not clear to me why `mult(pow(log10(x0), 0.27), pow(mult(log10(x1), 0.2), -0.6))` or `mult(log(plus(log(x1), mult(a, log(x0)))), b)` was not discovered above.\r\n\r\nPerhaps I am punishing the complexity of a log operation too harshly.",
               "createdAt": "2020-09-28T12:24:31Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Cool!! Good thinking.\r\n\r\nI was curious what it would find with 80 populations (generally it seems the more populations => the more diversity of equations), so just running this now with all my cores. Here's what I got so far, with the data you pasted:\r\n\r\n```\r\nCycles per second: 1.300e+05\r\nHall of Fame:\r\n-----------------------------------------\r\nComplexity  MSE        Score     Equation\r\n0           2.077e-02  0.000e+00  0.159820\r\n1           2.077e-02  1.192e-07  0.15982002\r\n3           1.147e-02  2.969e-01  pow(x1, -0.2926051)\r\n5           5.901e-03  3.322e-01  mult(x0, pow(x1, -0.84309024))\r\n7           2.849e-03  3.641e-01  plus(mult(pow(x1, -0.8898175), x0), 0.06980616)\r\n8           1.465e-03  6.649e-01  mult(mult(4.6704383, logm(x0)), pow(x1, -0.720001))\r\n9           1.044e-03  3.388e-01  mult(plus(plus(x0, 7.0164604), 5.6281624), pow(x1, -0.9163312))\r\n10          4.127e-04  9.284e-01  exp(mult(plus(mult(-0.44122335, x1), x0), pow(x1, -0.73761606)))\r\n14          1.133e-04  3.232e-01  mult(pow(mult(x1, plus(x1, mult(-2.8744764, x0))), -0.24901792), logm(plus(x0, 4.956767)))\r\n16          7.168e-05  2.288e-01  plus(mult(pow(mult(x1, plus(x1, mult(-2.837136, x0))), -0.24073626), logm(plus(x0, 5.411716))), -0.0180038)\r\n18          7.093e-05  5.255e-03  plus(mult(pow(mult(plus(x1, -0.5932534), plus(x1, mult(-2.837042, x0))), -0.24075948), logm(plus(x0, 5.416765))), -0.018005824)\r\n20          7.003e-05  6.437e-03  plus(mult(pow(mult(plus(x1, -1.6459061), plus(x1, mult(-2.8371568, x0))), -0.24074522), logm(plus(plus(x0, 3.460595), 1.9518427))), -0.017989075)\r\n```\r\nFrom this list, the best equation is: `exp(mult(plus(mult(-0.44122335, x1), x0), pow(x1, -0.73761606)))`. How is that?\r\n\r\nThe formula for score is dependent on the entire set of equations, rather than an individual. Basically: one looks for where the MSE drops - that's usually a decent indicator of a \"good\" equation with respect to not overfitting, etc.\r\n\r\nThis is the score, which we define in https://arxiv.org/abs/2006.11287:\r\n\r\n( \\log(MSE_i) - \\log(MSE_{i-1}) ) / (complexity_i - complexity_{i-1})\r\n\r\nwhere i indexes the equations in the \"dominating\" pareto front. Dominating just means each equation is more accurate than all the equations simpler than it. So if you can manually put it into your existing search, you could calculate it. I think for this to really be useful, one needs to run the search for a very long time so that there are equations at each complexity. But I think it can be helpful generally.\r\n",
               "createdAt": "2020-09-28T12:28:53Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "By the way, I'm using the operator `logm`, which I define as `logm(x) = log(abs(x) + 1e-8)` (it's built into PySR). This avoids domain errors from negative x, so the search is a bit easier.",
               "createdAt": "2020-09-28T12:30:00Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "JohannesBuchner"
               },
               "body": "Is complexity the number of nodes in the expression graph?",
               "createdAt": "2020-09-28T12:33:24Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Yeah, exactly. For right now at least. I've thought about changing this to be operator-dependent (like Eureqa), but it would require a bit of rewriting. I think it will be easier once I switch to storing operators as an enum rather than function pointers, since I can just enumerate user-defined complexities",
               "createdAt": "2020-09-28T12:35:53Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "If you want to touch the code at all, here's where the complexity is calculated: https://github.com/MilesCranmer/PySR/blob/e394c0ee5b5b02d98a9a1b37f8b03564e38369d9/julia/sr.jl#L796, which calls this recursive function to count the nodes: https://github.com/MilesCranmer/PySR/blob/e394c0ee5b5b02d98a9a1b37f8b03564e38369d9/julia/sr.jl#L98. I think another function could be created like this, that just sums the complexity for each operator (op attribute of Node type). The equation data type is defined here: https://github.com/MilesCranmer/PySR/blob/e394c0ee5b5b02d98a9a1b37f8b03564e38369d9/julia/sr.jl#L53. It's pretty simple - just 6 attributes. Two of the attributes point to sub-equations (left/right side of an operator).",
               "createdAt": "2020-09-28T12:45:35Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Have to go to meetings now, here's my final output:\r\n```\r\nCycles per second: 8.700e+04\r\nHall of Fame:\r\n-----------------------------------------\r\nComplexity  MSE        Score     Equation\r\n0           2.077e-02  0.000e+00  0.159820\r\n1           2.077e-02  1.192e-07  0.15982002\r\n3           1.147e-02  2.969e-01  pow(x1, -0.2926051)\r\n5           5.901e-03  3.322e-01  mult(x0, pow(x1, -0.84309024))\r\n6           4.043e-03  3.781e-01  mult(pow(x1, -0.43594772), logm(x0))\r\n7           2.761e-03  3.816e-01  plus(pow(x0, pow(x1, -0.45506293)), -1.0024107)\r\n8           1.311e-03  7.447e-01  pow(plus(pow(x1, 0.7680432), neg(x0)), -0.43512392)\r\n9           1.044e-03  2.274e-01  mult(pow(x1, -0.916343), neg(neg(plus(12.645862, x0))))\r\n10          4.127e-04  9.284e-01  exp(mult(plus(mult(-0.44122335, x1), x0), pow(x1, -0.73761606)))\r\n14          1.133e-04  3.232e-01  mult(pow(mult(x1, plus(x1, mult(-2.8744764, x0))), -0.24901792), logm(plus(x0, 4.956767)))\r\n16          7.168e-05  2.288e-01  plus(mult(pow(mult(x1, plus(x1, mult(-2.8371594, x0))), -0.24074249), logm(plus(x0, 5.412477))), -0.017991344)\r\n17          7.168e-05  -0.000e+00  plus(mult(pow(mult(x1, plus(x1, mult(-2.8371594, x0))), -0.24074249), logm(neg(plus(x0, 5.412477)))), -0.017991344)\r\n18          6.962e-05  2.921e-02  plus(mult(pow(mult(plus(x1, -2.6840136), plus(x1, mult(-2.8371594, x0))), -0.24074249), logm(plus(x0, 5.412477))), -0.017996233)\r\n```\r\n\r\nLet me know if you have any other issues, I'll close this for now.",
               "createdAt": "2020-09-28T12:46:33Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOKbjoKw=="
           }

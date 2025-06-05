@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 563,
         "title": "Dynamic Time Warping metric as a potential PySR loss function for time-series modeling",
         "body": " I've been using a home-grown optimizer for non-linear modeling of time-series data. I discovered that a loss function built on a Dynamic Time Warping metric is very helpful to guard against over-fitting, see my blog post https://geoenergymath.com/2024/03/08/dynamic-time-warping. A DTW metric as a PySR loss function may also be very useful in an exploratory mode as it can narrow in on a potential solution more quickly. It wouldn't be difficult to prototype as a custom loss function with a configurable window size.  A code snippet is in the following GIST https://gist.github.com/pukpr/fcc9ba38c5f92bde0b53dc95c44ff7dc -- note that it outputs 1/cost because I was experimenting with a maximizing goal instead of minimizing.\r\n\r\nWhat I don't understand as well is how to normalize the DTW metric so it  acts like a correlation coefficient. I describe my attempt in the first link.\r\n\r\nSee this 2024 paper as well: https://arxiv.org/pdf/2401.10359.pdf\r\n> ” In this paper, we propose a non-intrusive overfitting detection and prevention approach using time series classifiers trained on the training history of DL models. Our approach (when using the KNN-DTW time series classifier) has (1) better classification performance than correlation-based approaches for overfitting detection, and (2) greater accuracy than early stopping for overfitting prevention with a shorter delay. We evaluate our approach on a real-world dataset of labelled training histories collected from the papers published at top AI venues in the last 5 years. Our approach can be a useful tool for researchers and developers of DL software” --\r\nLI, HAO, ET AL. “KEEPING DEEP LEARNING MODELS IN CHECK: A HISTORY-BASED APPROACH TO MITIGATE OVERFITTING.”\r\n\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "pukpr"
               },
               "body": "Here is a Julia `loss_function` for a Dynamic Time Warping metric.\r\n\r\n```julia\r\nfunction f(tree, dataset::Dataset{T,L}, options) where {T,L}\r\n    X, completed = eval_tree_array(tree, dataset.X, options)\r\n    if !completed\r\n        return L(Inf)\r\n    end\r\n    Y = dataset.y\r\n\r\n    # DTW algorithm\r\n    window_size = 9\r\n    n = length(X)\r\n    max_size = max(length(X), length(Y))\r\n    \r\n    # Initialize the DTW matrices with infinite values\r\n    dtw_current = fill(Inf, max_size + 2 * window_size)\r\n    dtw_previous = fill(Inf, max_size + 2 * window_size)\r\n    \r\n    dtw_previous[1] = 0.0  # Boundary condition\r\n    \r\n    for i in 1:n\r\n        dtw_current[1] = Inf  # Reset current row\r\n        \r\n        # Determine the iteration bounds considering the window size\r\n        start = max(1, i - window_size)\r\n        finish= min(n, i + window_size)\r\n        \r\n        for j in start:finish\r\n            cost = abs(X[i] - Y[j])\r\n            \r\n            # Compute minimum cost considering the DTW constraint\r\n            min_cost = min(\r\n                dtw_previous[j],\r\n                dtw_current[j],\r\n                j+1 <= length(Y) ? dtw_previous[j + 1] : Inf\r\n            )\r\n            \r\n            dtw_current[j + 1] = cost + min_cost\r\n        end\r\n        \r\n        # Swap the rows for the next iteration\r\n        dtw_previous, dtw_current = dtw_current, dtw_previous\r\n    end\r\n    \r\n    return dtw_previous[n+1]\r\nend\r\n```\r\n\r\nI have been evaluating it today and note that it has some nice properties in accommodating corrections to a found solution. For example, using RMSE, I found the $x_0$ and $x_1$ solutions were distinct in ranked complexity but using DTW, I could get mixed $x_0$ and $x_1$ solutions.\r\n\r\nA question I have is in the possibility of passing in the `window_size` through the `options` parameter\r\n",
               "createdAt": "2024-03-18T19:17:23Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Very cool! I'm happy to hear you have had good results with this. I will try it out too when I get a chance.\r\n\r\n> A question I have is in the possibility of passing in the `window_size` through the `options` parameter.\r\n\r\nYou can customize the backend, see https://astroautomata.com/PySR/backend/ for a walkthrough of how to do this. \r\n\r\nIf you want something simple and quick, if you are in PySR, another option is to simply do a search-replace on the string:\r\n\r\n```python\r\nloss_function_base = \"\"\"\r\nfunction f(tree, dataset::Dataset{T,L}, options) where {T,L}\r\n    X, completed = eval_tree_array(tree, dataset.X, options)\r\n    if !completed\r\n        return L(Inf)\r\n    end\r\n    Y = dataset.y\r\n\r\n    # DTW algorithm\r\n    window_size = WINDOW_SIZE\r\n    n = length(X)\r\n    max_size = max(length(X), length(Y))\r\n    \r\n    # Initialize the DTW matrices with infinite values\r\n    dtw_current = fill(Inf, max_size + 2 * window_size)\r\n    dtw_previous = fill(Inf, max_size + 2 * window_size)\r\n    \r\n    dtw_previous[1] = 0.0  # Boundary condition\r\n    \r\n    for i in 1:n\r\n        dtw_current[1] = Inf  # Reset current row\r\n        \r\n        # Determine the iteration bounds considering the window size\r\n        start = max(1, i - window_size)\r\n        finish= min(n, i + window_size)\r\n        \r\n        for j in start:finish\r\n            cost = abs(X[i] - Y[j])\r\n            \r\n            # Compute minimum cost considering the DTW constraint\r\n            min_cost = min(\r\n                dtw_previous[j],\r\n                dtw_current[j],\r\n                j+1 <= length(Y) ? dtw_previous[j + 1] : Inf\r\n            )\r\n            \r\n            dtw_current[j + 1] = cost + min_cost\r\n        end\r\n        \r\n        # Swap the rows for the next iteration\r\n        dtw_previous, dtw_current = dtw_current, dtw_previous\r\n    end\r\n    \r\n    return dtw_previous[n+1]\r\nend\r\n\"\"\"\r\n```\r\n\r\nfollowed by\r\n\r\n```python\r\nloss_function = loss_function_base.replace(\"WINDOW_SIZE\", \"9\")\r\n```\r\n\r\nto pass in your parameter (and then pass that to PySR).",
               "createdAt": "2024-03-24T23:56:49Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMy0yNFQyMzo1Njo0OSswMDowMM4Ah70G"
           }

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 912,
+        "title": "How to use cond operator?",
+        "body": "Hi,\r\n\r\nI try to use 'cond' operator, but I keep receiving the error:\r\n\"The operator `cond` returned an output of type `Int64`, when it was given inputs -100.0 and -100.0 of type `Float32`. Please ensure that your operators return the same type as their inputs\".\r\n\r\nI'm using the following configuration in PySRRegressor:\r\n\r\n```\r\nmodel_pysr = PySRRegressor(\r\n    niterations=50, \r\n    batching=True,\r\n    batch_size=1000,\r\n    binary_operators=[\"+\", \"*\", \"-\", \"/\", 'cond'],\r\n    unary_operators=['square', 'cube', 'exp', 'sqrt', 'log10', 'tan'],\r\n    model_selection = 'accuracy', \r\n    elementwise_loss='L2DistLoss()',\r\n    parsimony = 0.1\r\n)\r\n```\r\nI've also tried to add 'cond' as a custom operator, but with the same outcome. \r\nAny help resolving this problem is appreciated. ",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "It could be an issue of your custom operator overwriting the internal one. Try restarting.\r\n\r\nIt’s defined here: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/b0cf4efda8deef80976b757b233a3c64e5d5b592/src/Operators.jl#L113",
+              "createdAt": "2025-05-06T02:19:55Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0wNlQwMzoxOTo1NSswMTowMM4AxxAv"
+          }
+        }
+      }
+    }
+  }
+}

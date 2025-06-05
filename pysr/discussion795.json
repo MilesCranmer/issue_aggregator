@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 795,
+        "title": "How to add custom bitwise XOR operator?",
+        "body": "I want to create a bitwise operators like in the ^ operator in python. I've tried many things, and asking AI nothing works. I keep getting MethodError. Copilot gave me the following that doesn't work...\r\n```\r\n# Custom bitwise XOR operator function\r\ndef bitwise_xor_operator(x1, x2):\r\n    # Convert inputs to integers and use absolute values\r\n    x1_int = int(abs(x1))\r\n    x2_int = int(abs(x2))\r\n    return x1_int ^ x2_int\r\n\r\nfrom pysr import PySRRegressor\r\n\r\n# Define the PySRRegressor with the custom bitwise XOR operator\r\nmodel = PySRRegressor(\r\n    niterations=1000,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\", \"xor\"],  # Add \"xor\" to the list of binary operators\r\n    unary_operators=[],\r\n    extra_sympy_mappings={\"xor\": lambda x, y: x ^ y},  # Define how the operator should be represented in SymPy\r\n    extra_torch_mappings={\"xor\": bitwise_xor_operator},  # Use the custom bitwise XOR operator function defined earlier\r\n    extra_jax_mappings={\"xor\": bitwise_xor_operator},  # Use the custom bitwise XOR operator function defined earlier\r\n)\r\n\r\n# Example usage with non-negative inputs\r\nX = [[1, 2], [3, 4], [5, 6]]\r\ny = [1, 0, 1]\r\n\r\n# Run the symbolic regression\r\nmodel.fit(X, y)\r\n```\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Maybe try this?\r\n\r\n```julia\r\n\"my_xor(x, y) = convert(typeof(x), xor(x > 0, y > 0))\"\r\n```\r\n\r\ni.e.,\r\n\r\n```python\r\nmodel = PySRRegressor(\r\n    niterations=1000,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\", \"my_xor(x, y) = convert(typeof(x), xor(x > 0, y > 0))\"],\r\n    unary_operators=[],\r\n    extra_sympy_mappings={\"my_xor\": lambda x, y: x ^ y},  # Define how the operator should be represented in SymPy\r\n)\r\n\r\n```\r\n\r\n`logical_or` and `logical_and` are built-in: https://ai.damtp.cam.ac.uk/pysr/operators",
+              "createdAt": "2025-01-03T18:32:26Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMS0wM1QxODozMjoyNiswMDowMM4AsvVL"
+          }
+        }
+      }
+    }
+  }
+}

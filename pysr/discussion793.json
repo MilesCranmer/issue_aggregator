@@ -27,11 +27,25 @@
               },
               "body": "Great, thank you very much for the tips. I've adjusted the code as you recommended and it's very interesting to hear that bumper and turbo potentially have such a cumulative effect on prolonged runs.  ",
               "createdAt": "2024-12-30T18:28:37Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Likely fixed with https://github.com/MilesCranmer/SymbolicRegression.jl/pull/399",
+              "createdAt": "2025-01-01T10:11:20Z"
+            },
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "Thanks Miles,\r\n\r\nThis is resolved now, and I have TemplateExpressions running even faster than the custom loss function with v1.5.2. Thank you for the fix. I needed to update a lot of packages with ] up. \r\n\r\nI also replaced this: \r\n```julia\r\n    unique_groups = unique(Int.(cat.x))\r\n    mean_residuals_by_group = Dict(group => _mean(residuals.x[cat.x .== group]) for group in unique_groups)\r\n    offsets = [mean_residuals_by_group[cat.x[i]] for i in eachindex(o.x)]\r\n    return ValidVector(o.x .- offsets, o.valid && residuals.valid)\r\n```\r\nwith: \r\n```julia\r\n    prediction = o.x\r\n    mean_residuals_by_group = Dict{Float32,Float32}()\r\n    unique_groups = unique(cat.x)\r\n    for group in unique_groups\r\n        group_residuals = residuals[cat.x .== group]\r\n        mean_residuals_by_group[group] = mean(group_residuals)\r\n    end\r\n    for i in eachindex(prediction)\r\n        group_type = cat.x[i]\r\n        prediction[i] -= mean_residuals_by_group[group_type]\r\n    end  \r\n    return ValidVector(prediction, true) #o already checked before\r\n```\r\nThis made it much faster (unsure why). \r\nAlso I realised `D(...)` gave me the flexibility to only check monotonicity exactly for the variable that was likely to lose it at higher complexity (which turned out to be faster than a single variable gradient check with eval_diff_tree_array in the custom loss function.\r\n\r\nboth those bits of code will be redundant with templateparametric expressions anyway. \r\n\r\nThanks again for your help and rapid turnaround for including bumper and turbo! \r\n\r\n",
+              "createdAt": "2025-01-05T22:46:39Z"
             }
           ],
           "pageInfo": {
             "hasNextPage": false,
-            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0zMFQxODoyODozNyswMDowMM4AsoNd"
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMS0wNVQyMjo0NjozOSswMDowMM4Asy4k"
           }
         }
       }

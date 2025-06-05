@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 857,
+        "title": "Exporting to sympy, pytorch, jax for template model",
+        "body": "Hi! \r\nI trained model using `loss_function_expression` and `expression_spec`. Using them does not then allow conversion to sympy, torch or jax formats. Are there any ways to export equations to these formats? ",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Sorry, they are unfortunately incompatible. The reason is that a template expression allows for _any_ Julia code within the template (even if-statements, while-loops, external library calls, storage, etc.), so one would need to create an entire translation library between Julia and SymPy just to make this work generally.\r\n\r\nFor simple expressions, it might be possible, but we made the choice to avoid adding the functionality, because it might result in some silent bugs if we have such a feature. I think the safest route is to translate it to SymPy manually.\r\n\r\n---\r\n**Edit**: I guess, maybe one route is to allow the user to define a `sympy_expression_spec` or something? Then the user would be responsible for defining the translation between Julia code and SymPy code, but it would at least be automated!",
+              "createdAt": "2025-03-05T12:34:19Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0wNVQxMjozNDoxOSswMDowMM4AvTjF"
+          }
+        }
+      }
+    }
+  }
+}

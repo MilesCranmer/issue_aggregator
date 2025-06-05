@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 848,
+        "title": "[Feature]:",
+        "body": "### Feature Request\n\nI'm interested in using PySR, to perform integration and differentiation. Has anyone successfully used for these purposes? I've been trying to use it, but I'm encountering some difficulties. Any guidance or advice would be greatly appreciated.\n\n**Code Error:** \nequation_results = []\nfor set_name, features in feature_sets.items():\n    X = merged_soil_df[features]\n    pysr_regressor = PySRRegressor(\n        populations=40,\n        niterations=10,\n        binary_operators=[\"+\", \"-\", \"*\", \"/\"],\n        unary_operators=[\"sqrt\", \"log\", \"integrate\"], \n    )\n    pysr_regressor.fit(X, y)\n    equations_df = pysr_regressor.equations_\nC:\\Users\\ku03p\\anaconda3\\Lib\\site-packages\\pysr\\sr.py:2766: UserWarning: Note: it looks like you are running in Jupyter. The progress bar will be turned off.\n  warnings.warn(\nTraceback (most recent call last):\n\n  Cell In[248], line 10\n    pysr_regressor.fit(X, y)\n\n  File ~\\anaconda3\\Lib\\site-packages\\pysr\\sr.py:2279 in fit\n    self._run(X, y, runtime_params, weights=weights, seed=seed, category=category)\n\n  File ~\\anaconda3\\Lib\\site-packages\\pysr\\sr.py:1940 in _run\n    jl_op = jl.seval(op)\n\n  File ~\\.julia\\packages\\PythonCall\\Nr75f\\src\\JlWrap\\module.jl:27 in seval\n    return self._jl_callmethod($(pyjl_methodnum(pyjlmodule_seval)), expr)\n\nJuliaError: UndefVarError: `integrate` not defined in `Main`\nStacktrace:\n [1] top-level scope\n   @ :0\n [2] eval\n   @ .\\boot.jl:430 [inlined]\n [3] eval\n   @ .\\Base.jl:130 [inlined]\n [4] pyjlmodule_seval(self::Module, expr::Py)\n   @ PythonCall.JlWrap C:\\Users\\ku03p\\.julia\\packages\\PythonCall\\Nr75f\\src\\JlWrap\\module.jl:13\n [5] _pyjl_callmethod(f::Any, self_::Ptr{PythonCall.C.PyObject}, args_::Ptr{PythonCall.C.PyObject}, nargs::Int64)\n   @ PythonCall.JlWrap C:\\Users\\ku03p\\.julia\\packages\\PythonCall\\Nr75f\\src\\JlWrap\\base.jl:67\n [6] _pyjl_callmethod(o::Ptr{PythonCall.C.PyObject}, args::Ptr{PythonCall.C.PyObject})\n   @ PythonCall.JlWrap.Cjl C:\\Users\\ku03p\\.julia\\packages\\PythonCall\\Nr75f\\src\\JlWrap\\C.jl:63\n\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Not sure why it's not leeting me convert this to a discussion... Anyways can you please post your question in https://github.com/MilesCranmer/PySR/discussions instead?",
+              "createdAt": "2025-03-02T20:24:06Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOoII_0A=="
+          }
+        }
+      }
+    }
+  }
+}

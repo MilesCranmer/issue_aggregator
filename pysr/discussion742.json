@@ -20,11 +20,25 @@
               },
               "body": "I guess you could write a custom loss function to set this up although it will a bit complex. I would start by going through the examples on the docs and then seeing some of the other threads discussing custom loss functions",
               "createdAt": "2024-10-29T02:57:21Z"
+            },
+            {
+              "author": {
+                "login": "mijanhuq"
+              },
+              "body": "Hello,\r\n\r\nFollowing up on this thread. I am interested in trying to find a set of coupled ODE's using PySR. At present, it is possible to try to fit one equation at a time. \r\n\r\nHas there been any work since the inception of this post in trying to either learn two or more equations (whether ODEs or not)? \r\nThanks in advance for any advice you may be able to give.\r\n\r\nRegards,\r\nMijan",
+              "createdAt": "2025-05-15T21:21:32Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Yes! This is now totally possible using TemplateExpressionSpec. Some of the other recent discussions discuss highly relevant topics",
+              "createdAt": "2025-05-16T03:35:05Z"
             }
           ],
           "pageInfo": {
             "hasNextPage": false,
-            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMC0yOVQwMjo1NzoyMSswMDowMM4AqRi6"
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0xNlQwNDozNTowNSswMTowMM4AyOV5"
           }
         }
       }

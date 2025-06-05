@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 801,
+        "title": "When using the PYSR library in Julia, I am unable to import SymbolicRegression, Serialization, and PythonCall.",
+        "body": "I am using the Windows system. After installing pysr with pip and downloading and installing Julia, I tried to import the pysr library, but it seems like the code is stuck. \r\n\r\nThe terminal output information is as follows:\r\n\r\n[juliapkg] Found dependencies: [c:\\users\\ding\\appdata\\local\\programs\\python\\python312\\lib\\site-packages\\juliapkg\\juliapkg.json](file:///C:/users/ding/appdata/local/programs/python/python312/lib/site-packages/juliapkg/juliapkg.json)\r\n[juliapkg] Found dependencies: [c:\\users\\ding\\appdata\\local\\programs\\python\\python312\\lib\\site-packages\\pysr\\juliapkg.json](file:///C:/users/ding/appdata/local/programs/python/python312/lib/site-packages/pysr/juliapkg.json)\r\n[juliapkg] Found dependencies: [c:\\users\\ding\\appdata\\local\\programs\\python\\python312\\lib\\site-packages\\juliacall\\juliapkg.json](file:///C:/users/ding/appdata/local/programs/python/python312/lib/site-packages/juliacall/juliapkg.json)\r\n[juliapkg] Locating Julia =1.10.0, ^1.10.3\r\n[juliapkg] Using Julia 1.10.0 at [E:\\VSCODE\\julia\\julia\\bin\\julia.EXE](file:///E:/VSCODE/julia/julia/bin/julia.EXE)\r\n[juliapkg] Using Julia project at [C:\\Users\\DING\\.julia\\environments\\pyjuliapkg](file:///C:/Users/DING/.julia/environments/pyjuliapkg)\r\n[juliapkg] Installing packages:\r\n           julia> import Pkg\r\n           julia> Pkg.Registry.update()\r\n           julia> Pkg.add([Pkg.PackageSpec(name=\"SymbolicRegression\", uuid=\"8254be44-1295-4e6a-a16d-46603ac705cb\"), Pkg.PackageSpec(name=\"Serialization\", uuid=\"9e88b42a-f829-5b0c-bbe9-9e923198166b\"), Pkg.PackageSpec(name=\"PythonCall\", uuid=\"6099a3de-0909-46bc-b1f4-468b9a2dfc0d\")])\r\n           julia> Pkg.resolve()\r\n           julia> Pkg.precompile()\r\n\r\nSo I tried to open julia.exe to install the packages SymbolicRegression, Serialization and PythonCall. However, no matter whether I set up a mirror or a VPN, when downloading or updating these packages, the code always seems to freeze. As shown in the following picture:\r\n\r\n<img width=\"809\" alt=\"捕获\" src=\"https://github.com/user-attachments/assets/043dbcbe-b296-43ea-a8e2-caa60e81b211\" />\r\n\r\nI've been struggling with this question for a long time and hope to find an answer. Thank you.\r\n\r\n\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Could you try updating Julia to 1.10.7?",
+              "createdAt": "2025-01-08T09:43:44Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMS0wOFQwOTo0Mzo0NCswMDowMM4As51y"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 19,
         "title": "Hall of fame output cannot be turned off?",
         "body": "Hi,\r\n\r\nI haven't found any switch to reduce or turn off the printing of the current hall of fame.\r\n\r\nWould it be possible to expose `print_every_n_seconds`, or give the user some other option to modify this?\r\n\r\nThanks,\r\nJohann ",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hey Johann,\r\n\r\nGood point! I have a \"verbosity\" argument to `pysr`, but this actually doesn't affect the printing of the hall of fame right now.\r\n\r\nI've just added it to master. Now, `verbosity=0` will turn off hall of fame printing.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2020-11-04T22:01:36Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "johannbrehmer"
               },
               "body": "Thanks, that was quick!",
               "createdAt": "2020-11-05T15:17:44Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOKw-bhA=="
           }

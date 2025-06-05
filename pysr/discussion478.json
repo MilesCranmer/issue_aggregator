@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 478,
         "title": "Best practices for using pysr for binary classification?",
         "body": "Hi all,\r\n\r\nI was wondering what are the best practices for using pysr for binary classification. I noticed there are some past discussions mentioning the topic, and references to classification losses in the documentation, but no complete guide for tackling the problem that I am aware of. What is the right way to use pysr in this case?\r\n\r\nFor some background, I'm studying a particular instability in magnetic fusion - the \"density limit\" - where the confinement of the plasma suddenly collapses when too much density is injected. There are some empirical & theoretical power law scalings for what conditions this occurs at, but I found in the database I assembled that they lead to poor classification accuracy (True positive rate of ~60% when false positive rate is 5%). I spent a good amount of time adding new features to the dataset that have not been used in other scalings, and I would like to use pysr to find a more reliable stability boundary (& compare the pysr model with non-interpretable models like a deep NN and interpretable models like a power law derived from a linear SVM).\r\n\r\nIn any case, I'm curious is the best way to formulate a classification problem using pysr. Has this been rigorously explored? I've played around with using a custom loss function, but I was curious if there's an accepted set of \"best practices\".",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hey @andrew-maris!\r\n\r\nI think you might be able to do classification loss on your problem if you select one of these binary classification losses: https://astroautomata.com/SymbolicRegression.jl/stable/losses/#Classification, and use them for the `loss` argument (https://astroautomata.com/PySR/api/).\r\n\r\ne.g., `loss=\"L2MarginLoss()\"` which is the same as `loss=\"myloss(pred, target) = (1 - pred * target)^2\"`. You assume here that `target` is either `+1` or `-1` (you would feed the data into `.fit(X, y)` where `y` is a bunch of `+1` and `-1`). So if you have `pred, target = (-1, -1)` or `pred, target = (1, 1)`, the loss will be minimized. \r\n\r\nCheers,\r\nMiles",
               "createdAt": "2023-11-28T16:20:21Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMS0yOFQxNjoyMDoyMSswMDowMM4AdWf7"
           }

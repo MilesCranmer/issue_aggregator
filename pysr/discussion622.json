@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 622,
         "title": "How to select candidate equations using performance of test data more efficiently?",
         "body": "Hi,\r\n\r\nThanks for developing such a useful tool! \r\n\r\nI try to discover equations from observational data. I run PySR with different parameters settings (e.g., complexity, operators), and I want to select equations according to the performance of test data (e.g., RMSE < a & R > b). But I have to select the equations manually which is time-costing. Is there any method to select candidate equations more efficiently?\r\n\r\nBest regards,\r\nLu",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks!\r\n\r\nWould the following help?\r\n\r\n```julia\r\nimport copy\r\n\r\nequations = copy.deepcopy(model.equations_)\r\n\r\n# this is a pandas dataframe, so we can add new columns:\r\nequations[\"my_metric\"] = [\r\n    my_metric(\r\n        model.predict(Xtest, index=i),\r\n        ytest\r\n    )\r\n    for i in range(len(equations))\r\n]\r\n\r\n\r\nchoice = equations[\"my_metric\"].idxmin()\r\n# ^ or idxmax() if maximizing\r\n\r\nmodel.predict(X, index=index)\r\n# ^ Predict with best (or can pass to .sympy/.latex/.jax/.pytorch)\r\n```\r\n\r\n",
               "createdAt": "2024-05-07T08:26:31Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNS0wN1QwOToyNjozMSswMTowMM4Ajn8o"
           }

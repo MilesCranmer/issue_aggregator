@@ -1,52 +1,42 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 362,
         "title": "[BUG]: Installation, Unsatisfiable requirements",
         "body": "### What happened?\n\nHi Miles, Thank you for making PySR available!\r\n\r\nI am facing an error during installation, when calling `python3 -m pysr install`:\r\n```julia\r\njulia.core.JuliaError: Exception 'Unsatisfiable requirements detected for package DynamicExpressions [a40a106e]:\r\n DynamicExpressions [a40a106e] log:\r\n ├─possible versions are: 0.1.0-0.4.2 or uninstalled\r\n └─restricted to versions 0.8 by SymbolicRegression [8254be44] — no versions left\r\n   └─SymbolicRegression [8254be44] log:\r\n     ├─possible versions are: 0.18.0 or uninstalled\r\n     └─SymbolicRegression [8254be44] is fixed to version 0.18.0' occurred while calling julia code:\r\nPkg.add([sr_spec, clustermanagers_spec], io=stderr)\r\n```\r\nI successfully installed `PySR` about two month ago following your instructions (same command as above).\r\nFrom the error message, the problem seems to be that `PySR` requires `SymbolicRegression==0.18.0` which in turn requires `DynamicExpressions==0.8` which for some reason does not seem to be available.\r\n\r\nSystem information:\r\n```\r\nJulia Version 1.8.4\r\nCommit 00177ebc4fc (2022-12-23 21:32 UTC)\r\nPlatform Info:\r\n  OS: Linux (x86_64-linux-gnu)\r\n      \"Rocky Linux release 8.7 (Green Obsidian)\"\r\n```\r\n\n\n### Version\n\nI tried with '0.14.0' and '0.14.2'.\n\n### Operating System\n\nLinux\n\n### Package Manager\n\npip\n\n### Interface\n\nIPython Terminal\n\n### Relevant log output\n\n```shell\npython3 -m pysr install\r\n[ Info: Julia version info\r\nJulia Version 1.8.4\r\nCommit 00177ebc4fc (2022-12-23 21:32 UTC)\r\nPlatform Info:\r\n  OS: Linux (x86_64-linux-gnu)\r\n      \"Rocky Linux release 8.7 (Green Obsidian)\"\r\n  uname: Linux 4.18.0-425.3.1.el8.x86_64 #1 SMP Wed Nov 9 20:13:27 UTC 2022 x86_64 x86_64\r\n  CPU: Intel(R) Xeon(R) Gold 6136 CPU @ 3.00GHz:\r\n                 speed         user         nice          sys         idle          irq\r\n       #1-48  3000 MHz   10791459 s       2468 s    6061712 s  361330180 s     455443 s\r\n  Memory: 377.184139251709 GB (287429.1953125 MB free)\r\n  Uptime: 793184.29 sec\r\n  Load Avg:  2.04  1.77  1.84\r\n  WORD_SIZE: 64\r\n  LIBM: libopenlibm\r\n  LLVM: libLLVM-13.0.1 (ORCJIT, skylake-avx512)\r\n  Threads: 1 on 48 virtual cores\r\nEnvironment:\r\n  JULIA_PROJECT = @pysr-0.14.2\r\n  HOME = /home/haicu/soeren.becker\r\n  TERM = xterm-256color\r\n  PATH = /home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/bin:/home/haicu/soeren.becker/miniconda3/condabin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/haicu/soeren.becker/repos/julia-1.8.4/bin:/home/haicu/soeren.becker/.local/bin:/home/haicu/soeren.becker/bin\r\n[ Info: Julia executable: /home/haicu/soeren.becker/repos/julia-1.8.4/bin/julia\r\n[ Info: Trying to import PyCall...\r\n┌ Warning: PyCall is already installed.  However, you may have trouble using\r\n│ this Python executable because it is statically linked to libpython.\r\n│\r\n│ For more information, see:\r\n│     https://pyjulia.readthedocs.io/en/latest/troubleshooting.html\r\n│\r\n│ Python executable:\r\n│     /home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/bin/python3\r\n│ Julia executable:\r\n│     /home/haicu/soeren.becker/repos/julia-1.8.4/bin/julia\r\n└ @ Main ~/miniconda3/envs/symbolicregression39/lib/python3.9/site-packages/julia/install.jl:90\r\n/home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/lib/python3.9/site-packages/pysr/julia_helpers.py:195: UserWarning: Your system's Python library is static (e.g., conda), so precompilation will be turned off. For a dynamic library, try using `pyenv` and installing with `--enable-shared`: https://github.com/pyenv/pyenv/blob/master/plugins/python-build/README.md#building-with---enable-shared.\r\n  warnings.warn(\r\n┌ Warning: could not download https://pkg.julialang.org/registries\r\n│   exception = Failed to connect to pkg.julialang.org port 443 after 15245 ms: Connection timed out while requesting https://pkg.julialang.org/registries\r\n└ @ Pkg.Registry /cache/build/default-aws-shared0-3/julialang/julia-release-1-dot-8/usr/share/julia/stdlib/v1.8/Pkg/src/Registry/Registry.jl:68\r\n    Updating registry at `~/.julia/registries/General.toml`\r\n   Resolving package versions...\r\nTraceback (most recent call last):\r\n  File \"/home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/lib/python3.9/runpy.py\", line 197, in _run_module_as_main\r\n    return _run_code(code, main_globals, None,\r\n  File \"/home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/lib/python3.9/runpy.py\", line 87, in _run_code\r\n    exec(code, run_globals)\r\n  File \"/home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/lib/python3.9/site-packages/pysr/__main__.py\", line 4, in <module>\r\n    _cli(prog_name=\"pysr\")\r\n  File \"/home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/lib/python3.9/site-packages/click/core.py\", line 1130, in __call__\r\n    return self.main(*args, **kwargs)\r\n  File \"/home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/lib/python3.9/site-packages/click/core.py\", line 1055, in main\r\n    rv = self.invoke(ctx)\r\n  File \"/home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/lib/python3.9/site-packages/click/core.py\", line 1657, in invoke\r\n    return _process_result(sub_ctx.command.invoke(sub_ctx))\r\n  File \"/home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/lib/python3.9/site-packages/click/core.py\", line 1404, in invoke\r\n    return ctx.invoke(self.callback, **ctx.params)\r\n  File \"/home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/lib/python3.9/site-packages/click/core.py\", line 760, in invoke\r\n    return __callback(*args, **kwargs)\r\n  File \"/home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/lib/python3.9/site-packages/pysr/_cli/main.py\", line 37, in _install\r\n    install(julia_project, quiet, precompile)\r\n  File \"/home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/lib/python3.9/site-packages/pysr/julia_helpers.py\", line 96, in install\r\n    _add_sr_to_julia_project(Main, io_arg)\r\n  File \"/home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/lib/python3.9/site-packages/pysr/julia_helpers.py\", line 259, in _add_sr_to_julia_project\r\n    Main.eval(f\"Pkg.add([sr_spec, clustermanagers_spec], {io_arg})\")\r\n  File \"/home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/lib/python3.9/site-packages/julia/core.py\", line 627, in eval\r\n    ans = self._call(src)\r\n  File \"/home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/lib/python3.9/site-packages/julia/core.py\", line 555, in _call\r\n    self.check_exception(src)\r\n  File \"/home/haicu/soeren.becker/miniconda3/envs/symbolicregression39/lib/python3.9/site-packages/julia/core.py\", line 609, in check_exception\r\n    raise JuliaError(u'Exception \\'{}\\' occurred while calling julia code:\\n{}'\r\njulia.core.JuliaError: Exception 'Unsatisfiable requirements detected for package DynamicExpressions [a40a106e]:\r\n DynamicExpressions [a40a106e] log:\r\n ├─possible versions are: 0.1.0-0.4.2 or uninstalled\r\n └─restricted to versions 0.9 by SymbolicRegression [8254be44] — no versions left\r\n   └─SymbolicRegression [8254be44] log:\r\n     ├─possible versions are: 0.19.1 or uninstalled\r\n     └─SymbolicRegression [8254be44] is fixed to version 0.19.1' occurred while calling julia code:\r\nPkg.add([sr_spec, clustermanagers_spec], io=stderr)\n```\n\n\n### Extra Info\n\n_No response_",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks for the bug report. Could you see whether the solutions here are any help? https://github.com/MilesCranmer/PySR/issues/27\r\nthanks",
               "createdAt": "2023-07-02T16:56:23Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Basically it might be your package server for Julia is not updating. Because the latest version of DynamicExpressions.jl is https://github.com/SymbolicML/DynamicExpressions.jl/releases/tag/v0.10.1 whereas your Julia thinks it is only 0.4.2 for some reason.\r\n\r\n(It could also be if you happen to be using a local version of DynamicExpressions.jl?)",
               "createdAt": "2023-07-02T16:58:56Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "soerenab"
               },
               "body": "Indeed, this was the problem and the [steps](https://github.com/MilesCranmer/PySR/issues/27) you linked solved it. Thanks a lot!",
               "createdAt": "2023-07-02T18:48:43Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Awesome!",
               "createdAt": "2023-07-02T18:56:22Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOYF4DQQ=="
           }

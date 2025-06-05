@@ -1,38 +1,37 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 568,
         "title": "Physics-informed PySR",
         "body": "Hi,\r\nI am wondering if anyone has tried to find an analytical approximate solution for a PDE using PySR. I mean, it seems feasible to apply a similar methodology to PINNs for PySR; specifically, in each iteration in PySR, the error of each equation proposed by PySR is computed through the sum of errors associated with the PDE, BC, and IC. I think this approach can be called Physics-Informed PySR. I am curious, have you known/come across any study about Physics-Informed PySR?\r\nAny idea/viewpoint is much appreciated,\r\nThanks",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "pukpr"
               },
               "body": "I'm sure it can be done. In Eureqa, it was possible to express the following\r\n\r\n$\\frac{{d^2 f(t)}}{{d t^2 }} + \\omega^2 f(t) = F(t)$\r\n\r\nThe built-in function D is a derivative (2 means 2nd derivative), and sma is a smoothing averager. soi is a time-series data\r\n\r\n![image](https://github.com/MilesCranmer/PySR/assets/2855758/691aeef0-3c99-479c-92fe-22be51d38032)\r\n\r\n",
               "createdAt": "2024-03-18T17:05:07Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks @pukpr and sorry for late reply @AKHCE!\r\n\r\nYou should check out https://github.com/MilesCranmer/PySR/discussions/401 for how to do this, which basically finds $f(x_1, x_2, ...)$ such that\r\n$$\\frac{\\partial f(x_1, x_2, ...)}{\\partial x_1} = y.$$\r\n\r\nNote that there is no built-in second-order autodiff, only first-order. (My hope is that Enzyme.jl will eventually give us this for free). A temporary workaround would be to use finite difference approximation for second-order.\r\n\r\nAlso check out: https://github.com/MilesCranmer/PySR/discussions/299 https://github.com/MilesCranmer/PySR/discussions/414 https://github.com/MilesCranmer/PySR/discussions/447 https://github.com/MilesCranmer/PySR/discussions/548.",
               "createdAt": "2024-03-18T19:56:57Z"
+            },
+            {
+              "author": {
+                "login": "pukpr"
+              },
+              "body": "I have a set of what I would categorize as unsolved geophysics time series problems that I am modeling. The solutions I have found are all physics-informed but not necessarily well-accepted, even after publishing.  Over the years, I have experimented with using symbolic regression to see if it could discover the same solutions, and I did find that Eureqa was very promising in being able to get close.  I don't know what it is but Eureqa had some sort of special sauce to it; unfortunately it is out of commission these days.\r\n\r\nBut, if anyone is interested the problems that I am working on that could benefit from symbolic regression experimentation are:\r\nChandler wobble -- https://en.wikipedia.org/wiki/Chandler_wobble\r\nQuasi-Biennial Oscillation (QBO) -- https://en.wikipedia.org/wiki/Quasi-biennial_oscillation\r\nEl Nino Southern Oscillation (ENSO) -- https://en.wikipedia.org/wiki/El_Ni%C3%B1o%E2%80%93Southern_Oscillation\r\nAtlantic Multidecadal Oscillation (AMO) -- https://en.wikipedia.org/wiki/Atlantic_multidecadal_oscillation\r\nIndian Ocean Dipole (IOD) -- https://en.wikipedia.org/wiki/Indian_Ocean_Dipole\r\nPacific Decadal Oscillation (PDO) -- https://en.wikipedia.org/wiki/Pacific_decadal_oscillation\r\nNorth Atlantic Oscillation (NAO) -- https://en.wikipedia.org/wiki/North_Atlantic_oscillation\r\n\r\nThere is a commonality to the physics-modeling approach I am using on all of these and so there is a strong possibility of cross-validation.\r\n\r\nHowever, the sticky point in getting something like PySR to match is in first coercing it to it lock-in to the formulation I am finding. That''s why I haven't been using PySR as much as using custom software.\r\n\r\nMy suggestion as to how to proceed is to instead of providing the real data of QBO (for example) for PySR to  fit to, instead to try to find out if PySR could fit to a **model** of QBO, which would be free of noise or other anomalies.\r\n\r\nThis would be huge if even a few of these problems could be solved, as the reality is that geophysicists and climate scientists really have little faith in their own models for the phenomena.   Google, NVIDIA, and Huawei are spending millions $$ in research on the climate aspects to these time series, clearly concentrating on using neural networks to find something.   However, unless they get the physics and especially the external forcings right, I don't think the NNs are going to find the solutions.  That's because the solutions aren't found solely within the data but as a consequence of manipulating the external factors.  And that's why I think symbolic regression approaches will work better.\r\n\r\n---\r\nExample of QBO PySR fit, a tropical/synodic tidal factor will emerge in addition to the draconic/nodal factor supplied\r\nhttps://github.com/orgs/azimuth-project/discussions/10#discussion-6397169\r\n\r\n\r\n\r\n ",
+              "createdAt": "2024-11-01T14:30:33Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
-            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMy0xOFQxOTo1Njo1NyswMDowMM4AhsY8"
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMS0wMVQxNDozMDozMyswMDowMM4AqbiR"
           }
         }
       }

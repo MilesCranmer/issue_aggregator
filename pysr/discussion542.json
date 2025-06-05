@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 542,
         "title": "Can PySR be used to search for equivalent circuit models?",
         "body": "Thanks for creating this amazing package!\r\n\r\nFollowing #540 (and your recent Linkedin post), I was wondering if PySR can be used to search the space of possible equivalent circuit models given impedance-frequency measurements.\r\n\r\nJust to be clear, I'm not trying to abuse your kindness in responding to such broad questions and even going above and beyond to provide a fully working prototype! (as you've kindly done in #540) I just want to know if PySR is the right tool for such problems, and possibly some high level pointers on where to start.\r\n\r\nThanks once again!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @ma-sadeghi,\r\n\r\nThanks for the question! The current requirement is that all operators need to have a scalar input (1 for unary; 2 for binary) and scalar output. If you can work with that then there is probably a way to write a loss function for it. For other types of inputs; SymbolicRegression.jl will need to be extended (help always appreciated!)",
               "createdAt": "2024-02-04T01:58:59Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMi0wNFQwMTo1ODo1OSswMDowMM4Af4iw"
           }

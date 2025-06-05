@@ -1,60 +1,49 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 43,
         "title": "Partial derivative loss",
         "body": "Hi,Miles\r\nI learned that Regression losses work on the distance between targets and predictions in PySR. However, in the regression case for having a complex formula, the regression results maybe has high complex or not conform to its essential physical laws. In the Paper: distilling free-form natural laws from experimental data, the principle for the identification of nontriviality is interesting,  proposed by Michael. I wonder if this error principle can be added to PySR. If possible, the performance of PySR will be more powerful, and better and more essential results can be obtained for some regression.\r\nThanks. ",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "What specific part of their paper are you referring to? [for reference, their paper is my favorite all-time :) ]",
               "createdAt": "2021-05-04T19:31:57Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "nice-mon"
               },
               "body": "yeah, in Figure.2 of the paper, they select the best equations by comparing predicted partial derivatives with numerical partial derivatives. In pysr, this is compare predicted value with train data value. So, I wonder if this method can be added to pysr.",
               "createdAt": "2021-05-05T12:24:40Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Good idea. I was thinking about adding this but haven't yet. Would be really interesting to try. The fact that the backend of PySR is written in Julia makes this really easy since it already has autodiff setup!",
               "createdAt": "2021-05-05T13:17:46Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "nice-mon"
               },
               "body": "Hi,Miles\r\nI find some codes in LossFunction.jl, which is \"(prediction, completion) = differentiableEvalTreeArray(tree, dataset.X, options)\". what is I am interesting in whether it used to the Partial derivative loss. If it is, I am want to know how to used it. Thanks!",
               "createdAt": "2021-07-05T08:31:13Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This should be doable now, with custom objective functions implemented: https://astroautomata.com/PySR/examples/#9-custom-objectives. (`eval_diff_tree_array` is the differential operator - see https://astroautomata.com/SymbolicRegression.jl/stable/api/#Derivatives).\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2023-03-27T23:18:46Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOWJJdmQ=="
           }

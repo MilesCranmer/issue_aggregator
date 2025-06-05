@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 866,
+        "title": "Out of Date Documentation",
+        "body": "For the PYSRRegressor class parameters, a lot (more than I'm willing to count) of the default values are listed wrong on the website, and some of the options are deprecated or missing entirely from mention within the astroautomata documentation. \n\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "This applies to the new docs site as well, I assume? https://ai.damtp.cam.ac.uk/pysr/api/. I’m pretty sure this should be synced to the old site though. But yeah it looks like some of the docstrings are out of date, thanks for flagging.",
+              "createdAt": "2025-03-13T10:44:47Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOoiwRkQ=="
+          }
+        }
+      }
+    }
+  }
+}

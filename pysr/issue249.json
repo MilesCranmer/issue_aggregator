@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 249,
         "title": "[BUG] Colab notebook broken on newer Julia versions",
         "body": "I see this error when trying the colab notebook on newer Julia versions:\r\n\r\n```\r\nInstalling PyCall.jl...\r\n  Installing known registries into `~/.julia`\r\nERROR: could not download https://pkg.julialang.org/registry/23338594-aafe-5451-b93e-139f81909106/1688f52d42fdeb191fb40e264179f68c65500be3 \r\nException: `ccall` requires the compiler\r\nStacktrace:\r\n [1] top-level scope\r\n   @ none:1\r\n\r\ncaused by: `ccall` requires the compiler\r\nStacktrace:\r\n  [1] curl_easy_setopt(handle::Ptr{Nothing}, opt::UInt32, ptrval::Bool)\r\n    @ LibCURL fatal: error thrown and no exception handler available.\r\nErrorException(\"`ccall` requires the compiler\")\r\n```\r\n\r\nOther Julia notebooks are seeing the same error on the latest colab notebook with Julia 1.8.5: https://github.com/johnnychen94/colab-julia-bootstrap/issues/4.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Discourse issue: https://discourse.julialang.org/t/google-colab-compatibility-broken-on-julia-1-8-4/93004/4\r\n\r\nSeems to be broken for all Julia versions above or equal to 1.8.4.",
               "createdAt": "2023-01-15T23:04:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Superseded  by #259 ",
               "createdAt": "2023-01-31T21:37:45Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOVBu1PQ=="
           }

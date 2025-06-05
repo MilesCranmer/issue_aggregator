@@ -1,228 +1,196 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 234,
         "title": "JuliaError: Exception 'Unsatisfiable requirements detected for package DynamicExpressions / prior installation with conda",
         "body": "**Describe the bug**\r\n```\r\nJuliaError: Exception 'Unsatisfiable requirements detected for package DynamicExpressions [a40a106e]:\r\n DynamicExpressions [a40a106e] log:\r\n ├─DynamicExpressions [a40a106e] has no known versions!\r\n └─restricted to versions 0.4 by SymbolicRegression [8254be44] — no versions left\r\n   └─SymbolicRegression [8254be44] log:\r\n     ├─possible versions are: 0.14.4 or uninstalled\r\n     └─SymbolicRegression [8254be44] is fixed to version 0.14.4' occurred while calling julia code:\r\nPkg.add([sr_spec, clustermanagers_spec], io=stderr)\r\n```\r\n\r\n**Version (please include the following information):**\r\nMacOS Ventura 13.0.1 (22A400)\r\n- Julia version [Run `julia --version` in the terminal]\r\n- julia --version\r\njulia version 1.8.3\r\n\r\n- Python version [Run `python --version` in the terminal]\r\n- Python 3.8.13\r\n- Did you install with `pip` or `conda`?\r\n- pip\r\n- \r\n```\r\n$ conda list pysr\r\n# packages in environment at /Users/davidlaxer/anaconda3/envs/ai:\r\n#\r\n# Name                    Version                   Build  Channel\r\npysr                      0.11.11                  pypi_0    pypi\r\n\r\n% pip show pysr\r\nName: pysr\r\nVersion: 0.11.11\r\nSummary: Simple and efficient symbolic regression\r\nHome-page: https://github.com/MilesCranmer/pysr\r\nAuthor: Miles Cranmer\r\nAuthor-email: miles.cranmer@gmail.com\r\nLicense: \r\nLocation: /Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages\r\nRequires: julia, numpy, pandas, scikit-learn, sympy\r\nRequired-by: \r\n```\r\n- PySR version [Run `python -c 'import pysr; print(pysr.__version__)'`]\r\n- 0.9.1\r\n- Does the bug still appear with the latest version of PySR?\r\n\r\n**Configuration**\r\n- What are your PySR settings?\r\n- What dataset are you running on?\r\n- If possible, please share a minimal code example that produces the error.\r\n\r\n**Error message**\r\nAdd the error message here, or whatever other information would be useful for debugging.\r\n\r\nIf the error is \"Couldn't find equation file...\", this error indicates something\r\nwent wrong with the backend. Please scroll up and copy\r\nthe output of Julia, rather than the output of python.\r\n\r\n**Additional context**\r\nAdd any other context about the problem here.\r\n```\r\nJulia Version 1.8.3\r\nCommit 0434deb161e (2022-11-14 20:14 UTC)\r\nPlatform Info:\r\n  OS: macOS (x86_64-apple-darwin21.4.0)\r\n  uname: Darwin 22.1.0 Darwin Kernel Version 22.1.0: Sun Oct  9 20:14:54 PDT 2022; root:xnu-8792.41.9~2/RELEASE_X86_64 x86_64 i386\r\n  CPU: Intel(R) Core(TM) i7-10700K CPU @ 3.80GHz: \r\n                 speed         user         nice          sys         idle          irq\r\n       #1-16  3800 MHz    7543546 s          0 s    3955434 s   72076495 s          0 s\r\n  Memory: 128.0 GB (32470.4921875 MB free)\r\n  Uptime: 951050.0 sec\r\n  Load Avg:  8.20068359375  5.13525390625  4.3212890625\r\n  WORD_SIZE: 64\r\n  LIBM: libopenlibm\r\n  LLVM: libLLVM-13.0.1 (ORCJIT, skylake)\r\n  Threads: 1 on 16 virtual cores\r\nEnvironment:\r\n  JULIA_DEPOT_PATH_BACKUP = \r\n  JULIA_PROJECT_BACKUP = \r\n  JULIA_LOAD_PATH_BACKUP = \r\n  JULIA_DEPOT_PATH = /Users/davidlaxer/anaconda3/envs/ai/share/julia:\r\n  JULIA_SSL_CA_ROOTS_PATH_BACKUP = \r\n  JULIA_SSL_CA_ROOTS_PATH = \r\n  JULIA_PROJECT = @pysr-0.11.11\r\n  TERM = xterm-color\r\n  PATH = /Users/davidlaxer/.opam/_coq-platform_.2021.02.1/bin:/Users/davidlaxer/.juliaup/bin:/Users/davidlaxer/.cabal/bin:/Users/davidlaxer/.ghcup/bin:/Users/davidlaxer/anaconda3/envs/ai/bin:/Users/davidlaxer/anaconda3/condabin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Users/davidlaxer/.cargo/bin:/Users/jetbrains/.local/bin\r\n  XPC_FLAGS = 0x0\r\n  HOME = /Users/davidlaxer\r\n  JAVA_HOME = :-\r\n  JAVA_LD_LIBRARY_PATH = :-\r\n  CAML_LD_LIBRARY_PATH = /Users/davidlaxer/.opam/_coq-platform_.2021.02.1/lib/stublibs:/Users/davidlaxer/.opam/_coq-platform_.2021.02.1/lib/ocaml/stublibs:/Users/davidlaxer/.opam/_coq-platform_.2021.02.1/lib/ocaml\r\n  OCAML_TOPLEVEL_PATH = /Users/davidlaxer/.opam/_coq-platform_.2021.02.1/lib/toplevel\r\n  PKG_CONFIG_PATH = /Users/davidlaxer/.opam/_coq-platform_.2021.02.1/lib/pkgconfig:\r\n  CONDA_BACKUP_FFLAGS = -march=nocona -mtune=core2 -ftree-vectorize -fPIC -fstack-protector -O2 -pipe\r\n  CONDA_BACKUP_FORTRANFLAGS = -march=nocona -mtune=core2 -ftree-vectorize -fPIC -fstack-protector -O2 -pipe\r\n  CONDA_BACKUP_DEBUG_FFLAGS = -march=nocona -mtune=core2 -ftree-vectorize -fPIC -fstack-protector -O2 -pipe\r\n  CONDA_BACKUP_DEBUG_FORTRANFLAGS = -march=nocona -mtune=core2 -ftree-vectorize -fPIC -fstack-protector -O2 -pipe\r\n[ Info: Julia version info\r\n[ Info: Julia executable: /Users/davidlaxer/anaconda3/envs/ai/share/julia/juliaup/julia-1.8.3+0.x64/bin/julia\r\n[ Info: Trying to import PyCall...\r\n┌ Info: PyCall is already installed and compatible with Python executable.\r\n│ \r\n│ PyCall:\r\n│     python: /Users/davidlaxer/anaconda3/envs/ai/bin/python\r\n│     libpython: /Users/davidlaxer/anaconda3/envs/ai/lib/libpython3.8.dylib\r\n│ Python:\r\n│     python: /Users/davidlaxer/anaconda3/envs/ai/bin/python\r\n└     libpython: \r\n   Resolving package versions...\r\n---------------------------------------------------------------------------\r\nJuliaError                                Traceback (most recent call last)\r\nInput In [5], in <cell line: 4>()\r\n      1 get_ipython().system('export JULIA_SSL_CA_ROOTS_PATH=\"\"')\r\n      2 import pysr\r\n----> 4 pysr.install()\r\n\r\nFile ~/anaconda3/envs/ai/lib/python3.8/site-packages/pysr/julia_helpers.py:87, in install(julia_project, quiet)\r\n     83 io_arg = _get_io_arg(quiet)\r\n     85 if is_shared:\r\n     86     # Install SymbolicRegression.jl:\r\n---> 87     _add_sr_to_julia_project(Main, io_arg)\r\n     89 Main.eval(\"using Pkg\")\r\n     90 Main.eval(f\"Pkg.instantiate({io_arg})\")\r\n\r\nFile ~/anaconda3/envs/ai/lib/python3.8/site-packages/pysr/julia_helpers.py:240, in _add_sr_to_julia_project(Main, io_arg)\r\n    230 Main.sr_spec = Main.PackageSpec(\r\n    231     name=\"SymbolicRegression\",\r\n    232     url=\"https://github.com/MilesCranmer/SymbolicRegression.jl\",\r\n    233     rev=\"v\" + __symbolic_regression_jl_version__,\r\n    234 )\r\n    235 Main.clustermanagers_spec = Main.PackageSpec(\r\n    236     name=\"ClusterManagers\",\r\n    237     url=\"https://github.com/JuliaParallel/ClusterManagers.jl\",\r\n    238     rev=\"14e7302f068794099344d5d93f71979aaf4fbeb3\",\r\n    239 )\r\n--> 240 Main.eval(f\"Pkg.add([sr_spec, clustermanagers_spec], {io_arg})\")\r\n\r\nFile ~/anaconda3/envs/ai/lib/python3.8/site-packages/julia/core.py:627, in Julia.eval(self, src)\r\n    625 if src is None:\r\n    626     return None\r\n--> 627 ans = self._call(src)\r\n    628 if not ans:\r\n    629     return None\r\n\r\nFile ~/anaconda3/envs/ai/lib/python3.8/site-packages/julia/core.py:555, in Julia._call(self, src)\r\n    553 # logger.debug(\"_call(%s)\", src)\r\n    554 ans = self.api.jl_eval_string(src.encode('utf-8'))\r\n--> 555 self.check_exception(src)\r\n    557 return ans\r\n\r\nFile ~/anaconda3/envs/ai/lib/python3.8/site-packages/julia/core.py:609, in Julia.check_exception(self, src)\r\n    607 else:\r\n    608     exception = sprint(showerror, self._as_pyobj(res))\r\n--> 609 raise JuliaError(u'Exception \\'{}\\' occurred while calling julia code:\\n{}'\r\n    610                  .format(exception, src))\r\n\r\nJuliaError: Exception 'Unsatisfiable requirements detected for package DynamicExpressions [a40a106e]:\r\n DynamicExpressions [a40a106e] log:\r\n ├─DynamicExpressions [a40a106e] has no known versions!\r\n └─restricted to versions 0.4 by SymbolicRegression [8254be44] — no versions left\r\n   └─SymbolicRegression [8254be44] log:\r\n     ├─possible versions are: 0.14.4 or uninstalled\r\n     └─SymbolicRegression [8254be44] is fixed to version 0.14.4' occurred while calling julia code:\r\nPkg.add([sr_spec, clustermanagers_spec], io=stderr)\r\n\r\n % julia\r\n               _\r\n   _       _ _(_)_     |  Documentation: https://docs.julialang.org\r\n  (_)     | (_) (_)    |\r\n   _ _   _| |_  __ _   |  Type \"?\" for help, \"]?\" for Pkg help.\r\n  | | | | | | |/ _` |  |\r\n  | | |_| | | | (_| |  |  Version 1.8.3 (2022-11-14)\r\n _/ |\\__'_|_|_|\\__'_|  |  Official https://julialang.org/ release\r\n|__/                   |\r\n\r\njulia> using Pkg\r\n\r\njulia> Pkg.add(\"DynamicExpressions\")\r\nERROR: The following package names could not be resolved:\r\n * DynamicExpressions (not found in project, manifest or registry)\r\nStacktrace:\r\n  [1] pkgerror(msg::String)\r\n    @ Pkg.Types ~/anaconda3/envs/ai/share/julia/juliaup/julia-1.8.3+0.x64/share/julia/stdlib/v1.8/Pkg/src/Types.jl:67\r\n  [2] ensure_resolved(ctx::Pkg.Types.Context, manifest::Pkg.Types.Manifest, pkgs::Vector{Pkg.Types.PackageSpec}; registry::Bool)\r\n    @ Pkg.Types ~/anaconda3/envs/ai/share/julia/juliaup/julia-1.8.3+0.x64/share/julia/stdlib/v1.8/Pkg/src/Types.jl:952\r\n  [3] add(ctx::Pkg.Types.Context, pkgs::Vector{Pkg.Types.PackageSpec}; preserve::Pkg.Types.PreserveLevel, platform::Base.BinaryPlatforms.Platform, kwargs::Base.Pairs{Symbol, Base.TTY, Tuple{Symbol}, NamedTuple{(:io,), Tuple{Base.TTY}}})\r\n    @ Pkg.API ~/anaconda3/envs/ai/share/julia/juliaup/julia-1.8.3+0.x64/share/julia/stdlib/v1.8/Pkg/src/API.jl:264\r\n  [4] add(pkgs::Vector{Pkg.Types.PackageSpec}; io::Base.TTY, kwargs::Base.Pairs{Symbol, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})\r\n    @ Pkg.API ~/anaconda3/envs/ai/share/julia/juliaup/julia-1.8.3+0.x64/share/julia/stdlib/v1.8/Pkg/src/API.jl:156\r\n  [5] add(pkgs::Vector{Pkg.Types.PackageSpec})\r\n    @ Pkg.API ~/anaconda3/envs/ai/share/julia/juliaup/julia-1.8.3+0.x64/share/julia/stdlib/v1.8/Pkg/src/API.jl:145\r\n  [6] #add#27\r\n    @ ~/anaconda3/envs/ai/share/julia/juliaup/julia-1.8.3+0.x64/share/julia/stdlib/v1.8/Pkg/src/API.jl:144 [inlined]\r\n  [7] add\r\n    @ ~/anaconda3/envs/ai/share/julia/juliaup/julia-1.8.3+0.x64/share/julia/stdlib/v1.8/Pkg/src/API.jl:144 [inlined]\r\n  [8] #add#26\r\n    @ ~/anaconda3/envs/ai/share/julia/juliaup/julia-1.8.3+0.x64/share/julia/stdlib/v1.8/Pkg/src/API.jl:143 [inlined]\r\n  [9] add(pkg::String)\r\n    @ Pkg.API ~/anaconda3/envs/ai/share/julia/juliaup/julia-1.8.3+0.x64/share/julia/stdlib/v1.8/Pkg/src/API.jl:143\r\n [10] top-level scope\r\n    @ REPL[2]:1\r\n\r\njulia> \r\n\r\n```\r\nThe code works properly on Google CoLab.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @dbl001,\r\n\r\nIt looks like your Julia package registry does not contain a dependency that SymbolicRegression.jl needs. The conda version of PySR ships its own fixed Julia package registry (the \"DEPOT\"), so it seems like maybe an older version of PySR is still being used for Julia packages, rather than the latest one. (The pip version of PySR just uses a standard Julia package registry which automatically updates.)\r\n\r\nI have a couple questions to help triage this.\r\n\r\n1. I see you have both pip and conda set up. Did you install PySR with both? Can you uninstall PySR from everything, for all versions (i.e., keep running `pip uninstall pysr` and similar with `conda` until it is out of versions), and then trying installing it in just one of them?\r\n2. Why does it say you have PySR 0.9.1 when you do `python -c 'import pysr; print(pysr.__version__)'`, but then your conda and pip show it as PySR 0.11.11? Maybe try uninstalling all versions of PySR so you can be certain the error is from the current version?\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2022-11-28T19:20:13Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "dbl001"
               },
               "body": "Conda show 'pysr' was install from pipy:\r\n```\r\n% conda list pysr\r\n# packages in environment at /Users/davidlaxer/anaconda3:\r\n#\r\n# Name                    Version                   Build  Channel\r\npysr                      0.9.1                    pypi_0    pypi\r\n\r\n```\r\nI also have source for:\r\nSymbolicRegression.jl\r\npysr\r\n\r\nNo doubt I ran 'python setup.py install', etc.",
               "createdAt": "2022-11-28T19:36:09Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "dbl001"
               },
               "body": "Same error after uninstalling 'pysr' with pip a few times.\r\n```\r\n% conda list pysr\r\n# packages in environment at /Users/davidlaxer/anaconda3:\r\n#\r\n# Name                    Version                   Build  Channel\r\npysr                      0.9.1                    pypi_0    pypi\r\n(base) davidlaxer@x86_64-apple-darwin13 ~ % pip uninstall  pysr\r\nFound existing installation: pysr 0.9.1\r\nUninstalling pysr-0.9.1:\r\n  Would remove:\r\n    /Users/davidlaxer/anaconda3/lib/python3.8/site-packages/datasets/FeynmanEquations.csv\r\n    /Users/davidlaxer/anaconda3/lib/python3.8/site-packages/pysr-0.9.1.dist-info/*\r\n    /Users/davidlaxer/anaconda3/lib/python3.8/site-packages/pysr/*\r\n    /Users/davidlaxer/anaconda3/lib/python3.8/site-packages/test/*\r\nProceed (Y/n)? y\r\n  Successfully uninstalled pysr-0.9.1\r\n(base) davidlaxer@x86_64-apple-darwin13 ~ % pip uninstall pysr\r\nWARNING: Skipping pysr as it is not installed.\r\n(base) davidlaxer@x86_64-apple-darwin13 ~ % conda list pysr\r\n# packages in environment at /Users/davidlaxer/anaconda3:\r\n#\r\n# Name                    Version                   Build  Channel\r\n(base) davidlaxer@x86_64-apple-darwin13 ~ % pip install pysr\r\nCollecting pysr\r\n  Using cached pysr-0.11.11-py3-none-any.whl (62 kB)\r\nRequirement already satisfied: numpy in ./anaconda3/lib/python3.8/site-packages (from pysr) (1.22.3)\r\nRequirement already satisfied: scikit-learn>=1.0.0 in ./anaconda3/lib/python3.8/site-packages (from pysr) (1.0.2)\r\nRequirement already satisfied: sympy in ./anaconda3/lib/python3.8/site-packages (from pysr) (1.10.1)\r\nCollecting julia==0.6.0\r\n  Downloading julia-0.6.0-py2.py3-none-any.whl (68 kB)\r\n     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 68.6/68.6 kB 1.2 MB/s eta 0:00:00\r\nRequirement already satisfied: pandas in ./.local/lib/python3.8/site-packages (from pysr) (1.3.4)\r\nRequirement already satisfied: threadpoolctl>=2.0.0 in ./anaconda3/lib/python3.8/site-packages (from scikit-learn>=1.0.0->pysr) (2.2.0)\r\nRequirement already satisfied: scipy>=1.1.0 in ./anaconda3/lib/python3.8/site-packages (from scikit-learn>=1.0.0->pysr) (1.7.3)\r\nRequirement already satisfied: joblib>=0.11 in ./anaconda3/lib/python3.8/site-packages (from scikit-learn>=1.0.0->pysr) (1.1.0)\r\nRequirement already satisfied: pytz>=2017.3 in ./anaconda3/lib/python3.8/site-packages (from pandas->pysr) (2022.1)\r\nRequirement already satisfied: python-dateutil>=2.7.3 in ./anaconda3/lib/python3.8/site-packages (from pandas->pysr) (2.8.2)\r\nRequirement already satisfied: mpmath>=0.19 in ./anaconda3/lib/python3.8/site-packages (from sympy->pysr) (1.2.1)\r\nRequirement already satisfied: six>=1.5 in ./anaconda3/lib/python3.8/site-packages (from python-dateutil>=2.7.3->pandas->pysr) (1.16.0)\r\nInstalling collected packages: julia, pysr\r\n  Attempting uninstall: julia\r\n    Found existing installation: julia 0.5.7\r\n    Uninstalling julia-0.5.7:\r\n      Successfully uninstalled julia-0.5.7\r\nSuccessfully installed julia-0.6.0 pysr-0.11.11\r\n(base) davidlaxer@x86_64-apple-darwin13 ~ % pip show pysr\r\nName: pysr\r\nVersion: 0.11.11\r\nSummary: Simple and efficient symbolic regression\r\nHome-page: https://github.com/MilesCranmer/pysr\r\nAuthor: Miles Cranmer\r\nAuthor-email: miles.cranmer@gmail.com\r\nLicense: \r\nLocation: /Users/davidlaxer/anaconda3/lib/python3.8/site-packages\r\nRequires: julia, numpy, pandas, scikit-learn, sympy\r\nRequired-by: \r\n(base) davidlaxer@x86_64-apple-darwin13 ~ % \r\n\r\n```",
               "createdAt": "2022-11-28T19:40:11Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks. How are you installing Julia? It looks like the Julia install is inside conda. If so, `conda uninstall julia`, and then install Julia normally: https://julialang.org/downloads/.",
               "createdAt": "2022-11-28T19:45:41Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Btw, one confusing thing: in conda, `julia` is the language `julia`, but in pip, `julia` is actually PyJulia (the interface)",
               "createdAt": "2022-11-28T19:46:29Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "dbl001"
               },
               "body": "```\r\n% conda list julia\r\n# packages in environment at /Users/davidlaxer/anaconda3:\r\n#\r\n# Name                    Version                   Build  Channel\r\njulia                     0.6.0                    pypi_0    pypi\r\n(base) davidlaxer@x86_64-apple-darwin13 ~ % pip show julia\r\nName: julia\r\nVersion: 0.6.0\r\nSummary: Julia/Python bridge with IPython support.\r\nHome-page: http://julialang.org\r\nAuthor: The Julia and IPython development teams.\r\nAuthor-email: julia@julialang.org\r\nLicense: MIT\r\nLocation: /Users/davidlaxer/anaconda3/lib/python3.8/site-packages\r\nRequires: \r\nRequired-by: pysr\r\n(base) davidlaxer@x86_64-apple-darwin13 ~ % which julia\r\n/Users/davidlaxer/.juliaup/bin/julia\r\n(base) davidlaxer@x86_64-apple-darwin13 ~ % julia --version\r\nThe latest version of Julia in the `release` channel is 1.8.3+0.x64. You currently have `1.8.2+0.x64` installed. Run:\r\n\r\n  juliaup update\r\n\r\nto install Julia 1.8.3+0.x64 and update the `release` channel to that version.\r\njulia version 1.8.2\r\n\r\n```",
               "createdAt": "2022-11-28T19:47:44Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "So far so good. But I am confused why it lists your `JULIA_DEPOT` as if you had installed julia with conda:\r\n\r\n```\r\nEnvironment:\r\n...\r\n  JULIA_DEPOT_PATH = /Users/davidlaxer/anaconda3/envs/ai/share/julia:\r\n...\r\n```\r\n\r\nmaybe just try deleting `share/julia` and seeing if that fixes it?",
               "createdAt": "2022-11-28T19:51:52Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "For reference, here is mine (also installed with `juliaup`):\r\n```bash\r\n> julia\r\njulia> DEPOT_PATH\r\n3-element Vector{String}:\r\n \"/Users/mcranmer/.julia\"\r\n \"/Users/mcranmer/.julia/juliaup/julia-1.8.3+0.aarch64/local/share/julia\"\r\n \"/Users/mcranmer/.julia/juliaup/julia-1.8.3+0.aarch64/share/julia\"\r\n```\r\nso I would expect your `DEPOT_PATH` to be similar.",
               "createdAt": "2022-11-28T19:58:24Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "dbl001"
               },
               "body": "I deleted share/julia in my Conda virtual environment\r\n\r\n```\r\n% julia\r\nError: The Julia launcher failed to figure out which juliaup channel to use.\r\n\r\n% ipython\r\nPython 3.8.13 (default, Mar 28 2022, 06:16:26) \r\nType 'copyright', 'credits' or 'license' for more information\r\nIPython 8.3.0 -- An enhanced Interactive Python. Type '?' for help.\r\n\r\nIn [1]: import julia\r\n\r\nIn [2]: import pysr\r\n\r\nIn [3]: from julia import Julia\r\n\r\nIn [4]: julia = Julia(compiled_modules=False)\r\n   ...: from julia import Main\r\n   ...: from julia.tools import redirect_output_streams\r\n   ...: \r\n   ...: redirect_output_streams()\r\n---------------------------------------------------------------------------\r\nCalledProcessError                        Traceback (most recent call last)\r\nInput In [4], in <cell line: 1>()\r\n----> 1 julia = Julia(compiled_modules=False)\r\n      2 from julia import Main\r\n      3 from julia.tools import redirect_output_streams\r\n\r\nFile ~/anaconda3/envs/ai/lib/python3.8/site-packages/julia/core.py:702, in LegacyJulia.__init__(self, *args, **kwargs)\r\n    701 def __init__(self, *args, **kwargs):\r\n--> 702     self.__julia = Julia(*args, **kwargs)\r\n\r\nFile ~/anaconda3/envs/ai/lib/python3.8/site-packages/julia/core.py:468, in Julia.__init__(self, init_julia, jl_init_path, runtime, jl_runtime_path, debug, **julia_options)\r\n    466     self.api = get_libjulia()\r\n    467 elif init_julia:\r\n--> 468     jlinfo = JuliaInfo.load(runtime)\r\n    469     if jlinfo.version_info < (0, 7):\r\n    470         raise RuntimeError(\"PyJulia does not support Julia < 0.7 anymore\")\r\n\r\nFile ~/anaconda3/envs/ai/lib/python3.8/site-packages/julia/juliainfo.py:87, in JuliaInfo.load(cls, julia, **popen_kwargs)\r\n     83         raise subprocess.CalledProcessError(\r\n     84             retcode, [julia, \"-e\", \"...\"], output\r\n     85         )\r\n     86     else:\r\n---> 87         raise subprocess.CalledProcessError(\r\n     88             retcode, [julia, \"-e\", \"...\"], stdout, stderr\r\n     89         )\r\n     91 stderr = stderr.strip()\r\n     92 if stderr:\r\n\r\nCalledProcessError: Command '['julia', '-e', '...']' returned non-zero exit status 1.\r\n\r\nIn [5]: \r\n\r\nIn [5]: print(julia.__version__)\r\n0.6.0\r\n\r\n\r\n```\r\n![image](https://user-images.githubusercontent.com/3105499/204370629-dcdc5db7-728a-4797-a31b-29a98cea1d78.png)\r\n",
               "createdAt": "2022-11-28T20:01:57Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Okay so now that it's deleted, you should re-install PyCall.jl using `python -c 'import pysr; pysr.install()'`. Otherwise PyJulia can't access Julia yet.\r\n\r\nAlso - before that, I would try just running `using Pkg; Pkg.add(\"DynamicExpressions\")` within Julia itself to make sure everything is good now.",
               "createdAt": "2022-11-28T20:09:09Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Btw, the `redirect_output_streams()` is just a colab-specific hack. You don't need to do that in IPython.",
               "createdAt": "2022-11-28T20:10:00Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "dbl001"
               },
               "body": "```\r\njulia> DEPOT_PATH\r\n3-element Vector{String}:\r\n \"/Users/davidlaxer/.julia\"\r\n \"/Applications/Julia-1.8.app/Contents/Resources/julia/local/share/julia\"\r\n \"/Applications/Julia-1.8.app/Contents/Resources/julia/share/julia\"\r\n\r\njulia> using Pkg; Pkg.add(\"DynamicExpressions\")\r\n    Updating registry at `~/.julia/registries/General.toml`\r\n   Resolving package versions...\r\n   Installed SLEEFPirates ───────────────────── v0.6.37\r\n   Installed ArrayInterfaceOffsetArrays ─────── v0.1.7\r\n   Installed SIMDTypes ──────────────────────── v0.1.0\r\n   Installed ThreadingUtilities ─────────────── v0.5.0\r\n   Installed SIMDDualNumbers ────────────────── v0.1.1\r\n   Installed CpuId ──────────────────────────── v0.3.1\r\n   Installed ManualMemory ───────────────────── v0.1.8\r\n   Installed DynamicExpressions ─────────────── v0.4.2\r\n   Installed OffsetArrays ───────────────────── v1.12.8\r\n   Installed SnoopPrecompile ────────────────── v1.0.1\r\n   Installed BitTwiddlingConvenienceFunctions ─ v0.1.5\r\n   Installed LayoutPointers ─────────────────── v0.1.12\r\n   Installed PolyesterWeave ─────────────────── v0.1.11\r\n   Installed CloseOpenIntervals ─────────────── v0.1.11\r\n   Installed CPUSummary ─────────────────────── v0.1.30\r\n   Installed HostCPUFeatures ────────────────── v0.1.13\r\n   Installed VectorizationBase ──────────────── v0.21.56\r\n   Installed LoopVectorization ──────────────── v0.12.141\r\n    Updating `~/.julia/environments/v1.8/Project.toml`\r\n  [a40a106e] + DynamicExpressions v0.4.2\r\n    Updating `~/.julia/environments/v1.8/Manifest.toml`\r\n  [015c0d05] + ArrayInterfaceOffsetArrays v0.1.7\r\n  [62783981] + BitTwiddlingConvenienceFunctions v0.1.5\r\n  [2a0fbf3d] + CPUSummary v0.1.30\r\n  [fb6a15b2] + CloseOpenIntervals v0.1.11\r\n  [adafc99b] + CpuId v0.3.1\r\n  [a40a106e] + DynamicExpressions v0.4.2\r\n  [3e5b6fbb] + HostCPUFeatures v0.1.13\r\n  [10f19ff3] + LayoutPointers v0.1.12\r\n  [bdcacae8] + LoopVectorization v0.12.141\r\n  [d125e4d3] + ManualMemory v0.1.8\r\n  [6fe1bfb0] + OffsetArrays v1.12.8\r\n  [1d0040c9] + PolyesterWeave v0.1.11\r\n  [3cdde19b] + SIMDDualNumbers v0.1.1\r\n  [94e857df] + SIMDTypes v0.1.0\r\n  [476501e8] + SLEEFPirates v0.6.37\r\n  [66db9d55] + SnoopPrecompile v1.0.1\r\n  [8290d209] + ThreadingUtilities v0.5.0\r\n  [3d5dd08c] + VectorizationBase v0.21.56\r\nPrecompiling project...\r\n  185 dependencies successfully precompiled in 66 seconds\r\n\r\njulia> \r\n\r\n% python -c 'import pysr; pysr.install()'\r\nTraceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\n  File \"/Users/davidlaxer/PySR/pysr/julia_helpers.py\", line 76, in install\r\n    _julia_version_assertion()\r\n  File \"/Users/davidlaxer/PySR/pysr/julia_helpers.py\", line 251, in _julia_version_assertion\r\n    if not is_julia_version_greater_eq(version=(1, 6, 0)):\r\n  File \"/Users/davidlaxer/PySR/pysr/julia_helpers.py\", line 124, in is_julia_version_greater_eq\r\n    juliainfo = _load_juliainfo()\r\n  File \"/Users/davidlaxer/PySR/pysr/julia_helpers.py\", line 25, in _load_juliainfo\r\n    juliainfo = JuliaInfo.load(julia=\"julia\")\r\n  File \"/Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages/julia/juliainfo.py\", line 87, in load\r\n    raise subprocess.CalledProcessError(\r\nsubprocess.CalledProcessError: Command '['julia', '-e', '...']' returned non-zero exit status 1.\r\n(ai) davidlaxer@x86_64-apple-darwin13 pysr % ipython\r\nPython 3.8.13 (default, Mar 28 2022, 06:16:26) \r\nType 'copyright', 'credits' or 'license' for more information\r\nIPython 8.3.0 -- An enhanced Interactive Python. Type '?' for help.\r\n\r\nIn [1]: import pysr\r\n\r\nIn [2]: pysr.install()\r\n---------------------------------------------------------------------------\r\nCalledProcessError                        Traceback (most recent call last)\r\nInput In [2], in <cell line: 1>()\r\n----> 1 pysr.install()\r\n\r\nFile ~/PySR/pysr/julia_helpers.py:76, in install(julia_project, quiet)\r\n     69 \"\"\"\r\n     70 Install PyCall.jl and all required dependencies for SymbolicRegression.jl.\r\n     71 \r\n     72 Also updates the local Julia registry.\r\n     73 \"\"\"\r\n     74 import julia\r\n---> 76 _julia_version_assertion()\r\n     77 # Set JULIA_PROJECT so that we install in the pysr environment\r\n     78 processed_julia_project, is_shared = _process_julia_project(julia_project)\r\n\r\nFile ~/PySR/pysr/julia_helpers.py:251, in _julia_version_assertion()\r\n    250 def _julia_version_assertion():\r\n--> 251     if not is_julia_version_greater_eq(version=(1, 6, 0)):\r\n    252         raise NotImplementedError(\r\n    253             \"PySR requires Julia 1.6.0 or greater. \"\r\n    254             \"Please update your Julia installation.\"\r\n    255         )\r\n\r\nFile ~/PySR/pysr/julia_helpers.py:124, in is_julia_version_greater_eq(juliainfo, version)\r\n    122 \"\"\"Check if Julia version is greater than specified version.\"\"\"\r\n    123 if juliainfo is None:\r\n--> 124     juliainfo = _load_juliainfo()\r\n    125 current_version = (\r\n    126     juliainfo.version_major,\r\n    127     juliainfo.version_minor,\r\n    128     juliainfo.version_patch,\r\n    129 )\r\n    130 return current_version >= version\r\n\r\nFile ~/PySR/pysr/julia_helpers.py:25, in _load_juliainfo()\r\n     22 from julia.core import JuliaInfo\r\n     24 try:\r\n---> 25     juliainfo = JuliaInfo.load(julia=\"julia\")\r\n     26 except FileNotFoundError:\r\n     27     env_path = os.environ[\"PATH\"]\r\n\r\nFile ~/anaconda3/envs/ai/lib/python3.8/site-packages/julia/juliainfo.py:87, in JuliaInfo.load(cls, julia, **popen_kwargs)\r\n     83         raise subprocess.CalledProcessError(\r\n     84             retcode, [julia, \"-e\", \"...\"], output\r\n     85         )\r\n     86     else:\r\n---> 87         raise subprocess.CalledProcessError(\r\n     88             retcode, [julia, \"-e\", \"...\"], stdout, stderr\r\n     89         )\r\n     91 stderr = stderr.strip()\r\n     92 if stderr:\r\n\r\nCalledProcessError: Command '['julia', '-e', '...']' returned non-zero exit status 1.\r\n\r\n```",
               "createdAt": "2022-11-28T20:13:08Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Well, your Julia install looks like it's working now. It's just the interface between the two that has some problem... What is `python -c 'import os; print(os.environ[\"PATH\"])'`? My suspicion is that the julia binary isn't on the PATH variable inside Python.",
               "createdAt": "2022-11-28T20:16:11Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "dbl001"
               },
               "body": "```\r\n% python -c 'import os; print(os.environ[\"PATH\"])'\r\n/Users/davidlaxer/.opam/_coq-platform_.2021.02.1/bin:/Users/davidlaxer/.juliaup/bin:/Users/davidlaxer/.cabal/bin:/Users/davidlaxer/.ghcup/bin:/Users/davidlaxer/anaconda3/envs/ai/bin:/Users/davidlaxer/anaconda3/condabin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Users/davidlaxer/.cargo/bin:/Users/jetbrains/.local/bin\r\n\r\n```",
               "createdAt": "2022-11-28T20:19:13Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Looks fine to me... What does just running `python -c 'from julia.core import JuliaInfo; juliainfo = JuliaInfo.load(julia=\"julia\")'` do? (i.e., what is the full error message)?",
               "createdAt": "2022-11-28T20:23:57Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "dbl001"
               },
               "body": "```\r\n% env | grep PATH\r\nPATH=/Users/davidlaxer/.opam/_coq-platform_.2021.02.1/bin:/Users/davidlaxer/.juliaup/bin:/Users/davidlaxer/.cabal/bin:/Users/davidlaxer/.ghcup/bin:/Users/davidlaxer/anaconda3/envs/ai/bin:/Users/davidlaxer/anaconda3/condabin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Users/davidlaxer/.cargo/bin:/Users/jetbrains/.local/bin\r\nJAVA_LD_LIBRARY_PATH=:-\r\nCAML_LD_LIBRARY_PATH=/Users/davidlaxer/.opam/_coq-platform_.2021.02.1/lib/stublibs:/Users/davidlaxer/.opam/_coq-platform_.2021.02.1/lib/ocaml/stublibs:/Users/davidlaxer/.opam/_coq-platform_.2021.02.1/lib/ocaml\r\nOCAML_TOPLEVEL_PATH=/Users/davidlaxer/.opam/_coq-platform_.2021.02.1/lib/toplevel\r\nPKG_CONFIG_PATH=/Users/davidlaxer/.opam/_coq-platform_.2021.02.1/lib/pkgconfig:\r\nJULIA_DEPOT_PATH_BACKUP=\r\nJULIA_LOAD_PATH_BACKUP=\r\nJULIA_DEPOT_PATH=/Users/davidlaxer/anaconda3/envs/ai/share/julia:\r\nJULIA_SSL_CA_ROOTS_PATH_BACKUP=\r\nJULIA_SSL_CA_ROOTS_PATH=/Users/davidlaxer/anaconda3/envs/ai/ssl/cacert.pem\r\n(ai) davidlaxer@x86_64-apple-darwin13 pysr % python -c 'from julia.core import JuliaInfo; juliainfo = JuliaInfo.load(julia=\"julia\")'\r\nTraceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\n  File \"/Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages/julia/juliainfo.py\", line 87, in load\r\n    raise subprocess.CalledProcessError(\r\nsubprocess.CalledProcessError: Command '['julia', '-e', '...']' returned non-zero exit status 1.\r\n\r\n % which julia\r\n/Users/davidlaxer/.juliaup/bin/julia\r\n(ai) davidlaxer@x86_64-apple-darwin13 pysr % whereis julia\r\njulia: /Users/davidlaxer/.juliaup/bin/julia /Users/davidlaxer/anaconda3/envs/ai/share/man/man1/julia.1\r\n\r\n% conda list julia\r\n# packages in environment at /Users/davidlaxer/anaconda3/envs/ai:\r\n#\r\n# Name                    Version                   Build  Channel\r\njulia                     1.6.5                h132cb31_2    conda-forge\r\npyjulia                   0.6.0              pyhd8ed1ab_0    conda-forge\r\n```",
               "createdAt": "2022-11-28T20:25:55Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hmm, why would `JULIA_DEPOT_PATH` still be `/Users/davidlaxer/anaconda3/envs/ai/share/julia` if you have deleted it, and also successfully installed a Julia package to a different depot... I guess that's why it's erroring out. \r\n\r\nI think your conda environment's `activate` script is setting `JULIA_DEPOT_PATH` maybe from an earlier install of `pysr` using `conda`. I guess when you uninstalled it, that `JULIA_DEPOT_PATH` was not unset. @mkitti we might want to fix this when `julia` is uninstalled from conda somehow.\r\n\r\nThe easy fix for you is to explicitly set `export JULIA_DEPOT_PATH=/Applications/Julia-1.8.app/Contents/Resources/julia/share/julia` from bash before starting python.\r\n\r\nThe longterm fix is to find the `activate` script in your conda environment, and see where it is setting `JULIA_DEPOT_PATH`, and then comment out that line. For safe measure do the same for `JULIA_SSL_CA_ROOTS_PATH` since it also points to your conda's old julia install.",
               "createdAt": "2022-11-28T20:31:03Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "In your updated comment, I think this:\r\n```\r\n% conda list julia\r\n# packages in environment at /Users/davidlaxer/anaconda3/envs/ai:\r\n#\r\n# Name                    Version                   Build  Channel\r\njulia                     1.6.5                h132cb31_2    conda-forge\r\npyjulia                   0.6.0              pyhd8ed1ab_0    conda-forge\r\n```\r\nindicates that Julia was not actually uninstalled from your conda env?",
               "createdAt": "2022-11-28T20:31:57Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "i.e., run `conda uninstall julia pyjulia`",
               "createdAt": "2022-11-28T20:33:17Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "dbl001"
               },
               "body": "```\r\n% conda list julia\r\n# packages in environment at /Users/davidlaxer/anaconda3/envs/ai:\r\n#\r\n# Name                    Version                   Build  Channel\r\n(ai) davidlaxer@x86_64-apple-darwin13 pysr % pip show julia\r\nWARNING: Package(s) not found: julia\r\n\r\n % python -c 'from julia.core import JuliaInfo; juliainfo = JuliaInfo.load(julia=\"julia\")'\r\nTraceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\nModuleNotFoundError: No module named 'julia'\r\n(ai) davidlaxer@x86_64-apple-darwin13 pysr % ipython\r\nPython 3.8.13 (default, Mar 28 2022, 06:16:26) \r\nType 'copyright', 'credits' or 'license' for more information\r\nIPython 8.3.0 -- An enhanced Interactive Python. Type '?' for help.\r\n\r\nIn [1]: import pysr\r\n---------------------------------------------------------------------------\r\nModuleNotFoundError                       Traceback (most recent call last)\r\nInput In [1], in <cell line: 1>()\r\n----> 1 import pysr\r\n\r\nFile ~/PySR/pysr/__init__.py:2, in <module>\r\n      1 from .version import __version__\r\n----> 2 from .sr import (\r\n      3     pysr,\r\n      4     PySRRegressor,\r\n      5     best,\r\n      6     best_tex,\r\n      7     best_callable,\r\n      8     best_row,\r\n      9 )\r\n     10 from .julia_helpers import install\r\n     11 from .feynman_problems import Problem, FeynmanProblem\r\n\r\nFile ~/PySR/pysr/sr.py:24, in <module>\r\n     18 from sklearn.utils import check_array, check_consistent_length, check_random_state\r\n     19 from sklearn.utils.validation import (\r\n     20     _check_feature_names_in,\r\n     21     check_is_fitted,\r\n     22 )\r\n---> 24 from .julia_helpers import (\r\n     25     init_julia,\r\n     26     _process_julia_project,\r\n     27     is_julia_version_greater_eq,\r\n     28     _escape_filename,\r\n     29     _load_cluster_manager,\r\n     30     _update_julia_project,\r\n     31     _load_backend,\r\n     32 )\r\n     33 from .export_numpy import CallableEquation\r\n     34 from .export_latex import generate_single_table, generate_multiple_tables, to_latex\r\n\r\nFile ~/PySR/pysr/julia_helpers.py:7, in <module>\r\n      5 from pathlib import Path\r\n      6 import os\r\n----> 7 from julia.api import JuliaError\r\n      9 from .version import __version__, __symbolic_regression_jl_version__\r\n     11 juliainfo = None\r\n\r\nModuleNotFoundError: No module named 'julia'\r\n```",
               "createdAt": "2022-11-28T20:59:35Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "dbl001"
               },
               "body": "So, manually delete this directory:\r\n\r\n~/anaconda3/envs/ai/lib/python3.8/site-packages/julia",
               "createdAt": "2022-11-28T21:16:31Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "dbl001"
               },
               "body": "Hmmm... **_Requirement already satisfied: julia==0.6.0 in /Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages (from pysr) (0.6.0)_**\r\n```\r\n% pip install pysr\r\nRequirement already satisfied: pysr in /Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages (0.11.11)\r\nRequirement already satisfied: pandas in /Users/davidlaxer/.local/lib/python3.8/site-packages (from pysr) (1.3.4)\r\nRequirement already satisfied: julia==0.6.0 in /Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages (from pysr) (0.6.0)\r\nRequirement already satisfied: sympy in /Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages (from pysr) (1.10.1)\r\nRequirement already satisfied: scikit-learn>=1.0.0 in /Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages (from pysr) (1.0.2)\r\nRequirement already satisfied: numpy in /Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages (from pysr) (1.22.3)\r\nRequirement already satisfied: threadpoolctl>=2.0.0 in /Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages (from scikit-learn>=1.0.0->pysr) (2.2.0)\r\nRequirement already satisfied: scipy>=1.1.0 in /Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages (from scikit-learn>=1.0.0->pysr) (1.8.1)\r\nRequirement already satisfied: joblib>=0.11 in /Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages (from scikit-learn>=1.0.0->pysr) (1.1.0)\r\nRequirement already satisfied: pytz>=2017.3 in /Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages (from pandas->pysr) (2022.1)\r\nRequirement already satisfied: python-dateutil>=2.7.3 in /Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages (from pandas->pysr) (2.8.2)\r\nRequirement already satisfied: mpmath>=0.19 in /Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages (from sympy->pysr) (1.2.1)\r\nRequirement already satisfied: six>=1.5 in /Users/davidlaxer/anaconda3/envs/ai/lib/python3.8/site-packages (from python-dateutil>=2.7.3->pandas->pysr) (1.16.0)\r\nWARNING: There was an error checking the latest version of pip.\r\n(ai) davidlaxer@x86_64-apple-darwin13 pysr % \r\n\r\n```\r\n",
               "createdAt": "2022-11-28T21:18:46Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Looks a bit tricky to debug that, it seems like it's an environment issue. Maybe try to just create a new conda environment? Conda is tricky to fix when you combine pip installs with conda installs.\r\n\r\nWorst case you could always install the docker, which is pretty easy, `docker pull ghcr.io/milescranmer/pysr` and `docker run -it --rm -v \"$PWD\":/workspace ghcr.io/milescranmer/pysr ipython` - that IPython should be ready to go with `pysr`, and you can access your current directory inside the container in the `/workspace` folder.",
               "createdAt": "2022-11-28T22:00:28Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mkitti"
               },
               "body": "I recommend just starting a fresh environment first.\r\n\r\n```\r\nmamba create -n pysr_test -c conda-forge pysr julia\r\n```\r\n\r\nReplace `mamba` with `conda` if you are not using that already.",
               "createdAt": "2022-11-29T01:51:12Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "dbl001"
               },
               "body": "It's working on MacOS  in a new Conda virtual environment.\r\nThanks for your help!",
               "createdAt": "2022-11-29T03:55:16Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Awesome. Thanks @mkitti!",
               "createdAt": "2022-11-29T10:36:23Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOT0yj3A=="
           }

@@ -69,11 +69,18 @@
               },
               "body": "Here's how to do it by installing the nightly version of Julia.\r\n\r\nFirst, install Juliaup:\r\n\r\n```bash\r\ncurl -fsSL https://install.julialang.org | sh\r\n# on windows: winget install julia -s msstore\r\n```\r\n\r\nThen, install the \"nightly\" channel:\r\n\r\n```bash\r\njuliaup add nightly\r\n```\r\n\r\nThis is the most recent version of Julia in the `master` branch. (Note there is a chance it is broken, since it's not as stable as the released versions).\r\n\r\nThen, when you start Python, set the `PYTHON_JULIAPKG_EXE` environment variable to point to the `nightly` Julia which you can find with this:\r\n\r\n```bash\r\njulia +nightly --startup-file=no -e 'println(Base.julia_cmd())'\r\n# For me, I get: `/Users/mcranmer/.julia/juliaup/julia-nightly/bin/julia -C native -J/Users/mcranmer/.julia/juliaup/julia-nightly/lib/julia/sys.dylib -g1 --startup-file=no`\r\n```\r\n\r\nSet this when you start python:\r\n\r\n```python\r\nimport os\r\nos.environ[\"PYTHON_JULIAPKG_EXE\"] = \"/Users/mcranmer/.julia/juliaup/julia-nightly/bin/julia\"\r\n\r\n# Then, import pysr\r\nimport pysr\r\n```\r\n\r\nAnd it will automatically install under this specific Julia version!",
               "createdAt": "2024-12-23T18:07:15Z"
+            },
+            {
+              "author": {
+                "login": "rahiq1000"
+              },
+              "body": "Hi there, I am currently encountering the same issue.  I define a PySR model at the start, and then run model.fit for every batch (19 batches per iteration). Since SR can be quite intensive, I only use ~10 iterations, with warm_start set to True.\r\n\r\nAt the start, it only takes about 5s per batch but it progressively seems to increase. Did you find a solution for this issue?",
+              "createdAt": "2025-03-25T10:52:05Z"
             }
           ],
           "pageInfo": {
             "hasNextPage": false,
-            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0yM1QxODowNzoxNSswMDowMM4Asc09"
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0yNVQxMDo1MjowNSswMDowMM4AwHe_"
           }
         }
       }

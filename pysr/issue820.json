@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 820,
+        "title": "[BUG]: Warm start from a loaded model not using the previous best equations",
+        "body": "### What happened?\n\nHi, I was fitting a model that hanged. So I decided to load it to continue the run\n\n```python\nmodel = PySRRegressor.from_file(run_directory=PATH)\nmodel.warm_start = True\nmodel.fit(X_train, y_train, variable_names=feature_columns)\n```\n\nhowever, I noticed that it was not continuing from where it left of, but started a new run and rewrote the CSV file with new (and worse) equations. I then tinkered a bit to try to understand, and did this\n\n```python\nmodel = PySRRegressor.from_file(run_directory=PATH)\nmodel.warm_start = True\nold_run_id = model.run_id\nmodel.run_id = model.run_id+\"-2\"\nmodel.run_id_ = model.run_id_+\"-2\"\nmodel.fit(X_train, y_train, variable_names=feature_columns)\n```\n\nand it starts a new run, ignoring the previous hall of fame, but at least it doesn't re-write the previous run.\n\nAm I missing something?\n\n### Version\n\n1.3.1\n\n### Operating System\n\nLinux\n\n### Package Manager\n\nOther (specify below)\n\n### Interface\n\nJupyter Notebook\n\n### Relevant log output\n\n```shell\n\n```\n\n### Extra Info\n\npackage manager: uv",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Might be related to https://github.com/MilesCranmer/PySR/issues/816?\n\nIf you can make a MWE it would be much appreciated. I'm not able to reproduce this at the moment, though it certainly seems like there's some sort of bug here.",
+              "createdAt": "2025-02-05T11:45:53Z"
+            },
+            {
+              "author": {
+                "login": "romanovzky"
+              },
+              "body": "So, I couldn't reproduce this once I upgraded from python `3.12.1` to `3.12.8`, which suggest to me that there's something weird happening with that version of python...",
+              "createdAt": "2025-02-11T11:57:42Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Weird. Ok, thanks! Let me know if it comes up again.",
+              "createdAt": "2025-02-11T13:13:38Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOnf_y7Q=="
+          }
+        }
+      }
+    }
+  }
+}

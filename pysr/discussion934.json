@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 934,
+        "title": "Maximising system resources",
+        "body": "Hi all,\r\n\r\nI've just bought an AMD strix halo 16c, 32t CPU with 128GB RAM. I'm loading julia v11.5 with --threads=auto. \r\nHowever, I'm struggling to get SR.jl to use more than around 1.3GB of RAM and around 30% CPU utilisation. I'm not sure what the bottleneck is or how I can better utilise the system resources?\r\n\r\nThe CPUs are running cool and not throttling and I've maximised utilisation in device manager. Happy to have any tips!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "You can try to increase the number of populations, as this is the limiting factor in how parallel the search can be. I usually do 2x or 3x the number of threads.\r\n\r\nAnd also experiment with increases to ncycles_per_iteration as this lets each population evolve for longer before being aggregated by the main thread.\r\n\r\nFinally, you can try to manually set the number of threads as I often find that `--threads=auto` underutilises the system. So e.g., `--threads=50` in your case.\r\n\r\nIf these don't get there, the approach is to use `parallelism=:multiprocessing`. This tends to use resources much more intensely. Not completely sure why. But it is useful if you can't get there with threads.",
+              "createdAt": "2025-05-20T00:10:06Z"
+            },
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "Thanks for the useful advice, will go through them. However, as a quick note, parallelism=:multiprocessing does indeed ramp up things significantly. However, it doesn't seem to work with expression_spec.\r\n\r\nMy code isn't anything that fancy:\r\n```julia\r\nexpression_spec = @template_spec(expressions=(f_s,), parameters=(p1=n,)) do x1, x2, x3, x4, x5, x6, cat #n is length of cat\r\n   return f_s(x1, x2, x3, x4, x5, x6, p1[cat])\r\nend\r\n```\r\nIs this a known issue?\r\n\r\nFinally, my custom loss function didn't work as I was using MVectors to speed up the loss function using VectorizationBase, but this isn't imported to all the separate processes. However, I can stop using them and rely on dictionaries instead as the overall speed increase would be more than worth it.\r\n\r\n\r\n",
+              "createdAt": "2025-05-20T00:38:36Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0yMFQwMTozODozNiswMTowMM4AyWul"
+          }
+        }
+      }
+    }
+  }
+}

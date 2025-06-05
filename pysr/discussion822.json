@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 822,
+        "title": "Template Expressions issue",
+        "body": "Hello!\r\n\r\nThe expressions I am looking for are of the form:\r\ngreater(X, Y)\r\n\r\n(X and Y can be anything, a constant, a unary function, a binary function, a combination of the preceding... the all being expected to return 0 or 1)\r\n\r\nI defined the following template expression:\r\ntemplate = TemplateExpressionSpec(\r\n    function_symbols=[\"f\", \"g\"],\r\n    combine=\"((; f, g), (x1, x2, x3, x4)) -> greater(f(x1, x2), g(x3, x4))\"\r\n)\r\n\r\nBut I get the following error:\r\nJuliaError: MethodError: no method matching isless(::ValidVector{Vector{Float64}}, ::ValidVector{Vector{Float64}})\r\nThe function `isless` exists, but no method is defined for this combination of argument types.\r\n\r\n(I have tried with (x, y) -> x > y ? 1 : 0 instead of greater(x, y), but got the same error...)\r\n\r\nAny advice? Thanks!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hey, sorry, I didn't yet add the `>` operator for TemplateExpressions: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/9fabc303dd33c624739e759d960374c7f85e56f7/src/ComposableExpression.jl#L246-L249.\r\n\r\nFor now you can manually unpack it to vector form and then wrap it up as a ValidVector again:\r\n\r\n```julia\r\n((; f, g), (x1, x2, x3, x4)) -> begin\r\n    f_x = f(x1, x2)\r\n    g_x = g(x3, x4)\r\n\r\n    raw = [fxi > gxi ? one(fxi) : zero(fxi) for (fxi, gxi) in zip(f_x.x, g_x.x)]\r\n    ValidVector(raw, f_x.valid && g_x.valid)\r\nend\r\n```",
+              "createdAt": "2025-02-06T18:11:50Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMi0wNlQxODoxMTo1MCswMDowMM4AuGgl"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,68 +1,56 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 99,
         "title": "Better defaults",
         "body": "The following code trundles along *very* slowly (on my beefy server), making an iteration maybe every 20 seconds or so? Over IIRC 4000 total iterations, that's going to take a long time to complete.\r\n\r\n```python\r\nimport pysr\r\nimport numpy as np\r\nmodel = pysr.PySRRegressor()\r\nx = np.random.rand(10, 2)\r\ny = np.random.rand(10, 2)\r\nmodel.fit(x, y)\r\n```\r\n\r\nFor context these are the default arguments I use in practice, which run pretty quickly (I make no claim that these are very well tuned, just that they are sufficient for what I've been trying):\r\n```\r\nniterations=4\r\nncyclesperiteration=30\r\npopulations=100\r\nnpop=20\r\n```\r\n\r\nAnd these are the current PySR defaults:\r\n```\r\nniterations=100\r\nncyclesperiteration=300\r\npopulations=20\r\nnpop=1000\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Good point, I may do this. Originally I made the default settings beefier to make PySR more likely to find the true equation if a user tries it for the first time, but on the other hand, it's much slower!\r\n\r\nI would suggest toying with `annealing=True` (very good for short runs; though it might need more ncyclesperiteration to actually do much).\r\n\r\nAlso, `hofMigration=False`, and `fractionReplaced=0.02` might help produce more diversity. Having `hofMigration` on basically means that 10% of every population is replaced with hall of fame equations (i.e., best equations ever found for each complexity) at the end of one iteration, but its very likely too much when you have short `ncyclesperiteration`. ",
               "createdAt": "2022-02-02T00:49:26Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I think a good measure would the fastest defaults that can still solve `example.py` 99% of the time. These ones seem a bit light for that example, but even increasing to\r\n\r\n```\r\npopulations=100,\r\nniterations=40,\r\nncyclesperiteration=30,\r\nnpop=100,\r\nfractionReplaced=0.01,\r\nfractionReplacedHof=0.01,\r\n```\r\nseems to do the trick and then some.\r\n\r\nI also think a lot of the slowness is just compilation times. If you run `model.reset()` and then `model.fit(X, y)` a second time in the same python instance, it runs way faster.",
               "createdAt": "2022-02-02T00:58:38Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "patrick-kidger"
               },
               "body": "Alright, sounds good!\r\n\r\nI don't think it is compile times. Whilst it's definitely true that that's an issue, I'm only talking here about the time it takes to complete an iteration.",
               "createdAt": "2022-02-02T01:05:33Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Yeah after thinking about this more, it really makes sense to have the default parameters lighter rather than beefier. It just feels more natural to me to look up how to make some model spend _more_ time, rather than less. I would never think about how to make a model spend less time.\r\n\r\nThe bonus of a shorter time is users can also quickly tweak parameters and see the effects.",
               "createdAt": "2022-02-02T01:27:29Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "patrick-kidger"
               },
               "body": "> I would never think about how to make a model spend less time.\r\n\r\nWe've not been working under the same hardware constraints I see ;)\r\n\r\nAnyway, great! :D",
               "createdAt": "2022-02-02T01:32:06Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Oh what I meant was that if I try an sklearn algorithm out, and it's very very slow, then I may just move on to another algorithm, rather than try to tune it and get it faster.\r\n\r\nWhereas if an algorithm is super fast from the start (even if its sub-par performance), then I feel better about trying to increase the steps to get a better result. \r\n\r\nBut yeah, I think this will be a good change!",
               "createdAt": "2022-02-02T19:44:54Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOPUqOdg=="
           }

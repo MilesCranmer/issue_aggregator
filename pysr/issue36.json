@@ -1,110 +1,114 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 36,
         "title": "Symbolic deep learning",
         "body": "Trying to recreate the examples from this [paper](https://arxiv.org/abs/2006.11287) \r\nPySR is always predicting scalars as a low complexity solution, which doesn't make much sense, can you please elaborate on that?\r\nAnd what is wrong why I'm unable to get the right expression?\r\n```\r\nCycles per second: 3.050e+03\r\nProgress: 19 / 20 total iterations (95.000%)\r\nHall of Fame:\r\n-----------------------------------------\r\nComplexity  Loss       Score     Equation\r\n1           1.278e-01  -9.446e-02  -0.08741549\r\n2           1.165e-01  9.256e-02  square(-0.18644808)\r\n3           2.592e-02  1.503e+00  (x0 * -0.2923665)\r\n5           1.682e-02  2.163e-01  ((-0.10430038 * x0) * x2)\r\n8           1.576e-02  2.176e-02  (1.6735333 * sin((-0.067048885 * x0) * x2))\r\n```\r\n\r\nThe code used to generate this is:\r\n```\r\nimport numpy as np\r\nfrom pysr import pysr, best\r\n\r\n# Dataset\r\nX = np.array(messages_over_time[-1][['dx', 'dy', 'r', 'm1', 'm2']]) # Taken from this notebook https://github.com/MilesCranmer/symbolic_deep_learning/blob/master/GN_Demo_Colab.ipynb\r\ny = np.array(messages_over_time[-1]['e64'])\r\n\r\n# Learn equations\r\nequations = pysr(X, y, niterations=5,\r\n    binary_operators=[\"plus\", \"mult\" , 'sub', 'pow', 'div'],\r\n    unary_operators=[\r\n      \"cos\", \"exp\", \"sin\", 'neg', 'square', 'cube', 'exp', \r\n      \"inv(x) = 1/x\"], batching=True, batchSize=1000) \r\n\r\n\r\nprint(best(equations))\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @abdalazizrashid,\r\n\r\nThanks for checking out the paper!! It's great you are trying it out with PySR. I should actually update that colab notebook to directly use PySR, that would be cool.\r\n\r\nYou mean scalar as in output is ℝ, right? So, PySR is actually made to predict exclusively scalar functions. It builds expressions as: f: ℝⁿ → ℝ, where n is the number of features (columns of X). It can't find vector functions at the moment. In the GNN case, basically *each* message component is a single scalar ℝ (with many examples), and we try to fit the functions for each message component *independently*. Does this make more sense?\r\n\r\nBtw, for your specific example, I would note that there appear to be several degeneracies, like \"sub\" and \"neg\" are technically the same, and also \"square\", \"cube\", \"pow\", \"mult\" do similar things. This will slow PySR down because it might be harder to simplify things. Genetic algorithms like the one used in PySR have bad scaling in high-dimensions, so the fewer features and fewer operators you give them, the better.\r\n\r\nHere is what I would suggest you try:\r\n\r\n```python\r\nequations = pysr(X[:1000], y[:1000], niterations=5,\r\n    binary_operators=\"* + / -\".split(\" \"),\r\n    unary_operators=[], annealing=False, useFrequency=True,\r\n    npopulations=20, optimizer_algorithm=\"BFGS\", \r\n    optimizer_iterations=10,\r\n    optimize_probability=1\r\n    )\r\n```\r\nThese extra arguments will be default in v0.6.0 (#33) but for now you need to manually enter them. I might also increase niterations=5 to niterations=100 if it still is unable to find the expressions. This is basically the # of training steps.\r\n\r\nLet me know if you have other questions.\r\nCheers,\r\nMiles",
               "createdAt": "2021-03-04T20:14:32Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Oh, and by the way, you can give a pandas array as input to X instead of numpy if you want. Then it will use the column names as variables in the equations.",
               "createdAt": "2021-03-04T20:16:58Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "One more thing: depending on which law you are searching for, you might need to increase the `maxsize` argument.",
               "createdAt": "2021-03-04T22:55:12Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "abdalazizrashid"
               },
               "body": "Update: I used the suggested arguments and set iterations=100 and let it run overnight and it still hasn't finished. So the question, How long did it take to reproduce the original example in the notebook using Eureqa?\r\nAnd aas far as I know, PySR uses genetic algorithms which are gradient-free optimization methods, so can you elaborate on how are we using the BFGS optimizer for this task?",
               "createdAt": "2021-03-05T09:20:18Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hm, it should find it very fast. Question: what does this plot look like for you in the colab notebook?\r\n<img width=\"775\" alt=\"Screen Shot 2021-03-06 at 2 34 14 AM\" src=\"https://user-images.githubusercontent.com/7593028/110199050-731af100-7e24-11eb-981c-a7ddc252510c.png\">\r\nIt should be linear like this^. If it's not, it means the messages aren't equal to the forces yet and you should train for longer. IIRC the colab doesn't train the neural network for very long, so you might want to increase the number of steps?\r\n\r\nAlso, I would also try the `loss=\"L1DistLoss()\"` which is the same loss we used in the paper (absolute error) rather than the default L2DistLoss (which might be more sensitive to outliers).\r\n\r\n\r\nBFGS or the default NelderMead are used for optimizing the constants. BFGS uses gradients and NelderMead is a simplex method. The genetic algorithm is also used for optimizing the constants, but this optimizer is used for \"fine tuning\" the constants once in a while.",
               "createdAt": "2021-03-06T07:38:01Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "abdalazizrashid"
               },
               "body": "@MilesCranmer Thanks for the response.\r\nAfter training for 200 epochs this what I got, what do you think?\r\nAlso, all this is a reproduction of what's in the notebook.\r\n\r\n![scrn-2021-03-08-23-32-34](https://user-images.githubusercontent.com/33545649/110379064-66d2a600-8067-11eb-82ba-f27449b3221d.png)\r\n\r\n",
               "createdAt": "2021-03-08T20:37:46Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Oh, wait, I see three plots; are you running one of the 3D force laws? You will need to pass `'dz'` to the symbolic regression to PySR because z direction is used in the 3D force laws.\r\n\r\nBut other than this, those messages still don't look linear enough. What force law is this? Is this the L1 regularization, or another kind?",
               "createdAt": "2021-03-08T21:04:41Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "abdalazizrashid"
               },
               "body": "Yes, it's 3D. This is the spring simulation, with L1 regularization.",
               "createdAt": "2021-03-09T09:40:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I see, thanks. So, I would definitely pass `'dz'` to PySR as well as the other parameters since that appears in the force law. (The notebook is just set up for the 2D sim as a demo, but for other cases it requires some manual changes.) Can you also train with `n = 8` instead of `n = 4`? (trains with 8 particles instead of 4 particles).\r\n\r\nBy the way, I just noticed colab updated to PyTorch 1.8.0. I updated the notebook for this.",
               "createdAt": "2021-03-09T10:18:51Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "abdalazizrashid"
               },
               "body": "This what I got after training for 200 epoch with `n=8`\r\n![image](https://user-images.githubusercontent.com/33545649/110546237-49710b00-813f-11eb-961e-5e89dfed37a9.png)\r\n",
               "createdAt": "2021-03-09T22:24:13Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I am confused about what the issue here could be. Want to email me to discuss this more? My email is miles`<dot>`cranmer at gmail",
               "createdAt": "2021-03-13T10:49:17Z"
+            },
+            {
+              "author": {
+                "login": "pranavkantgaur"
+              },
+              "body": "> I see, thanks. So, I would definitely pass `'dz'` to PySR as well as the other parameters since that appears in the force law. (The notebook is just set up for the 2D sim as a demo, but for other cases it requires some manual changes.) Can you also train with `n = 8` instead of `n = 4`? (trains with 8 particles instead of 4 particles).\r\n> \r\n> By the way, I just noticed colab updated to PyTorch 1.8.0. I updated the notebook for this.\r\n\r\nHi @MilesCranmer ,\r\n\r\nWould you please share the PySR configuration for reproducing results for the 2D sim demo shared via the notebook.",
+              "createdAt": "2024-11-19T12:52:50Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @pranavkantgaur,\r\nWhat specifically? Does the notebook run for you?\r\n",
+              "createdAt": "2024-11-19T12:54:27Z"
+            },
+            {
+              "author": {
+                "login": "pranavkantgaur"
+              },
+              "body": "@MilesCranmer Yes, the notebook runs just fine. I wanted to reproduce the equation for phi_1^e from figure 3 in the paper.",
+              "createdAt": "2024-11-19T13:34:25Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
-            "endCursor": "Y3Vyc29yOnYyOpHOL5KvGA=="
+            "endCursor": "Y3Vyc29yOnYyOpHOlClDJA=="
           }
         }
       }

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 808,
+        "title": "TemplateExpressionSpec with custom operator",
+        "body": "Hi there, I am a newbie in using pysr, but may I check if is there a way to use a custom operator (Indicator function here) within the TemplateExpressionSpec?\r\nFor example:\r\n```python\r\ntemplate = TemplateExpressionSpec(\r\n    function_symbols = [\"f\"],\r\n    combine=\"((; f), (x0)) -> Indicator(f(x0))\"\r\n)\r\nPySRRegressor(\r\n    ...\r\n    unary_operators=[\r\n        ...\r\n        \"Indicator(x::T) where {T} = x > T(0) ? T(1) : T(0)\"\r\n    ],\r\n    extra_sympy_mappings={\r\n        \"Indicator\": lambda x: sympy.Piecewise((1, x > 0), (0, True))\r\n    },\r\n   ...\r\n)\r\n``` ",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "It’s a bit more complex (see other discussion threads with gm89uk) but as a simpler solution I would just turn it into a multiplication, like\r\n\r\n```julia\r\n((; f), (x0,)) -> (f(x0) > 0*x0) * (1 + 0*x0)\r\n```",
+              "createdAt": "2025-01-15T09:25:35Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMS0xNVQwOToyNTozNSswMDowMM4AtK2A"
+          }
+        }
+      }
+    }
+  }
+}

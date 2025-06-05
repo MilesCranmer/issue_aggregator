@@ -1,228 +1,196 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 347,
         "title": "[BUG]: libstdc++ issues / `GLIBCXX` not found",
         "body": "### What happened?\n\nHi Miles, this is the issue flagged to you on Twitter -- sorry it's taken time to report, as I was drowning in exam meetings today!\r\n\r\nThe issue we saw was on a Centos7/RHEL system, which by default has Python 2.7 (or python3 = 3.6) and GCC 4.8.5 -- too old for much development these days. So we source installed RH software collections from `/opt/rh` to overload these system defaults with Python 3.8 and GCC8. Usually works fine, at least for straightforward Python, C++, and compilation between them using the tools found in the environment.\r\n\r\nBut we hit a problem when installing PySR. `juliaup` install worked fine, but the `python3 -m pysr install` command failed with a `GCLIBCXX_*` version-symbol mismatch: usually the indication of a mismatch between the active compiler and the C++ stdlib being linked against. (I'm afraid I don't have the direct terminal printouts handy: this happened yesterday when installing for a student, and we closed the terminal and moved on with installation on his Windows laptop.) Above the error message we could see the compile/link command explicitly using the system `libstdc++` rather than the override from `/opt/rh` (e.g. `/opt/rh/devtoolset-8/root/usr/lib/gcc/x86_64-redhat-linux/8/libstdc++.so`) -- again, I can provide the full output later if useful.\r\n\r\nSeems to me that something in the `pysr` install code is not picking up the overloaded compiler/stdlib locations, maybe assuming that the system ones are valid. It'd be best to query the appropriate ones from the environment, but maybe there is a way around like exporting library-path variables while running the installer? Thanks!\r\n\n\n### Version\n\nLatest from pip\n\n### Operating System\n\nLinux\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\nTBC\n```\n\n\n### Extra Info\n\n_No response_",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks for the bug report!\r\n\r\nSome notes:\r\n\r\n1. Python 3.6 is past its end-of-life and is no longer maintained by the Python organization. See https://endoflife.date/python. For PySR I only test against Python 3.7 to 3.11, so I cannot guarantee that it will work on earlier versions. I would recommend you upgrade Python to a version that is still maintained, maybe using `pyenv`: https://github.com/pyenv/pyenv#installation. I've had good luck using `pyenv` on my institutional cluster where I do not have sudo access.\r\n\r\n2. The `python -m pysr install` triggers some Julia install commands, but it does not install any C libraries itself, so C compilation/linking issues are very unexpected. My guess is that the Julia environment has a problem with it (or maybe the Python install itself). Could you try installing the Julia libraries manually, using the following command?\r\n\r\n```julia\r\njulia -e 'using Pkg; pkg\"activate --temp\"; pkg\"add SymbolicRegression PyCall\"; pkg\"build PyCall\"; pkg\"precompile\"'\r\n```\r\n\r\nThe result of this will help me debug further. There is a chance its some issue of PyCall.jl trying to talk to Python.\r\n",
               "createdAt": "2023-06-09T17:32:30Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "IamShubhamGupto"
               },
               "body": "Hey \r\n\r\nI am not sure if it's related but I am having problems installing `PySR` in my GitHub actions. It seems to be working in the last couple of weeks so the change is something very recent.\r\n\r\nHere's the logs where it seems to be failing\r\n```\r\nPrecompiling PyCall...\r\nPrecompiling PyCall... DONE\r\nPyCall is installed and built successfully.\r\nERROR: Unable to dlopen(cxxpath) in parent!\r\nMessage: /usr/share/miniconda/envs/L96M2lines/lib/python3.9/site-packages/scipy/sparse/../../../../libstdc++.so.60�P�L: cannot open shared object file: No such file or directory\r\nError: Process completed with exit code 1.\r\n```\r\n\r\ncomplete logs can be found [here](https://github.com/m2lines/L96_demo/actions/runs/5226228299/jobs/9436654654?pr=118)\r\n\r\nlet me know if the issue is related or if I have gone wrong somewhere. \r\n\r\nThank you!",
               "createdAt": "2023-06-09T21:42:54Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Okay I think this is related to a very nasty bug we have been working on for the past week at the intersection of conda-forge, PyCall.jl, and the new version of libstdcxx-ng in conda-forge. See, e.g., https://github.com/conda-forge/scipy-feedstock/issues/238, https://github.com/conda-forge/pysr-feedstock/pull/89, https://github.com/JuliaPy/PyCall.jl/pull/1040, https://github.com/conda-forge/pysr-feedstock/pull/90.\r\n\r\nApologies for the delay in fixing this. Until the `conda-forge` job in PySR is listed as \"passing\" again, I would recommend one of two options: \r\n1. Switch to the pip install of PySR, with a `juliaup` based install of Julia\r\n2. Create a new conda environment with the constraint `libstdcxx-ng<13`:\r\n\r\n```julia\r\nconda create -n pysr pysr 'libstdcxx-ng<13' -c conda-forge\r\n```\r\n",
               "createdAt": "2023-06-12T08:34:39Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "@agbuckley @IamShubhamGupto it seems like the conda-forge build is working again (a temporary fix, but a fix nonetheless, until some upstream bugs are patched). Could you please re-install things and let me know how it goes?",
               "createdAt": "2023-06-12T15:57:50Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "IamShubhamGupto"
               },
               "body": "@MilesCranmer \r\nHey, thanks for the update. We decided to try installing `PySR` using `conda`and it worked just fine. I hope it does not break in the future.\r\n[environment.yml](https://github.com/m2lines/L96_demo/blob/main/environment.yaml)\r\n\r\nin the GitHub action, we just commented out the `pip install` commands\r\n[GitHub workflow](https://github.com/m2lines/L96_demo/blob/main/.github/workflows/deploy.yml)",
               "createdAt": "2023-06-12T16:08:56Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "agbuckley"
               },
               "body": "Hi @MilesCranmer , back to the original issue, I'm actually using Python 3.8 via the Software Collection: Py 3.6 is the system version of Py3 that we're specifically overriding, along with the compiler. Running again, here's the error message I get from the `python3 -m pysr install` action:\r\n\r\n```\r\nPrecompiling project...\r\n  9 dependencies successfully precompiled in 66 seconds. 3 already precompiled.\r\n\r\nPrecompiling PyCall...\r\nPrecompiling PyCall... DONE\r\nPyCall is installed and built successfully.\r\nERROR: Unable to load dependent library /home/ppe/a/abuckley/.julia/juliaup/julia-1.9.1+0.x64.linux.gnu/bin/../lib/julia/libjulia-internal.so.1\r\nMessage:/lib64/libstdc++.so.6: version `GLIBCXX_3.4.20' not found (required by /home/ppe/a/abuckley/.julia/juliaup/julia-1.9.1+0.x64.linux.gnu/bin/../lib/julia/libjulia-internal.so.1)\r\n```\r\nThis is the ABI version error I mentioned: it should be picking up the overloaded `/opt/rh/devtoolset-8/root/lib/gcc/x86_64-redhat-linux/8/libstdc++.so` library, not the system's `/lib64/libstdc++.so.6` that is apparently being referenced by `libjulia-internal.so.1` (or being found by the dynamic loader in the `pysr install` environment).\r\n\r\nI'll try the manual Julia package installs now, to see if it is in the way `pysr` is executing that. Will post the result in a separate comment for clarity.",
               "createdAt": "2023-06-14T11:22:26Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "agbuckley"
               },
               "body": "It was looking positive: the manual Julia package installs worked fine using your line above. And all the PySR import and model setup (on the first example, copied in verbatim) works fine at the Python 3.8 REPL. But then failure again with the wrong library pickup when PySR's `model.fit()` dispatches to Julia, via PyCall I presume:\r\n\r\n```\r\n...\r\n>>> model.fit(X, y)\r\nCompiling Julia backend...\r\nERROR: Unable to load dependent library /home/ppe/a/abuckley/.julia/juliaup/julia-1.9.1+0.x64.linux.gnu/bin/../lib/julia/libjulia-internal.so.1\r\nMessage:/lib64/libstdc++.so.6: version `GLIBCXX_3.4.20' not found (required by /home/ppe/a/abuckley/.julia/juliaup/julia-1.9.1+0.x64.linux.gnu/bin/../lib/julia/libjulia-internal.so.1)\r\n```\r\n\r\nSo it does look like some mishandling of the environment via PyCall, picking up the system libs rather than the live environment's ones. Thanks.",
               "createdAt": "2023-06-14T11:39:20Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "The part I don’t understand is that PyJulia/PyCall never try to load `libstdc++.so` directly. They only try to load `libpython.so`. Are you able to run Julia code directly? (eg SymbolicRegression.jl?)",
               "createdAt": "2023-06-14T13:35:47Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Ah, wait, I found this in the PyJulia docs:\r\n\r\n```rst\r\nError due to ``libstdc++`` version\r\n\r\nWhen you use PyJulia with another Python extension, you may see an error\r\nlike :literal:`version `GLIBCXX_3.4.22' not found` (Linux) or\r\n``The procedure entry point ... could not be located in the dynamic link library libstdc++6.dll``\r\n(Windows). In this case, you might have observed that initializing\r\nPyJulia first fixes the problem. This is because Julia (or likely its\r\ndependencies like LLVM) requires a recent version of ``libstdc++``.\r\n\r\nPossible fixes:\r\n\r\n-  Initialize PyJulia (e.g., by ``from julia import Main``) as early as\r\n   possible. Note that just importing PyJulia (``import julia``) does\r\n   not work.\r\n-  Load ``libstdc++.so.6`` first by setting environment variable\r\n   ``LD_PRELOAD`` (Linux) to\r\n   ``/PATH/TO/JULIA/DIR/lib/julia/libstdc++.so.6`` where\r\n   ``/PATH/TO/JULIA/DIR/lib`` is the directory which has\r\n   ``libjulia.so``. macOS and Windows likely to have similar mechanisms\r\n   (untested).\r\n-  Similarly, set environment variable ``LD_LIBRARY_PATH`` (Linux) to\r\n   ``/PATH/TO/JULIA/DIR/lib/julia`` directory. Using\r\n   ``DYLD_LIBRARY_PATH`` on macOS and ``PATH`` on Windows may work\r\n   (untested).\r\n\r\nSee: https://github.com/JuliaPy/pyjulia/issues/180,\r\nhttps://github.com/JuliaPy/pyjulia/issues/223\r\n```\r\n\r\nCould you try those solutions?",
               "createdAt": "2023-06-14T13:46:12Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "agbuckley"
               },
               "body": "Unfortunately...\r\n\r\n```python\r\n$ python\r\nPython 3.8.13 (default, Aug 16 2022, 12:16:29) \r\n[GCC 9.3.1 20200408 (Red Hat 9.3.1-2)] on linux\r\nType \"help\", \"copyright\", \"credits\" or \"license\" for more information.\r\n>>> import pysr\r\n>>> pysr.julia_helpers.init_julia()\r\nERROR: Unable to load dependent library /home/ppe/a/abuckley/.julia/juliaup/julia-1.9.1+0.x64.linux.gnu/bin/../lib/julia/libjulia-internal.so.1\r\nMessage:/lib64/libstdc++.so.6: version `GLIBCXX_3.4.20' not found (required by /home/ppe/a/abuckley/.julia/juliaup/julia-1.9.1+0.x64.linux.gnu/bin/../lib/julia/libjulia-internal.so.1)\r\n```\r\n\r\nI'm not quite sure what the issue is: the impression I got was that Julia commands standalone were correctly picking up the overloaded GCC8 libs (including `libstdc++`), but that this was broken when calling the Julia from Python. However, I have a lot of experience of using this Python+GCC overload for Python-C++ wrappers, and the binary compatibility there is fine (even though, as you can see above, the Python executable was built with GCC9).",
               "createdAt": "2023-06-15T20:11:02Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "agbuckley"
               },
               "body": "Just noticed that that that import line appeared in the email version of your message, but not the one above. I guess you edited it. Importing `from julia import Main` gave a similar error, and the `LD_PRELOAD` wasn't happy to force-preload the GCC8 `libstdc++.so`. The Julia `lib` directory wasn't obvious within the `.juliaup` directory: that only seems to contain the `bin` dir and its executables. Sorry to not be more helpful.",
               "createdAt": "2023-06-15T20:17:06Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "The reason I edited it was because I realized the `import pysr` is loading a bunch of other libraries (numpy, scipy, etc.) before you have the chance to start Julia, which might be interfering with the `libstdc++.so` used.\r\n\r\nCan you try the\r\n\r\n```python\r\nfrom julia import Main\r\n```\r\n\r\nat the same time as the `LD_PRELOAD`? Also what is the error you are seeing with `LD_PRELOAD`?",
               "createdAt": "2023-06-16T11:11:37Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "If just setting `LD_PRELOAD` gives you an error, then it might just be your Julia install is somehow broken, but in a way that doesn't show up unless you are linking `libjulia.so` in downstream installs. e.g., maybe the `libjulia.so` is getting linked to the wrong `libstdc++` one somehow. But this doesn't really make sense because you mentioned the manual Julia install worked fine.\r\n\r\nIt might just be that the Julia binary installed by `juliaup` is somehow incompatible with your unique build setup. If you are up for it, you could try [building Julia from source](https://github.com/JuliaLang/julia#building-julia) with your system libraries. It's not too bad to build from source in my experience, as long as you have these dependencies (copied from [here](https://github.com/JuliaLang/julia/blob/master/doc/src/devdocs/build/build.md#required-build-tools-and-external-libraries)): \r\n\r\n- GNU make — building dependencies.     \r\n- gcc & g++ (>= 7.1) or Clang (>= 5.0, >= 9.3 for Apple Clang) — compiling and linking C, C++.     \r\n- libatomic — provided by gcc and needed to support atomic operations.     python (>=2.7) — needed to build LLVM.     \r\n- gfortran — compiling and linking Fortran libraries.     perl — preprocessing of header files of libraries.     \r\n- wget, curl, or fetch (FreeBSD) — to automatically download external libraries.     \r\n- m4 — needed to build GMP.     \r\n- awk — helper tool for Makefiles.     \r\n- patch — for modifying source code.     \r\n- cmake (>= 3.4.3) — needed to build libgit2.     \r\n- pkg-config — needed to build libgit2 correctly, especially for proxy support.     \r\n- powershell (>= 3.0) — necessary only on Windows.     \r\n- which — needed for checking build dependencies. \r\n\r\nYou mentioned you have gcc8 available so it might be okay.",
               "createdAt": "2023-06-16T11:20:50Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "@agbuckley would it be possible for you to provide an update on this issue? The conda version should be fixed now but I'm not sure what else is left for your libstdc++ issue. \r\n\r\nI've actually ran into this issue recently on our cluster computer. It happened out-of-the-blue which makes me think it was some system-wide library that got updated and messed up the linking. My solution was to just delete Julia and reinstall it (with juliaup) which seemed to identify the right libstdc++.",
               "createdAt": "2023-07-27T19:04:50Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hey @agbuckley,\r\n\r\nToday I ran into a problem on my system that seemed to be identical to the one you experienced. I was able to fix it by adding:\r\n\r\n```julia\r\nexport LD_LIBRARY_PATH=\"/mnt/home/mcranmer/.julia/juliaup/julia-1.9.2+0.x64.linux.gnu/lib/julia/\":$LD_LIBRARY_PATH\r\n```\r\n\r\nto my shell rc file. Could you see if that fixes it for you?\r\n\r\nCheers,\r\nMiles\r\n\r\n---\r\n\r\n@mkitti it seems like loading libjulia will not look in the corresponding `lib/julia` folder, and might error in case the system version of `libstdc++` is too old. I wonder how we can automatically fix that?\r\n",
               "createdAt": "2023-08-03T15:05:24Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mkitti"
               },
               "body": "Was `LD_LIBRARY_PATH` set before? That will mess up the search.",
               "createdAt": "2023-08-03T15:35:25Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "> Was `LD_LIBRARY_PATH` set before? That will mess up the search.\r\n\r\nI think it is set on different systems to the system libraries which might contain libstdc++ (but not libjulia). And therein lies the issue in that PyJulia/PyCall.jl finds the correct libjulia but not the matching libstdc++. Explicitly setting `LD_LIBRARY_PATH` to the folder containing libjulia is enough to fix this, but it's not a general solution... so I guess we would somehow want to override `LD_LIBRARY_PATH` after finding `libjulia`?",
               "createdAt": "2023-08-03T15:47:10Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "For example:\r\n\r\n1. Assume the user has: `LD_LIBRARY_PATH=/lib64` and has julia installed at `~/.julia`.\r\n2. PyJulia/PyCall will automatically find libjulia in, e.g., `~/.julia/juliaup/julia-1.9.2+0.x64.linux.gnu/lib/libjulia.so`. \r\n3. When trying to load this library, it will preferentially load libraries from `LD_LIBRARY_PATH`, such as `/lib64/libstdc++.so.6` (which is what happened to me), rather than  `~/.julia/juliaup/julia-1.9.2+0.x64.linux.gnu/lib/julia/libstdc++.so.6`. This triggers the `GLIB_CXX` issue seen above. \r\n\r\nSo I think we need a way of overriding `LD_LIBRARY_PATH` once we find libjulia?",
               "createdAt": "2023-08-03T15:51:51Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mkitti"
               },
               "body": "There is no good solution here. Once someone sets `LD_LIBRARY_PATH` they are now fully responsible for making sure everything on that path is compatible.\n\nWe do this for BinaryBuilder dependencies, but there we have full control of the system.",
               "createdAt": "2023-08-03T16:05:51Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I ran into this issue myself the other day and had to look up this thread. I think it would be nice if PySR or PyJulia could automatically catch such an error and try to print of the debug guide. In particular both the `from julia import Main` and `LD_PRELOAD` were able to solve it for me.\r\n\r\nWhy can't we force linking to the `libstdc++.so.6` in the `~/.julia` folder? Why does it need to reference the `/lib64/libstdc++.so.6` one?\r\n\r\n---\r\n\r\nFor posterity I also found that `juliacall` runs into the exact same problem :( So we aren't automatically saved by switching Python<->Julia interfaces",
               "createdAt": "2023-12-30T23:03:14Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Also, could we by any chance have a command like:\r\n\r\n```python\r\nimport os\r\nos.environ[\"LD_PRELOAD\"] += \"~/.julia/juliaup/julia-1.10.0+0.x64.linux.gnu/lib/julia/libstdc++.so.6\"\r\n```\r\n\r\nat the very top of `pysr/__init__.py`? (With the right logic for finding that library; or simply a `try except` if it can't)\r\n\r\nThat way we can help ensure that the correct shared library is always loaded.\r\n\r\n**Edit**: nevermind, this wouldn't work.\r\n\r\n**Edit 2**: I started another discussion in https://github.com/JuliaPy/PythonCall.jl/issues/437",
               "createdAt": "2023-12-30T23:15:52Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mkitti"
               },
               "body": "What is loading `/lib64/libstdc++.so.6`? Can you identify the binary or shared library that is actually doing so? Use `ldd`",
               "createdAt": "2023-12-31T06:52:18Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "It seems to be scitkit learn. I’ll have a look at what library specifically ",
               "createdAt": "2023-12-31T07:27:27Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mkitti"
               },
               "body": "I did this in shell.\r\n\r\n```\r\n(sklearn_env) $ cd $CONDA_PREFIX/lib/python3.12/site-packages\r\n(sklearn_env) $ for lib in `find . -iname *.so`; do echo $lib; ldd $lib | grep libstdc++; done;\r\n\r\n./sklearn/tree/_tree.cpython-312-x86_64-linux-gnu.so\r\n\tlibstdc++.so.6 => /home/mkitti/review_temp/conda/3/x86_64/envs/sklearn_env/lib/python3.12/site-packages/./sklearn/tree/../../../../libstdc++.so.6 (0x00007f3887e25000)\r\n./sklearn/metrics/_dist_metrics.cpython-312-x86_64-linux-gnu.so\r\n./sklearn/metrics/_pairwise_distances_reduction/_middle_term_computer.cpython-312-x86_64-linux-gnu.so\r\n\tlibstdc++.so.6 => /home/mkitti/review_temp/conda/3/x86_64/envs/sklearn_env/lib/python3.12/site-packages/./sklearn/metrics/_pairwise_distances_reduction/../../../../../libstdc++.so.6 (0x00007fd094b55000)\r\n./sklearn/metrics/_pairwise_distances_reduction/_argkmin_classmode.cpython-312-x86_64-linux-gnu.so\r\n\tlibstdc++.so.6 => /home/mkitti/review_temp/conda/3/x86_64/envs/sklearn_env/lib/python3.12/site-packages/./sklearn/metrics/_pairwise_distances_reduction/../../../../../libstdc++.so.6 (0x00007f9480565000)\r\n./sklearn/metrics/_pairwise_distances_reduction/_datasets_pair.cpython-312-x86_64-linux-gnu.so\r\n./sklearn/metrics/_pairwise_distances_reduction/_base.cpython-312-x86_64-linux-gnu.so\r\n\tlibstdc++.so.6 => /home/mkitti/review_temp/conda/3/x86_64/envs/sklearn_env/lib/python3.12/site-packages/./sklearn/metrics/_pairwise_distances_reduction/../../../../../libstdc++.so.6 (0x00007f6616595000)\r\n./sklearn/metrics/_pairwise_distances_reduction/_radius_neighbors.cpython-312-x86_64-linux-gnu.so\r\n\tlibstdc++.so.6 => /home/mkitti/review_temp/conda/3/x86_64/envs/sklearn_env/lib/python3.12/site-packages/./sklearn/metrics/_pairwise_distances_reduction/../../../../../libstdc++.so.6 (0x00007fc892b65000)\r\n./sklearn/metrics/_pairwise_distances_reduction/_argkmin.cpython-312-x86_64-linux-gnu.so\r\n\tlibstdc++.so.6 => /home/mkitti/review_temp/conda/3/x86_64/envs/sklearn_env/lib/python3.12/site-packages/./sklearn/metrics/_pairwise_distances_reduction/../../../../../libstdc++.so.6 (0x00007f14f2875000)\r\n./sklearn/metrics/_pairwise_fast.cpython-312-x86_64-linux-gnu.so\r\n./sklearn/metrics/cluster/_expected_mutual_info_fast.cpython-312-x86_64-linux-gnu.so\r\n./sklearn/feature_extraction/_hashing_fast.cpython-312-x86_64-linux-gnu.so\r\n\tlibstdc++.so.6 => /home/mkitti/review_temp/conda/3/x86_64/envs/sklearn_env/lib/python3.12/site-packages/./sklearn/feature_extraction/../../../../libstdc++.so.6 (0x00007f25b7cdd000)\r\n```\r\n\r\nAnyways, the problem is that the whoever built sklearn, linked it against the system. I'm guessing it was the Linux distribution which did this, and the Linux distribution is using a rather old libstdc++.",
               "createdAt": "2023-12-31T07:33:55Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Just to clarify I’m using a python virtual env, using the pyenv-provided Python (so I can build it with a shared library). The conda environment one works just fine for me as well.",
               "createdAt": "2023-12-31T07:45:08Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This should be fixed now (c.ref #561). Ping me if not.",
               "createdAt": "2024-03-25T00:24:26Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOeDkjVw=="
           }

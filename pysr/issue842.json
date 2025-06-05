@@ -1,0 +1,47 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 842,
+        "title": "[BUG]: PythonCall.jl did not start properly",
+        "body": "### What happened?\n\nWhen I try to import the pysr , I get the following error “Exception: PythonCall.jl did not start properly”. \nSee the follow-up for details on the output log。\n\n### Version\n\n0.19.4\n\n### Operating System\n\nWindows\n\n### Package Manager\n\npip\n\n### Interface\n\nIPython Terminal\n\n### Relevant log output\n\n```shell\nERROR: InitError: could not load symbol \"Py_CompileString\":\nThe specified procedure could not be found. \nStacktrace:\n  [1] #dlsym#1\n    @ .\\libdl.jl:59\n  [2] dlsym\n    @ .\\libdl.jl:56 [inlined]\n  [3] init_pointers(p::PythonCall.C.CAPIPointers, lib::Ptr{Nothing})\n    @ PythonCall.C C:\\Users\\Administrator\\.julia\\packages\\PythonCall\\Nr75f\\src\\C\\pointers.jl:284\n  [4] init_pointers\n    @ C:\\Users\\Administrator\\.julia\\packages\\PythonCall\\Nr75f\\src\\C\\pointers.jl:284 [inlined]\n  [5] init_context()\n    @ PythonCall.C C:\\Users\\Administrator\\.julia\\packages\\PythonCall\\Nr75f\\src\\C\\context.jl:40\n  [6] __init__()\n    @ PythonCall.C C:\\Users\\Administrator\\.julia\\packages\\PythonCall\\Nr75f\\src\\C\\C.jl:23\n  [7] run_module_init(mod::Module, i::Int64)\n    @ Base .\\loading.jl:1193\n  [8] register_restored_modules(sv::Core.SimpleVector, pkg::Base.PkgId, path::String)\n    @ Base .\\loading.jl:1181\n  [9] _include_from_serialized(pkg::Base.PkgId, path::String, ocachepath::String, depmods::Vector{Any})\n    @ Base .\\loading.jl:1126\n [10] _require_search_from_serialized(pkg::Base.PkgId, sourcepath::String, build_id::UInt128)\n    @ Base .\\loading.jl:1651\n [11] _require(pkg::Base.PkgId, env::String)\n    @ Base .\\loading.jl:2008\n [12] __require_prelocked(uuidkey::Base.PkgId, env::String)\n    @ Base .\\loading.jl:1882\n [13] #invoke_in_world#3\n    @ .\\essentials.jl:926 [inlined]\n [14] invoke_in_world\n    @ .\\essentials.jl:923 [inlined]\n [15] _require_prelocked(uuidkey::Base.PkgId, env::String)\n    @ Base .\\loading.jl:1873\n [16] macro expansion\n    @ .\\loading.jl:1860 [inlined]\n [17] macro expansion\n    @ .\\lock.jl:267 [inlined]\n [18] __require(into::Module, mod::Symbol)\n    @ Base .\\loading.jl:1823\n [19] #invoke_in_world#3\n    @ .\\essentials.jl:926 [inlined]\n [20] invoke_in_world\n    @ .\\essentials.jl:923 [inlined]\n [21] require(into::Module, mod::Symbol)\n    @ Base .\\loading.jl:1816\n [22] top-level scope\n    @ none:8\nduring initialization of module CTraceback (most recent call last):\n  File \"E:\\deeplearning\\deepOnet\\SN-deeponet\\pysr_test.py\", line 2, in <module>\n    from pysr import PySRRegressor\n  File \"C:\\Users\\Administrator\\anaconda3\\envs\\pytorch\\lib\\site-packages\\pysr\\__init__.py\", line 4, in <module>\n    from .julia_import import jl, SymbolicRegression  # isort:skip\n  File \"C:\\Users\\Administrator\\anaconda3\\envs\\pytorch\\lib\\site-packages\\pysr\\julia_import.py\", line 45, in <module>\n    from juliacall import Main as jl  # type: ignore\n  File \"C:\\Users\\Administrator\\anaconda3\\envs\\pytorch\\lib\\site-packages\\juliacall\\__init__.py\", line 287, in <module>\n    init()\n  File \"C:\\Users\\Administrator\\anaconda3\\envs\\pytorch\\lib\\site-packages\\juliacall\\__init__.py\", line 239, in init\n    raise Exception('PythonCall.jl did not start properly')\nException: PythonCall.jl did not start properly\n```\n\n### Extra Info\n\n_No response_",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "Lww-HNU"
+              },
+              "body": "The possible reason is that it has a conflict with some pip libraries in my existing environment.Because when I install pysr using a new base environment, it works fine.",
+              "createdAt": "2025-02-27T13:30:05Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "FYI the current version of PySR is 1.5.0. Can you try updating?",
+              "createdAt": "2025-02-27T17:09:51Z"
+            },
+            {
+              "author": {
+                "login": "Lww-HNU"
+              },
+              "body": "> FYI the current version of PySR is 1.5.0. Can you try updating?\n\nYeah. The latest version seems to require Python greater than 3.10, so I recreated a new environment and installed the offending version of pysr 1.5.0. And it works well. Thank you for your answer.",
+              "createdAt": "2025-02-28T02:38:42Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Great!",
+              "createdAt": "2025-02-28T08:26:06Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOoFaOzQ=="
+          }
+        }
+      }
+    }
+  }
+}

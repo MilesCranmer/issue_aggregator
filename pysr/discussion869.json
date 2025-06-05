@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 869,
+        "title": "Custom Expression with Dimensional Consistency",
+        "body": "I'm running into an issue when trying to use a custom expression (via ```expression_spec```) together with dimensionally consistent units (via X_units and y_units) in PySR. In my code, everything works as expected when I either:\r\n\r\n- Do not define ```X_units``` and ```y_units``` but define ```expression_spec```\r\n- Define ```X_units``` and ```y_units``` but without defining ```expression_spec```\r\n\r\nHowever, when I try to combine both (i.e., use a custom expression and set ```X_units``` and ```y_units```), the code fails. My main questions are:\r\n\r\n1. What might be causing the conflict between a custom expression and the enforcement of dimensional consistency?\r\n2. If I know the units for the constants (for example, if ```f``` is dimensionless, but constants like ```y0_A```, ```k_A```, ```y0_M```, ```k_M``` have known physical units), is there a way to incorporate these unit definitions during the search process?\r\n\r\nBelow is a simplified snippet of my code for context:\r\n\r\n```\r\ntemplate_expression = TemplateExpressionSpec(\r\n    function_symbols=[\"f\", \"y0_A\", \"k_A\", \"d_A\", \"y0_M\", \"k_M\", \"d_M\"],\r\n    combine=(\"((; f, y0_A, k_A, d_A, y0_M, k_M, d_M), \"\r\n             \"(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11)) -> \"\r\n             \"abs(f()) * (abs(y0_M()) + abs(k_M()) * (d_M(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11))^(-0.5)) + \"\r\n             \"(1 - abs(f())) * (abs(y0_A()) + abs(k_A()) * (d_A(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11))^(-0.5))\")\r\n)\r\n\r\nmodel = PySRRegressor(\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\"],\r\n    maxsize=100,\r\n    maxdepth=30,\r\n    niterations=500,\r\n    population_size=100,\r\n    expression_spec=template_expression,  # Using the custom expression\r\n    dimensionless_constants_only=False,\r\n    dimensional_constraint_penalty=10000\r\n)\r\n\r\nmodel.fit(\r\n    x_train,\r\n    y_train,\r\n    X_units=[\"J/s\", \"mm/s\", \"μm\", \"μm\", \"μm\", \"J/m^3\", \"1\", \"1\", \"1\", \"K/s\", \"K*s/m\"],\r\n    y_units=\"Pa\"\r\n)\r\n```\r\n\r\nThank you!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Unfortunately, template expression specifications are currently incompatible with dimensional constraints, apologies. There should certainly be a better error message though.",
+              "createdAt": "2025-03-15T00:31:30Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "If there’s a way to compute dimensionless quantities for your problem, that might be better to use as input for a template expression?",
+              "createdAt": "2025-03-15T00:33:50Z"
+            },
+            {
+              "author": {
+                "login": "alexlib"
+              },
+              "body": "Sorry if I detour the discussion, I know that scimed was developed to be dimensionally consistent \r\nhttps://github.com/LironSimon/SciMED\r\n",
+              "createdAt": "2025-03-15T16:14:52Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0xNVQxNjoxNDo1MiswMDowMM4AvuX7"
+          }
+        }
+      }
+    }
+  }
+}

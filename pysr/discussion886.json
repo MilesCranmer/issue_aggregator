@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 886,
+        "title": "Custom loss function: number of calls of the custom loss function",
+        "body": "Hi!\r\nI am currently trying to use the integration value as my loss function. My ODE function is written as: dc_pred_dt, _ = eval_tree_array(tree, X, options) , and the loss function is written as: sum((C_pred .- dataset.y) .^ 2) / length(dataset.y). \r\nHowever, when I set niteration = 1 and population = 1 to test the code, it seems to call the loss function too many times( around 800). It should be 1(niteration)  * 1(population) = 1 (time) if I get this right? Wondering is there any potential problem here, or why is it evaluating the loss function so many times?\r\n\r\nThank you so much for your help!\r\nBest regards\r\n\r\n```\r\n\r\nobjective = \"\"\"\r\nusing DifferentialEquations\r\nlet counter = 0\r\n\r\nfunction custom_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    counter += 1\r\n    println(\"counter:\", counter)\r\n    \r\n    function ode_func(dc, c, t)\r\n        X = Matrix{Float32}(undef, 1, 1)\r\n        X[1,1] = Float32(c[1])\r\n        \r\n        dc_pred_dt, _ = eval_tree_array(tree, X, options)  \r\n        dc[1]= dc_pred_dt[1]\r\n    end\r\n\r\n    c1_0 = [dataset.y[1]]\r\n    tspan = (0.0, 300.0)\r\n    prob = DifferentialEquations.ODEProblem(ode_func, c1_0, tspan)\r\n    \r\n    try\r\n        sol = solve(prob,(Rosenbrock23())) \r\n        C_pred = [u[1] for u in sol.u]\r\n        return sum((C_pred .- dataset.y) .^ 2) / length(dataset.y)\r\n    catch e\r\n        #@warn \"ODE_fail: $e\"\r\n        return Inf\r\n    end\r\nend\r\nend\r\n\"\"\"\r\nmodel = PySRRegressor(\r\n    niterations=1,\r\n    populations=1,\r\n    binary_operators=[\"+\", \"*\", \"/\", \"^\"],\r\n    unary_operators=[],\r\n    loss_function =objective,\r\n    maxsize=20,\r\n    progress=True,\r\n    batching= False,\r\n    constraints={'^': (-1, 1)}\r\n)\r\n\r\n```",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "The # of evaluations is much more complicated (e.g., a BFGS constant optimization step can do 100s of evaluations). There is also the `ncycles_per_iteration` and `population_size`. Also, often the evaluations are cached if the algorithm knows that the loss should not change (like a simplification step).\r\n\r\nEasiest is to measure it with `max_evals`.",
+              "createdAt": "2025-04-03T09:19:42Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNC0wM1QxMDoxOTo0MiswMTowMM4AwfZ1"
+          }
+        }
+      }
+    }
+  }
+}

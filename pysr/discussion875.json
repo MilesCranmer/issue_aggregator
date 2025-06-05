@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 875,
+        "title": "ImportError",
+        "body": "I try to use the TemplateExpressionSpec to fit specific equation. However it seems can not be imported\r\n`ImportError: cannot import name 'TemplateExpressionSpec' from 'pysr' (/opt/anaconda3/envs/pysr/lib/python3.12/site-packages/pysr/__init__.py)`\r\n\r\nThe PySR was installed via conda with version 0.18.3",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "JacobZhao"
+              },
+              "body": "> I try to use the TemplateExpressionSpec to fit specific equation. However it seems can not be imported `ImportError: cannot import name 'TemplateExpressionSpec' from 'pysr' (/opt/anaconda3/envs/pysr/lib/python3.12/site-packages/pysr/__init__.py)`\r\n> \r\n> The PySR was installed via conda with version 0.18.3\r\n\r\nIt seems the TemplateExpressionSpec has been introduced from 1.0 version",
+              "createdAt": "2025-03-20T06:00:14Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0yMFQwNjowMDoxNCswMDowMM4Av6VC"
+          }
+        }
+      }
+    }
+  }
+}

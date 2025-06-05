@@ -1,52 +1,42 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 544,
         "title": "[BUG]: Using dimensional constraints result in \"UndefVarError: `k` not defined\" error",
         "body": "### What happened?\n\nI tried the dimensional constraint tutorial (https://astroautomata.com/PySR/examples/#10-dimensional-constraints) in a new python environment with the newest version of PySR (v0.17.0) and it throws the error `juliacall.JuliaError: UndefVarError: \"k\" not defined`.\r\n\r\nThe code is the same as the tutorial, but I created a gist of it if it helps: https://gist.github.com/drcassar/ad351bc48931f753c321eec214135513. Commenting lines 46 and 47 of the code makes it run without issues.\n\n### Version\n\n0.17.0\n\n### Operating System\n\nLinux\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\nTraceback (most recent call last):\r\n  File \"/home/.../Pysr/dimension_constraint_toy.py\", line 43, in <module>\r\n    model.fit(\r\n  File \"/home/daniel/data/Venv/test/lib/python3.11/site-packages/pysr/sr.py\", line 1905, in fit\r\n    self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n  File \"/home/daniel/data/Venv/test/lib/python3.11/site-packages/pysr/sr.py\", line 1728, in _run\r\n    out = SymbolicRegression.equation_search(\r\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/home/daniel/.julia/packages/PythonCall/wXfah/src/jlwrap/any.jl\", line 208, in __call__\r\n    return self._jl_callmethod($(pyjl_methodnum(pyjlany_call)), args, kwargs)\r\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\njuliacall.JuliaError: UndefVarError: `k` not defined\r\nStacktrace:\r\n  [1] top-level scope\r\n    @ :0\r\n  [2] eval\r\n    @ ./boot.jl:385 [inlined]\r\n  [3] eval\r\n    @ ~/.julia/packages/DynamicQuantities/5QflN/src/uparse.jl:1 [inlined]\r\n  [4] uparse(s::String)\r\n    @ DynamicQuantities.UnitsParse ~/.julia/packages/DynamicQuantities/5QflN/src/uparse.jl:37\r\n  [5] get_units(::Type{T}, ::Type{D}, x::AbstractVector, f::Function) where {T, D}\r\n    @ SymbolicRegression.InterfaceDynamicQuantitiesModule ~/.julia/packages/SymbolicRegression/NCIOt/src/InterfaceDynamicQuantities.jl:33 [inlined]\r\n  [6] get_si_units\r\n    @ ~/.julia/packages/SymbolicRegression/NCIOt/src/InterfaceDynamicQuantities.jl:55 [inlined]\r\n  [7] Dataset(X::Matrix{Float32}, y::Vector{Float32}; weights::Nothing, variable_names::Vector{String}, display_variable_names::Vector{String}, y_variable_name::String, extra::@NamedTuple{}, loss_type::Type{Nothing}, X_units::Vector{String}, y_units::String, varMap::Nothing)\r\n    @ SymbolicRegression.CoreModule.DatasetModule ~/.julia/packages/SymbolicRegression/NCIOt/src/Dataset.jl:153\r\n  [8] #32\r\n    @ ~/.julia/packages/SymbolicRegression/NCIOt/src/SearchUtils.jl:378 [inlined]\r\n  [9] (::SymbolicRegression.SearchUtilsModule.var\"#32#33\"{Matrix{Float32}, Matrix{Float32}, Nothing, Vector{String}, Vector{String}, Nothing, Vector{String}, Vector{String}, DataType, Int64})(j::Int64)\r\n    @ SymbolicRegression.SearchUtilsModule ./none:0\r\n [10] iterate\r\n    @ ./generator.jl:47 [inlined]\r\n [11] collect(itr::Base.Generator{UnitRange{Int64}, SymbolicRegression.SearchUtilsModule.var\"#32#33\"{Matrix{Float32}, Matrix{Float32}, Nothing, Vector{String}, Vector{String}, Nothing, Vector{String}, Vector{String}, DataType, Int64}})\r\n    @ Base ./array.jl:834\r\n [12] construct_datasets\r\n    @ ~/.julia/packages/SymbolicRegression/NCIOt/src/SearchUtils.jl:358 [inlined]\r\n [13] equation_search(X::Matrix{Float32}, y::Matrix{Float32}; niterations::Int64, weights::Nothing, options::Options{Int64, DynamicExpressions.OperatorEnumModule.OperatorEnum, false, Optim.Options{Float64, Nothing}, StatsBase.Weights{Float64, Float64, Vector{Float64}}}, variable_names::Vector{String}, display_variable_names::Vector{String}, y_variable_names::Nothing, parallelism::String, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, heap_size_hint_in_bytes::Nothing, runtests::Bool, saved_state::Nothing, return_state::Bool, loss_type::Type{Nothing}, verbosity::Int64, progress::Bool, X_units::Vector{String}, y_units::Vector{String}, v_dim_out::Val{1}, multithreaded::Nothing, varMap::Nothing)\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/NCIOt/src/SymbolicRegression.jl:375\r\n [14] equation_search\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/NCIOt/src/SymbolicRegression.jl:335 [inlined]\r\n [15] #equation_search#26\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/NCIOt/src/SymbolicRegression.jl:417 [inlined]\r\n [16] pyjlany_call(self::typeof(equation_search), args_::Py, kwargs_::Py)\r\n    @ PythonCall ~/.julia/packages/PythonCall/wXfah/src/jlwrap/any.jl:34\r\n [17] _pyjl_callmethod(f::Any, self_::Ptr{PythonCall.C.PyObject}, args_::Ptr{PythonCall.C.PyObject}, nargs::Int64)\r\n    @ PythonCall ~/.julia/packages/PythonCall/wXfah/src/jlwrap/base.jl:69\r\n [18] _pyjl_callmethod(o::Ptr{PythonCall.C.PyObject}, args::Ptr{PythonCall.C.PyObject})\n```\n\n\n### Extra Info\n\n_No response_",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Very strange indeed. Are you able to run the unit tests without issue? i.e.,\r\n\r\n```bash\r\npython -m pysr test main\r\n```\r\n\r\nwhich internally calls this test suite: https://github.com/MilesCranmer/PySR/blob/b3a5026a02f28f97726476ab0f5b89eb29f809cb/pysr/test/test.py#L991 that is supposed to do fairly intensive tests of the units",
               "createdAt": "2024-02-12T22:35:59Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Wait, I see the same bug... Okay this is definitely real. ",
               "createdAt": "2024-02-13T06:44:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Seems like `self.y_units_` is being interpreted as a vector rather than a string somewhere...",
               "createdAt": "2024-02-13T07:05:57Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Fixed by #545 btw. Fix is on PySR 0.17.1 which has been released.",
               "createdAt": "2024-02-13T11:08:10Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOc7TkVA=="
           }

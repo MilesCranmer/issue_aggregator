@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 244,
         "title": "Limit search for high-precision coefficients and constants?",
         "body": "I have a particular PySR project that seems to spend lots of time trying to dial in levels of precision on coefficients and constants that I just don't need. For this project, I could easily live with two significant digits.\r\n\r\nIs there a way to reduce the precision of the coefficients and constants, and would it help the search process at all?\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "You can reduce the frequency of constant optimizations with `optimize_probability` or even turn it off altogether with `should_optimize_constants=False`. That will give you a decent speed up.\r\n\r\nYou can also play around with the `mutate_constant` parameter, which lets the evolutionary algorithm tweak the constants.\r\n\r\nThere’s also the `precision` parameter, which you could try lowering to 16, although it probably depends on your CPU whether this actually gives a speed up (for me, it was actually slower).\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2022-12-24T14:13:50Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0xMi0yNFQxNDoxMzo1MCswMDowMM4ARIaZ"
           }

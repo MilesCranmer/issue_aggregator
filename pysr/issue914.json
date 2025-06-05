@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 914,
+        "title": "Unused input features appearing in hall-of-fame expressions",
+        "body": "Not sure if bug, but let me describe my setup first. \n\nIn a custom loss, I use first two features x0 and x1 in the dataset.X as ''real'' input features, and a third one (x2) to pass ground truth of the target derivative wrt x0 to be used later in the loss, because I guess  there is no other way to transmit this information, as dataset.y is 1D array with length equal to dataset.X: \n\n```\nfunction custom_objective(tree, dataset::Dataset{T,L}, options)::L where {T,L}\n\n    # dataset.y is ground truth k \n\n    x0 = dataset.X[1, :]          \n    x1 = dataset.X[2, :]        \n    dkdx0_true = dataset.X[3, :]    # ground truth dk/dx0 \n\n    X12 = dataset.X[1:2, :]    # real input features\n\n    # Evaluate symbolic expression of k(x0, x1)\n    k_pred, success = eval_tree_array(tree, X12, options)\n    if !success\n        return L(Inf)\n    end\n\n    loss_k = sum((k_pred ./ dataset.y .- 1).^2) / dataset.n \n\n    # Evaluate ∂k/∂x0 \n    dkdx0_pred, _, diff_success0 = eval_diff_tree_array(tree, X12, options, 0)\n   \n    if !diff_success0\n        return L(Inf)\n    end\n\n    # Compute the loss for dk/dx0\n    loss_dkdx0 = sum((dkdx0_pred ./ dkdx0_true .- 1).^2) / dataset.n \n\n    alpha = 0.1 \n   \n    return (1 - alpha)*loss_k + alpha*loss_dkdx0\n```\n\nWeird thing is, with the input dataset contains only two features, or when the x2 feature is zeroed in the array, i.e. \n\n```\nX12 = copy(dataset.X)    # real input features\nX12[3, :] .= 0\n```\n\nx2 appears sometimes in the proposed expressions. \n\nIs this something I need to worry about - from the correctness of the result point of view, but also size-of-the-tree and computational efficiency?\n",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

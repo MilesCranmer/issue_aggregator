@@ -1,0 +1,54 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 942,
+        "title": "[BUG]: Inconsistent loss between the predict method and the 'loss' column in the equations_ dataframe",
+        "body": "### What happened?\n\nWhile doing some tests on a toy dataset, I may have noted some inconsistency for the train loss between the predict method and the 'loss' column in the equations_ dataframe. \n\nThese inconsistencies, i.e. small differences, cannot always be explained with rounding. In practice, such inconsistencies can have undesirable consequences. \n\nFor instance, for the toy dataset/example below, some equations that are in the Pareto optimal set of equations (they are in the equations_ dataframe, where the loss is indeed decreasing with complexity) should not be in this set of equations if we consider the loss from the predict method.\n\nExample, in the log output below, at the index 3 and 4:\n-the loss from equations_ dataframe are 0.8148807 and 0.8148479 (0.8148807 > 0.8148479)\n-the loss from the predict method are 0.8149047310175083 and 0.8149065628195199  (0.8149047310175083 < 0.8149065628195199)\n\n### Version\n\n1.5.8\n\n### Operating System\n\nLinux\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\nLoss from equations dataframe: [18581504.0, 12565.13, 1070.6243, 0.8148807, 0.8148479, 0.81479234, 0.81172127, 0.7941829] \n\nLoss from predict method: [18581503.45889028, 12565.122104296868, 1070.6286069439932, 0.8149047310175083, 0.8149065628195199, 0.8149049940477293, 0.8118029493713993, 0.7940984955826653]\n```\n\n### Extra Info\n\n```python\nimport numpy as np\nfrom pysr import PySRRegressor\nfrom scipy.stats import norm\nfrom sklearn.metrics import mean_squared_error\n\ndef main():\n\n    # Load toy dataset, containing 100 datapoints with one feature and one target\n    size = 100\n    X = np.expand_dims(np.arange(size), axis=-1).astype(float)\n    y = X[:, 0] ** 2 - 2 * X[:, 0] + 3 + norm.rvs(loc=0, scale=1, size=size, random_state=42)\n\n    # Fit model\n    model = PySRRegressor(niterations=1, verbosity=0)\n    model.fit(X, y)\n\n    # Show loss from the \"equations_\" dataframe\n    loss_values_from_equations_dataframe = [float(value) for value in model.equations_['loss'].values]\n    print('Loss from equations dataframe:', loss_values_from_equations_dataframe, '\\n')\n\n    # Show loss found using the predict method\n    y_predict_list = [model.predict(X, index=index) for index in range(len(model.equations_))]\n    loss_values_from_predict_method = [mean_squared_error(y, y_predict) for y_predict in y_predict_list]\n    print('Loss from predict method:', loss_values_from_predict_method)\n\nif __name__ == '__main__':\n    main()\n```",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "This could just be 32-bit vs 64-bit evaluation? Try to set precision=64 in the PySRRegressor",
+              "createdAt": "2025-05-27T12:23:00Z"
+            },
+            {
+              "author": {
+                "login": "lerouxerwan"
+              },
+              "body": "Thanks for your quick answer, I modified the code with precision=64, and it gives:\n\nLoss from equations dataframe: [18555242.857113197, 12565.122104296866, 931.1322485436953, 0.8149047134979738, 0.814904713497913, 0.8117986875470037, 0.811798687546914, 0.8002984905737854] \n\nLoss from predict method: [18555242.857113194, 12565.122104296868, 931.1322485436951, 0.8149047134979738, 0.8149047134979434, 0.8117986875469806, 0.8117986875470672, 0.8002984905737895] \n\nIn term of differences (loss from equations_ dataframe MINUS loss from predict method) it gives:\n\nDifference between the two loss values: [3.725290298461914e-09, -1.8189894035458565e-12, 1.1368683772161603e-13, 0.0, -3.0309088572266774e-14, 2.3092638912203256e-14, -1.532107773982716e-13, -4.107825191113079e-15]\n\nThe difference is equal to zero only for one equation. Otherwise, the difference is extremely small. \n\nHowever, in this toy example, despite these small differences, the issue mentioned above can persist (the fact that an equation initially in the Pareto-optimal set with the loss from equations_ dataframe, is not in the Pareto-optimal set if we consider the loss from the predict method)\n\nFor instance, at index 6 and 7 :\n\n-the loss from equations_ dataframe are 0.81179868754**70037** > 0.81179868754**6914**\n\n-the loss from the predict method are  0.81179868754**69806** < 0.81179868754**70672**\n\nTo conclude, differences with precision=64 are extremely small so it is probably not a big issue (except if you would have expected exactly the same values with 64-bit), however it is more disturbing the fact that an equation can be Pareto-optimal if the loss is taken from the dataframe and not Pareto-optimal if the loss is recomputed with the predict method. ",
+              "createdAt": "2025-05-27T14:11:57Z"
+            },
+            {
+              "author": {
+                "login": "lerouxerwan"
+              },
+              "body": "To circumvent this issue, and be sure that every equations considered are Pareto-optimal with respect to the loss from the predict method, for the moment in the rest of my code I :\n\n1) fit with PySRRegressor\n\n2) recompute the ‘loss’ column of the equations_ dataframe using the predict method\n\n3) eliminate any row/equation from the dataframe that is not Pareto-optimal anymore\n",
+              "createdAt": "2025-05-27T14:16:42Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I think it is half about the precision, and then half about the order in which the expressions are evaluated. I don't think there is much to do about this though. \n\nThis sort of difference is actually a fundamental limitation of floating point numerical calculations! To see this, open up Python and evaluate the two expressions below:\n\n```python\n[ins] In [1]: 0.1 + (0.2 - 0.3)\nOut[1]: 2.7755575615628914e-17\n\n[ins] In [2]: (0.1 + 0.2) - 0.3\nOut[2]: 5.551115123125783e-17\n```\n\nIndeed, even though these are supposed to both be 0, they actually evaluate to slightly different things depending on how you evaluate them! Does that mean one of these expressions is \"greater in value\" than the other? Not necessarily. When you say something is greater than something else, you need to also say how you are evaluating it.\n\nIn other words, it is not as though sympy evaluation + `sklearn.metrics.mean_squared_error` compared to the Julia equivalent (used for generating the table) is more correct than the other. They make slightly different choices in how they evaluate these things.\n\nIn this sense, you should not think of some sort of absolute \"Pareto optimal\" ordering, but, rather, \"Pareto optimal **according to the evaluation scheme and dataset**.\"  If you change the evaluation scheme, or change the dataset, it is not unreasonable to get slightly different Pareto optimality.\n\n---\n\nIf it is very important for your application that you have an absolute ordering down to infinite precision, you could consider using rational numbers for evaluation (with Julia's `BigInt`). This needs to be done on the Julia side though; see https://ai.damtp.cam.ac.uk/symbolicregression/dev/examples/custom_types/. However, this is going to be prohibitively slow. So it's probably worth just living with the weirdness of floating point numbers.\n\nTo see how rational numbers avoid this issue:\n\n```julia\njulia> 1//10 + (2//10 - 3//10)\n0//1\n\njulia> (1//10 + 2//10) - 3//10\n0//1\n```",
+              "createdAt": "2025-05-27T15:25:06Z"
+            },
+            {
+              "author": {
+                "login": "lerouxerwan"
+              },
+              "body": "Thanks a lot for this thorough explanation\n\nIt's been quite a long time since I learnt about floating point evaluation, thanks for all this reminder & the simple example, it's always fascinating to remind ourselves that ordering of operations matter with such evaluation.\n\nInitially (with 32-bits precision) the difference between the 2 losses were larger, which is why I posted this issue (because I thought that an issue might have gone unnoticed between the Julia code & the Python code).\n\nThe idea of an absolute ordering is great. For simplicity, I think I will stick to my current methodology described above (rely on the loss with the “predict method” so that all my losses remain consistent across all my results/code, which is quite important for some ‘model selection criterion’)\n \nThanks again,\n\nErwan\n",
+              "createdAt": "2025-05-27T16:22:49Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOraQEDg=="
+          }
+        }
+      }
+    }
+  }
+}

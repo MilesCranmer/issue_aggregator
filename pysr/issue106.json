@@ -1,44 +1,35 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 106,
         "title": "[Feature] Nested operator constraint",
         "body": "Just as the `constraints` argument can specify per-operator max-size (see https://astroautomata.com/PySR/#/options?id=constraining-operator-complexity), it would be very useful to have a constraint that specifies the number of times an operator can be nested.\r\n\r\nFor example, sometimes PySR tends to nest power operations, and these can be extremely difficult to interpret. It would be very useful to specify that a power operator cannot appear in the argument of another power operator. (or give some limit to the number of occurrences within an operator's argument).\r\n\r\nFor example:\r\n\r\n```python\r\nnested_constraints = {\r\n    \"exp\": -1,  # (any number of nested uses)\r\n    \"pow\": 0,  # (nested use is not allowed.)\r\n    \"sin\": 1,  # (only one nested use is allowed.)\r\n}\r\n```\r\n\r\nIt might even be good to have some defaults on the built-in operators.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Actually, if we simply disallow the nesting of `sin`, then it would nest `cos` with `sin`. \r\n\r\nPerhaps a more general solution is to specify what operators are allowed to be nested. For example:\r\n\r\n```python\r\nnested_constraints = {\r\n  \"exp\": {\r\n    \"+\": -1 # (any number of uses inside; this is also the default)\r\n    \"exp\": 0 # (nested use of self is disallowed)\r\n    \"sin\": 1 # (can only use a single sin operation inside an exp)\r\n  }\r\n  \"sin\": {\"sin\": 0, \"exp\": 0} # use of these operators inside a sin.\r\n}\r\n```",
               "createdAt": "2022-03-01T06:51:22Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "fernando-neto-ai"
               },
               "body": "This would be awesome... I think with this kind of prior, one could achieve more comprehensible results and control a little bit better the convergence of the results",
               "createdAt": "2022-03-22T01:46:57Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This was added on v0.8.0, so closing.",
               "createdAt": "2022-05-20T15:01:25Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOQ4hlYg=="
           }

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 908,
+        "title": "[BUG]: Problem exporting Regressor when using inv",
+        "body": "### What happened?\n\nHello,\n\nFirst, thanks for the cool library!\n\nI have found a problem when using inv as a unary operator. The fitting procedure works well. But when it is finished, the file checkpoint.pkl exists but it is empty (0 bytes). And when trying to export the model manually, I get the error message below. The hall_of_fame.csv is exported without problems though. \n\nVersions I am using:\n\nPySR 1.5.5\nnumpy 1.26.4\nscipy 1.15.2\n\n### Version\n\n1.5.5\n\n### Operating System\n\nWindows\n\n### Package Manager\n\nConda\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\n<stdin>:2: DeprecationWarning: Please import `inv` from the `scipy.linalg` namespace; the `scipy.linalg.basic` namespace is deprecated and will be removed in SciPy 2.0.0.\n<stdin>:2: DeprecationWarning: Please import `inv` from the `scipy.linalg` namespace; the `scipy.linalg.matfuncs` namespace is deprecated and will be removed in SciPy 2.0.0.\n<stdin>:2: DeprecationWarning: Please import `inv` from the `scipy.sparse.linalg` namespace; the `scipy.sparse.linalg.matfuncs` namespace is deprecated and will be removed in SciPy 2.0.0.\nTraceback (most recent call last):\n  File \"<stdin>\", line 2, in <module>\n_pickle.PicklingError: Can't pickle inv: attribute lookup inv on __main__ failed\n```\n\n### Extra Info\n\n```python\nimport numpy as np\nimport pickle\nfrom pysr import *\n\nX = 2 * np.random.randn(100, 5)\ny = 2 * np.cos(X[:, 3]) + X[:, 0] ** 2 - (1/X[:, 1] )\nmodel = PySRRegressor(binary_operators=[\"+\", \"-\", \"*\", \"/\"], unary_operators = [\"inv\"])\nmodel.fit(X, y)\n\nwith open('model_inv.pkl', 'wb') as file:\n    pickle.dump(model, file)\n```\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks! I'm surprised this hadn't come up before. Maybe it was a recent change in sympy or something. \n\nFixed in #910 ",
+              "createdAt": "2025-05-04T21:24:53Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOqdcYfA=="
+          }
+        }
+      }
+    }
+  }
+}

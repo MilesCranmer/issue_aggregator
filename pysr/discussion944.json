@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 944,
+        "title": "Getting a uft-8 Error",
+        "body": "Hi Miles,\r\n\r\nI'm really struggling to deal with a particular utf-8 encoding issue. I have no problems with any other dataset so I think it might be the data frame but I can't find anything that stands out in the data:\r\n\r\n```\r\nC:\\Users\\arose\\.conda\\envs\\test-env\\Lib\\site-packages\\pysr\\sr.py:2774: UserWarning: Note: it looks like you are running in Jupyter. The progress bar will be turned off.\r\n  warnings.warn(\r\n[ Info: Started!\r\n[ Info: Final population:\r\n[ Info: Results saved to:\r\nElapsed time: 64.96 seconds\r\nError in callback _flush_stdio (for post_execute), with arguments args (),kwargs {}:\r\n---------------------------------------------------------------------------\r\nUnicodeDecodeError                        Traceback (most recent call last)\r\nFile ~\\.julia\\packages\\PythonCall\\WMWY0\\src\\JlWrap\\any.jl:262, in __call__(self, *args, **kwargs)\r\n    260     return ValueBase.__dir__(self) + self._jl_callmethod($(pyjl_methodnum(pyjlany_dir)))\r\n    261 def __call__(self, *args, **kwargs):\r\n--> 262     return self._jl_callmethod($(pyjl_methodnum(pyjlany_call)), args, kwargs)\r\n    263 def __bool__(self):\r\n    264     return True\r\n\r\nUnicodeDecodeError: 'utf-8' codec can't decode byte 0xe2 in position 4095: unexpected end of data\r\n```\r\nI've narrowed it down to a few things but I can't put my finger on the exact reason. It could be something wrong with my data frame but I can't find anything that stands out. \r\n\r\nI've tried pairing down the model as much as possible and here's my model setup:\r\n```\r\n# Define input (X) and target (y)\r\nX = data[feature_names].values\r\n# y = data[\"entropy\"].values\r\ny = data[\"entropy_kde_XY\"].values\r\n# y = data[\"entropy_theoretical_XY\"].values\r\n\r\n\r\nmodel = PySRRegressor(\r\n    model_selection=\"best\",\r\n    run_id=f'Bi-Skew-Normal - {datetime.datetime.now().strftime(\"%Y-%m-%d-%H-%M-%S.%f\")[:-4]}',\r\n    niterations=10000000,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\"],\r\n    unary_operators=[\"log\", \"sqrt\", \"square\",\"exp\",\"cube\",\"cbrt\"\r\n                     # , \"sin\", \"cos\", \"tan\"\r\n                     ],\r\n    nested_constraints = {\r\n    \"log\": {\"log\": 0},\r\n    \"sqrt\": {\"sqrt\": 0},\r\n    \"square\": {\"square\": 0},\r\n    \"exp\": {\"exp\": 0},\r\n    \"cube\": {\"cube\": 0},\r\n    \"cbrt\": {\"cbrt\": 0}\r\n    },\r\n    populations=48,\r\n    ncycles_per_iteration=5000,\r\n    # batching=True,\r\n    # weight_optimize=.005,\r\n    # turbo=True,\r\n    \r\n    maxsize=26,\r\n    warm_start=True,\r\n    temp_equation_file=False,\r\n    output_directory=r\"C:/Users/arose/OneDrive/Desktop/output/BivariateSkewNormal\",\r\n    verbosity=1,\r\n    timeout_in_seconds=60,\r\n    complexity_of_constants=1,\r\n    # logger_spec=logger_spec\r\n    # early_stop_condition=\"f(loss, complexity) = (loss <= 5.526e-15) && (complexity < 6)\",print_precision=24\r\n)\r\n\r\n# model.weight_optimize = .005\r\n# model.maxsize = 26\r\n# model.ncycles_per_iteration = 5000\r\n# model.timeout_in_seconds = 120\r\n# model.print_precision = 16\r\n# model.model_selection = 'accuracy'\r\n# model.unary_operators = [\"log\", \"square\"]\r\n# model.populations = 96\r\n\r\n\r\n\r\nst = time.time()\r\nmodel.fit(X, y, variable_names=feature_names)\r\nruntime = round(time.time() - st, 2)\r\nprint(f\"Elapsed time: {runtime} seconds\")\r\n\r\n```\r\n\r\nAny expertise you can provide would be immensely helpful. I'm going to take a deeper dive into my data and see if I can find anything that stands out in my data.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Moving to #945 ",
+              "createdAt": "2025-05-28T15:56:28Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0yOFQxNjo1NjoyOCswMTowMM4Ayu3q"
+          }
+        }
+      }
+    }
+  }
+}

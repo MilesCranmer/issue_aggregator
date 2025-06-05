@@ -1,30 +1,37 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 633,
         "title": "introduce specific expressions in the inital population",
-        "body": "Hi,\r\nI am wondering if we can tell pysr that include specific expressions in the inital population. E.g. assume : I know that three expressions y=x1**2+1, y=x**1.5+2, and y=exp(x1/10)/5 could kinda be close to the final solution, and I am interested that pysr includes these specific epxressions in the initial population. Is there any built-in feature in pysr to address such a request? \r\n\r\nAny advice is much appreciated.  ",
-        "comments":
-        {
-          "nodes":
-          [
+        "body": "Hi,\r\nI am wondering if we can tell pysr that include specific expressions in the inital population. E.g. assume : I know that three expressions `y=x1**2+1`, `y=x**1.5+2`, and `y=exp(x1/10)/5` could kinda be close to the final solution, and I am interested that pysr includes these specific epxressions in the initial population. Is there any built-in feature in pysr to address such a request? \r\n\r\nAny advice is much appreciated.  ",
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "See:\r\n\r\n- https://github.com/MilesCranmer/PySR/discussions/418\r\n- https://github.com/MilesCranmer/PySR/discussions/443",
               "createdAt": "2024-06-02T22:50:15Z"
+            },
+            {
+              "author": {
+                "login": "riccardocappi"
+              },
+              "body": "Hi everyone, I'm new to PySR and I'm also interested in introducing specific expressions into the initial population. I saw the previous discussion on this topic, but I’m hoping for an easier way to do it or any new insights. Any guidance would be appreciated.",
+              "createdAt": "2025-02-27T11:57:05Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "@riccardocappi now there is sort of an easier way to do it via template expressions:\r\n\r\n```julia\r\nexpression_spec = TemplateExpressionSpec(\r\n    expressions=[\"f\", \"g\"],\r\n    parameters={\"a\": 1},\r\n    variable_names=[\"x\"],\r\n    combine=\"\"\"\r\n        y1 = (x + f(x))^2 + 1 + a[1]\r\n        y2 = exp((x + f(x))/10)/(5 + a[1])\r\n        g(x, y1, y2)\r\n    \"\"\"\r\n)\r\nmodel = PySRRegressor(expression_spec=expression_spec, **kwargs)\r\n```\r\n\r\nBasically this is creating a hierarchical expression where `f` and `g` are learned expressions, and `a[1]` is a learnable constant.\r\n\r\nSo this model could choose to have `f = 0.0; g = #2; a = [0.0]`, in which case the result would be equal to `y=x**2+1`. OR, it could learn `f = 0.0; g = #3; a = [0.0]` in which case the result would be equal to `y = x**1.5 + 2`. \r\n\r\nBut it could also learn something like `f = #1; g = #2; a = [1.5]` which is equivalent to y = (2*x)**2 + 2.5`. \r\n\r\nit could also learn something entirely different like `f = 0.0; g = cos(#1); a = [0.0]` which would just be `y = cos(x)`.\r\n\r\nBut you can see how it is \"easier\" for the model to find something like @AKHCE's original suggested expressions; while still allowing the model to learn something arbitrary.",
+              "createdAt": "2025-02-27T15:50:22Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
-            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0wMlQyMzo1MDoxNSswMTowMM4Akx0y"
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMi0yN1QxNTo1MDoyMiswMDowMM4AvE7U"
           }
         }
       }

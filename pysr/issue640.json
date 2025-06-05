@@ -1,52 +1,42 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 640,
         "title": "[Feature]:  Multi-Class Classification",
         "body": "### Feature Request\n\nHow can we use this library to get an equation for multiclass classification ?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "xylhal"
               },
               "body": "I'm also looking into this. Is it possible to define cross entropy as a custom loss function?",
               "createdAt": "2024-06-06T20:13:44Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Right now the labels have to be scalars, so only binary classification and regression is possible. But I have an intern working with me this summer on adding vector capabilities to PySR so in principle it should be eventually doable.\r\n\r\nIn principle there's nothing standing in the way of this as the backend allows vectors/tensors/whatever other type you want: https://github.com/SymbolicML/DynamicExpressions.jl?tab=readme-ov-file#tensors. Just need to get it all integrated.",
               "createdAt": "2024-06-06T20:47:35Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Actually I guess you could get it working as a custom loss function: https://astroautomata.com/PySR/examples/#9-custom-objectives\r\n\r\nMaybe you could split a single tree into multiple expressions. And each of those expressions could act as a single logit – then compute the multi-class classification on top!",
               "createdAt": "2024-06-06T20:48:38Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "xylhal"
               },
               "body": "> Right now the labels have to be scalars, so only binary classification and regression is possible. But I have an intern working with me this summer on adding vector capabilities to PySR so in principle it should be eventually doable.\r\n> \r\n> In principle there's nothing standing in the way of this as the backend allows vectors/tensors/whatever other type you want: https://github.com/SymbolicML/DynamicExpressions.jl?tab=readme-ov-file#tensors. Just need to get it all integrated.\r\n\r\nInteresting, what do you mean by vector capabilities and how will you envision the outputs to be different? What I had in mind was the output equation mimicking a classification process, where the labels are scalar integers. That probably counter intuitive to the definition of regression, but I'm wondering if generating an equation that ultimately computes an integer is possible? Maybe naively a bunch of indicator functions of each variable? If so, would just using a custom loss function help?\r\n\r\n> Actually I guess you could get it working as a custom loss function: https://astroautomata.com/PySR/examples/#9-custom-objectives\r\n> \r\n> Maybe you could split a single tree into multiple expressions. And each of those expressions could act as a single logit – then compute the multi-class classification on top!\r\n\r\nStill pretty new to this, will take a deeper dive into it.",
               "createdAt": "2024-06-06T22:19:11Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOgFu21w=="
           }

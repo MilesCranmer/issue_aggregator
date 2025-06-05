@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 476,
         "title": "Can you implement an operator that works on a series of values instead of just a single scalar, such as the fft?",
         "body": "Can you implement an operator that works on a series of values instead of just a single scalar, such as the fft?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Not yet, unfortunately. You could always write a custom evaluation routine in a passed loss function, but it will be difficult. Maybe if it is just a single FFT in a fixed position of the expression it wouldn't be so bad to add.\r\n\r\nThe way this will eventually be added (for very flexible expressions) is by allowing non-scalar equations. You can see at the bottom of the README on https://github.com/SymbolicML/DynamicExpressions.jl/, the backbone of SymbolicRegression.jl can already handle these sorts of things. It's just it needs to be set up for the rest of the code. ",
               "createdAt": "2023-11-27T22:21:26Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMS0yN1QyMjoyMToyNiswMDowMM4AdUe4"
           }

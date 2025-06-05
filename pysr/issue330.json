@@ -1,60 +1,49 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 330,
         "title": "[BUG]:  population increase kills kernel",
         "body": "### What happened?\r\n\r\nAs mentioned in the discussion https://github.com/MilesCranmer/PySR/discussions/327 I have a problem with my model, I assume its a CPU or RAM problem since I'm running on a i5 laptop with 15G RAM but in case you want to investigate:\r\nI was running a model on 10k samples with 2  features and tried to increase the populations to 50 when my kernel died. This also does not happen every time, wich is confusing, sometimes it runs just fine. There's no error, my terminal just prints:\r\n\r\nStarted!\r\nKilled\r\n\r\nmy model is: \r\nmodel_A = PySRRegressor(\r\n        populations = 50\r\n        population_size = 33,\r\n        niterations=60\r\n        ncyclesperiteration = 550, \r\n        maxsize = 40,\r\n        maxdepth = 8,\r\n        loss = \"L2DistLoss()\",\r\n        weight_optimize = 0.002,\r\n        model_selection = 'best',\r\n        parsimony = 0.004,\r\n        binary_operators = [\"+\", \"-\", \"*\", \"/\"]\r\n        unary_operators=[\r\n            \"square\",\r\n        ],\r\n        nested_constraints= {'square': {'square': 2}}\r\n        complexity_of_variables= 2,\r\n        warm_start = warm_start,\r\n        batching = True\r\n        turbo = True\r\n    )\r\n\r\nEdit: There was a pkl File created when the search started\r\n\r\n### Version\r\n\r\n0.12.0\r\n\r\n### Operating System\r\n\r\nLinux\r\n\r\n### Package Manager\r\n\r\nConda\r\n\r\n### Interface\r\n\r\nOther (specify below)\r\n\r\n### Relevant log output\r\n\r\n```shell\r\nStarted!\r\nKilled\r\n```\r\n\r\n\r\n### Extra Info\r\n\r\nInterface: VSCode",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Can you try:\r\n\r\n1. Running with `turbo=False`\r\n2. Running with `batching=False`\r\n3. Both 1 and 2\r\n\r\nAnd let me know if this causes the issue to disappear? The `turbo=True` setting is experimental; sometimes such kernels can crash depending on your OS.",
               "createdAt": "2023-05-11T14:18:21Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "One other tricky thing (thinking out loud) is that the constant optimization is full batch. ie it will tune constants over the entire 10k samples. I want to fix this, but so far haven’t gotten around to it. I wonder if this is where the issue comes from.",
               "createdAt": "2023-05-11T14:20:47Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Relevant code here: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/2749e67a5d9c3e715b43811e0b6f9c857198289d/src/ConstantOptimization.jl#L17\r\n\r\nshould be a check for `options.batching` and using the batched loss if true. Would need a fixed seed throughout training (might be worth it to create a batch dataset).",
               "createdAt": "2023-05-11T14:24:32Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "RubenBies"
               },
               "body": "You were right, turning off turbo seemed to do the trick for me! I will experiment a bit with even more populations and get back to you if it happens again. Its still weird, that it only happened every other time and the only reason I didn't think of this before is that I thought turbo will just result in an error, if it doesn't work. (my OS is Ubuntu 20.04 in case this clears it up) Batching did not seem to have an impact.\r\n\r\nThanks for your Help!",
               "createdAt": "2023-05-15T07:27:48Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks for following up, that is very useful info. It’s too bad sometimes `turbo=True` fails; I would otherwise love to have it as the default option (but it was a good decision to leave it off by default).\r\n\r\nIt would probably be useful to the LoopVectorization.jl developers if you could post this issue there (https://github.com/JuliaSIMD/LoopVectorization.jl), and that you found using `@turbo` loops in PySR crashes intermittently. It may help them patch some part of the library. Feel free to tag me too. It’s particularly surprising/worrying that this happens on Ubuntu; normally you only would get these on Windows.",
               "createdAt": "2023-05-15T07:50:34Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOXDrTwQ=="
           }

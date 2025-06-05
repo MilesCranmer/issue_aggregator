@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 380,
         "title": "How to compute the complexity of a function inside the custom objective function?",
         "body": "This is a question more for the SymbolicRegression julia package than the PySR package.\r\n\r\nI am using the PySR package, and I am using a custom objective function.\r\n\r\n1. Inside the custom objective function, I want to get the complexity of whatever tree is passed into the custom objective function. How do I do this? Without recursively searching the left child and right child of the tree, which I feel would take too long.\r\n\r\n\r\n2. Also, is there a way to force the model to only use up to 2 exp() (e^power) operators in the functions it generates?\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "1. You can do it with `compute_complexity(tree, options)`\r\n2. Yes, see `nested_constraints`: https://astroautomata.com/PySR/api/#working-with-complexities. If you mean limiting the total number in the expression, you will have to do that manually in the loss function.\r\n\r\nFor example, if we assume that `exp` is the 3rd operator in the list of unary operators, this would be:\r\n\r\n```julia\r\nnum_exps = count(node -> node.degree == 1 && node.op == 3, tree)\r\n```\r\n\r\nThen you can return some large number if `num_exps > 2`. You can also do it like this if this is more readable:\r\n\r\n```julia\r\nnum_exps = 0\r\nfor node in tree\r\n    if node.degree == 1 && node.op == 3\r\n        num_exps += 1\r\n    end\r\nend\r\n```",
               "createdAt": "2023-07-12T19:03:01Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNy0xMlQyMDowMzowMSswMTowMM4AYiAt"
           }

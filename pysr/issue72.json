@@ -1,68 +1,56 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 72,
         "title": "[BUG] Worker not responding after 1 min",
         "body": "Dear PySR Experts,\r\n\r\nI've been using PySR since few weeks now and I'm very happy of it's capabilities.\r\n\r\nFor a reason I ignore, it's crashing since 2 days.\r\n\r\nIt's seems to be link to none responding workers after waiting 1 min.\r\n\r\nI tried to use the base example script from PySR but it's generating the same error.\r\n\r\n\r\n\r\n**Version (please complete the following information):**\r\n- OS: Linux Mint 19.3\r\n- 0.6.12.post1\r\n- Does the bug appear with the latest version of PySR? I don't know...\r\n\r\n**Configuration**\r\n- What are your PySR settings? No specific settings\r\n- What dataset are you running on?  base example script from PySR\r\n\r\n**Error message**\r\nattached\r\n\r\n**Additional context**\r\npossible conda-forge update... but reinstalled entirely anaconda, julia and pysr following that without any change... only once, the base example went through properly, started from standard terminal (out of anaconda + spyder)\r\n[Output_Error.txt](https://github.com/MilesCranmer/PySR/files/7021344/Output_Error.txt)\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "Magaud59"
               },
               "body": "Following the reading of \"ERROR: The following package names could not be resolved/Julia servers out of date\",\r\nI'm trying to update julia's package as explained. \r\nI'll keep you inform after test",
               "createdAt": "2021-08-20T12:15:54Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "Magaud59"
               },
               "body": "I ran the base example again and still obtain a crash.\r\nThe message is different from before, much longer... and in the middle, my prompt is appearing... weird...\r\nAnyway, the output error file is attached. Hopefuly, it will help.\r\nthanks for your support!\r\n\r\n[Output_Error_2.txt](https://github.com/MilesCranmer/PySR/files/7021420/Output_Error_2.txt)\r\n",
               "createdAt": "2021-08-20T12:31:39Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Can you try with `multithreading=True` as an argument to PySR? That will run in threaded mode instead of multiprocessing mode, it might help.",
               "createdAt": "2021-08-23T01:03:40Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "Magaud59"
               },
               "body": "Hi Miles,\r\n\r\nthanks for taking care of my case.\r\n\r\nYou are right. The exemple as well as my implementation went both fine till the end. That very nice.\r\n\r\nWhat is the main problem there? is it the distrib I'm using (Mint) or simply my hardware?",
               "createdAt": "2021-08-23T09:09:27Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I am not sure. @kazewong mentioned he has seen something similar with the workers in the latest version. I will look into this when I have more bandwidth.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2021-08-24T17:16:09Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This should be fixed in the latest versions.",
               "createdAt": "2022-02-03T17:00:42Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOPVhXWw=="
           }

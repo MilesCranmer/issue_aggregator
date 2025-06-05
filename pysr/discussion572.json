@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 572,
-        "title": "About Features",
+        "title": "Force variables to appear in expression",
         "body": "Hi！  @MilesCranmer \r\nWhen I do the symbolic regression task, I want multiple variables in the target formula, but the results given by pysr are often fewer variables ( 1 ~ 2 ). How to constrain so that there are enough variables I want in the result formula ( 3 ~ 4 ) ? Although they should not appear from the fitting point of view, they have physical meaning from the physical point of view.\r\nThanks.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "See https://github.com/MilesCranmer/PySR/discussions/273#discussioncomment-5231414 for some relevant discussion.\r\n\r\nThere's also https://github.com/MilesCranmer/PySR/issues/44 but that one is much older and a bit out-of-date.",
               "createdAt": "2024-03-19T15:24:37Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMy0xOVQxNToyNDozNyswMDowMM4Ahuxx"
           }

@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 798,
+        "title": "Reproducing results from version SymbolicRegression.jl 0.24.5 in version 1",
+        "body": "The following script produces different results in \r\n```jl\r\nusing SymbolicRegression\r\nusing Symbolics\r\nusing Distributions\r\nusing Optimization, OptimizationBBO\r\nusing Plots\r\nusing Random; Random.seed!(12345)\r\ny(x) = exp(-x)*sin(2π*x) + cos(π/2*x)\r\nn_obs = 10\r\ndesign_region = Uniform(0.0,10.0)\r\nX = rand(design_region,n_obs)\r\nY = y.(X)\r\noptions = SymbolicRegression.Options(\r\n    unary_operators = (exp, sin, cos),\r\n    binary_operators=(+, *, /, -),\r\n    seed=123,\r\n    deterministic=true,\r\n    save_to_file=false\r\n)\r\nhall_of_fame = EquationSearch(X', Y, options=options, niterations=100, runtests=false, parallelism=:serial)\r\nn_best_max = 10\r\n#incase < 10 model structures were returned\r\nn_best = min(length(hall_of_fame.members),n_best_max)\r\nbest_models = sort(hall_of_fame.members,by=member->member.loss)[1:n_best]\r\n@syms x\r\neqn = node_to_symbolic(best_models[1].tree, options,varMap=[\"x\"])\r\nf = build_function(eqn, x, expression=Val{false})\r\nf.(X)\r\nplot(0.0:0.1:10.0,y.(0.0:0.1:10.0),lw=5,label=\"true model\",ls=:dash);\r\nmodel_structures = Function[]\r\nfor i = 1:n_best\r\n    eqn = node_to_symbolic(best_models[i].tree, options,varMap=[\"x\"])\r\n    fi = build_function(eqn, x, expression=Val{false})\r\n    x_plot = Float64[]\r\n    y_plot = Float64[]\r\n    for x_try in 0.0:0.1:10.0\r\n        try\r\n            y_try = fi(x_try)\r\n            append!(x_plot,x_try)\r\n            append!(y_plot,y_try)\r\n        catch\r\n        end\r\n    end\r\n    plot!(x_plot, y_plot,label=\"model $i\");\r\n    push!(model_structures,fi)\r\nend\r\nscatter!(X,Y,ms=5,label=\"data\",ls=:dash);\r\nplot!(xlabel=\"x\",ylabel=\"y\", ylims=(-1.2,1.6));\r\nplot!(tickfontsize=12, guidefontsize=14, legendfontsize=8, grid=false, dpi=600)\r\n```\r\n0.24.5\r\n![old](https://github.com/user-attachments/assets/2ed89cbb-83be-49c0-a1fd-a268011d58c9)\r\n\r\nlatest release\r\n![new](https://github.com/user-attachments/assets/88223c3a-b6d5-4c21-b96b-3aa1b58492c8)\r\n\r\nFor the projects @SebastianM-C and me are working on, the older version gives better results, but this version is rapidly becoming incompatible with other packages in the project, and it is a bummer not being able to upgrade. \r\nIs there a way to reproduce the old results in the new version?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "You can use `defaults=v\"0.24.5\"` to get the old default hyperparameters - pass it to `Options()`. Does that help? The new version is tuned for longer jobs. But I've had a few people tell me similar things, so I'm definitely open to re-tuning things again if it's a universal feeling!\r\n\r\nAlso I noticed various calls in your script are deprecated. If you start Julia with `--depwarn=yes` it will show the warnings for those.\r\n",
+              "createdAt": "2025-01-07T01:57:35Z"
+            },
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "I had a similar issue. The biggest changes in parameters I found on performance were changing the regularisation parameters, `adaptive_parsimony_scaling` back to 20 from 1040 and increasing `parsimony` from 0 again. \r\n\r\nSetting `adaptive_parsimony_scaling=20` made it behave somewhat similarly, but it did reduce diversification.\r\n\r\nI did eventually get the new settings to work by retuning population_size which I had optimised (had to reduce to account for the higher default population).   ",
+              "createdAt": "2025-01-09T21:51:46Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMS0wOVQyMTo1MTo0NiswMDowMM4As-zI"
+          }
+        }
+      }
+    }
+  }
+}

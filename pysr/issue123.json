@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 123,
         "title": "[BUG] Function exports experiencing issues",
         "body": "I'm not sure what this issue is from, but an otherwise normal function export to JAX seems to give the following issue:\r\n```\r\nTraceback (most recent call last):\r\n  File \"/Users/mcranmer/venvs/main/lib/python3.8/site-packages/pysr/export_jax.py\", line 67, in sympy2jaxtext\r\n    _func = {**_jnp_func_lookup, **extra_jax_mappings}[expr.func]\r\nKeyError: <class 'sympy.core.numbers.Half'>\r\n```\r\nOperators include \"sqrt\" and \"square\" - maybe from one of them? The other operators are unit-tested...",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Fixed with f2a7a62f6d3a1b946c6171b3dbd6f10a56c87fa5",
               "createdAt": "2022-06-04T20:04:47Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHORFjqJQ=="
           }

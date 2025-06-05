@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 619,
         "title": "Prior of the model",
         "body": "Hi,\r\nThanks for you answer last time. It really helps! I still have a small question here. Is there any prior distribution when combining these operators randomly? I'm not familiar with genetic programming, while I'm doing some work with model selection, which needs complexity of parameters if we use methods like AIC and BIC. However I even do not know how to define parameters in SR... So I wonder what is the prior here and how to change it first, which may be useful in future works.\r\nThanks! :)",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "The genetic algorithm operator weightings (relative probabilities) are defined [here](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/7a2998de90f2e45f05ac9e3dcdca3d25296d73ae/src/MutationWeights.jl#L5-L43)\r\n\r\n```julia\r\n\"\"\"\r\n    MutationWeights(;kws...)\r\n\r\nThis defines how often different mutations occur. These weightings\r\nwill be normalized to sum to 1.0 after initialization.\r\n# Arguments\r\n- `mutate_constant::Float64`: How often to mutate a constant.\r\n- `mutate_operator::Float64`: How often to mutate an operator.\r\n- `swap_operands::Float64`: How often to swap the operands of a binary operator.\r\n- `add_node::Float64`: How often to append a node to the tree.\r\n- `insert_node::Float64`: How often to insert a node into the tree.\r\n- `delete_node::Float64`: How often to delete a node from the tree.\r\n- `simplify::Float64`: How often to simplify the tree.\r\n- `randomize::Float64`: How often to create a random tree.\r\n- `do_nothing::Float64`: How often to do nothing.\r\n- `optimize::Float64`: How often to optimize the constants in the tree, as a mutation.\r\n   Note that this is different from `optimizer_probability`, which is\r\n   performed at the end of an iteration for all individuals.\r\n- `form_connection::Float64`: **Only used for `GraphNode`, not regular `Node`**.\r\n   Otherwise, this will automatically be set to 0.0. How often to form a\r\n   connection between two nodes.\r\n- `break_connection::Float64`: **Only used for `GraphNode`, not regular `Node`**.\r\n   Otherwise, this will automatically be set to 0.0. How often to break a\r\n   connection between two nodes.\r\n\"\"\"\r\nBase.@kwdef mutable struct MutationWeights\r\n    mutate_constant::Float64 = 0.048\r\n    mutate_operator::Float64 = 0.47\r\n    swap_operands::Float64 = 0.1\r\n    add_node::Float64 = 0.79\r\n    insert_node::Float64 = 5.1\r\n    delete_node::Float64 = 1.7\r\n    simplify::Float64 = 0.0020\r\n    randomize::Float64 = 0.00023\r\n    do_nothing::Float64 = 0.21\r\n    optimize::Float64 = 0.0\r\n    form_connection::Float64 = 0.5\r\n    break_connection::Float64 = 0.1\r\nend\r\n```\r\n\r\nThen there is also the `crossover_probability` defined [here](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/7a2998de90f2e45f05ac9e3dcdca3d25296d73ae/src/Options.jl#L410C33-L410C38) as having 0.066 probability.\r\n\r\nAfter randomly choosing either crossover or mutation, it samples a random mutation from this function [here](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/7a2998de90f2e45f05ac9e3dcdca3d25296d73ae/src/MutationWeights.jl#L61-L64)\r\n\r\n```julia\r\n\"\"\"Sample a mutation, given the weightings.\"\"\"\r\nfunction sample_mutation(w::MutationWeights)\r\n    weights = convert(Vector, w)\r\n    return StatsBase.sample(v_mutations, StatsBase.Weights(weights))\r\nend\r\n```\r\n\r\nIt then calls the mutation function [here](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/7a2998de90f2e45f05ac9e3dcdca3d25296d73ae/src/Mutate.jl#L124-L238)\r\n\r\n```julia\r\n        if mutation_choice == :mutate_constant\r\n...\r\n```\r\n\r\nAll of the mutation functions are defined in [this file](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/7a2998de90f2e45f05ac9e3dcdca3d25296d73ae/src/MutationFunctions.jl#L3-L347), where you can see the individual random number generator calls.\r\n\r\nFor example, [mutate_operator](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/7a2998de90f2e45f05ac9e3dcdca3d25296d73ae/src/MutationFunctions.jl#L44-L57) is defined as\r\n\r\n```julia\r\n\"\"\"Randomly convert an operator into another one (binary->binary; unary->unary)\"\"\"\r\nfunction mutate_operator(\r\n    tree::AbstractExpressionNode{T}, options::Options, rng::AbstractRNG=default_rng()\r\n) where {T}\r\n    if !(has_operators(tree))\r\n        return tree\r\n    end\r\n    node = rand(rng, NodeSampler(; tree, filter=t -> t.degree != 0))\r\n    if node.degree == 1\r\n        node.op = rand(rng, 1:(options.nuna))\r\n    else\r\n        node.op = rand(rng, 1:(options.nbin))\r\n    end\r\n    return tree\r\nend\r\n```\r\n\r\nWhich means it samples uniformly from the list of operators possible for a given node.\r\n\r\n(The \"NodeSampler\" can be used to sample nodes of an equation satisfying a particular condition. It can also have an arbitrary weighting on nodes too)",
               "createdAt": "2024-05-05T03:33:11Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "> complexity of parameters if we use methods like AIC and BIC\r\n\r\nAIC and BIC don't work for genetic algorithm searches because they don't take into account the space of expressions. They are designed assuming a fixed functional form.\r\n\r\n(Btw, note that you can change the complexity of operators/variables/constants as desired)",
               "createdAt": "2024-05-05T03:34:51Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNS0wNVQwNDozNDo1MSswMTowMM4AjiyR"
           }

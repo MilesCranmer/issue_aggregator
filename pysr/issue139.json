@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 139,
         "title": "[Feature] Web interface for PySR",
         "body": "It would be great if PySR had a web interface to configure a model: check some boxes, select options from drop-down menus (with plenty of explanation), and then it spits out a Python script for you to run locally.\r\n\r\nIdeally this could be done from a static webpage with javascript, so then it can be included in the documentation site.\r\n\r\nAny help on this would be much appreciated! \r\n\r\n(I guess the dream is you could run PySR directly from the web, and view the output plots over time, but I think the ROI of that is rather low.)",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Done",
               "createdAt": "2022-07-01T23:51:13Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHORedT4Q=="
           }

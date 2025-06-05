@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 873,
+        "title": "Running too many processes/threads and overloading the CPUs",
+        "body": "Hi Miles,\r\n\r\nThanks for providing such a well documented library and for the active support. This is truly helping the greater scientific community. \r\n\r\nI have been trying to run my model on our HPC, but the jobs get killed due to using to many threads. I have provided the model parameters below. \r\n\r\n`model = PySRRegressor(\r\n    niterations=100000,\r\n    ncycles_per_iteration=2000,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\", \"pow\"],\r\n    unary_operators=[\"exp\", \"log\"],\r\n    model_selection=\"best\",\r\n    elementwise_loss=\"L1DistLoss()\",\r\n    maxsize=35,\r\n    populations=120,\r\n    weight_optimize=0.001,\r\n    turbo=True,\r\n    parsimony=0.01,\r\n    adaptive_parsimony_scaling=1000,\r\n    parallelism=\"multiprocessing\", \r\n    procs=40,\r\n    progress=False,\r\n    verbosity=0,\r\n    output_jax_format=False,\r\n    temp_equation_file=False,\r\n    run_id=run_id\r\n)`\r\n\r\nI have attempted to limit the number of threads to 1 per core, but it seems to be overwritten somehow. \r\n`export JULIA_NUM_THREADS=1\r\nexport OMP_NUM_THREADS=1\r\nexport MKL_NUM_THREADS=1\r\nexport OPENBLAS_NUM_THREADS=1`\r\n\r\nUsing these parameters, the julia code spawns 44 cores and 147 threads. I wonder if the population or turbo parameter might spawn more procs than requested?\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @albrechtsenmm,\r\n\r\nThanks for the question. Sorry for the confusion: The correct environment variable is `PYTHON_JULIACALL_THREADS`, as PySR interfaces with Julia using juliacall. You can see the full list of env vars here: https://juliapy.github.io/PythonCall.jl/stable/juliacall/#julia-config.\r\n\r\nIt would certainly be nice if we had these listed in the PySR docs as well.\r\n\r\nThis threads parameter is set at startup, so the PySRRegressor config isn’t able to unset it unfortunately.\r\n\r\nLet me know if that env var works for you?\r\n\r\n",
+              "createdAt": "2025-03-18T21:14:07Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0xOFQyMToxNDowNyswMDowMM4Av2ep"
+          }
+        }
+      }
+    }
+  }
+}

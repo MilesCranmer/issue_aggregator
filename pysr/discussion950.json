@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 950,
+        "title": "PySR Hyperparameter setup for large dataset and Dimension Consistancy",
+        "body": "Hi awesome PySR developers,\r\nThanks for building such a great tool! I'm using PySR on a relatively large dataset (~100,000 data points) and have tuned the hyperparameters following the suggested workflow. I'm using three input features: Feature 1 and Feature 2 each have 40 unique values and Feature 3 has 7 unique values. \r\nThe input data consists of two variables with units of radians and one dimensionless variable. Based on previous runs without dimensional constraints, symbolic regression typically generates expressions containing trigonometric functions like sine, cosine, or tangent, which is the expected behavior. However, I've observed cases where the radian-valued variables appear outside of trigonometric functions, resulting in dimensionally inconsistent expressions. To enforce dimensional correctness, I'm implementing dimensional constraints that should restrict radian-valued variables to only appear within trigonometric functions.\r\nHowever, I am running into an issue with dimensional constraints. As you can see below, I  add dimensional constraints, but the weird thing happens after I add the rad units here:\r\n`model.fit(X, y, X_units=[\"\", \"rad\", \"rad\"], y_units=\"\")`\r\nThe expression it found how does not include cos/sin/tan function anymore? Do you have any idea what could be the cause? \r\nIf possible, could you please take a quick look and let me know if the whole setup seems reasonable for this large dataset symbolic regression?\r\nHere’s the hyperparameter setup I’m using:\r\n```\r\nmodel = PySRRegressor(procs=32,\r\n                      niterations=5000, \r\n                      populations=96,\r\n                      maxsize=50, \r\n                      maxdepth=10, \r\n                      population_size=50,                      \r\n                      ncycles_per_iteration=5000,\r\n                      binary_operators=[\"+\", \"-\", \"*\", \"/\"],\r\n                      unary_operators=[\"safe_sin(x) = isfinite(x) ? sin(x) : convert(typeof(x), NaN)\", \r\n                                       \"safe_cos(x) = isfinite(x) ? cos(x) : convert(typeof(x), NaN)\",\r\n                                       \"safe_tan(x) = isfinite(x) ? tan(x) : convert(typeof(x), NaN)\",\r\n                                       \"log\", \"sqrt\"],\r\n                      constraints={'safe_sin': 3, 'safe_cos': 3,'safe_tan': 3, 'log': 3, 'sqrt': 3},\r\n                      nested_constraints={\"safe_sin\": {\"safe_sin\": 0, \"safe_cos\": 0, \"safe_tan\": 0, \"log\": 0},\r\n                                          \"safe_cos\": {\"safe_sin\": 0, \"safe_cos\": 0, \"safe_tan\": 0, \"log\": 0},\r\n                                          \"safe_tan\": {\"safe_sin\": 0, \"safe_cos\": 0, \"safe_tan\": 0, \"log\": 0},\r\n                                          \"log\": {\"safe_sin\": 0, \"safe_cos\": 0, \"safe_tan\": 0, \"log\": 0},\r\n                                          \"sqrt\": {\"sqrt\": 0, \"log\": 0}},\r\n                      extra_sympy_mappings = {\r\n                          \"safe_sin\": lambda x: sympy.sin(x),\r\n                          \"safe_cos\": lambda x: sympy.cos(x),\r\n                          \"safe_tan\": lambda x: sympy.tan(x),},\r\n                      dimensional_constraint_penalty=1e2,\r\n                      dimensionless_constants_only=True,\r\n                      parsimony=1e-6,\r\n                      early_stop_condition=(\"stop_if(loss,complexity) = loss<1e-6 && complexity<10\"),\r\n                      logger_spec=logger_spec,\r\n                      progress=True,\r\n                      batching=True,\r\n                      weight_optimize=0.001,\r\n                      turbo=True)\r\n                      \r\n\r\nmodel.fit(X, y, X_units=[\"\", \"rad\", \"rad\"], y_units=\"\")\r\n```\r\nAny feedback or suggestions for improvement would be much appreciated!\r\nThanks again! 🙌",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @TrailblazerH,\r\n\r\nIn SI units (the dimensional analysis system uses SI), note that `1 rad = 1`, so a radian as a unit has no effect on dimensional analysis. `cos` and `sin` are allowed to take unitless input, since there is no difference to radian.\r\n\r\nIf you would like the units to be cancelled out, one option is to switch to a different unit instead (like distance)\r\n\r\nAlso be sure to read the tuning page: https://ai.damtp.cam.ac.uk/pysr/tuning/\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2025-06-01T14:45:12Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Also, you can use regular `cos`, `sin`; no need to write your own safe version (they get mapped internally to safe versions!)",
+              "createdAt": "2025-06-01T14:48:41Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNi0wMVQxNTo0ODo0MSswMTowMM4Ay3lf"
+          }
+        }
+      }
+    }
+  }
+}

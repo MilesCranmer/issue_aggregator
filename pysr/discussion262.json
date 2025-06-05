@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 262,
         "title": "Various installation issues",
         "body": "I had been struggling to get PySR working in most environments but was successful in running the Google Colab tutorial. I was hoping to migrate the functionality of the first block of code out of Google Colab into a python or .pytoml file in order to run PySR outside of the Google Colab environment. However I have been struggling understand what the block of code does to make PySR work.\r\n\r\n```sh\r\n!echo \"Runtime started.\"\r\n\r\n%%shell\r\nset -e\r\n\r\n#---------------------------------------------------#\r\nJULIA_VERSION=\"1.7.2\"\r\nJULIA_NUM_THREADS=4\r\nexport JULIA_PKG_PRECOMPILE_AUTO=0\r\n#---------------------------------------------------#\r\n\r\nif [ -z `which julia` ]; then\r\n  # Install Julia\r\n  JULIA_VER=`cut -d '.' -f -2 <<< \"$JULIA_VERSION\"`\r\n  echo \"Installing Julia $JULIA_VERSION on the current Colab Runtime...\"\r\n  BASE_URL=\"https://julialang-s3.julialang.org/bin/linux/x64\"\r\n  URL=\"$BASE_URL/$JULIA_VER/julia-$JULIA_VERSION-linux-x86_64.tar.gz\"\r\n  wget -nv $URL -O /tmp/julia.tar.gz # -nv means \"not verbose\"\r\n  tar -x -f /tmp/julia.tar.gz -C /usr/local --strip-components 1\r\n  rm /tmp/julia.tar.gz\r\n\r\n  echo \"Installing PyCall.jl...\"\r\n  julia -e 'using Pkg; Pkg.add(\"PyCall\"); Pkg.build(\"PyCall\")'\r\n  julia -e 'println(\"Success\")'\r\n\r\nfi\r\n```\r\nDoing this Google Colab specific task was also necessary:\r\n\" Use fallback runtime. Run the above cell (!echo \"Runtime started.\") to start the runtime. Now, open the command pallette (bottom left -> second icon from the bottom), and search for \"use fallback runtime\", and hit enter. \"",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This block of code is colab-specific. It installs Julia within Google Colab, because their VM (based on Ubuntu) doesn't include Julia by default. Note that Google Colab runs in the cloud, rather than on your local machine – so even if Julia is installed locally, it still needs to be installed on the colab VM.\r\n\r\n> Doing this Google Colab specific task was also necessary:\r\n> \" Use fallback runtime. Run the above cell (!echo \"Runtime started.\") to start the runtime. Now, open the command pallette (bottom left -> second icon from the bottom), and search for \"use fallback runtime\", and hit enter. \"\r\n\r\nThis actually changed only 2 hours ago! See https://github.com/googlecolab/colabtools/issues/3385. I need to update the colab notebook to remove that part, as you have noted 🙂 \r\n\r\n> I had been struggling to get PySR working in most environments but was successful in running the Google Colab tutorial. \r\n\r\nPlease share where you are struggling and I can try to help\r\n\r\n---\r\n\r\nEdit: updated the notebook.",
               "createdAt": "2023-02-06T20:42:04Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wMi0wNlQyMDo0MjowNCswMDowMM4ASpCt"
           }

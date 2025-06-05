@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 887,
+        "title": "[BUG]: variable_names ignored at least with StrEnums",
+        "body": "### What happened?\n\nI now often use StrEnums (introduced in Python 3.11) for dataframe columns.\nAt least two weeks ago using PySR I would get equations that used the string names for these columns.\n\nI found recently (and after updating all poetry packages) that PySR starting ignoring my StrEnums.\n\nMy equations now just look like `y = ((x₀ * (x₀ - 0.088537)) - -0.1783) * x₁` instead of `output = ((var_one * (var_one - 0.088537)) - -0.1783) * var_two`\n\nI even tried feeding in the variable_names directly as strings (with X_train and y_train both having column names)\n`self.model.fit(\n            X_train,\n            y_train,\n            variable_names=[_enum.value for _enum in X_train.columns.tolist()],\n )`\n\nIronically, this also failed to use the list of string names in equations.\n\nPotentially a different library (such as the StrEnum library or Pandas) is causing this issue, but it would be nice to be able to again use StrEnums as column names in pandas and ultimately have the variable names appear in equations.\n\n### Version\n\n1.5.2 and 1.5.5 (tried both)\n\n### Operating System\n\nWindows\n\n### Package Manager\n\nOther (specify below)\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\nNo errors get shown. Just equations lack variable_names.\n```\n\n### Extra Info\n\nI tried reverting back to PySR 1.5.2 and tried 1.5.5\nOther env info\npandas                    2.2.3 \nnumpy                     2.2.4",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Do you have a full example I can use for a unittest? ",
+              "createdAt": "2025-04-04T17:08:10Z"
+            },
+            {
+              "author": {
+                "login": "jonathansnofox"
+              },
+              "body": "Miles - thanks for helping make PySR. Here's a simple example:\n\n\n```python\n\"\"\"A simple example that showing pysr & StrEnums havin gissues\"\"\"\n\nfrom pysr import PySRRegressor\nimport pandas as pd\nfrom enum import StrEnum\n\n\nclass x_cols(StrEnum):\n    COL_ONE = \"col_one\"\n    COL_TWO = \"col_two\"\n\n\nclass y_col(StrEnum):\n    COL_OUT = \"col_out\"\n\n\nx_train = pd.DataFrame({x_cols.COL_ONE: [1, 2, 3], x_cols.COL_TWO: [1, 3, 4]})\ny_train = pd.DataFrame({y_col.COL_OUT: [2, 5, 7]})\nx_test = pd.DataFrame({x_cols.COL_ONE: [2, 3, 4], x_cols.COL_TWO: [2, 4, 5]})\ny_test = pd.DataFrame({y_col.COL_OUT: [4, 7, 9]})\n\n\nclass PysrModel:\n    # Uses symbolic regression to try to derive the fit\n\n    def __init__(self, x_cols, y_col):\n        self.x_cols = x_cols\n        self.y_col = y_col\n\n        self.model = PySRRegressor(\n            binary_operators=[\"+\", \"*\", \"-\", \"/\"],\n            unary_operators=[\"sqrt\"],\n            warm_start=False,\n        )\n\n    def fit(self, X_train: pd.DataFrame, y_train):\n        self.model.fit(\n            X_train,\n            y_train,\n            # Get warning:\n            # UserWarning: variable_names has been reset to None as X is a DataFrame.\n            # Using DataFrame column names instead. But this doesn't work either!\n            variable_names=[_enum.value for _enum in X_train.columns.tolist()],  # type: ignore\n        )\n\n    def predict(self, X, index=None):\n        # Use Index = None in order to get the best equation\n        if isinstance(X, pd.DataFrame):\n            return self.model.predict(X.values, index=index)\n        else:\n            return self.model.predict(X)\n\n\nassert \"col_one\" in x_train.to_markdown()\n\nmodel = PysrModel(x_cols=x_cols, y_col=y_col)\n\n\nmodel.fit(X_train=x_train, y_train=y_train)\nresult = model.predict(X=x_test)\n\nprint(result)  # equation will have y = x₀ + x₁\n\nbest_equation = str(model.model.get_best().sympy_format)\n\nassert \"col_one\" in best_equation  # instead get x0 + x1\n```",
+              "createdAt": "2025-04-07T11:57:55Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I wonder if this might be an upstream issue in scikit-learn. PySR does not actually handle pandas dataframes itself, it puts `X` into `sklearn.BaseEstimator._validate_data` and then extracts them using `sklearn.utils.validation._check_feature_names_in`.",
+              "createdAt": "2025-04-07T12:51:47Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOpeTL0g=="
+          }
+        }
+      }
+    }
+  }
+}

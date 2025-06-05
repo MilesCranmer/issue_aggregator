@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 902,
+        "title": "ITE operator and continuity on operators",
+        "body": "Hello to everyone, I have some questions i was not able to answer from myself from the documentation.\r\nDoes pysr takes into account the continuity of the expression while using operators like max, min, cond ?\r\nOr to get something that is continuos i should use something like \r\n\"smoothed_max(x, y) = 0.5*(x + y + sqrt((x - y)^2 + 1e-6f0))\"?\r\n  \r\nThe other question is that sometimes i get ITE operation even if i don't have any \"conditional\" operator like max,min, cond and the logical ones, it is normal ?\r\n\r\nLast question is a bit off-topic with respect to the title and is about fractional user defined operators.\r\nAs an example i write something like\r\n \r\n \"poly3(x) = x/(x^3 + x^2 + x)\"\r\n \r\n and for example the regression chose poly3(x) but the feature x start from 0, pysr doesn't take in account that the operator poly3 is not defined in  0 right ? So i am obbligated to add at least a +1f0 to the denominator? Or there are better solutions ?\r\n ",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Q1:\r\n\r\nNo need for operators to be continuous. It can help if they are though, as the constant optimisation is smoother.\r\n\r\nmax and min are continuous, but cond is not.\r\n\r\nQ2:\r\n\r\nNot sure I understand, could you give an example?\r\n\r\nQ3:\r\n\r\nWhat you should do is return `NaN` for invalid inputs. Like:\r\n\r\n`poly3(x) = x != 0 ? (x / (x^3 + x^2 + x)) : convert(typeof(x), NaN)`\r\n\r\nThen the evaluation will automatically flag invalid inputs and eliminate those expressions.",
+              "createdAt": "2025-04-27T01:44:02Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNC0yN1QwMjo0NDowMiswMTowMM4AxbmL"
+          }
+        }
+      }
+    }
+  }
+}

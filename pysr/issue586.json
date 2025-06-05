@@ -1,18 +1,13 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 586,
         "title": "Error Running PySR with Julia in Windows 10 (Anaconda Environment)",
         "body": "### Discussed in https://github.com/MilesCranmer/PySR/discussions/585\r\n\r\n<div type='discussions-op-text'>\r\n\r\n<sup>Originally posted by **sbalasbas3** March 27, 2024</sup>\r\n**Environment Details:**\r\n\r\n- Operating System: Windows-10-10.0.19045-SP0\r\n- Python Version: 3.11.7\r\n- Julia Version: (Unfortunately, I wasn't able to retrieve this detail due to the current issue, but it's supposed to be compatible with the latest pysr and juliacall versions.)\r\n- juliacall Version: 0.9.19\r\n- PySR Version: 0.18.0\r\n\r\n**My Problem:**\r\n\r\nHello, I'm encountering an error when trying to use PySR. The initialization of PySR fails. Despite installing and setting up PySR and Julia, as well as ensuring that the juliacall package is up to date, I run into a CalledProcessError during the execution of Julia package management commands initiated by juliacall. I have no idea how to resolve this issue. This error occurs despite following the setup procedures for PySR and Julia within an Anaconda environment on Windows 10.\r\n\r\n`CalledProcessError: Command '['C:\\\\Users\\\\[USERNAME]\\\\AppData\\\\Local\\\\anaconda3\\\\envs\\\\sym_reg\\\\julia_env\\\\pyjuliapkg\\\\install\\\\bin\\\\julia.exe', '--project=C:\\\\Users\\\\[USERNAME]\\\\AppData\\\\Local\\\\anaconda3\\\\envs\\\\sym_reg\\\\julia_env', '--startup-file=no', '-e', 'import Pkg; Pkg.Registry.update(); Pkg.add([Pkg.PackageSpec(name=\"PythonCall\", uuid=\"6099a3de-0909-46bc-b1f4-468b9a2dfc0d\"), Pkg.PackageSpec(name=\"SymbolicRegression\", uuid=\"8254be44-1295-4e6a-a16d-46603ac705cb\", url=raw\"https://github.com/MilesCranmer/SymbolicRegression.jl\", rev=raw\"v0.24.1\"), Pkg.PackageSpec(name=\"Serialization\", uuid=\"9e88b42a-f829-5b0c-bbe9-9e923198166b\")]); Pkg.resolve(); Pkg.precompile()']' returned non-zero exit status 1.`\r\n\r\n**Steps taken so far:**\r\n\r\n- Ensured juliacall is up to date by running `pip install --upgrade juliacall`, which confirmed version 0.9.19 is installed.\r\n- Attempted to manually specify the Julia executable's path using the JULIA_PYTHONCALL_EXE environment variable before importing PySR, without success. I wrote the code like this: `julia_path = \"C:\\\\Users\\\\[USERNAME]\\\\AppData\\\\Local\\\\anaconda3\\\\envs\\\\sym_reg\\\\julia_env\\\\pyjuliapkg\\\\install\\\\bin\\\\julia.exe\"` and `os.environ[\"JULIA_PYTHONCALL_EXE\"] = julia_path`\r\n- Activated Julia Environment: I activated the specific Julia project environment located at `C:\\Users\\[USERNAME]\\AppData\\Local\\anaconda3\\envs\\sym_reg\\julia_env` using the `Pkg.activate` command, ensuring that all package operations were localized to this environment. After activating the environment, I executed `Pkg.instantiate()` to install and update dependencies as defined in the environment's Project.toml and Manifest.toml files. This command updated the registry and added the PythonCall v0.9.19 and SymbolicRegression v0.24.1 packages among others. I also used `Pkg.add()` to explicitly add `PythonCall`, `SymbolicRegression` and `Serialization`.</div>",
-        "comments":
-        {
+        "comments": {
           "nodes": [],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": null
           }

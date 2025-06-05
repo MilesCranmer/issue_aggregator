@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 926,
+        "title": "Variable-specific operators",
+        "body": "Hi SymbolicRegression developers!\n\nI have a situation where I would like to constrain the regression in a way that certain operators cannot be used on specific variables. E.g. I have two variables, x1 and x2. On x1, I would like to give the regression to the option to use the log operator, but not on x2. Is there a way to specify this?\n\nThank you so much for your help!\n\nPierre",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

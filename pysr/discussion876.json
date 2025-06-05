@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 876,
+        "title": "Possible to limit variable on denominator",
+        "body": "for example \r\n`X = np.random.randn(1000, 3)\r\ny = a * X[:, 0] + b* X[:, 1] + X[:, 2]**2`\r\nwhere the binary_operators=[\"*\", \"+\", \"-\", \"/\"]\r\nis it possible to limit the X[:, 0] not on the denominator",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Have you tried a template expression? Then you could not give it `/` as an operator, and say exactly which feature goes where https://ai.damtp.cam.ac.uk/pysr/examples/#template-expressions",
+              "createdAt": "2025-03-21T07:10:20Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0yMVQwNzoxMDoyMCswMDowMM4Av9r_"
+          }
+        }
+      }
+    }
+  }
+}

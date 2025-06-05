@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 860,
+        "title": "[BUG]: PySR tempdir ignored",
+        "body": "### What happened?\n\nEven specifiing the tempdir, PySR save the results to \\\\AppData\\\\Local\\\\Temp\\\\\n\n```python\nmodel = PySRRegressor(\n        populations=3*num_cores,\n        niterations=200,\n        model_selection=\"best\",\n        maxsize=10,\n        maxdepth=7,\n        parsimony=expected_loss/10,\n        turbo=True,\n        batching=True,\n        precision=64,\n\n        unary_operators=[\"exp\", \"log\", \"sqrt\", \"inv(x) = 1/x\"],  # Unary operators\n        binary_operators=[\"+\", \"-\", \"*\", \"/\", \"^\"],  # Binary operators\n        extra_sympy_mappings={\"inv\": lambda x: 1 / x},\n\n        constraints={\n            \"^\": (-9, 9),  # Restringe o expoente entre -9 e 9\n        },\n\n        early_stop_condition=(\n            f\"stop_if(loss, complexity) = loss < {expected_loss} && complexity < 10\"\n            # Stop early if we find a good and simple equation\n        ),\n        elementwise_loss=\"myloss(x, y) = sum(abs.(x .- y) ./ abs.(x)) \", # MAPE\n\n        temp_equation_file=True,\n        tempdir=temp_directory,\n        delete_tempfiles=False,\n        verbosity=1,  # Verbosity level\n\n        warm_start=False,  # Não utilizar o modelo da rodada anterior\n    )\n```\n\n### Version\n\n1.5.1\n\n### Operating System\n\nWindows\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\n───────────────────────────────────────────────────────────────────────────────────────────────────\nComplexity  Loss       Score      Equation\n1           1.376e-01  3.604e+01  y = 6.3794\n3           9.924e-02  1.636e-01  y = 282.43 / x₁\n4           8.011e-02  2.141e-01  y = exp(82.247 / x₁)\n5           2.500e-02  1.164e+00  y = x₀ ^ (28.718 / x₁)\n7           9.953e-03  4.605e-01  y = (x₀ ^ (34.914 / x₁)) / 1.4906\n8           9.953e-03  3.775e-06  y = inv((x₀ ^ (-34.91 / x₁)) * 1.4902)\n9           8.613e-03  1.447e-01  y = (x₀ * ((35.082 / x₁) + -0.50314)) + 1.3815\n───────────────────────────────────────────────────────────────────────────────────────────────────\n  - C:\\\\Users\\\\nicol\\\\AppData\\\\Local\\\\Temp\\\\tmp0cs_q87_\\20250305_133818_gzRKwR\\hall_of_fame.csv\nGenerated equation: x0**(34.91420580244591/x1)/1.4906160733143525\nNo equation satisfies the early stop condition.\nUsing the best generated equation:\nx0**(34.91420580244591/x1)/1.4906160733143525\nSimplified equation with renamed variables: 0.67086355628550395*EvaporatorTemperature**(34.91420580244591/CondenserTemperature)\nSimplified equation in LaTeX: COP=0.67086355628550395 EvaporatorTemperature^{\\frac{34.91420580244591}{CondenserTemperature}}\nr2 score= 0.9903483657841431\n```\n\n### Extra Info\n\n_No response_",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks, good catch. I will fix this. In the meantime you can use `output_directory` set to your temp directory.\n\nBtw, note that it should be `elementwise_loss=\"myloss(x, y) = abs(x - y) / abs(x)\"` since it is elementwise. x and y are for a single element.\n\n",
+              "createdAt": "2025-03-05T17:21:07Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOoQcJow=="
+          }
+        }
+      }
+    }
+  }
+}

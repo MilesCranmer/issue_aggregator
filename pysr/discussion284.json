@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 284,
         "title": "Equation Depth",
         "body": "Hi! Is there any method to get depth of the equations found by the regressor? Can't seem to find anything on the reference page and doing it by eye is a bit time consuming and error prone. I am using it for tuning the max-depth parameter. ",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Good question. There isn't anything built-in unfortunately on the PySR side. On the Julia side this is `DynamicExpressions.count_depth(tree)`, but the Python side requires a bit more work - you basically have to call into some of the Julia functions to compute this.\r\n\r\n```python\r\n# After model.fit(X, y):\r\n\r\n# PyJulia is already initialized, so this just gives us the runtime object:\r\nfrom julia import Main as jl\r\nfrom julia import SymbolicRegression\r\n\r\nhalls_of_fame = model.raw_julia_state_[1]\r\n# This is a Julia object of type `SymbolicRegression.HallOfFame`\r\n# see https://astroautomata.com/SymbolicRegression.jl/v0.16/types/#Hall-of-Fame\r\n\r\njl.halls_of_fame = halls_of_fame\r\nif jl.eval(\"typeof(halls_of_fame) <: AbstractVector\"):\r\n    output_column = 0 # set as necessary if you have multiple outputs\r\n    hof = halls_of_fame[output_column]\r\nelse:\r\n    hof = halls_of_fame\r\n\r\ndtype = np.float32 if model.precision == 32 else np.float64\r\n# ^ Important to pass the same datatype to functions in Julia\r\n\r\ndominating = SymbolicRegression.calculate_pareto_frontier(\r\n    X.T.astype(dtype), y.astype(dtype), hof, SymbolicRegression.Options()\r\n)\r\n# This is a Vector of PopMember objects, which have fields:\r\n#  `tree` (the expression), and `loss`\r\n```\r\n\r\nOnce you have this object, you can compute the various properties of interest with SymbolicRegression.jl functions:\r\n\r\n```python\r\ncomplexities = [\r\n    SymbolicRegression.compute_complexity(member.tree, SymbolicRegression.Options())\r\n    for member in dominating\r\n]\r\nlosses = [\r\n    member.loss\r\n    for member in dominating\r\n]\r\nequations = [\r\n    jl.string(member.tree)\r\n    for member in dominating\r\n]\r\n```\r\n\r\nas well as the depth. To help show how you could extend this, let's just write a python version:\r\n\r\n```python\r\ndef compute_depth(tree):\r\n    if tree.degree == 0:\r\n        return 1\r\n    elif tree.degree == 1:\r\n        return 1 + compute_depth(tree.l)\r\n    else:\r\n        return 1 + max(compute_depth(tree.l), compute_depth(tree.r))\r\n# Pure-python equivalent of DynamicExpressions.count_depth\r\n\r\ndepths = [\r\n    compute_depth(member.tree)\r\n    for member in dominating\r\n]\r\n```\r\n\r\nHope this helps. Sorry it's not easier. Maybe one could have more properties like this returned from SymbolicRegression.jl?",
               "createdAt": "2023-03-23T12:27:50Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wMy0yM1QxMjoyNzo1MCswMDowMM4AUnnN"
           }

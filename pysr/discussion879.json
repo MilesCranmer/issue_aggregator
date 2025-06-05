@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 879,
+        "title": "SLow `from_file` load",
+        "body": "Hi, I'm having issues loading a run from a previous run (which ended gracefully). The `from_file` method is taking many minutes without saying anything other than `attempting to load model from...`. Is there something that I can do to speed it up? The folder has both the pickle and the `hall_of_fame.csv`. \r\nBest,\r\nM",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Is this reproducible, or is this just a one-time thing? And, what are your hyperparameters?",
+              "createdAt": "2025-03-24T14:03:43Z"
+            },
+            {
+              "author": {
+                "login": "romanovzky"
+              },
+              "body": "Sorry for the delay, busy days.\r\n\r\nIt happens when the expressions are very long (I've been letting complexity up to 100 with variables having complexity 0 so that I can explore expressions using many different variables), especially with the `cbrt`, etc that we discussed elsewhere. I've refactored my logic so that I only use \"^\" operators. It's sometimes suboptimal as it's difficult to numerically approximate 2, 1/2, 3, 1/3 etc but it's been giving me less headaches!\r\n\r\nI might close this discussion as it's a user problem, not a `pysr` shortcoming.",
+              "createdAt": "2025-04-04T10:26:20Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNC0wNFQxMToyNjoyMCswMTowMM4Awil2"
+          }
+        }
+      }
+    }
+  }
+}

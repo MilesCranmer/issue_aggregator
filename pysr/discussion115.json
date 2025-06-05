@@ -1,100 +1,84 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 115,
         "title": "Hyperparameter optimization",
         "body": "The file `hyperparamopt.py` in benchmarks is for doing distributed hyperparameter optimization. It has been useful in the past for tuning the defaults of PySR for a generic set of problems. `print_best_model.py` will print the results.\r\n\r\nThis discussion thread will hold various hyperparam solutions to different problems, to try to see if there are some better defaults to use, etc. (anybody can feel free to post good parameter sets they found).",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I started a search for the problems:\r\n```python\r\nnp.cos(2.3 * X[:, 0]) * np.sin(2.3 * X[:, 0] * X[:, 1] * X[:, 2]) - 10.0,\r\n(np.exp(X[:, 3]*0.3) + 3)/(np.exp(X[:, 1]*0.2) + np.cos(X[:, 0]) + 1.1)\r\n```\r\nfor `X = 3 * rstate.randn(200, 5)`. I have found it very difficult to find these with PySR so the search should be interesting.\r\n\r\nI allowed the search 4 cores, and a maximum time of 10 minutes (unlimited iterations) using `timeout_in_seconds=10 * 60` as an argument, regardless of what types of internal operations it chooses to do more frequently.\r\n\r\nI ran a search 3 times for each of the two expressions (total of 1 hour for an evaluation). I set a maxsize of 30. After the search, I took the loss of the most accurate expression found. I took the median of these losses over the 3 searches, and then the average over the two expressions.\r\n\r\nAfter 9366 trials, the best hyperparameters found were:\r\n```\r\n{   'alpha': 1.5738013089076586,\r\n                  'annealing': False,\r\n                  'binary_operators': ['*', '/', '+', '-'],\r\n                  'crossoverProbability': 7.110115733919611e-05,\r\n                  'fractionReplaced': 0.013374993832223066,\r\n                  'fractionReplacedHof': 0.030981822809764206,\r\n                  'maxsize': 30,\r\n                  'model_selection': 'accuracy',\r\n                  'ncyclesperiteration': 2559.0,\r\n                  'niterations': 10000,\r\n                  'npop': 35.0,\r\n                  'optimize_probability': 0.014890037032793041,\r\n                  'optimizer_iterations': 6.0,\r\n                  'optimizer_nrestarts': 6.0,\r\n                  'parsimony': 0.0012565117876239059,\r\n                  'perturbationFactor': 43.86194098731627,\r\n                  'populations': 23.0,\r\n                  'topn': 32.0,\r\n                  'tournament_selection_p': 0.8374981013436686,\r\n                  'unary_operators': ['sin', 'cos', 'exp', 'log'],\r\n                  'useFrequency': False,\r\n                  'warmupMaxsizeBy': 0.031172701891355372,\r\n                  'weightAddNode': 0.004522835200528927,\r\n                  'weightDeleteNode': 14.478661896439242,\r\n                  'weightDoNothing': 0.001374964776098089,\r\n                  'weightInsertNode': 27.524411192119594,\r\n                  'weightMutateConstant': 3.4908752644974177,\r\n                  'weightMutateOperator': 0.005418386628230309,\r\n                  'weightRandomize': 1.629159192041718,\r\n                  'weightSimplify': 0.002}\r\n```\r\nThis is quite surprising and it's far away from the current defaults.\r\n\r\n(note that I fix `weightSimplify=0.002`, since it will normalize these weights, and so one of the weights can be fixed.)\r\n\r\nThe search should continue running for the next week so I'll update this with any updated parameters.",
               "createdAt": "2022-02-22T17:37:53Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "@JayWadekar @patrick-kidger @kazewong  potentially of interest to each of you.",
               "createdAt": "2022-02-22T18:56:10Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "71000 trials in. Keep in mind these were only tuned for the above problems, and likely should be re-tuned for specific problem domains. Also keep in mind it was limited to 10 minutes on 4 cores. More cores and time probably justifies larger numbers of expressions at once.\r\n\r\nHere are the single best hyperparameters:\r\n```python\r\nloss                                          0.278591\r\nalpha                                         0.048618\r\nannealing                                        False\r\nbinary_operators                  ['*', '/', '+', '-']\r\ncrossoverProbability                          0.051212\r\nfractionReplaced                              0.026796\r\nfractionReplacedHof                           0.036723\r\nmaxsize                                             30\r\nmodel_selection                               accuracy\r\nncyclesperiteration                              634.0\r\nniterations                                      10000\r\nnpop                                              38.0\r\noptimize_probability                          0.154329\r\noptimizer_iterations                               8.0\r\noptimizer_nrestarts                                2.0\r\nparsimony                                     0.003075\r\nperturbationFactor                            0.002067\r\npopulations                                       15.0\r\nskip_mutation_failures                            True\r\ntopn                                              15.0\r\ntournament_selection_p                         0.80458\r\nunary_operators           ['sin', 'cos', 'exp', 'log']\r\nuseFrequency                                      True\r\nwarmupMaxsizeBy                               0.076342\r\nweightAddNode                                 0.401272\r\nweightDeleteNode                              1.271694\r\nweightDoNothing                               0.078377\r\nweightInsertNode                              6.211138\r\nweightMutateConstant                          0.079556\r\nweightMutateOperator                          0.526905\r\nweightRandomize                                0.00027\r\nweightSimplify                                   0.002\r\n```\r\n\r\nSince this might be noisy - perhaps this trial got lucky - here are the median hyperparameters of the top 10 trials:\r\n\r\n(Ran with `python -c 'import pandas as pd; x = pd.read_csv(\"trials4/summary.csv\", sep=\"|\").sort_values(\"loss\").iloc[:10]; y = x.median(); print(y)'`)\r\n\r\n```python\r\nloss                          0.293183\r\nalpha                         0.036668\r\nannealing                     False\r\ncrossoverProbability          0.065701\r\nfractionReplaced              0.000364\r\nfractionReplacedHof           0.034940\r\nmaxsize                      30.000000\r\nncyclesperiteration         555.500000\r\nniterations               10000.000000\r\nnpop                         33.000000\r\noptimize_probability          0.137467\r\noptimizer_iterations          8.000000\r\noptimizer_nrestarts           2.000000\r\nparsimony                     0.003176\r\nperturbationFactor            0.076306\r\npopulations                  15.500000\r\nskip_mutation_failures        True\r\ntopn                         12.000000\r\ntournament_selection_p        0.859390\r\nuseFrequency                  True\r\nwarmupMaxsizeBy               0.083059\r\nweightAddNode                 0.791716\r\nweightDeleteNode              1.734292\r\nweightDoNothing               0.214623\r\nweightInsertNode              5.103537\r\nweightMutateConstant          0.048217\r\nweightMutateOperator          0.474846\r\nweightRandomize               0.000234\r\nweightSimplify                0.002000\r\n```\r\n\r\nWe can also look at the spread on these. Many of these are log distributed, so let's look at the standard deviation in log10 space Using `python -c 'import numpy as np; import pandas as pd; x = pd.read_csv(\"trials4/summary.csv\", sep=\"|\").sort_values(\"loss\").iloc[:10][[\"loss\", \"alpha\", \"crossoverProbability\", \"fractionReplaced\", \"fractionReplacedHof\", \"maxsize\", \"ncyclesperiteration\", \"niterations\", \"npop\", \"optimize_probability\", \"optimizer_iterations\", \"optimizer_nrestarts\", \"parsimony\", \"perturbationFactor\", \"populations\", \"topn\", \"tournament_selection_p\", \"warmupMaxsizeBy\", \"weightAddNode\", \"weightDeleteNode\", \"weightDoNothing\", \"weightInsertNode\", \"weightMutateConstant\", \"weightMutateOperator\", \"weightRandomize\", \"weightSimplify\"]]; x = np.log10(x); y = x.std(); print(y)'`.\r\n\r\nThis gives the following:\r\n```python\r\nloss                      0.008101\r\nalpha                     0.229157\r\ncrossoverProbability      0.174091\r\nfractionReplaced          0.633015\r\nfractionReplacedHof       0.163865\r\nmaxsize                   0.000000\r\nncyclesperiteration       0.064149\r\nniterations               0.000000\r\nnpop                      0.098414\r\noptimize_probability      0.167777\r\noptimizer_iterations      0.053846\r\noptimizer_nrestarts       0.155451\r\nparsimony                 0.126659\r\nperturbationFactor        0.568420\r\npopulations               0.076493\r\ntopn                      0.035872\r\ntournament_selection_p    0.036660\r\nwarmupMaxsizeBy           0.144004\r\nweightAddNode             0.252111\r\nweightDeleteNode          0.152587\r\nweightDoNothing           0.196531\r\nweightInsertNode          0.118023\r\nweightMutateConstant      0.346641\r\nweightMutateOperator      0.185854\r\nweightRandomize           1.023768\r\nweightSimplify            0.000000\r\ndtype: float64\r\n```\r\nOne can roughly interpreting \"1\" here as meaning the error on the mean (in log space) is from 10x the value to 1/10x the value. The most uncertain values are `perturbationFactor`, `fractionReplaced`, and `weightRandomize`, although it's possible these could simply not have a huge effect on the results, and the model is changing them randomly. For example, `alpha` has no effect on these results since annealing is turned off, yet there the error in logspace is 0.2!\r\n\r\n\r\n**Edit: here's the copy-pastable version**, with only the main hyperparams (niterations, maxsize, warmupMaxsizeBy, and the operators are excluded):\r\n```python\r\nalpha=0.036668,\r\nannealing=False,\r\ncrossoverProbability=0.065701,\r\nfractionReplaced=0.000364,\r\nfractionReplacedHof=0.034940,\r\nncyclesperiteration=555,\r\nnpop=33,\r\noptimize_probability=0.137467,\r\noptimizer_iterations=8,\r\noptimizer_nrestarts=2,\r\nparsimony=0.003176,\r\nperturbationFactor=0.076306,\r\npopulations=15,\r\nskip_mutation_failures=True,\r\ntopn=12,\r\ntournament_selection_p=0.859390,\r\nuseFrequency=True,\r\nweightAddNode=0.791716,\r\nweightDeleteNode=1.734292,\r\nweightDoNothing=0.214623,\r\nweightInsertNode=5.103537,\r\nweightMutateConstant=0.048217,\r\nweightMutateOperator=0.474846,\r\nweightRandomize=0.000234,\r\nweightSimplify=0.002000,\r\n```",
               "createdAt": "2022-03-01T13:49:35Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "For posterity here is the mean of the top 10 trials computed in log space (`10 ** (np.log10(x).mean())`)\r\n\r\n```python\r\nloss                          0.292467\r\nalpha                         0.036416\r\ncrossoverProbability          0.064505\r\nfractionReplaced              0.000479\r\nfractionReplacedHof           0.034607\r\nmaxsize                      30.000000\r\nncyclesperiteration         541.969433\r\nniterations               10000.000000\r\nnpop                         31.599738\r\noptimize_probability          0.127483\r\noptimizer_iterations          8.540416\r\noptimizer_nrestarts           1.515717\r\nparsimony                     0.003407\r\nperturbationFactor            0.063978\r\npopulations                  15.777888\r\ntopn                         12.360778\r\ntournament_selection_p        0.853237\r\nwarmupMaxsizeBy               0.078130\r\nweightAddNode                 0.841462\r\nweightDeleteNode              1.753645\r\nweightDoNothing               0.210091\r\nweightInsertNode              5.129917\r\nweightMutateConstant          0.033357\r\nweightMutateOperator          0.494547\r\nweightRandomize               0.000647\r\nweightSimplify                0.002000\r\n```",
               "createdAt": "2022-03-01T13:53:32Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "patrick-kidger"
               },
               "body": "Hmm. Lots of interesting things here.\r\n\r\n- `fractionReplaced` is absolutely tiny. (And has very large spread.) Is migration so unimportant? Or perhaps by having too much migration then the populations homogenise, to the detriment of the overall performance?\r\n- Here `fractionReplaced << fractionReplacedHoF`. In the current defaults its the other way around.\r\n- You say above that you clip things to take at most 10 minutes, and unlimited iterations? It looks like you've done this by setting `niterations = 10000`, which in practice is ridiculously large. For example in #99 I advocate for `niterations = 4`.\r\n- Similar story for `ncyclesperiteration`, which seems very large. I'm thinking these two values will need optimising separately afterwards, or fixed to some reasonable small-ish values.\r\n- `optimize_probability` is bounded in `[0, 1]`, so I'm not sure how much sense a log-space comparison makes. (Probably similar for other hyperparameters too.) What's the non-log-space spread? I'm just surprised this is so low: 0.16; by default it's currently set to 1.0 (always optimise constants).\r\n    - FYI this argument isn't documented.\r\n    - Likewise it seems like `optimize_iterations` and `optimise_nrestarts` are smaller than their current defaults.\r\n- I'm curious how sensitive the results are to the `weight*` arguments. These feel like they should be some of the most important ones but they're also the ones for which we (well, at least me) have least intuition for what are good values.\r\n    - I'm not sure how meaningful the spread results are for the `weight*` values. IIRC these are normalised by their sum so e.g. multiplying them all by 10 won't affect results.\r\n    - It might be worth cutting known-uninformative dimensions of the searchspace (`alpha` given `annealing=False`; any one of the `weight*` values) and continuing the search from there?",
               "createdAt": "2022-03-01T14:08:49Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Yes, very curious indeed. Thanks for this writeup. Quick comments before I run to a meeting:\r\n\r\n- I agree `niterations` shouldn't be `10000` in practice; I simply set that so that if `ncyclesperiteration` was very very small, it wouldn't quit after 10 seconds and be an unfair comparison. I think fixed time is a more fair comparison; otherwise it would try to optimize the parameters as frequently as possible, since this doesn't really \"count\" against the number of iterations. If we implement these hyperparams, I think one should just see what `niterations` gives a runtime of <1 minute. Alternatively we could simply have `timeout_in_seconds` as the default choice of stopping... Not sure.\r\n- `weightSimplify` is actually fixed, so in theory these other weight values should be absolute in the recorded experiments. Although maybe I should have fixed a more prominent mutation as the fixed one.",
               "createdAt": "2022-03-01T14:28:50Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "> fractionReplaced is absolutely tiny. (And has very large spread.) Is migration so unimportant? Or perhaps by having too much migration then the populations homogenise, to the detriment of the overall performance?\r\n\r\nThis sounds right: too much migration would reduce diversity, so it's important to either reduce the migration rate, or increase `ncyclesperiteration` (number of mutations between each migration period), or both. \r\n\r\n\r\nRegarding the weights, it might be interesting to only optimize those and look at the result. My guess is they vary quite a bit by problem - more complex expressions would probably favor the mutations which add nodes to the tree.",
               "createdAt": "2022-03-02T15:20:01Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "patrick-kidger"
               },
               "body": "Yep, everything you've said, across both posts, makes sense.",
               "createdAt": "2022-03-02T15:37:12Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "One interesting thing I noticed: increasing the floating point precision from float32 to float64 doesn't really hurt evaluation speed: a single evaluation of a 48-token expression over 200 datapoints only changes from 9.791 us to 10.542 us (see `benchmarks/single_eval.jl` in the Julia repo).\r\n\r\nHowever, having higher precision can help search speed by avoiding weird combinations of constants. Sometimes the genetic algorithm figures out it can achieve higher precision of a particular constant by stacking multiple constants together. I know this sounds weird, but from the genetic algorithm's perspective, whatever gives it higher accuracy is a good thing!\r\n\r\nOne example is to achieve 2/3 to higher precision (since you can't represent this exactly in floating point numbers), it would simply multiply by 2.0 and divide by 3.0 in a subsequent operation (both of which can be stored exactly), rather than store a single constant approximately.\r\n\r\nFrom my very non-rigorous experiments, it seems like using higher precision in the search (you can set this in PySR with `precision=64`) helps avoid these types of situations. But this requires further study...",
               "createdAt": "2022-03-10T23:12:59Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Running some new tuning runs in https://github.com/MilesCranmer/pysr_wandb - W&B sweep file here: https://github.com/MilesCranmer/pysr_wandb/blob/master/sweep.yml.\r\n\r\nAccording to W&B, these are the most important parameters to tune:\r\n\r\n![Screen Shot 2022-11-19 at 11 53 44 PM](https://user-images.githubusercontent.com/7593028/202886283-7ab7b8d8-4ff5-4215-a34b-8fa951d3632b.png)\r\n\r\nMy initial conclusion is that the following change to hyperparameters (from the current defaults) is quite good:\r\n\r\n```python\r\nmodel.set_params(\r\n    population_size=75,  # default 33\r\n    tournament_selection_n=23,  # default 10\r\n    tournament_selection_p=0.8,  # default 0.86\r\n    ncyclesperiteration=100,  # default 550\r\n    parsimony=1e-3,  # default 0.0032\r\n    fraction_replaced_hof=0.08,  # default 0.035\r\n    optimizer_iterations=25,  # default 8\r\n    crossover_probability=0.12,  # default 0.066\r\n    weight_optimize=0.06,  # default 0.0\r\n    populations=50,  # default 15\r\n    adaptive_parsimony_scaling=100.0,  # default 20\r\n)\r\n```\r\nalthough `ncyclesperiteration` being this small will result in low resource utilization for more cores.\r\n",
               "createdAt": "2022-11-20T04:54:20Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0xMS0yMFQwNDo1NDoyMCswMDowMM4AP-LO"
           }

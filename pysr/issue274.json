@@ -1,68 +1,56 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 274,
         "title": "[Feature] Get pip to install juliaup",
         "body": "I’m thinking about how to make PySR even easier to set up and install. The conda side is already automatic which is great; I’m thinking about the pip side now. One idea I had is that, if a user doesn’t have a copy of Julia on their path, then installing PySR with pip could trigger an automatic install of `juliaup`, with a bunch of interactive prompts to ask the user if they want to, where they want to install, etc. Following this, it would automatically run `pysr.install()`.\r\n\r\nMaybe this could even be done on the PyJulia side of things… What do you think @mkitti?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "mkitti"
               },
               "body": "Sure. You might still want a prompt to ask the user to proceed.\n\nYou may want to consider https://github.com/johnnychen94/jill.py\n... but juliaup is a pretty good solution going forward.",
               "createdAt": "2023-03-09T03:05:10Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mkitti"
               },
               "body": "Also see https://github.com/cjdoris/pyjuliaup",
               "createdAt": "2023-03-09T03:07:13Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I've been thinking about doing a full switch to PythonCall.jl to simplify things like this, but it sounds like static Python installs might not be supported?\r\n\r\nhttps://github.com/cjdoris/PythonCall.jl/issues/318#issuecomment-1573866457\r\n\r\n> From the logs you've sent, it's a statically linked build of Python which is unfortunately not supported by PythonCall (because it needs to dynamically link to libpython). Often this is the case for Python bundled in system package managers.\r\n\r\n@cjdoris is this correct? I'm not sure I understand because I had thought all Python binaries installed by conda were static – but the existence of CondaPkg.jl seems to contradict this ",
               "createdAt": "2023-06-18T21:57:18Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "cjdoris"
               },
               "body": "Ok, well strictly all PythonCall needs is a shared libpython (i.e. libpython.so or libpython.dll) and the linkage of the python executable is not relevant. But I assume that if a shared libpython is available then python itself is dynamically linked. Perhaps not.",
               "createdAt": "2023-06-22T16:23:35Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "It looks like conda packages `libpython3.so` so even though it's a static python executable, the libpython is shared. If I understand this correctly. Are you able to install PythonCall.jl as a dependency of conda environments, and use the Python+Julia versions packaged by conda? If so, we should be good to go in terms of making a port of PySR.",
               "createdAt": "2023-06-22T16:48:39Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Fixed by #535 ",
               "createdAt": "2024-02-12T09:02:48Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOc4eoTw=="
           }

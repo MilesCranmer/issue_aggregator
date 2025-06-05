@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 913,
+        "title": "Timeout issues?",
+        "body": "I'm using PySRegressor inside a Jupyter notebook in VS Code, and I've encountered an issue with the `timeout_in_seconds` parameter. It works correctly when I set it to small values like 30 or 100 seconds, but when I use larger timeouts like 900 or 1200 seconds, or sometimes even 300 seconds, the run never stops, even after significantly more time has passed. \r\n\r\nThis is the regression configuration:\r\n```\r\nmodel_pysr = PySRRegressor(\r\n    niterations=500, \r\n    binary_operators=[\"+\", \"*\", \"-\", 'cond'],\r\n    unary_operators=['square', 'exp', 'sqrt', 'log10'],\r\n    model_selection = 'accuracy', \r\n    elementwise_loss='L2DistLoss()',\r\n    parsimony = 0.1,\r\n    parallelism = 'multiprocessing',\r\n    timeout_in_seconds = 900,\r\n)\r\n```\r\nThe data for training is always the same.\r\n\r\nIs there a known bug or limitation in how `timeout_in_seconds` is handled for longer durations in Python?\r\nIs there a recommended way to enforce a hard timeout for long runs, especially in notebook environments?\r\n\r\nThanks in advance!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "It might actually be doing the timeout at the right point, but it might just take a while for the Julia multiprocessing to clean up everything at this `rmprocs` line: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/64c0780d268f13a0a0e54615d273ffbb123170de/src/SymbolicRegression.jl#L1068. It is probably an issue in Julia's stdlib Distributed.jl package as I also find these kind of startup/teardown delays to be fairly common.\r\n\r\nThe main workaround is to use `parallelism=\"multithreading\"` which will probably exit much faster.\r\n\r\nIn the future I would really like to get MPI.jl support working, which skips the Distributed.jl interface and relies on MPI, which should both be more reliable and also quicker startup/teardown. The downside is that it might require more effort on the user's side (e.g., `mpirun`)",
+              "createdAt": "2025-05-06T16:46:54Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0wNlQxNzo0Njo1NCswMTowMM4AxysE"
+          }
+        }
+      }
+    }
+  }
+}

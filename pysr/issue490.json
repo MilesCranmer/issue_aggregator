@@ -1,60 +1,49 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 490,
         "title": "[BUG]: Possible memory leakage & best practices for memory scaling?",
         "body": "### What happened?\n\nHi and thank you for this great tool! I have been using it enthusiastically for a few months.\r\n\r\nRecently, we began running PySR on the Rusty cluster for large data regressions. However, we have encountered an issue where jobs finish early before reaching the specified wall time or the maximum number of operations, even when the stop-early clause is not triggered. \r\n\r\nAdditionally, I would like to take the opportunity to ask about best practices for memory scaling in PySR.\r\n\r\n\n\n### Version\n\n0.16.3\n\n### Operating System\n\nLinux\n\n### Package Manager\n\nOther (specify below)\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\nWe sometimes get an out-of-memory error:\r\n\r\nProgress: 2291006 / 6464000000 total iterations (0.035%)\r\n====================================================================================================\r\nslurmstepd: error: Detected 1 oom-kill event(s) in StepId=3054365.batch. Some of your processes may have been killed by the cgroup out-of-memory handler.\n```\n\n\n### Extra Info\n\nWe are using Mamba. \r\n\r\nData has ~ 10000 points with 8 features. \r\n\r\nOur jobs are submitted as Python scripts, so it shouldn't involve any Jupyter-related issues #460. \r\n\r\nWe use 1 node with 64 cores and set `procs = num_cores`\r\n\r\nWe have experimented with various PySRRegressor configurations, including toggling Turbo, batching, and multithreading. However, we observed relatively minimal improvements in terms of ending at wall time or reaching a significant number of desired iterations. \r\n\r\nFor reference, the specific out-of-memory error shown above occurred with the following configuration:\r\n\r\n    procs=num_cores,\r\n    multithreading=False,\r\n    cluster_manager='slurm',\r\n    batching=True,\r\n    turbo=True,\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "eelregit"
               },
               "body": "Hi Miles! Hope you have been doing well :)\r\n\r\nTo add more details, all distributed jobs on one icelake node ran OOM, e.g.,\r\n```python\r\nmodel = PySRRegressor(\r\n    ...\r\n    maxsize=35,\r\n    niterations=1000000,\r\n    populations=num_cores,  # 64\r\n    ncyclesperiteration=10000,\r\n    procs=num_cores,\r\n    #multithreading=False,\r\n    cluster_manager='slurm',\r\n    #batching=True,\r\n    #turbo=True,  # seems like OOM happened earlier with turbo on but I'm not 100% sure\r\n    ...\r\n)\r\n```\r\n\r\nHowever, the multithread job ran until the end of the allocation\r\n```python\r\nmodel = PySRRegressor(\r\n    ...\r\n    maxsize=45,\r\n    niterations=1000000,\r\n    populations=num_cores,  # 64\r\n    ncyclesperiteration=10000,\r\n    #procs=num_cores,\r\n    #multithreading=False,\r\n    #cluster_manager='slurm',\r\n    batching=True,\r\n    turbo=True,\r\n    ...\r\n)\r\n```\r\n\r\nWhen I ssh'ed into the distributed job work node before it crashed, htop showed heavy cache (yellow fraction in htop) usage. The 1TB mem is filled with cache except the 100~200GB actual memory usage.",
               "createdAt": "2023-12-20T03:04:24Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hey @eelregit and @paulomontero,\r\n\r\nThanks for reaching out about this. Actually I have seen this too on rusty, especially for long-running jobs. I think it is actually a Julia bug in their distributed interface which has some issues with the garbage collection. I have opened a bug report here: https://github.com/JuliaLang/julia/issues/50673. Basically two julia processes do not communicate how much memory is used between them, and can sometimes go over the total system memory limit if garbage collection is not triggered soon enough.\r\n\r\nThe workaround which I have used, and probably need to implement directly into PySR SymbolicRegression.jl for users to use (pull requests very much appreciated!!) is as follows. Take the following lines:\r\n\r\nhttps://github.com/MilesCranmer/PySR/blob/c9cc6d725f48d293c299670ea0663981b7f2f02c/pysr/julia_helpers.py#L321-L322\r\n\r\nAnd apply the git diff:\r\n\r\n```diff\r\n     Main.eval(f\"import ClusterManagers: addprocs_{cluster_manager}\")\r\n-    return Main.eval(f\"addprocs_{cluster_manager}\")\r\n+    return Main.eval(f\"(args...; kws...) -> addprocs_{cluster_manager}(args...; exeflags=`--heap-size-hint=1G`, kws...)\")\r\n```\r\n\r\n> What this is doing\r\n\r\nIt's modifying the way processes are created in ClusterManagers.jl and Distributed.jl to automatically pass `--heap-size-hint=1G` to every new Julia process. This is giving Julia a hint that each process should only use 1GB in memory max, before doing aggressive garbage collection. This should be well below the memory constraints of a rusty node (assuming one process per core) so I have used it as a default with great success. \r\n\r\nWith this change I have never gotten an OOM error again for long running jobs.\r\n\r\nLet me know if this works for you!\r\nCheers,\r\nMiles\r\n\r\n",
               "createdAt": "2023-12-20T05:39:52Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Pushed some code to automatically fix issues like this: https://github.com/MilesCranmer/SymbolicRegression.jl/pull/270. Give it a week or so to work its way into PySR (needs to pass various tests).",
               "createdAt": "2023-12-22T02:41:36Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "eelregit"
               },
               "body": "Thanks Miles! This is super helpful!!",
               "createdAt": "2023-12-22T04:51:48Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "paulomontero"
               },
               "body": "Nice!!! Thank you for the swift response/fix, looking forward to seeing it in action.",
               "createdAt": "2023-12-22T05:36:33Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOb0wuEg=="
           }

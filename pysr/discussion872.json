@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 872,
+        "title": "Possible for limit training time",
+        "body": "in model setting, timeout_in_seconds can limit the model training time.\r\nBut in model retrianing, is it possible to futher limit the training time?\r\n\r\nfor example, the initial training set timeout_in_seconds to 8000 sec.\r\nand for model retraining, only limit it to 60s",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Can you just change the `timeout_in_seconds` before calling `.fit` a second time?\r\n\r\n```python\r\nmodel.fit(X, y)\r\nmodel.warm_start = True\r\nmodel.timeout_in_seconds = 60\r\nmodel.fit(X, y)\r\n```",
+              "createdAt": "2025-03-18T08:05:28Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0xOFQwODowNToyOCswMDowMM4Av0Q5"
+          }
+        }
+      }
+    }
+  }
+}

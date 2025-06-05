@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 825,
+        "title": "Changing weights in loss functions between iterations",
+        "body": "Hi! \r\n\r\nI have a problem where I try to fit targets covering a fairly wide range of magnitudes. Using a loss function that measures the error in logspace definitely helps a lot, but I also see improvements when I weight my loss based on the density of targets (I have more data in certain magnitudes). \r\n\r\nHowever, I find that depending on my weighting scheme, I often promote either improved $$R^2$$-scores or lower mean absolute percentage error (MAPE). Ideally I would like to improve both, of course, and I thought that maybe I could adjust the weights dynamically? For instance, I would run 1000 iterations with a weighting scheme that promotes improved $$R^2$$-scores, and then switch to a weighting scheme that promotes a lower MAPE. \r\n\r\nI know it's possible to implement this using the `warm_start` option´, but I was curious to hear what others might think about the idea! I'm not that experienced with SR and maybe it's a stupid idea that won't help the evolutionary algorithm to converge in an optimal way... Would be super happy if someone has any insights in whether it's a valid plan or not!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Yeah you can totally do this with `warm_start=True` and then repeatedly calling `model.fit(X, y, weights=weights)` with the new weighting.",
+              "createdAt": "2025-02-11T20:24:26Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMi0xMVQyMDoyNDoyNiswMDowMM4AuWwB"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 317,
         "title": "Effect of Standardizing Variables",
         "body": "I've noticed that pySR works much more efficiently when the appropriate variables are standardized by being mapped to a range of [0,1]. I am using a synthetic dataset where an exact solution exists, whether the variables are standardized or not. I am configuring the model quite conservatively (6 cores, 50 iterations) as the regressor would work well either way if given more resources. The model finds exact solution reliably with only the standardized variables. \r\n\r\nI want to intuitively explain this; 1 thought is that the perturbations that pySR uses to optimize constants will be more effective given the smaller range, and so it will be more efficient in finding the global optimum. I am curious to hear others ideas on this!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Very interesting. It could be because the code to make a random constant in an expression is sampled from a Gaussian with scale=1? https://github.com/MilesCranmer/SymbolicRegression.jl/blob/61ecbed3aa25c73aeaf9ecc2846023979980a741/src/MutationFunctions.jl#L153\r\n\r\n```julia\r\n        return Node(; val=randn(T))\r\n```\r\n\r\nthe variable `T` is typically `Float32`.\r\n\r\nThe perturbations themselves are multiplicative rather than additive: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/61ecbed3aa25c73aeaf9ecc2846023979980a741/src/MutationFunctions.jl#L68-L72 so the scale-dependence must be from the initialization?\r\n\r\n---\r\n\r\nSide-question: I wonder if there is a way to make PySR scale-invariant, perhaps by having the scale of random constants depend on the standard deviation in a given variable... what do you think?",
               "createdAt": "2023-04-25T11:41:21Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "krn-hov"
               },
               "body": "Thanks for the reply! Thinking about it more... if the variance of the response variable is large, doesn't that mean there will inherently be more ways of explaining (incorrectly/poorly but nevertheless) it as opposed to a smaller one? And so the regressor goes through more intermediate mutations/steps in general? \r\n\r\nBecause even if the variables are mapped to [0,1], constants of the equation are not necessarily affected by the scaling and may follow different unknown distributions. So to change the initialization, I'm not sure how it would affect it.",
               "createdAt": "2023-04-25T12:32:14Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNC0yNVQxMzozMjoxNCswMTowMM4AV0UT"
           }

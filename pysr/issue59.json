@@ -1,52 +1,42 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 59,
         "title": "Torch export key errors",
         "body": "Key errors:\r\n```\r\nTraceback (most recent call last):\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pysr/export_torch.py\", line 124, in __init__\r\n    arg_ = _memodict[arg]\r\nKeyError: sqrt(Abs(x1) + 2)\r\n\r\nDuring handling of the above exception, another exception occurred:\r\n\r\nTraceback (most recent call last):\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pysr/export_torch.py\", line 124, in __init__\r\n    arg_ = _memodict[arg]\r\nKeyError: 1/2\r\n\r\nDuring handling of the above exception, another exception occurred:\r\n\r\nTraceback (most recent call last):\r\n  File \"test.py\", line 151, in <module>\r\n    batching=True,\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pysr/sr.py\", line 453, in pysr\r\n    equations = get_hof(**kwargs)\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pysr/sr.py\", line 1002, in get_hof\r\n    module = sympy2torch(eqn, sympy_symbols, selection=selection)\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pysr/export_torch.py\", line 190, in sympy2torch\r\n    expression, symbols_in, selection=selection, extra_funcs=extra_torch_mappings\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pysr/export_torch.py\", line 161, in __init__\r\n    expr=expression, _memodict=_memodict, _func_lookup=_func_lookup\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pysr/export_torch.py\", line 130, in __init__\r\n    **kwargs,\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pysr/export_torch.py\", line 130, in __init__\r\n    **kwargs,\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pysr/export_torch.py\", line 120, in __init__\r\n    self._torch_func = _func_lookup[expr.func]\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/collections/__init__.py\", line 916, in __getitem__\r\n    return self.__missing__(key)            # support subclasses that define __missing__\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/collections/__init__.py\", line 908, in __missing__\r\n    raise KeyError(key)\r\nKeyError: <class 'sympy.core.numbers.Half'>\r\n```\r\n\r\nMWE:\r\n```\r\nimport numpy as np\r\nfrom pysr import pysr, best\r\nimport time\r\n\r\nfrom pysr.sr import best_callable\r\nimport torch\r\n\r\n# Dataset (alternative)\r\nX = 2*np.random.randn(1152, 32)\r\ny = 2*np.cos(X[:, 3:11]) + X[:, 0:8]**2 - 2 + X[:,2:10]*X[:,1:9]\r\n\r\nequations = pysr(X, y, \r\n    binary_operators=[\"plus\", \"sub\", \"mult\", \"div\", \"pow\"],\r\n    unary_operators=[\"exp\", \"log_abs\", \"log10_abs\", \"log2_abs\", \r\n        \"cos\", \"sin\", \"tan\", \"sinh\", \"cosh\", \"tanh\", \r\n        \"atan\", \"asinh\", \"acosh_abs\", \"atanh_clip\"],\r\n    # verbosity=0,\r\n    # procs=6,\r\n    temp_equation_file=True,\r\n    progress=False,\r\n    julia_optimization=0,       # Faster startup time. Turn off optimizing compiler for Julia code\r\n    output_torch_format=True,\r\n    #\r\n    # niterations=2,              # Iterations per population of the entire algorithm. Best equations are printed and migrated between populations.  populations * niterations = progress bar. This doesnt really matter\r\n    # maxsize=20,\r\n    # populations=2,              # Number of populations running. (must > 1)\r\n    # npop=2000,                  # Number of individuals per population. More population, slower, more chance of hitting the correct.\r\n    # ncyclesperiteration=200,    # Number of total mutations per 10 samples of population each iteration. Also like npop.\r\n    # Quick debug\r\n    niterations=5,              # Iterations per population of the entire algorithm. Best equations are printed and migrated between populations.  populations * niterations = progress bar. This doesnt really matter\r\n    maxsize=10,\r\n    populations=5,              # Number of populations running. (must > 1)\r\n    npop=200,                  # Number of individuals per population. More population, slower, more chance of hitting the correct.\r\n    ncyclesperiteration=20,    # Number of total mutations per 10 samples of population each iteration. Also like npop.\r\n    annealing=True,            # With False, simple equations take longer but more complex equations are achievable\r\n    batching=True,\r\n)\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I have no idea why `sqrt(Abs(x1) + 2)` is appearing as an output of your equation search... PySR should not find integers, only real numbers. But let me try to reproduce this...\r\n\r\n~~By the way; some of the operators you are using are not actually implemented in the torch export, so it won't work anyways. You can add them as with, e.g., `extra_torch_mappings={'atanh_clip': ...}`. (I should give a better error for this). It also looks like this argument was also not transferring to the torch export; I'll add this now.~~\r\n\r\nAlso - that many operators and features will make the search very very slow. As a rule of thumb, the search will take O(factorial(M * N)) slower if you increase the number of operators by N and the number of features by M. There's also some redundant operators among the ones you passed - e.g., `pow` is redundant with `exp`. You can do feature pre-selection for all equations via the `select_k_features` argument (in which case you probably want to split this into multiple PySR runs!). Or use the methods described here to break down your problem: https://arxiv.org/abs/2006.11287.",
               "createdAt": "2021-06-11T21:45:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I can't reproduce your example; it outputs fine for me. Presumably this is because it discovers a different equation. What was the output equation that it tried to convert to torch format?",
               "createdAt": "2021-06-12T03:37:37Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Update: the thing I said about `'atanh_clip'` is actually incorrect, sorry. It should have worked without that manual mapping. This is because this is equal to:\r\n```python\r\n\"atanh_clip\": lambda x: sympy.atanh(sympy.Mod(x + 1, 2) - 1)\r\n```\r\nand each `atanh` and `Mod` are converted to PyTorch separately.\r\n\r\nHowever, it looks like `mod` was not implemented in the torch mapping. I just added it in 4d5aec3d9cc5000ffde57eb32f4fea46e0d8c157 (0.6.8). I think this should be fixed now, but let me know if it does not work!\r\n\r\nAlso, here's a way to test if an expression will work, without needing to run the full PySR pipeline:\r\n```python\r\nfrom pysr import sympy2torch\r\nimport torch\r\nfrom sympy import *\r\nimport numpy as np\r\n\r\nx, y, z = symbols(\"x y z\")\r\nexpression = x ** 2 + atanh(Mod(y + 1, 2) - 1) * 3.2 * z\r\n\r\nmodule = sympy2torch(expression, [x, y, z])\r\n\r\nprint(module)\r\n# >> _SingleSymPyModule(expression=x**2 + 3.2*z*atanh(Mod(y + 1, 2) - 1))\r\n\r\nX = torch.rand(100, 3).float() * 10\r\n\r\ntorch_out = module(X)\r\ntrue_out = X[:, 0] ** 2 + torch.atanh(torch.remainder(X[:, 1] + 1, 2) - 1) * 3.2 * X[:, 2]\r\n```\r\nTest it:\r\n```python\r\nnp.testing.assert_array_almost_equal(true_out.detach(), torch_out.detach(), decimal=4)\r\n```\r\n\r\nSo we can see it gives the same answer for tanh_clip now.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2021-06-13T23:31:14Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "yxie20"
               },
               "body": "Fixed, confirmed! `Mod` seems to be the issue indeed.",
               "createdAt": "2021-06-14T13:35:27Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOM00V0A=="
           }

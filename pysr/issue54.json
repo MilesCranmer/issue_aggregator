@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 54,
         "title": "[Feature] Denoising pre-processing",
         "body": "PySR (and perhaps SR in general) is not that good at working with noise and seems to overfit. An easy solution to this is preprocessing where we denoise the data. The easiest way to do this is to fit a generic Gaussian process, and generate samples of the mean function over the same domain as the input data. \r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Added with `denoise=True` argument.",
               "createdAt": "2021-06-12T03:46:18Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOM0Jv7A=="
           }

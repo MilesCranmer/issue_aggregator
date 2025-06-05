@@ -1,84 +1,70 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 395,
         "title": "[BUG]: SymPy parsing error related to unicode encodings on Windows",
         "body": "### What happened?\n\nWhen start standart example on Windows 10 or 7 (russian) and get the following result:\r\n`\r\n-----------------------------------------------------------------------------------------------------------------------\r\nValueError: Error from parse_expr with transformed code: \"(Symbol ('xв' )‚Symbol ('Ђ' )*Symbol ('xв' )‚Symbol ('Ђ' ))\"-\r\n-----------------------------------------------------------------------------------------------------------------------\r\nThe above exception was the direct cause of the following exception:s(sin(0.80486))) + cos(x₃))) + cos(x₃))\r\n18          1.710e+01  1.633e-03  y = ((exp(1.0925) + ((sin(x₃) * cos(0.80486)) + cos(x₃))) + ((cos(x₃) + -0.18981) ...\r\nTraceback (most recent call last):* 1.0925))\r\n\r\n`\r\n\r\nAs I understand in some place X0 is encoded with a unicode character, which then causes an error in sympify.\r\n\r\n![изображение](https://github.com/MilesCranmer/PySR/assets/2051167/5614bdc2-d29a-41ab-bdfb-5830d5c4093f)\r\n\r\nPython Conda and PySR installed via pip\r\n\n\n### Version\n\n0.15.1\n\n### Operating System\n\nWindows\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\nd:\\tmp\\1>python 1.py\r\nCompiling Julia backend...\r\nStarted!\r\n99.3%┣██████████████████████████████████████████████████████████████████████████████████▌┫ 596/600 [00:08<00:00, 75it/s]Expressions evaluated per second: 1.75e+05. Head worker occupation: 9.3%                                                Press 'q' and then <enter> to stop execution early.                                                                     Hall of Fame:                                                                                                           ----------------------------------------------------------------------------------------------------------------------- Complexity  Loss       Score     Equation                                                                               1           2.182e+01  1.748e-07  y = 3.3563                                                                            2           2.182e+01  5.950e-08  y = exp(1.2108)                                                                       3           3.038e+00  1.972e+00  y = (x₀ * x₀)                                                                         5           3.005e+00  5.379e-03  y = ((x₀ * x₀) * 1.034)                                                               6           1.158e+00  9.534e-01  y = ((x₀ * x₀) + cos(x₃))                                                             8           2.321e-01  8.038e-01  y = ((x₀ * x₀) + (cos(x₃) * 2.3505))                                                  10          3.398e-11  1.106e+01  y = (((x₀ * x₀) + -0.50001) + (cos(x₃) * 2.5382))                                     12          1.291e-13  2.787e+00  y = (((x₀ * x₀) + (0.035496 + -0.5355)) + (cos(x₃) * 2.5382))                         -----------------------------------------------------------------------------------------------------------------------\r\nValueError: Error from parse_expr with transformed code: \"(Symbol ('xв' )‚Symbol ('Ђ' )*Symbol ('xв' )‚Symbol ('Ђ' ))\"-\r\n-----------------------------------------------------------------------------------------------------------------------\r\nThe above exception was the direct cause of the following exception:s(sin(0.80486))) + cos(x₃))) + cos(x₃))\r\n18          1.710e+01  1.633e-03  y = ((exp(1.0925) + ((sin(x₃) * cos(0.80486)) + cos(x₃))) + ((cos(x₃) + -0.18981) ...\r\nTraceback (most recent call last):* 1.0925))\r\n  File \"c:\\ProgramData\\Anaconda3\\lib\\site-packages\\sympy\\core\\sympify.py\", line 495, in sympify5))) + sin(cos(x₃) * ...\r\n    expr = parse_expr(a, local_dict=locals, transformations=transformations, evaluate=evaluate)\r\n  File \"c:\\ProgramData\\Anaconda3\\lib\\site-packages\\sympy\\parsing\\sympy_parser.py\", line 1087, in parse_expr------------\r\n    raise e from ValueError(f\"Error from parse_expr with transformed code: {code!r}\")\r\n  File \"c:\\ProgramData\\Anaconda3\\lib\\site-packages\\sympy\\parsing\\sympy_parser.py\", line 1078, in parse_expr\r\n    rv = eval_expr(code, local_dict, global_dict)\r\n  File \"c:\\ProgramData\\Anaconda3\\lib\\site-packages\\sympy\\parsing\\sympy_parser.py\", line 906, in eval_expr\r\n    expr = eval(\r\n  File \"<string>\", line 1\r\n    (Symbol ('xв' )‚Symbol ('Ђ' )*Symbol ('xв' )‚Symbol ('Ђ' ))\r\n                         ^\r\nSyntaxError: invalid character in identifier\r\n\r\nDuring handling of the above exception, another exception occurred:\r\n\r\nTraceback (most recent call last):\r\n  File \"1.py\", line 25, in <module>\r\n    model.fit(X, y)\r\n  File \"c:\\ProgramData\\Anaconda3\\lib\\site-packages\\pysr\\sr.py\", line 1965, in fit\r\n    self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n  File \"c:\\ProgramData\\Anaconda3\\lib\\site-packages\\pysr\\sr.py\", line 1816, in _run\r\n    self.equations_ = self.get_hof()\r\n  File \"c:\\ProgramData\\Anaconda3\\lib\\site-packages\\pysr\\sr.py\", line 2311, in get_hof\r\n    eqn = sympify(eqn_row[\"equation\"], locals=local_sympy_mappings)\r\n  File \"c:\\ProgramData\\Anaconda3\\lib\\site-packages\\sympy\\core\\sympify.py\", line 497, in sympify\r\n    raise SympifyError('could not parse %r' % a, exc)\r\nsympy.core.sympify.SympifyError: Sympify of expression 'could not parse '(xв‚Ђ * xв‚Ђ)'' failed, because of exception being raised:\r\nSyntaxError: invalid character in identifier (<string>, line 1)\r\n\r\nd:\\tmp\\1>\n```\n\n\n### Extra Info\n\nJulia 1.9.2",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks very much for the bug report. Looks like an encoding issue. Could you please share the contents of the csv file it generates? I want to know if the encoding issue happens when reading the csv file or when writing it.\r\n\r\nA temporary workaround is for you to set the `variable_names` parameter when calling `fit`.",
               "createdAt": "2023-08-01T17:26:00Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I wonder if it has to do with the csv file being saved as English encoding and then read with Russian encoding or something like that. Maybe a Russian unicode alphabet has the subscripted integers at different binary representations.",
               "createdAt": "2023-08-01T17:31:07Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "Imageman"
               },
               "body": "[hall_of_fame_2023-08-01_191647.197.csv](https://github.com/MilesCranmer/PySR/files/12232707/hall_of_fame_2023-08-01_191647.197.csv)\r\ncsv file is UTF-8 encoding. But if read csv file as ASCII file, then visible \"artefacts\".\r\n![изображение](https://github.com/MilesCranmer/PySR/assets/2051167/6ecbf555-10de-4381-bc63-a5f8263773d5)\r\n",
               "createdAt": "2023-08-01T18:05:51Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I see, thank you. So if you were to open that csv with UTF-8 encoding, those characters are read correctly? Or is it written in the wrong encoding (by Julia?)",
               "createdAt": "2023-08-01T18:08:33Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "Imageman"
               },
               "body": "> set the variable_names parameter when calling fit.\r\nWorking, thanks.\r\n\r\ncsv and bkup files in correct utf-8 encoding. \r\n![изображение](https://github.com/MilesCranmer/PySR/assets/2051167/46fbeafb-9936-43d6-ba2e-dde793351458)\r\n",
               "createdAt": "2023-08-01T18:32:01Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "@Imageman I tried to fix this in #396, would you be able to test it for me and make sure it fixes it? You can install that version with:\r\n\r\n```\r\npip install -U git+https://github.com/MilesCranmer/PySR.git@encoding-fix\r\npython -m pysr install\r\n```\r\n\r\nand then run the example normally (without passing variable_names).\r\n\r\nWhat I think happened is that apparently Python's `open` can assume different encodings on different operating systems (seems like a weird design choice), whereas Julia always assumes UTF-8 on all operating systems. So Julia wrote with UTF-8 and Python tried to read with ANSI.",
               "createdAt": "2023-08-01T22:00:34Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I guess this might cause other issues in case someone wants to view the csv file... So maybe I need to stop using unicode characters for CSV (and only use them for printing).",
               "createdAt": "2023-08-01T22:17:42Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "Imageman"
               },
               "body": "Yes, working. Thanks.\r\n![изображение](https://github.com/MilesCranmer/PySR/assets/2051167/b341b16c-bd02-4eef-abbb-2ce5fbadd99d)\r\n\r\n_\"So maybe I need to stop using unicode characters for CSV\"_ \r\nThis is a half-hearted solution, as problems with incorrect coding can occur elsewhere. Perhaps we should switch to the usual for programmers writing x[0], x[1], x[2].\r\n",
               "createdAt": "2023-08-02T07:27:46Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOYwrWtg=="
           }

@@ -1,0 +1,68 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 856,
+        "title": "[BUG]: RuntimeWarning: invalid value encountered in power",
+        "body": "### What happened?\n\nWhen using `cbrt`, the `predict` method throws a ` RuntimeWarning: invalid value encountered in power` for negative arguments of the `cbrt` and produces `nan`.\n\nMinimal working example:\n```python\nimport numpy as np\nfrom pysr import PySRRegressor\n\nX_train = (0.5-np.random.rand(1000))*10\nX_train = X_train.reshape(-1,1)\ny_train = np.cbrt(X_train)\n\nX_val = (0.5-np.random.rand(1000))*10\nX_val = X_val.reshape(-1,1)\ny_val = np.cbrt(X_val)\n\nmodel = PySRRegressor(\n    binary_operators=[\"+\", \"-\", \"*\", \"/\", \"^\"],\n    unary_operators=[\n        \"exp\",\n        \"log\",\n        \"inv\",\n        \"neg\",\n        \"abs\",\n        \"square\",\n        \"cube\",\n        \"sqrt\",\n        \"cbrt\",\n    ],\n    constraints={\n        \"^\": (-1, 2),\n    },\n    complexity_of_operators={\n        \"exp\": 3,\n        \"log\": 2,\n    },\n    verbosity=1,\n    progress=True,\n)\n\nmodel.fit(X_train, y_train)\n\nlist(zip(X_val,model.predict(X_val)))[:10]\n```\n\n### Version\n\n1.3.1\n\n### Operating System\n\nLinux\n\n### Package Manager\n\nOther (specify below)\n\n### Interface\n\nJupyter Notebook\n\n### Relevant log output\n\n```shell\n\n```\n\n### Extra Info\n\nPython package manager: `uv`\nJulia version `1.11.3` installed via `juliaup`",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Weird, cbrt should be fine with negative arguments:\n\n```julia\njulia> cbrt(-3.0)\n-1.4422495703074083\n```\n\nAny other info in the error message?",
+              "createdAt": "2025-03-05T11:22:01Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Seems like this might be a sympy issue?\n\n```python\nIn [8]: float(sympy.cbrt(-3.0).evalf())\n---------------------------------------------------------------------------\nTypeError                                 Traceback (most recent call last)\nCell In[8], line 1\n----> 1 float(sympy.cbrt(-3.0).evalf())\n\nFile ~/PermaDocuments/SymbolicRegressionMonorepo/PySR/.venv/lib/python3.12/site-packages/sympy/core/expr.py:339, in Expr.__float__(self)\n    337     return float(result)\n    338 if result.is_number and result.as_real_imag()[1]:\n--> 339     raise TypeError(\"Cannot convert complex to float\")\n    340 raise TypeError(\"Cannot convert expression to float\")\n\nTypeError: Cannot convert complex to float\n```",
+              "createdAt": "2025-03-05T11:26:52Z"
+            },
+            {
+              "author": {
+                "login": "romanovzky"
+              },
+              "body": "It is definitely at the python level, and likely `sympy` as `numpy` is OK with negative arguments. Is there an alternative way of performing `predict` that works around `sympy`?",
+              "createdAt": "2025-03-05T11:29:50Z"
+            },
+            {
+              "author": {
+                "login": "romanovzky"
+              },
+              "body": "Bizarre how `sympy` assumes that `cbrt(-3).evalf()` is `0.721124785153704 + 1.24902476648341*I`. A possible workaround would be to define my own `cbrt` alternative like this:\n`(sympy.sign(x) * sympy.cbrt(abs(x)) )`\nwhich is quite cumbersome...",
+              "createdAt": "2025-03-05T11:40:42Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I looked into this, and it’s weirdly intentional behavior from sympy. The `sympy.cbrt` function returns the complex principal root by design, whereas NumPy’s version (`np.cbrt`) returns the real-valued root.\n\nAnd the issue is that Julia also returns the real-valued root. So the sympy parsing changes the expression!\n\nSo, what we need is to define a custom parsing directive for `cbrt` to map it to the real-valued root in sympy.\n",
+              "createdAt": "2025-03-05T12:19:43Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I think I fixed it in #858; can you please check if that works?",
+              "createdAt": "2025-03-05T12:38:31Z"
+            },
+            {
+              "author": {
+                "login": "romanovzky"
+              },
+              "body": "Works like a charm! Thanks for being so quick!",
+              "createdAt": "2025-03-05T13:36:23Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOoP1F1g=="
+          }
+        }
+      }
+    }
+  }
+}

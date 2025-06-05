@@ -1,18 +1,13 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 618,
         "title": "Prior of the model",
         "body": "Hi,\r\nThanks for you answer last time. It really helps! I still have a small question here. Is there any prior distribution when combining these operators randomly? I'm not familiar with genetic programming, while I'm doing some work with model selection, which needs complexity of parameters if we use methods like AIC and BIC. However I even do not know how to define parameters in SR... So I wonder what is the prior here and how to change it first, which may be useful in future works.\r\nThanks! :)",
-        "comments":
-        {
+        "comments": {
           "nodes": [],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": null
           }

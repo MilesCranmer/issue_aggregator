@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 272,
         "title": "How to make iterative search?",
         "body": "Hello,\nI need a model to search for equations on dataset1, then change parameters of this model and and search again but on (a different)\ndataset2.And repeat this.\nBut seems it doesn't change data, because when it starts fitting second dataset, it gives me the same losses.\nWill it work like that? or I need two models and fit equations from one model to another? \n\nhttps://gist.github.com/DenisSvirin/f3ba66627234908a0edebfd9c78a51d7",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Coincidentally just yesterday I pushed a fix for this exact use case: https://github.com/MilesCranmer/SymbolicRegression.jl/pull/177\r\n\r\nNext PySR update will have it, or before then you could change `version.py` to the latest SymbolicRegression.jl version and run `python setup.py install` and then `pysr.install()`.",
               "createdAt": "2023-03-04T18:05:12Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wMy0wNFQxODowNToxMiswMDowMM4AT2Wj"
           }

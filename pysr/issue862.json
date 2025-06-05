@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 862,
+        "title": "Does PySR support matrix computation?",
+        "body": "Does PySR support matrix computation? For example, $y=W_{2}W_{1}x$ where $x$ and $y$ are vectors.",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

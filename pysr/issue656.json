@@ -1,78 +1,100 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 656,
         "title": "[BUG]: torch export fails for expressions with constant inputs e.g. exp(2)",
         "body": "### What happened?\n\nsympy2torch produces a module that fails when called if a function of a constant is present in the expression.\r\n\r\nFor example:\r\n```\r\nfrom sympy import symbols, exp\r\nfrom pysr import sympy2torch\r\nimport torch\r\n\r\nx, y = symbols(\"x y\")\r\n\r\nexpression = exp(2)\r\n\r\nmodule = sympy2torch(expression, [x, y])\r\n\r\nX = torch.rand(100, 2).float() * 10\r\n\r\ntorch_out = module(X)\r\n```\r\nproduces this error\r\n> TypeError: exp(): argument 'input' (position 1) must be Tensor, not float\r\n\r\nI've tried other expressions like log(4), which produces the same problem.\r\n\r\nThe current mapping in `export_torch.py` is `sympy.exp: torch.exp`.\r\n\r\nI believe that \r\n\r\n```\r\ndef exp(x):\r\n    return torch.exp(torch.FloatTensor(x))\r\n```\r\nthen using the mapping `sympy.exp: exp` might work, but I have been unable to test it (adding to extra_sympy_mappings doesn't work, I think because it is chained to the end of the existing mappings and doesn't override the original one).\r\n\r\nAlternatively, perhaps simplifying all expressions to constants where possible might solve the problem for all expressions e.g. `exp(2)` becomes `7.38905609893`.\r\n\r\n\r\n\r\n\r\n\r\n\r\n\n\n### Version\n\n0.18.4\n\n### Operating System\n\nLinux\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n_No response_\n\n### Extra Info\n\n_No response_",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks for the bug report! One thing I am surprised about is that I thought this would already happen? See this code:\r\nhttps://github.com/MilesCranmer/PySR/blob/06ca0e376e63d563aa063028a5f9bc7fa7d849c5/pysr/export_torch.py#L94-L97\r\n\r\nThe code `torch.tensor(float(expr))` should already map any constant into a torch tensor. \r\n\r\nMaybe the issue is that you are explicitly passing a Python integer, rather than a SymPy integer? \r\n\r\nFor example, we can see these are actually different classes:\r\n\r\n```python\r\nIn [4]: isinstance(1, sympy.Integer)\r\nOut[4]: False\r\n```\r\n\r\nDid you see this error from a PySR export, or are you trying to use `sympy2torch` manually and putting in the integers explicitly?",
               "createdAt": "2024-06-20T13:22:44Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "tbuckworth"
               },
               "body": "This came about using `PySRRegressor.fit()`, which produced an expression containing `square(exp(sign(0.44796443)))`, which seems to simplify to `exp(2)`.\r\n\r\nI recreated the issue using `expression = exp(sign(0.44796443))*exp(sign(0.44796443))` originally, but wrote `exp(2)` here as a minimal example.\r\n\r\n",
               "createdAt": "2024-06-20T16:07:53Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Do you know the original error message? It could be the MWE is actually a different thing. The `exp(2)` should never actually occur, it should (I think) be `exp(sympy.Integer(2))`. At least it should be.\r\n\r\nperhaps because it was `sign(..)` it is some kind of floating point number PySR don’t account for",
               "createdAt": "2024-06-20T16:48:45Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "tbuckworth"
               },
               "body": "Oh, apologies if this is my fault, but I was using `extra_torch_mappings` that included:\r\n```\r\nsympy.core.numbers.Exp1: exp1\r\n```\r\nwhere\r\n```\r\ndef exp1():\r\n    return torch.exp(torch.FloatTensor([1]))\r\n```\r\nI believe I added this due to an error arising when trying to export to torch an expression containing `exp(sign(0.1...))`, but I don't remember exactly.\r\n\r\nIn terms of the original error in this issue, the `PySRRegressor.fit` function learned this expression:\r\n>(square(x2 / 0.10893087) * exp(x3)) - square(exp(sign(0.44796443)))\r\n\r\nI then called `model.pytorch()`, which resulted in this error:\r\n\r\n```python\r\n> 22 Traceback (most recent call last):\r\n> 23   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/venvcartpole/lib/python3.8/site-packages/pysr/export_torch.py\", line 151, in forward\r\n> 24     arg_ = memodict[arg]\r\n> 25 KeyError: _Node(\r\n> 26   (_args): ModuleList(\r\n\r\n> 27     (0): _Node()\r\n> 28     (1): _Node(\r\n> 29       (_args): ModuleList(\r\n> 30         (0): _Node()\r\n> 31       )\r\n> 32     )\r\n> 33   )\r\n> 34 )\r\n> 35 During handling of the above exception, another exception occurred:\r\n> 36 Traceback (most recent call last):\r\n> 37   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/venvcartpole/lib/python3.8/site-packages/pysr/export_torch.py\", line 151, in forward\r\n> 38     arg_ = memodict[arg]\r\n> 39 KeyError: _Node(\r\n> 40   (_args): ModuleList(\r\n> 41     (0): _Node()\r\n> 42   )\r\n> 43 )\r\n> 44 During handling of the above exception, another exception occurred:\r\n> 45 Traceback (most recent call last):\r\n> 46   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/hyperparameter_optimization.py\", line 300, in <module>\r\n> 47     optimize_hyperparams(bounds, fixed, project, id_tag, run_graph_hyperparameters)\r\n> 48   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/hyperparameter_optimization.py\", line 141, in optimize_hyperparams\r\n> 49     run_next(hparams)\r\n> 50   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/hyperparameter_optimization.py\", line 116, in run_graph_hyperparameters\r\n> 51     run_graph_neurosymbolic_search(args)\r\n> 52   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/graph_sr.py\", line 503, in run_graph_neurosymbolic_search\r\n\r\n> 53     fine_tuned_policy = fine_tune(ns_agent.policy, logdir, symbdir, hp_override)\r\n> 54   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/graph_sr.py\", line 397, in fine_tune\r\n> 55     agent.train(args.num_timesteps)\r\n> 56   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/agents/ppo_model.py\", line 213, in train\r\n> 57     act, value = self.predict(obs)\r\n> 58   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/agents/ppo_model.py\", line 107, in predict\r\n> 59     dist, value = self.policy(obs)\r\n> 60   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/venvcartpole/lib/python3.8/site-packages/torch/nn/modules/module.py\", line 1518, in _wrapped_call_impl\r\n> 61     return self._call_impl(*args, **kwargs)\r\n> 62   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/venvcartpole/lib/python3.8/site-packages/torch/nn/modules/module.py\", line 1527, in _call_impl\r\n> 63     return forward_call(*args, **kwargs)\r\n> 64   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/common/policy.py\", line 124, in forward\r\n> 65     d, r = self.all_dones_rewards(s)\r\n> 66   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/common/policy.py\", line 156, in all_dones_rewards\r\n> 67     dones, rew = self.dr(sa)\r\n> 68   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/common/policy.py\", line 102, in dr\r\n> 69     d = self.done_model(sa)\r\n> 70   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/venvcartpole/lib/python3.8/site-packages/torch/nn/modules/module.py\", line 1518, in _wrapped_call_impl\r\n> 71     return self._call_impl(*args, **kwargs)\r\n> 72   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/venvcartpole/lib/python3.8/site-packages/torch/nn/modules/module.py\", line 1527, in _call_impl\r\n> 73     return forward_call(*args, **kwargs)\r\n> 74   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/common/model.py\", line 1065, in forward\r\n> 75     return self.fwd(X)\r\n> 76   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/common/model.py\", line 1061, in fwd\r\n> 77     return self.model._node(symbols)\r\n> 78   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/venvcartpole/lib/python3.8/site-packages/torch/nn/modules/module.py\", line 1518, in _wrapped_call_impl\r\n> 79     return self._call_impl(*args, **kwargs)\r\n> 80   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/venvcartpole/lib/python3.8/site-packages/torch/nn/modules/module.py\", line 1527, in _call_impl\r\n> 81     return forward_call(*args, **kwargs)\r\n> 82   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/venvcartpole/lib/python3.8/site-packages/pysr/export_torch.py\", line 153, in forward\r\n> 83     arg_ = arg(memodict)\r\n> 84   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/venvcartpole/lib/python3.8/site-packages/torch/nn/modules/module.py\", line 1518, in _wrapped_call_impl\r\n> 85     return self._call_impl(*args, **kwargs)\r\n> 86   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/venvcartpole/lib/python3.8/site-packages/torch/nn/modules/module.py\", line 1527, in _call_impl\r\n> 87     return forward_call(*args, **kwargs)\r\n> 88   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/venvcartpole/lib/python3.8/site-packages/pysr/export_torch.py\", line 153, in forward\r\n> 89     arg_ = arg(memodict)\r\n> 90   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/venvcartpole/lib/python3.8/site-packages/torch/nn/modules/module.py\", line 1518, in _wrapped_call_impl\r\n> 91     return self._call_impl(*args, **kwargs)\r\n> 92   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/venvcartpole/lib/python3.8/site-packages/torch/nn/modules/module.py\", line 1527, in _call_impl\r\n> 93     return forward_call(*args, **kwargs)\r\n> 94   File \"/vol/bitbucket/tfb115/train-procgen-pytorch/venvcartpole/lib/python3.8/site-packages/pysr/export_torch.py\", line 156, in forward\r\n> 95     return self._torch_func(*args)\r\n> 96 TypeError: exp(): argument 'input' (position 1) must be Tensor, not float\r\n\r\n```\r\n",
               "createdAt": "2024-06-21T11:38:48Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "It might be because your function `exp1` is returning `torch.exp(torch.FloatTensor([1]))` rather than `torch.exp(torch.tensor(1))`? (note the difference in shape)\r\n\r\n```diff\r\n- torch.exp(torch.FloatTensor([1]))\r\n+ torch.exp(torch.tensor(1))\r\n```\r\n\r\nBut normally I would just do\r\n\r\n```python\r\nextra_torch_mappings={sympy.core.numbers.Exp1: (lambda: math.exp(1.0))}\r\n```\r\n\r\nwhich is similar to the definitions for `sympy.core.numbers.Half` and `sympy.core.numbers.One`.\r\n\r\n",
               "createdAt": "2024-06-21T22:43:11Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Ok, weird, I can actually reproduce it with the following, which sounds to be the same as you saw originally:\r\n\r\n```python\r\nimport math\r\nimport pysr\r\nimport sympy\r\nimport torch\r\n\r\nex = pysr.export_sympy.pysr2sympy(\r\n    \"square(exp(sign(0.44796443))) + 1.5 * x1\",\r\n    feature_names_in=[\"x1\"],\r\n    extra_sympy_mappings={\"square\": lambda x: x**2},\r\n)\r\n\r\n\r\ndef exp1():\r\n    return torch.exp(torch.FloatTensor([1]))\r\n\r\n\r\nm = pysr.export_torch.sympy2torch(\r\n    ex, [\"x1\"], extra_torch_mappings={sympy.core.numbers.Exp1: exp1}\r\n)\r\nm(torch.randn(10, 1))  # Errors\r\n\r\n\r\nm2 = pysr.export_torch.sympy2torch(\r\n    ex, [\"x1\"], extra_torch_mappings={sympy.core.numbers.Exp1: (lambda: math.exp(1))}\r\n)\r\nm2(torch.randn(10, 1))  # Also errors\r\n\r\n```",
               "createdAt": "2024-06-21T22:57:23Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Ah, I got it! It's because we don't have a branch for `sympy.core.numbers.NumberSymbol`. Argh...\r\n\r\nhttps://github.com/MilesCranmer/PySR/blob/06ca0e376e63d563aa063028a5f9bc7fa7d849c5/pysr/export_torch.py#L94-L122\r\n\r\nWill also need to get added to the sympy2jax code I guess.",
               "createdAt": "2024-06-21T23:00:32Z"
+            },
+            {
+              "author": {
+                "login": "tbuckworth"
+              },
+              "body": "I see this was fixed in version 0.19.0\r\n\r\nHowever, the issue still arises now and then for me, with the function `sin`.\r\n\r\nI can recreate the issue with the following code:\r\n```\r\nfrom sympy import symbols, sin, sign\r\nfrom pysr import sympy2torch\r\nimport torch\r\n\r\nx, y = symbols(\"x y\")\r\n\r\nexpression = sin(sign(-0.041662704))\r\n\r\nmodule = sympy2torch(expression, [x, y])\r\n\r\nX = torch.rand(100, 2).float() * 10\r\n\r\ntorch_out = module(X)\r\n```\r\n\r\n> TypeError: sin(): argument 'input' (position 1) must be Tensor, not float\r\n",
+              "createdAt": "2024-09-26T08:42:22Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks for making a MWE. I’ll take a look. It seems like if you run `sympy2torch` directly on a float, that causes the issue?",
+              "createdAt": "2024-09-26T08:51:21Z"
+            },
+            {
+              "author": {
+                "login": "tbuckworth"
+              },
+              "body": "If I run it directly on a float I get a different error:\r\n\r\n> AttributeError: 'float' object has no attribute 'func'",
+              "createdAt": "2024-09-26T08:54:48Z"
+            },
+            {
+              "author": {
+                "login": "tbuckworth"
+              },
+              "body": "if you remove `sign` from the original expression, there's no error, but if you replace the expression with `sin(-1)` it throws the same error.\r\n\r\nI would guess it's still to do with `sympy.core.numbers.NumberSymbol`?",
+              "createdAt": "2024-09-26T08:57:04Z"
+            },
+            {
+              "author": {
+                "login": "tbuckworth"
+              },
+              "body": "I've proposed a change in #726 to this code:\r\n\r\nhttps://github.com/MilesCranmer/PySR/blob/339cc0a96be6cb0c41daa6c0ffa3a76cb1ecc9e4/pysr/export_torch.py#L117-L121\r\n\r\nIs that feasible? or do you think it would break other behaviour?",
+              "createdAt": "2024-09-26T09:28:31Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
-            "endCursor": "Y3Vyc29yOnYyOpHOgiaAyw=="
+            "endCursor": "Y3Vyc29yOnYyOpHOjaVwvA=="
           }
         }
       }

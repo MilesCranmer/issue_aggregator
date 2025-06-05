@@ -1,68 +1,56 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 140,
         "title": "[BUG] julia.tools.PyCallInstallError: Precompiling PyCall failed.",
         "body": "**Describe the bug**\r\nWhen running pysr.install(), installation fails when PyCall compilation starts.\r\n\r\n**Version (please complete the following information):**\r\n- OS: Windows 10\r\n- Version 0.8.4 (installed via pip)\r\n\r\n**Configuration**\r\nCurrently trying to install with julia v1.7.2, whioch was installed immediately before installing pysr.\r\nCannot move past installation step\r\n\r\n**Error message**\r\n\r\n```python\r\n[ Info: Julia executable: C:\\Users\\UA34141\\AppData\\Local\\Programs\\Julia-1.7.2\\bin\\julia.exe\r\n[ Info: Trying to import PyCall...\r\n┌ Error: `import PyCall` failed\r\n│   exception =\r\n│    InitError: could not load symbol \"Py_CompileString\":\r\n│    The specified procedure could not be found.\r\n│    Stacktrace:\r\n│        @ C:\\Users\\UA34141\\.julia\\packages\\PyCall\\7a7w0\\src\\exception.jl:95 [inlined]\r\n│      [2] pyeval_(s::String, globals::PyCall.PyDict{String, PyCall.PyObject, true}, locals::PyCall.PyDict{String, PyCall.PyObject, true}, input_type::Int64, fname::String) (repeats 2 times)\r\n│        @ PyCall C:\\Users\\UA34141\\.julia\\packages\\PyCall\\7a7w0\\src\\pyeval.jl:34\r\n│        @ PyCall C:\\Users\\UA34141\\.julia\\packages\\PyCall\\7a7w0\\src\\pyinit.jl:235\r\n│      [4] _include_from_serialized(path::String, depmods::Vector{Any})\r\n│        @ Base .\\loading.jl:768\r\n│      [5] _require_search_from_serialized(pkg::Base.PkgId, sourcepath::String)\r\n│        @ Base .\\loading.jl:854\r\n│      [6] _require(pkg::Base.PkgId)\r\n│        @ Base .\\loading.jl:1097\r\n│      [7] require(uuidkey::Base.PkgId)\r\n│        @ Base .\\loading.jl:1013\r\n│      [8] top-level scope\r\n│        @ C:\\Users\\UA34141\\Miniconda3\\envs\\datasci\\Lib\\site-packages\\julia\\install.jl:36\r\n│      [9] include(mod::Module, _path::String)\r\n│        @ Base .\\Base.jl:418\r\n│     [10] exec_options(opts::Base.JLOptions)\r\n│        @ Base .\\client.jl:292\r\n│     [11] _start()\r\n│        @ Base .\\client.jl:495\r\n│    during initialization of module PyCall\r\n└ @ Main C:\\Users\\UA34141\\Miniconda3\\envs\\datasci\\Lib\\site-packages\\julia\\install.jl:38\r\n┌ Info: PyCall is already installed but importing it failed.\r\n└ Re-building PyCall may fix the issue...\r\n[ Info: Run `Pkg.build(\"PyCall\"; verbose=true)`\r\n  Installing known registries into `C:\\Users\\UA34141\\.julia`\r\n    Building Conda ─→ `C:\\Users\\UA34141\\.julia\\scratchspaces\\44cfe95a-1eb2-52ea-b672-e2afdf69b78f\\6e47d11ea2776bc5627421d59cdcc1296c058071\\build.log`\r\n┌ Info: CONDA_EXE not found. Reverting to default in ROOTENV\r\n│   CONDA_EXE = \"C:\\\\Users\\\\UA34141\\\\.julia\\\\conda\\\\3\\\\Scripts\\\\conda.exe\"\r\n└   ROOTENV = \"C:\\\\Users\\\\UA34141\\\\.julia\\\\conda\\\\3\"\r\n    Building PyCall → `C:\\Users\\UA34141\\.julia\\scratchspaces\\44cfe95a-1eb2-52ea-b672-e2afdf69b78f\\1fc929f47d7c151c839c5fc1375929766fb8edcc\\build.log`\r\n[ Info: PyCall is using C:\\Users\\UA34141\\Miniconda3\\envs\\datasci\\python.exe (Python 3.8.0) at C:\\Users\\UA34141\\Miniconda3\\envs\\datasci\\python.exe, libpython = C:\\Users\\UA34141\\Miniconda3\\envs\\datasci\\python38.dll\r\n[ Info: C:\\Users\\UA34141\\.julia\\packages\\PyCall\\7a7w0\\deps\\deps.jl has not changed\r\n[ Info: C:\\Users\\UA34141\\.julia\\prefs\\PyCall has not changed\r\n[ Info: `C:\\Users\\UA34141\\.julia\\packages\\PyCall\\7a7w0\\src\\..\\deps\\deps.jl`\r\nconst python = \"C:\\\\Users\\\\UA34141\\\\Miniconda3\\\\envs\\\\datasci\\\\python.exe\"\r\nconst libpython = \"C:\\\\Users\\\\UA34141\\\\Miniconda3\\\\envs\\\\datasci\\\\python38.dll\"\r\nconst pyprogramname = \"C:\\\\Users\\\\UA34141\\\\Miniconda3\\\\envs\\\\datasci\\\\python.exe\"\r\nconst pyversion_build = v\"3.8.0\"\r\nconst PYTHONHOME = \"C:\\\\Users\\\\UA34141\\\\Miniconda3\\\\envs\\\\datasci\"\r\n\r\n\"True if we are using the Python distribution in the Conda package.\"\r\nconst conda = false\r\nERROR: InitError: could not load symbol \"Py_CompileString\":\r\nThe specified procedure could not be found.\r\nStacktrace:\r\n [1] macro expansion\r\n   @ C:\\Users\\UA34141\\.julia\\packages\\PyCall\\7a7w0\\src\\exception.jl:95 [inlined]\r\n [2] pyeval_(s::String, globals::PyCall.PyDict{String, PyCall.PyObject, true}, locals::PyCall.PyDict{String, PyCall.PyObject, true}, input_type::Int64, fname::String) (repeats 2 times)\r\n   @ PyCall C:\\Users\\UA34141\\.julia\\packages\\PyCall\\7a7w0\\src\\pyeval.jl:34\r\n [3] __init__()\r\n   @ PyCall C:\\Users\\UA34141\\.julia\\packages\\PyCall\\7a7w0\\src\\pyinit.jl:235\r\n [4] _include_from_serialized(path::String, depmods::Vector{Any})\r\n   @ Base .\\loading.jl:768\r\n [5] _require_search_from_serialized(pkg::Base.PkgId, sourcepath::String)\r\n   @ Base .\\loading.jl:854\r\n [6] _require(pkg::Base.PkgId)\r\n   @ Base .\\loading.jl:1097\r\n [7] require(uuidkey::Base.PkgId)\r\n   @ Base .\\loading.jl:1013\r\n [8] require(into::Module, mod::Symbol)\r\n   @ Base .\\loading.jl:997\r\nduring initialization of module PyCall\r\n```\r\n\r\n\r\n**Additional context**\r\nI have tried to install pysr from conda in existing and new environments and have always run into issues, which is why I had to use pip.\r\n\r\nThanks for any help!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "If you are using the conda version, can you try to downgrade to Julia 1.7.1 instead? As far as I know the conda version of Julia 1.7.2 has some issues–this is why pysr on conda will install 1.7.1 by default.",
               "createdAt": "2022-05-18T02:37:42Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Wait, how are you installing julia with conda on Windows? As far as I know, there isn't actually a julia package set up on conda for windows. Only macOS and Linux have conda set up for julia: https://github.com/conda-forge/julia-feedstock.\r\n\r\nOn Windows, you should install julia manually, and then install `pysr` through `pip`, rather than conda. (I should mention this on the README actually...)",
               "createdAt": "2022-05-18T02:41:38Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "juanmvenegas"
               },
               "body": "Sorry for not clarifying. I installed julia through the windows binaries: https://julialang.org/downloads/\n\nI added julia to my PATH and then opened my conda env and installed pysr via pip. I can try to downgrade julia in case that may make a difference. ",
               "createdAt": "2022-05-18T02:55:31Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hm, I am not sure. This shows up in your pasted error which might be a clue:\r\n```\r\nCONDA_EXE = \"C:\\\\Users\\\\UA34141\\\\.julia\\\\conda\\\\3\\\\Scripts\\\\conda.exe\"\r\n```\r\ndid you try to install julia through conda initially?\r\n\r\nI might try re-doing this in a fresh conda environment, with a fresh julia install (i.e., delete `~/.julia`)–maybe the error will go away. I don't have good intuition for this error however. \r\n\r\nYou should also try to ask on the PyJulia github since this isn't actually a PySR error but a PyJulia one. `pysr.install()` just runs the PyJulia install procedure.",
               "createdAt": "2022-05-18T03:51:55Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "juanmvenegas"
               },
               "body": "Thank you for your suggestions!\r\n\r\nI deleted `~/.julia` and started in a fresh environment and was able to succesfully run `pysr.install()`.",
               "createdAt": "2022-05-24T16:05:47Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Awesome!",
               "createdAt": "2022-05-24T16:20:08Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOQ7gFwQ=="
           }

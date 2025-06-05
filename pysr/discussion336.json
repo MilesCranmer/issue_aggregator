@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 336,
         "title": "BoundsError during `eval_tree_array`",
         "body": "I make new inputs `r = [6.332061275761631 5.051237472144821 2.7 4.2690748412273125 3.3068111527572905 5.4 4.676537180435969 6.037383539249433 5.727564927611035 3.818376618407357 1.9091883092036785]`.\n\nand execute `_eval_tree_array`\nlike this `result, finished =  _eval_tree_array(tree, r, operators, (turbo ? Val(true) : Val(false))) `\n\nits working for some time and then  error occurs. \n` BoundsError: attempt to access 1×11 Matrix{Float32} at index [2, 1:11]`\n\nI understood that it comes from `deg0_eval` -> `return (cX[tree.feature, :], true)`\n\nMay be i should define `r` differently ? i don't understand where it finds other features",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "What is your `tree`? It looks like your expression has a feature=2 node, which is out-of-bounds for your input data. i.e., you would need to provide a 2D array with dimensions 2x11 instead.",
               "createdAt": "2023-05-24T16:07:50Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNS0yNFQxNzowNzo1MCswMTowMM4AW23M"
           }

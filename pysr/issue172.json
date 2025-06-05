@@ -1,60 +1,49 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 172,
         "title": "[BUG] *Installation failed mac m1*",
         "body": "**Describe the bug**\r\nI tried several times: first I with the same python version but used julia version 1.7.3 and 1.7.1 the error was like this:\r\n\r\nFileNotFoundError: Julia is not installed in your PATH. Please install Julia and add it to your PATH.\r\n\r\nand then uninstall julia, try to set the same like this https://github.com/MilesCranmer/PySR/blob/master/.github/workflows/CI_mac.yml\r\nand I got error like this below:\r\nIf you believe your system's root certificates are safe to use, you can `export JULIA_SSL_CA_ROOTS_PATH=\"\"` in your environment to use those instead.)' occurred while calling julia code:\r\nPkg.add(sr_spec, io=stderr)\r\n\r\n**Version (please include the following information):**\r\n- OS: macOS M1\r\n- Julia version: current 1.6.5 (before 1.7.3 but has the same issues)\r\n- Python version 3.10\r\n- PySR version 4.12.0\r\n- Does the bug still appear with the latest version of PySR? Yes\r\n\r\n**Configuration**\r\n- What are your PySR settings? None\r\n- What dataset are you running on? None\r\n- If possible, please share a minimal code example that produces the error.\r\n\r\n**Error message**\r\nActivating environment at `~/.julia/environments/pysr-0.9.5/Project.toml`\r\n     Cloning git-repo `https://github.com/MilesCranmer/SymbolicRegression.jl`\r\nTraceback (most recent call last):\r\n  File \"/Users/fitriawulandari/Library/CloudStorage/OneDrive-NationalUniversityofIreland,Galway/Research/Code/work/main.py\", line 26, in <module>\r\n    model.fit(X, y)\r\n  File \"/Users/fitriawulandari/opt/anaconda3/envs/pySRenv/lib/python3.10/site-packages/pysr/sr.py\", line 1607, in fit\r\n    return self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n  File \"/Users/fitriawulandari/opt/anaconda3/envs/pySRenv/lib/python3.10/site-packages/pysr/sr.py\", line 1326, in _run\r\n    _add_sr_to_julia_project(Main, io_arg)\r\n  File \"/Users/fitriawulandari/opt/anaconda3/envs/pySRenv/lib/python3.10/site-packages/pysr/julia_helpers.py\", line 113, in _add_sr_to_julia_project\r\n    Main.eval(f\"Pkg.add(sr_spec, {io_arg})\")\r\n  File \"/Users/fitriawulandari/opt/anaconda3/envs/pySRenv/lib/python3.10/site-packages/julia/core.py\", line 621, in eval\r\n    ans = self._call(src)\r\n  File \"/Users/fitriawulandari/opt/anaconda3/envs/pySRenv/lib/python3.10/site-packages/julia/core.py\", line 549, in _call\r\n    self.check_exception(src)\r\n  File \"/Users/fitriawulandari/opt/anaconda3/envs/pySRenv/lib/python3.10/site-packages/julia/core.py\", line 603, in check_exception\r\n    raise JuliaError(u'Exception \\'{}\\' occurred while calling julia code:\\n{}'\r\njulia.core.JuliaError: Exception 'failed to clone from https://github.com/MilesCranmer/SymbolicRegression.jl, error: GitError(Code:ERROR, Class:SSL, Your Julia is built with a SSL/TLS engine that libgit2 doesn't know how to configure to use a file or directory of certificate authority roots, but your environment specifies one via the JULIA_SSL_CA_ROOTS_PATH variable. If you believe your system's root certificates are safe to use, you can `export JULIA_SSL_CA_ROOTS_PATH=\"\"` in your environment to use those instead.)' occurred while calling julia code:\r\nPkg.add(sr_spec, io=stderr)\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Do you have git installed?\r\n\r\nAlso, note that your Julia version is not available for M1 so there will likely be other issues. You should install the 1.8 version here: https://julialang.org/downloads/#upcoming_release listed under \"macOS ARM.\"",
               "createdAt": "2022-08-02T16:43:30Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "fitriaramlan"
               },
               "body": "Thanks Miles,\r\n\r\nYes I have git installed, and I have installed the julia 1.8 version. but it didn't work.",
               "createdAt": "2022-08-04T11:11:19Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Maybe try running this:\r\n```bash\r\nexport JULIA_SSL_CA_ROOTS_PATH=\"\"\r\n```\r\nbefore running the install?",
               "createdAt": "2022-08-04T13:41:40Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "fitriaramlan"
               },
               "body": "Hi Miles, I want to give an update..\r\n\r\nweird anything didn't work on my mac. so what I did instead was installed windows through vmware fusion, and install Julia, python, pysr.. and pysr work.",
               "createdAt": "2022-08-15T21:08:02Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "One other thing you could try to get it working directly on your M1 is to manually clone the SymbolicRegression.jl github repository: https://github.com/MilesCranmer/SymbolicRegression.jl, and then specify the folder it is located in with the `julia_project` command. Maybe try that? It will be much slower in vmware than M1",
               "createdAt": "2022-08-15T21:48:58Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOSHkI2A=="
           }

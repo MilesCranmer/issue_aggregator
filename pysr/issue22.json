@@ -1,92 +1,77 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 22,
         "title": "Segmentation fault over larger arrays",
         "body": "Hi,\r\n\r\nI've been having issues with running PySR over larger input arrays. For instance, by modifying the input size in the example:\r\n\r\n```import numpy as np\r\nfrom pysr import pysr, best, get_hof\r\n\r\n# Dataset\r\nX = 2*np.random.randn(300000, 8) #changed from (100,5) to (300000, 8)\r\ny = 2*np.cos(X[:, 3]) + X[:, 0]**2 - 2\r\n\r\n# Learn equations\r\nequations = pysr(X, y, niterations=5,\r\n        binary_operators=[\"plus\", \"mult\"],\r\n        unary_operators=[\"cos\", \"exp\", \"sin\"])\r\n```\r\nResults in the following trace output:\r\n```Running on julia -O3 -p 4 /tmp/tmp7tojg2is/runfile.jl\r\n      From worker 3:\t\r\n      From worker 3:\tsignal (11): Segmentation fault\r\n      From worker 3:\tin expression starting at none:0\r\n      From worker 3:\tunknown function (ip: (nil))\r\n      From worker 3:\tAllocations: 14006734 (Pool: 14002705; Big: 4029); GC: 14\r\n      From worker 5:\t\r\n      From worker 5:\tsignal (11): Segmentation fault\r\n      From worker 5:\tin expression starting at none:0\r\n      From worker 5:\tunknown function (ip: (nil))\r\n      From worker 5:\tAllocations: 14006758 (Pool: 14002728; Big: 4030); GC: 14\r\n      From worker 4:\t\r\n      From worker 4:\tsignal (11): Segmentation fault\r\n      From worker 4:\tin expression starting at none:0\r\n      From worker 4:\tunknown function (ip: (nil))\r\n      From worker 4:\tAllocations: 14006745 (Pool: 14002716; Big: 4029); GC: 14\r\nCouldn't find equation file!\r\n```\r\nI have replicated this behaviour across different machines, and for each I am fairly certain I have sufficient resources to hold the data in memory, so it's not clear to me what the issue is.\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi,\r\n\r\nThanks for posting; hopefully we can fix this. Here's some things we can try:\r\n\r\n1. does this issue go away when you only train on a small portion of data?\r\n\r\n2. can you try turning on the `batching` flag? If you have a large array of data, running PySR on small batches of data at a time will greatly speed it up. e.g.,\r\n\r\n```python\r\npysr(..., batching=True, batchSize=100)\r\n```\r\n\r\n3. how big is your dataset? Since PySR uses multiprocessing, the data is copied once per process (by default, 4 processes are running). So if 4x the data is too large for your memory, it might be trickier to solve. If this is the case, I would recommend either (a) decide if you actually need all that data, or if it is possible to learn an equation on a much smaller amount (I generally never go larger than 10,000 rows of data - more than that seems to be redundant for the complexity of equations that PySR can deal with). (b) if you need that much data because of the presence of a large amount of noise, I would recommend you first de-noise the data with a Gaussian Process (i.e., fit the data to a GP, then use the mean value of the GP as the input to PySR). This should greatly reduce the amount of data you need to train on.\r\n\r\nCheers!\r\nMiles",
               "createdAt": "2020-12-30T02:39:51Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "The example you posted is ~10 MB of data, so 40 MB total over four processes... so I wouldn't expect a memory issue just from the data alone. In that case I think it would be from temporary variables used in evaluating batches of equations over the data. I think this should be solved by the `batching=True` flag; let me know if it works!\r\n\r\nRead more here: https://pysr.readthedocs.io/en/latest/docs/options/#batching",
               "createdAt": "2020-12-30T02:44:11Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mtyhon"
               },
               "body": "Thanks for the prompt response.\r\n\r\n1. The issue does go away when I train with a smaller array. It works for a sample size as large as 250,000 for my dataset, but not 300,000. I'm not sure what the precise number for a feasible sample size.\r\n2.  I have tried running with batching set to True as suggested:\r\n```\r\nequations = pysr(X, y, niterations=5,\r\n       binary_operators=[\"plus\", \"mult\"],\r\n        unary_operators=[\"cos\", \"exp\", \"sin\"], batching=True, batchSize=100)\r\n```\r\nbut still obtain the same error.\r\n\r\n3. My dataset size is similar to that from the example I've been testing on, so an array size of roughly `(300000, 8)`. I was hoping to fit on all the data, but I will consider your suggestions about the redundancy. Is there a general idea as to how many rows becomes redundant for the algorithm?",
               "createdAt": "2020-12-30T03:04:20Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "It is strange that this doesn't work even with the batch size turned on... Thanks for pointing it out. PySR still does evaluate on the entire array at the end of each \"iteration,\" so indeed it could just be that there are too much temporary data being created.\r\n\r\nRegardless, referencing point 3., you will likely never need more than even ~10,000 points if you only have 8 features, so you should be fine to use much much less. For my own cases I have never gone above this number. An equation of small complexity is unable to overfit to that many points the same way traditional ML models can, so downsampling your dataset by a large factor isn't as big of a problem as it is normally.\r\n\r\nIf your data is very noisy, then you could try the Gaussian Process trick to smooth down your data to a \"better\" 10,000 points that you can then train on.\r\n\r\nThere isn't really a general rule for this, but you could try training on 500 points, and comparing to equations trained on 1000 points. If the equations are completely different, then you should use more data. If the equations are the same (after running for a while with `populations` large enough to have a good diversity of equations), then you should be good around that number.",
               "createdAt": "2020-12-30T03:17:55Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Actually, I think I might know where the issue stems from. When do you see the seg fault - is it before a single PySR iteration occurs, or after training has already started for a bit?",
               "createdAt": "2020-12-30T03:21:08Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mtyhon"
               },
               "body": "It is before a single iteration occurs.",
               "createdAt": "2020-12-30T03:21:59Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Okay, good. I think I know the seg fault's cause. I'll let you know when the fix is up.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2020-12-30T03:39:40Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Okay, I pushed what is hopefully a fix in v0.3.35. Let me know if it works!\r\n\r\nBasically: the way I used to pass data from Python to Julia was very inefficient. I think when the data is large, a seg fault might occur (since you observed this before the loop started). So now I made the data passing much more efficient... hopefully it works.\r\n\r\nFYI: 300,000 is still a very large dataset and symbolic regression will be pretty slow on it (even with mini-batching during evolution, since at the end of every iteration you'll still need to evaluate on the whole dataset), so I would still sub-sample to a smaller input. I would train on a random subset of ~1,000 to 10,000 points, then test the equations on the rest of the data to see how it generalizes.\r\n\r\nCheers,\r\nMiles\r\n\r\nEdit: Confirmed it's working on my system for (600000, 8), just very slow and with batching turned on.",
               "createdAt": "2020-12-30T04:13:13Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mtyhon"
               },
               "body": "I can confirm as well that it is working now. Thanks for the fix and for the advice! I'll close this issue since it has been resolved.",
               "createdAt": "2020-12-30T05:42:40Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOLNe5xg=="
           }

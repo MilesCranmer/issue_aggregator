@@ -1,60 +1,49 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 33,
         "title": "Planned breaking changes in v0.6.0",
         "body": "Will continue to update this issue until v0.6.0 released.\r\n\r\n- [x] New defaults:\r\n  - annealing=False (no annealing works better with the new code. This is equivalent to alpha=infinity)\r\n  - useFrequency=True (deals with complexity in a smarter way)\r\n  - npopulations = 20 ~~procs*4~~\r\n  - progress=True (show a progress bar)\r\n  - optimizer_algorithm=\"BFGS\"\r\n  - optimizer_iterations=10\r\n  - optimize_probability=1\r\n  - binary_operators default = [\"+\", \"-\", \"/\", \"*\"]\r\n  - unary_operators default = []\r\n- [x] Warnings:\r\n  - Using maxsize > 40 will trigger a warning mentioning how it will be slow and use a lot of memory. Will mention to turn off `useFrequency`, and perhaps also use `warmupMaxsizeBy`.\r\n- [x] Deprecated nrestarts -> optimizer_nrestarts\r\n- [x] Exports to JAX, PyTorch, NumPy unified into same function call: pass X[nrows, features] as single argument, rather than the current numpy one which is different arguments for each feature. JAX export will optionally take parameters as arguments (for training). The PyTorch output is a trainable module (thanks @patrick-kidger!)\r\n- [x] Custom constant optimizer: can choose between NelderMead and BFGS (requires differentiable operators).\r\n- [x] Test progress bar in jupyter\r\n- [x] Decide if should change format away from pandas dataframe to something like Patrick suggested, with a custom class for equations, containing `.to_sympy`, `.to_numpy`, etc. Downside is one can't do the `.query()`, `.sort_values()`, `.plot()`, etc., that come with Pandas.\r\n  - (Not doing for now)",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "patrick-kidger"
               },
               "body": "> npopulations = procs*4 (more populations = better)\r\n\r\nI'm not so sure about this one. `npopulations` is a modelling parameter, but `procs` ias an implementation parameter. For example if I switch to a weaker machine, and set a small `procs` as a result, I'd be a bit surprised to find that the optimisation has silently changed as well.\r\n\r\nOther than that, looks very good!",
               "createdAt": "2021-02-28T17:21:16Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thats a good point. I think I will fix default npopulations at 20 in v0.6 instead.",
               "createdAt": "2021-02-28T17:25:38Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I'm tempted to make BFGS the default optimizer. The only issue is it might not get great results on discontinuous functions. However, there is still the mutations which happen for those cases (and I'm not sure NelderMead would do better anyways).",
               "createdAt": "2021-02-28T17:28:09Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Pushed new defaults to master! Will need to add the pytorch export, unify with the numpy and jax modules, then it should be ready to push to PyPI.",
               "createdAt": "2021-04-21T17:34:40Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "All changes implemented and tested. v0.6.0 is live and on PyPI.",
               "createdAt": "2021-06-01T03:09:26Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOMsUF6g=="
           }

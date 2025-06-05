@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 418,
         "title": "Start search from a base function",
         "body": "I have a function `F`, that fit the data decently in some cases, but I want to use symbolic regression to find more general solution.\r\nIs there any way to use it as a start formula?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "There is, but it’s very low-level. It would basically require you to construct the search state by hand (which is usually used by `warm_start=True`) to include the previously found expression. But maybe we should make it easier to do this automatically?\r\n\r\nAnother way is to fit the residual between your expression and the ground truth data. But the downside is that you would be enforcing that the learned modification is added to your expression, rather than a full manipulation of it.\r\n\r\nDoes that make sense?",
               "createdAt": "2023-08-27T23:56:56Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "tomaklutfu"
               },
               "body": "I wanted to do a similar thing so I tried two things. First thing was I added the solution from `f` as a column of `X` and it worked somewhat good. Second thing was that devising a custom cost function so that `f` is accentuated more like giving larger weights for close `y` to `f`. This works too but generalizes more so resulting expression has some resemblance to `f` but not exactly.",
               "createdAt": "2023-09-06T19:02:11Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wOS0wNlQyMDowMjoxMSswMTowMM4AabvW"
           }

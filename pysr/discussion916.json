@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 916,
+        "title": "TemplateExpressionSpec don't use variables names and .sympy() doesn't work",
+        "body": "Hello to everyone I am using TemplateExpressionSpec a follows but unfortunally the i,r and k are written in the results with `#1`, `#2` and `#3` as variables instead of the specified  variable_names\r\n```python\r\ntemplate = TemplateExpressionSpec(\r\n    expressions=[\"i\", \"r\",\"k\"],\r\n    variable_names=['x1', 'x2', 'x3'],\r\n    combine=\"i(x1,x2,x3)*(r(x2)/k(x3))\",\r\n)\r\n```\r\nEven specifying the variable names in .fit() doesn't help\r\n```\r\nmodel.fit(X, y, variable_names=[\"x1\", \"x2\", \"x3\"])\r\n```\r\nAnother problem is related to the fact that .sympy() returns that is not usable on template expression spec and if I use `.get_best()` i only obtain the single functions separated by commas (so not combined as specified) with `#1`,`#2` and `#3` as variables in the section lambda_format and equation.\r\n\r\nAny clue on how to fix this ?\r\nMy goal would be to achieve the combined expression i(x1,x2,x3)*(r(x2)/k(x3)) with the specified variable names and to have the sympy and equation format",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @Vahan-tech,\r\n\r\nThis is correct and is the intended behavior. Template expressions print using `#1` instead of \"x1\" because the specific arguments can change. For example your template could be `f(x1) - f(x2)`. So the only consistent way to handle this is to print `#1` to mean \"first argument\" rather than specific variable names.\r\n\r\nPerhaps a workaround could be add by someone in the future.\r\n\r\n`.sympy()` is not available with template expressions – this is intended. See https://github.com/MilesCranmer/PySR/issues/911 for the issue for this.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2025-05-09T11:13:52Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0wOVQxMjoxMzo1MiswMTowMM4Ax7V2"
+          }
+        }
+      }
+    }
+  }
+}

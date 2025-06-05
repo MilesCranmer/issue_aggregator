@@ -27,11 +27,18 @@
               },
               "body": "@folivetti Yeah, to improve diversity in the hall of fame. Whenever I do hyperparameter tuning, it seems the algorithm really likes to resample from the hall of fame (which stores a pareto front of expressions). So I wanted a way to allow the hall of fame to store alternates.\r\n\r\nI remember someone mentioning that many ways they had tried to implement a \"thick\" pareto front resulted in purely genotypic differences in population members with negligible phenotypic differences (like `x * 2` vs `x / 0.5`). So I'm trying to find a way to improve diversity in phenotype specify. I remember Hod Lipson once gave a talk where he mentioned they had good results from keeping separate Pareto fronts for _random subsets of the full dataset_. So I wonder if that might be an option, rather than imposing some sort of complexity differential? Thanks for the links btw.\r\n\r\nThanks @pukpr.\r\n\r\n",
               "createdAt": "2024-12-29T02:42:23Z"
+            },
+            {
+              "author": {
+                "login": "folivetti"
+              },
+              "body": "IMO the Pareto front may not be the best place to seek diversity as it will restrict to one choice per complexity level, so when facing two equally good alternatives with the same complexity it will pick one and discard (or hide away) the other.\r\n\r\nMaybe a way to approach is keeping a list of distinct, but equally good solutions, per complexity level?\r\nAssuming a discrete complexity level (like the number of nodes), for each level from 1 to max-size, you can keep the list of solutions with the best accuracy by epsilon-dominance. Then you can apply my idea of dissimilarity measure to discard all models that behave the same.",
+              "createdAt": "2025-01-03T17:31:27Z"
             }
           ],
           "pageInfo": {
             "hasNextPage": false,
-            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0yOVQwMjo0MjoyMyswMDowMM4AslkR"
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMS0wM1QxNzozMToyNyswMDowMM4AsvOq"
           }
         }
       }

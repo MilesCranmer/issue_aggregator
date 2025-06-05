@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 58,
         "title": "Julia install error (new in 0.6.5)",
         "body": "I'm getting this error with pysr>=0.6.5, during the first run of pysr after `pip install pysr`.\r\n```\r\nRunning on julia -O0 /tmp/tmpy5eg_cxg/runfile.jl\r\n  Activating environment at `~/anaconda3/envs/rw/lib/python3.7/site-packages/Project.toml`\r\n    Updating registry at `~/.julia/registries/General`\r\nERROR: LoadError: Unsatisfiable requirements detected for package SymbolicRegression [8254be44]:\r\n SymbolicRegression [8254be44] log:\r\n ├─possible versions are: 0.1.0-0.6.4 or uninstalled\r\n └─restricted to versions 0.6.5-0.6 by an explicit requirement — no versions left\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Can you try this fix? https://github.com/MilesCranmer/PySR/issues/27\r\n\r\nUnfortunately the Julia servers go out of date quite frequently. It is really frustrating. The only solution is to have everybody switch to the git version of the Julia registry, rather than their web service one.\r\n\r\nThe line:\r\n```\r\npossible versions are: 0.1.0-0.6.4 or uninstalled\r\n```\r\ntells you that your Julia registry is out of date, since it doesn't think SymbolicRegression.jl 0.6.5 exists.",
               "createdAt": "2021-06-09T19:38:44Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Fixed using #27 as mentioned in #53.",
               "createdAt": "2021-06-10T19:00:13Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOMzIREg=="
           }

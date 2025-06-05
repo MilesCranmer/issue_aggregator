@@ -1,0 +1,110 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 816,
+        "title": "[BUG]: Loss saved in hall of fame is not identical to loss recalculated based on prediction",
+        "body": "Hello,\n\nI have identified an issue with some PySR regressions, that I ran. The loss saved in the hall of fame is not identical to the loss calculated with the same dataset and same custom loss function based on the PySR prediction. I have documented the issue in the notebook file attached.\nHave similar problems occurred before or do you have any idea, what might be the reason for this?\nAs an additional test, i was thinking about trying to recalculate the loss of the individual inside PySR, the be able to reproduce the potentially faulty loss-calculation. Is there a way to do so?\n\nBest regards and thanks in advance!\n\nJupyter Notebook Code:\n```\nimport pickle\nimport numpy as np\nimport pandas as pd\nfrom pysr import jl\nfrom pysr.julia_helpers import jl_array\n```\n```\n# Import object of class implementing regression with PySR (pysr_object.regression_object is PySRRegressor)\nwith open('cluster_2_round_0_runs_4_conv_suc_pysr_object_0103.pkl', 'rb') as file:\n    pysr_object = pickle.load(file)\n```\n```\n# Get loss of 22. individual for 2. y-variable\nloss_in_pysr = pysr_object.regression_object.equations_[2].iloc[22].loss\n```\n```\n# Training dataset used for regression\ntraining_dataset = pysr_object.dataset.dataset[pysr_object.training_data_bool].reset_index(drop=True)\n# Predict y-variables for training data with the 22. individual for the 2. y-variable\ny_pred= pd.DataFrame(\n    data=pysr_object.regression_object.predict(\n        training_dataset[pysr_object.x_variables],\n        index = [0,0,22,0,0]\n    ),\n    columns=pysr_object.y_variables\n)\n# Get prediction and actual data for 2. y-variable\ny2_pred = y_pred[pysr_object.y_variables[2]]\ny2_act = training_dataset[pysr_object.y_variables[2]]\n```\n```\n# Create julia loss function string based on dataset\ndef make_fitness_function_v2_5on(y):\n# For code see attached PDF\n```\n```\n# Create julia custom loss function string, apart from in- and outputs identical to the one implemented in pysr_object (see below)\nfitness_function = make_fitness_function_v2_5on(training_dataset[pysr_object.y_variables])\nprint(fitness_function)\n\n#Printed:\nfunction custom_loss_function(y_pred, y)\n    if isapprox(y[1],2.2565436)\n        p5 = 1.2804586\n        p80 = 15.113608\n        a_1 = 0.6248880798745418\n        b_1 = 1.9206878219999999\n        a_2 = 2\n        b_3 = -6.09607886912224\n        a_3 = 18.0350585617555\n        c_3 = -9.43495030694149\n    elseif isapprox(y[1],0.04650065)\n        p5 = 0.0040257196\n        p80 = 1.8914138\n        a_1 = 11.144567754841631\n        b_1 = 0.006038579739964286\n        a_2 = 2\n        b_3 = 0.0400789096218153\n        a_3 = 3.86298538267220\n        c_3 = 1.23985086650155\n    elseif isapprox(y[1],0.6221858)\n        p5 = 0.46299943\n        p80 = 13.051656\n        a_1 = 1.0391895552455737\n        b_1 = 0.694499148\n        a_2 = 2\n        b_3 = 4.05385061247809\n        a_3 = 34.2110131049562\n        c_3 = -71.0354535190814\n    elseif isapprox(y[1],-0.45914933)\n        p5 = 0.41124585\n        p80 = 5.6052365\n        a_1 = 1.1026412343064227\n        b_1 = 0.616868799645\n        a_2 = 2\n        b_3 = 0.514240734249554\n        a_3 = 12.2389548644991\n        c_3 = -10.9601082467183\n    elseif isapprox(y[1],0.8109809)\n        p5 = 0.00813762\n        p80 = 17.448\n        a_1 = 7.838560195225847\n        b_1 = 0.012206430080501547\n        a_2 = 2\n        b_3 = 6.53098971058287\n        a_3 = 47.9579776388101\n        c_3 = -117.475032351869\n    end\n    y_border = zeros(length(y))\n    y_border[abs.(y).<p5] .= (a_1 * y[abs.(y).<p5]).^2 .+ b_1\n    y_border[(abs.(y).>=p5).&(abs.(y).<=p80)] .= a_2 * abs.(y[(abs.(y).>=p5).&(abs.(y).<=p80)])\n    y_border[abs.(y).>p80] .= a_3 * log.(abs.(y[abs.(y).>p80]) .+ b_3) .+ c_3\n    custom_error = (sum( ( (1 ./ y_border) .* (y_pred .- y) ) .^2 ) )/(length(y))\n    return custom_error\nend\n```\n```\n# For comparison: loss function of pysr_object\nloss_function_pysr = pysr_object.regression_object.loss_function\nprint(loss_function_pysr)\n\n# Printed:\nfunction custom_loss_function(tree, dataset::Dataset{T,L}, options::Options, idx=nothing)::L where {T,L}\n    if isapprox(dataset.y[1],2.2565436)\n        p5 = 1.2804586\n        p80 = 15.113608\n        a_1 = 0.6248880798745418\n        b_1 = 1.9206878219999999\n        a_2 = 2\n        b_3 = -6.09607886912224\n        a_3 = 18.0350585617555\n        c_3 = -9.43495030694149\n    elseif isapprox(dataset.y[1],0.04650065)\n        p5 = 0.0040257196\n        p80 = 1.8914138\n        a_1 = 11.144567754841631\n        b_1 = 0.006038579739964286\n        a_2 = 2\n        b_3 = 0.0400789096218153\n        a_3 = 3.86298538267220\n        c_3 = 1.23985086650155\n    elseif isapprox(dataset.y[1],0.6221858)\n        p5 = 0.46299943\n        p80 = 13.051656\n        a_1 = 1.0391895552455737\n        b_1 = 0.694499148\n        a_2 = 2\n        b_3 = 4.05385061247809\n        a_3 = 34.2110131049562\n        c_3 = -71.0354535190814\n    elseif isapprox(dataset.y[1],-0.45914933)\n        p5 = 0.41124585\n        p80 = 5.6052365\n        a_1 = 1.1026412343064227\n        b_1 = 0.616868799645\n        a_2 = 2\n        b_3 = 0.514240734249554\n        a_3 = 12.2389548644991\n        c_3 = -10.9601082467183\n    elseif isapprox(dataset.y[1],0.8109809)\n        p5 = 0.00813762\n        p80 = 17.448\n        a_1 = 7.838560195225847\n        b_1 = 0.012206430080501547\n        a_2 = 2\n        b_3 = 6.53098971058287\n        a_3 = 47.9579776388101\n        c_3 = -117.475032351869\n    end\n    if idx == nothing\n        y_pred, complete = eval_tree_array(tree, dataset.X, options)\n        y = dataset.y\n    else\n        y_pred, complete = eval_tree_array(tree, dataset.X[:,idx], options)\n        y = dataset.y[idx]\n    end\n    y_border = zeros(length(y))\n    y_border[abs.(y).<p5] .= (a_1 * y[abs.(y).<p5]).^2 .+ b_1\n    y_border[(abs.(y).>=p5).&(abs.(y).<=p80)] .= a_2 * abs.(y[(abs.(y).>=p5).&(abs.(y).<=p80)])\n    y_border[abs.(y).>p80] .= a_3 * log.(abs.(y[abs.(y).>p80]) .+ b_3) .+ c_3\n    if !complete\n        return L(Inf)\n    end\n    custom_error = (sum( ( (1 ./ y_border) .* (y_pred .- y) ) .^2 ) )/(length(y))\n    return custom_error\nend\n```\n```\n# Translating elements to julia\nfitness_function_jl = jl.seval(fitness_function)\ny2_pred_jl = jl_array(np.array(y2_pred, dtype=np.float32).T)\ny2_act_jl = jl_array(np.array(y2_act, dtype=np.float32).T)\nloss_recalculated = fitness_function_jl(y2_pred_jl, y2_act_jl)\n```\n```\nprint('Loss saved in PySR: ' + str(loss_in_pysr))\nprint('Loss recalculated: ' + str(loss_recalculated))\n\n# Printed:\nLoss saved in PySR: 0.01720243\nLoss recalculated: 0.022473989882165576\n```\n-> Loss recalculated and loss calculated in PySR are not identical!\n\n\n\n### Version\n\n1.3.1\n\n### Operating System\n\nWindows\n\n### Package Manager\n\nConda\n\n### Interface\n\nOther (specify below)\n\n### Relevant log output\n\n```shell\n\n```\n\n### Extra Info\n\n[loss_difference_pysr.pdf](https://github.com/user-attachments/files/18537892/loss_difference_pysr.pdf)",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "@BrotherHa is it okay if you paste the code inline in the markdown block? This is so that search indexes like Google can correctly find this issue if other people have a similar problem.",
+              "createdAt": "2025-01-24T15:39:04Z"
+            },
+            {
+              "author": {
+                "login": "BrotherHa"
+              },
+              "body": "Hello @MilesCranmer \nThank you very much for the quick reply. Is the format ok like that?\nBest regards",
+              "createdAt": "2025-01-24T17:39:59Z"
+            },
+            {
+              "author": {
+                "login": "BrotherHa"
+              },
+              "body": "I have searched a bit where the issue occurs and in fact for most individuals of the regression the loss values from the equations_-table and the recalculated ones are absolutely identical until very high precision, but for some rare cases they divert significantly as in the example.",
+              "createdAt": "2025-01-25T09:48:35Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Is it only when reloading from a pickle file?",
+              "createdAt": "2025-01-25T09:52:24Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "And are you sure you are computing the loss in a way completely identical between the Julia and the Python side of things? ",
+              "createdAt": "2025-01-25T09:53:50Z"
+            },
+            {
+              "author": {
+                "login": "BrotherHa"
+              },
+              "body": "About the loss functions I am very sure. The only issues here might be problems caused by the precision of calculation, etc. And for more than 90% of all individuals both methods calculate exactly the same loss.\nAnd concerning the pickle-file, I have also tried using the 'from_file' method, but it still stays the same.\n",
+              "createdAt": "2025-01-25T10:04:14Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Just to confirm, it is only when you load the model from a saved checkpoint that this happens? It’s not when you use `warm_start=True` and call `fit` a second time?",
+              "createdAt": "2025-01-25T16:00:23Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "> 90% of all individuals both methods calculate exactly the same loss\n\nDo you see any pattern in the ones that don’t match? e.g., Are they very complex expressions?",
+              "createdAt": "2025-01-25T16:02:04Z"
+            },
+            {
+              "author": {
+                "login": "BrotherHa"
+              },
+              "body": "> > 90% of all individuals both methods calculate exactly the same loss\n> \n> Do you see any pattern in the ones that don’t match? e.g., Are they very complex expressions?\n\nI do not see any pattern in the equations, that have the error. They are not the most complex ones neither do they have explicitly complex operators.\n ",
+              "createdAt": "2025-01-27T11:19:24Z"
+            },
+            {
+              "author": {
+                "login": "BrotherHa"
+              },
+              "body": "> Just to confirm, it is only when you load the model from a saved checkpoint that this happens? It’s not when you use `warm_start=True` and call `fit` a second time?\n\nIt happens also when using fit for the first time. I will try to reload and refit, when I find time.",
+              "createdAt": "2025-01-27T11:21:29Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "But it's _only_ when you have a model loaded from disk, right? Like if you did:\n\n```python\nmodel = PySRRegressor(warm_start=True)  # fresh model; NOT loaded from disk\n\nmodel.fit(X, y)\n\n#= ... =#\n\nmodel.fit(X, y)\n```",
+              "createdAt": "2025-01-27T14:07:42Z"
+            },
+            {
+              "author": {
+                "login": "BrotherHa"
+              },
+              "body": "The Problem occured in the first place when fitting a new model. Then directly after the regression finished I called predict() and calculated the loss for training, test and total dataset based on that. But before that I saved the output of model.get_best(). The value from get_best() and the manual calculation for the best individual shows the bahavior in a less significant way (0.014545 instead of 0.014536), but it is still not in the range most other values are equal. For the example given in my first messege here I called the predict() method also just after the initial run and calculated the loss as 0.022473989882165576, but I did not save the loss from model.equations_ separately. But in the hall of fame csv-file loss is also saved as 0.01720243, like it is outputed when I call model.equations_ from the loaded model.",
+              "createdAt": "2025-01-28T17:15:12Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "@BrotherHa would it be possible for you to make a MWE of this issue so I can try to reproduce it? No worries if not. It's a bit tricky because the unittests already check for warm starts from files and they seem to pass. So I'm puzzled as to what conditions trigger this.",
+              "createdAt": "2025-02-05T11:48:34Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOnSX03A=="
+          }
+        }
+      }
+    }
+  }
+}

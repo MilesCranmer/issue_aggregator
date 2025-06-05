@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 553,
         "title": "How to implement RMSE loss function",
         "body": "Thank you for this awesome library!!\r\n\r\nI have been playing around with PySR for some time. I was trying to create a custom loss function to apply RMSE as the loss but couldn't find how to anywhere in the documentation. is there any way to apply RSME with PySR ?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks! And welcome to the forums :)\r\n\r\nAnything which can’t be expressed as a sum of per-row losses you should write a custom loss function for. Here’s RMSE as an example:\r\n\r\n```python\r\nloss_function = \"\"\"\r\nfunction f(tree, dataset::Dataset{T,L}, options) where {T,L}\r\n    ypred, completed = eval_tree_array(tree, dataset.X, options)\r\n    if !completed\r\n        return L(Inf)\r\n    end\r\n    y = dataset.y\r\n    return sqrt(sum(i -> (ypred[i] - y[i])^2, eachindex(y)))\r\nend\r\n\"\"\"\r\n\r\nmodel = PySRRegressor(loss_function=loss_function)\r\n``` ",
               "createdAt": "2024-02-25T02:41:59Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "pukpr"
               },
               "body": "Now I really want to experiment with PySR. In the past I've used Eureqa and found it amazing. But more recently I've been using a home-grown optimizer for modeling time-series data. I discovered that a loss function built on a Dynamic Time Warping metric is very helpful to guard against over-fitting, see my blog post https://geoenergymath.com/2024/03/08/dynamic-time-warping.  Now, thinking back to how Eureqa often took a while to close in on a potential solution, a DTW metric as loss function may be very useful in an exploratory mode. It wouldn't be difficult to prototype as a custom loss function with a configurable window size.  See this 2024 paper as well: https://arxiv.org/pdf/2401.10359.pdf\r\n",
               "createdAt": "2024-03-08T19:50:17Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMy0wOFQxOTo1MDoxNyswMDowMM4AhR6F"
           }

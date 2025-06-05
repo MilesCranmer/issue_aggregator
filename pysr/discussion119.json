@@ -1,52 +1,42 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 119,
         "title": "Save the fitted model",
         "body": "Hi,\r\n\r\nIs there any way to save the fitted model? I tried to save as pickle by dumping \r\n```\r\nwith open('sr_model.pk', 'wb') as sr_model_file:\r\n    pickle.dump(sr_model, sr_model_file)\r\n```\r\nbut the following message was thrown:\r\n```\r\n[PicklingError: Can't pickle <function _lambdifygenerated at 0x7fd3ec06aee0>: attribute lookup _lambdifygenerated on __main__ failed]()\r\n```\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Good question. I have never tried this, but note that PySR saves the equations to a csv file during the search. In the PySRRegressor model, this is set by `equation_file` (or is chosen automatically by the model).\r\n\r\nSo what you could do is get the equation file (`sr_model.equation_file`), then create a new PySRRegressor with the same settings, then run `sr_model.get_hof()`. This should load the equations from the csv file.\r\n\r\nLet me know if this works!",
               "createdAt": "2022-03-25T20:33:08Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "One other option: use `dill` https://github.com/uqfoundation/dill instead of pickle:\r\n```python\r\n# import pickle as pkl\r\nimport dill as pkl\r\n```\r\nThis natively supports lambda functions, so it might work out of the box!\r\n\r\n(You might have to set `sr_model.raw_julia_state = None` before saving the model, however, as the `raw_julia_state` contains some ctypes pointers, which I don't think even `dill` would support.)",
               "createdAt": "2022-03-27T05:46:22Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "vnikoofard"
               },
               "body": "No, still the `dill` can't save the model.",
               "createdAt": "2022-03-28T00:01:48Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @vnikoofard,\r\n\r\nWith v0.9.0 of PySR (https://github.com/MilesCranmer/PySR/pull/146), you can now pickle and unpickle the PySRRegressor without issue.\r\n\r\nBest,\r\nMiles",
               "createdAt": "2022-06-04T20:05:55Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0wNi0wNFQyMTowNTo1NSswMTowMM4ALAKt"
           }

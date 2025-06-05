@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 44,
         "title": "How force algorithm make an equation with all inputs?",
         "body": "Hi, \r\nI used the algorithm its unique and fine, but I have a problem,\r\nI.e I have some data, **including 1000 row, and 4 columns**, it has **3 inputs (x1,x2,x3)** and one **output (y)** when I run the algorithm it makes an equation like: **y=10*x1+2*x3** , (it just  includes x1 and x3)\r\nThe problem is that the result equation don't use **x2** as input, including best equation and all other generated equations. or the equation just contains **x1 and x2, but x3** not exist in equation or something similar...\r\nAlthough I need to an equation than contains **all inputs** (x1,x2,x3) \r\n**How can I force the algorithm to to make an equation that uses all inputs including x1,x2,x3?**\r\n\r\nThanks in advance\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @danial1995,\r\n\r\nThe algorithm is already searching for equations using all inputs. The ones it returns to you are the equations satisfying the following.\r\n\r\n![image](https://user-images.githubusercontent.com/7593028/118408786-09556980-b655-11eb-91b9-94f7f1833a9a.png)\r\n\r\nIf it doesn't give you equations with x2, that means none of the equations with x2 satisfy that constraint. i.e., they are **overly complex**. Does this make sense?  There is no current way of including such a \"prior\" on the equations to artificially lower the complexity if all features are included.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2021-05-16T18:43:55Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOMi3ANQ=="
           }

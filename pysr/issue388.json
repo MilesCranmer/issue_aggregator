@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 388,
         "title": "FutureWarning: Index.is_object is deprecated.Use pandas.api.types.is_object_dtype instead",
         "body": "Should fix this warning:\r\n```python\r\nFutureWarning: Index.is_object is deprecated.Use pandas.api.types.is_object_dtype instead\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Fixed by #389 ",
               "createdAt": "2023-07-30T20:39:02Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOYsfQOw=="
           }

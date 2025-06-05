@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 309,
         "title": "Running with multiple nodes on a compute cluster",
         "body": "Latest way to do this:\r\n\r\n```julia\r\nusing ClusterManagers, SymbolicRegression\r\n\r\n# Create a custom operator (will be passed to the processes):\r\ninv(x) = 1/x\r\n\r\n# Create dataset (locally)\r\nX = rand(Float32, 5, 100) .+ 1\r\ny = 1.2f0 .+ 2 ./ X[3, :]\r\n\r\n# Create options (locally)\r\noptions = SymbolicRegression.Options(;\r\n    binary_operators=(+, *),\r\n    unary_operators=(inv,),\r\n    npopulations=1000,\r\n    ncyclesperiteration=10000,\r\n)\r\n\r\n# Run with these procs (it will automatically distribute them!)\r\nhall_of_fame = EquationSearch(X, y, niterations=8, options=options, \r\n                            numprocs=40*4, addprocs_function=addprocs_slurm,\r\n                            parallelism=:multiprocessing)\r\n\r\ndominating = calculate_pareto_frontier(X, y, hall_of_fame, options)\r\nbest = dominating[end]\r\n```\r\n\r\n---\r\n\r\n**Old example:**\r\n\r\nHere's an example of running SymbolicRegression.jl on a cluster.\r\n\r\n```julia\r\nusing Distributed, ClusterManagers\r\n\r\n# Create processes across cluster (here we use Slurm, but others exist - see ClusterManagers.jl)\r\nprocs = addprocs_slurm(40*4; lazy=true)\r\n\r\n# Activate the current project on all processes:\r\nusing Pkg\r\nproject_path = splitdir(Pkg.project().path)[1]\r\n@everywhere begin\r\n    Base.MainInclude.eval(quote\r\n        using Pkg\r\n        Pkg.activate($$project_path)\r\n    end)\r\nend\r\n\r\n# import this package everywhere\r\n@everywhere using SymbolicRegression\r\n\r\n# Create a custom operator (will be passed to the processes):\r\ninv(x) = 1/x\r\n\r\n# Create dataset (locally)\r\nX = rand(Float32, 5, 100) .+ 1\r\ny = 1.2f0 .+ 2 ./ X[3, :]\r\n\r\n# Create options (locally)\r\noptions = SymbolicRegression.Options(;\r\n    binary_operators=(+, *),\r\n    unary_operators=(inv,),\r\n    npopulations=1000,\r\n    ncyclesperiteration=10000,\r\n)\r\n\r\n# Run with these procs (it will automatically distribute them!)\r\nhallOfFame = EquationSearch(X, y, niterations=8, options=options, procs=procs)\r\n\r\n# Close down processes:\r\nrmprocs(procs)\r\n\r\ndominating = calculateParetoFrontier(X, y, hallOfFame, options)\r\nbest = dominating[end]\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Update: on v0.8.5, this is even simpler - just pass the `addprocs_slurm` (or `addprocs_pbs`, etc.) to `EquationSearch`:\r\n\r\n```julia\r\nusing ClusterManagers, SymbolicRegression\r\n\r\n# Create a custom operator (will be passed to the processes):\r\ninv(x) = 1/x\r\n\r\n# Create dataset (locally)\r\nX = rand(Float32, 5, 100) .+ 1\r\ny = 1.2f0 .+ 2 ./ X[3, :]\r\n\r\n# Create options (locally)\r\noptions = SymbolicRegression.Options(;\r\n    binary_operators=(+, *),\r\n    unary_operators=(inv,),\r\n    npopulations=1000,\r\n    ncyclesperiteration=10000,\r\n)\r\n\r\n# Run with these procs (it will automatically distribute them!)\r\nhallOfFame = EquationSearch(X, y, niterations=8, options=options, \r\n                            numprocs=40*4, addprocs_function=addprocs_slurm,\r\n                            parallelism=:multiprocessing)\r\n\r\ndominating = calculate_pareto_frontier(X, y, hallOfFame, options)\r\nbest = dominating[end]\r\n```",
               "createdAt": "2022-04-23T19:41:39Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0wNC0yM1QyMDo0MTozOSswMTowMM4AKAG4"
           }

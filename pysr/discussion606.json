@@ -1,44 +1,35 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 606,
         "title": "Forcing constants to be dimensionless",
         "body": "I am using the dimensional constraints in my PySR model.\r\n\r\nFor context here are units of the dataset that I am testing with:\r\n```\r\nX_units = [\"m/s\", \"kg/m^4\", \"kg/ms^2\", \"\", \"s\", \"m/s\", \"m^2/s\", \"s^-1\", \"m^-1\", \"s^-1\"]\r\ny_units = \"\"\r\n```\r\n\r\n\r\n\r\nQuestion 1. I just would like to double check that I can set a dimensionless units with \"\".\r\n\r\nQuestion 2. When I am fitting my current model (dimensional_constraint_penalty=10**5) the units of all constants are [.]. I know that in my field, in this particular case, we would expect these constants to be dimensionless as this forces the physical meaning of the equation to come from the variables being used and their relation. I would like to put a dimensionless unit constraint on coefficients in order to force PySR to create physically meaningful relations. How should I go about doing that?\r\n\r\nThank you in advance.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "> Question 1. I just would like to double check that I can set a dimensionless units with \"\".\r\n\r\nCorrect although I might prefer using `\"1\"` as its more explicit.\r\n\r\n> Question 2. When I am fitting my current model (dimensional_constraint_penalty=10**5) the units of all constants are [.]. I know that in my field, in this particular case, we would expect these constants to be dimensionless as this forces the physical meaning of the equation to come from the variables being used and their relation. I would like to put a dimensionless unit constraint on coefficients in order to force PySR to create physically meaningful relations. How should I go about doing that?\r\n\r\nWhen it says the units are `[⋅]` that simply means they are unknown to the algorithm. (Maybe PySR should show it as a `[?]` instead...)\r\n\r\nThe reason for this is that it's expensive to calculate exact units for every constant in an expression (and sometimes there are multiple valid solutions!). However, you can verify if an expression is dimensionally _possible_ quite cheaply.\r\n\r\nSee https://astroautomata.com/PySR/examples/#10-dimensional-constraints for info on this.\r\n\r\n<img width=\"1073\" alt=\"Screenshot 2024-04-27 at 18 00 24\" src=\"https://github.com/MilesCranmer/PySR/assets/7593028/a0501300-0d80-4c2a-9ac1-8e7849f9e48b\">\r\n",
               "createdAt": "2024-04-27T17:00:29Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Edit: made https://github.com/MilesCranmer/SymbolicRegression.jl/pull/307 which switches from `[⋅]` to `[?]` which is hopefully less confusing. Wdyt @Kacpiolo?",
               "createdAt": "2024-04-27T17:28:58Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I added this feature in #608 with the `dimensionless_constants_only` parameter (set to `True` for your use-case).\r\n\r\nI will merge this in a few days once the global registries are safely up-to-date with the new SymbolicRegression backend.\r\n\r\nIn the meantime you can install it yourself with, e.g.,\r\n\r\n```bash\r\npip install git+https://github.com/MilesCranmer/PySR.git@dimensionless-constants\r\n```\r\n\r\n**Edit:** Is available in PySR 0.18.4.\r\n",
               "createdAt": "2024-04-28T05:19:38Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNC0yOFQwNjoxOTozOCswMTowMM4AjSVd"
           }

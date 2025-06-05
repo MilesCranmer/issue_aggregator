@@ -1,44 +1,35 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 356,
         "title": "Can you change the loss function of the PySRRegressor object to predict certain functions?",
         "body": "\r\nDeleted because problem is resolved\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This might be helpful: https://astroautomata.com/PySR/examples/#9-custom-objectives\r\n\r\nOne tricky thing to note is that there isn’t really a way to normalize the symbolic expression.",
               "createdAt": "2023-06-25T17:32:44Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "unary-code"
               },
               "body": "Hi Mr. Cranmer,\r\n\r\nThank you for responding!\r\nI am a little confused about how to write a custom objective function.\r\nIf I wanted the loss function to be the Mean-Squared-Error between the value of the math expression called \"tree\", when evaluated across all N data points in the dataset, and the true value of y for those N data points in the dataset, then could my custom objective function be the following string:\r\n\r\n```python\r\nobjective = \"\"\"\r\nfunction my_custom_objective(tree, dataset::Dataset{T,L}, options) where {T,L}\r\n    # Evaluate numerator:\r\n    Tree_prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    !flag && return L(Inf)\r\n\r\n    diffs = prediction .- dataset.y\r\n\r\n    return sum(diffs .^ 2) / length(diffs)\r\nend\r\n\"\"\" \r\n```\r\n\r\n\r\n\r\nIn addition, I have a clarification question about the provided sample code for a custom objective function on https://astroautomata.com/PySR/examples/#9-custom-objectives\r\nWhat exactly is this custom objective function doing?\r\nMy idea of what the website's provided objective function is doing: It is making sure that the neural network will find two polynomial expressions P and Q in terms of x, such that the value of y in the dataset is approximated by (close to) the value of P(x) / Q(x) for each data point.\r\nUsing this objective function essentially forces the meaning of the topmost root node of the tree to be a \"/\" divide-by operator.\r\nWhat would the advantage of this particular objective function be? If you know the dataset's y variable can be described by a function of x divided by another function of x, then you would use this particular objective function (instead of the general objective function that most people use for symbolic regression)?\r\nIf the true math expression was a division of a polynomial of x by another polynomial of x (let's call this Case \"dataset's y is a polynomial division\"), would the general objective function that most people use for symbolic regression (the MSE between the value of the neural network's outputted math expression, when evaluated across all N data points in the dataset, and the true value of y for those N data points in the dataset) hypothetically be able to find the true math expression? Or under Case \"dataset's y is a polynomial division\" maybe would it take more time for the general objective function to find the true math expression than if you used that particular objective function, because the general objective function would probably search using non-\"/\" nodes as the top-most root node of the tree, which would be a waste of time for this dataset (the function whose code is in https://astroautomata.com/PySR/examples/#9-custom-objectives)?\r\n\r\nThanks, appreciate your time very much.",
               "createdAt": "2023-06-25T18:53:25Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "unary-code"
               },
               "body": "Hi,\r\nThanks for your previous responses: they help me understand how to make my own loss function and set that as the objective function of the PySRRegressor object.\r\n\r\nHowever, I am having trouble finding a loss funciton that will result in the PySRRegressor finding a accurate probability distribution that is accurate to the true probability distribution.\r\nI have tried:\r\nobjective = \"\"\"\r\nfunction eval_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    # Evaluate numerator:\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    !flag && return L(Inf)\r\n\r\n\r\n    return -1 * sum(log.(prediction.*prediction)) / (2*length(prediction))\r\nend\r\n\"\"\"\r\nbut even when using this particular loss function, which I expected would result in an accurate predicted probability distribution, the PySRRegressor object does not accurately find a probability distribution.\r\n\r\nAny advice?\r\nAny papers or terms I could look up so I could learn some ideas for what to put as the loss function?\r\n\r\n\r\nI have learned about how a GAN can generate samples which collectively approximate the unknown true probability distribution, but I don't think your PySR uses a GAN. Could I perhaps use the loss method of a GAN or another method for density estimation?\r\n",
               "createdAt": "2023-06-29T02:58:05Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNi0yOVQwMzo1ODowNSswMTowMM4AYEs6"
           }

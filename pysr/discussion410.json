@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 410,
         "title": "Custom Objectives - MethodError",
         "body": "Hi! I am hoping this is a simple mistake on my end...I am completely new to Julia!\r\n\r\nI am unable to run the custom objective function [example](https://astroautomata.com/PySR/examples/#9-custom-objectives). When I run `model.fit`, I get the following error (truncated to what I think is the relevant bit):\r\n\r\n```\r\nRuntimeError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: MethodError: no method matching _method_instances(::Type{typeof(my_custom_objective)}, ::Type{Tuple{Node{Float32}, Dataset{Float32, Float32, Matrix{Float32}, Vector{Float32}, Nothing, NamedTuple{(), Tuple{}}, Nothing, Nothing, Nothing, Nothing}, Options{Int64, DynamicExpressions.OperatorEnumModule.OperatorEnum, false, Optim.Options{Float64, Nothing}, StatsBase.Weights{Float64, Float64, Vector{Float64}}}, Nothing}})\r\nThe applicable method may be too new: running in world age 44885, while current world is 54430.\r\n```\r\n\r\nMy Julia version is 1.9.2, and I am on an M2 Mac. I've tried changing relevant versions of the python dependencies to no avail. \r\n\r\nAny advice appreciated!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @villrv,\r\nThis looks like a bug in PySR. How are you running things? If you file an issue in this repo (https://github.com/MilesCranmer/PySR/issues) it will ask for the different info that will help me debug.\r\nThanks,\r\nMiles",
               "createdAt": "2023-08-19T15:39:00Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wOC0xOVQxNjozOTowMCswMTowMM4AZ0nh"
           }

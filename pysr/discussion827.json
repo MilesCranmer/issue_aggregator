@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 827,
+        "title": "Understanding how to propely use SymbolicRegression.jl safe operator types",
+        "body": "I'm working with @SoumiKDaS1701 and we're running into an issue with operator types when working on our own custom loss function. We're a bit confused about how to properly use safe_pow (and analogous types) when converting to and from SymbolicRegression.jl's node type.\r\n\r\nHow would we write the power function properly to use the types that SymbolicRegression.jl is expecting?\r\n\r\nHere's a code snippet from our custom loss function, simplified a bit for clarity.\r\n```julia\r\nrho_symbolic = node_to_symbolic(tree, options; variable_names=[\"x1\"], index_functions=true)\r\n\r\n@syms x1\r\nprintln(rho_symbolic)\r\nprintln(safe_pow(x1, 2)*rho_symbolic)\r\n# ERROR OCCURS ON THE FOLLOWING LINE\r\nmodified_rho_tree = symbolic_to_node(safe_pow(x1, 2)*rho_symbolic, options;  variable_names=[\"x1\"])\r\n```\r\n\r\nHere's the error we're getting at the above point in the code:\r\n```julia\r\nexp(x1 / safe_pow(0.21631206646319978, 0.7948274113717162))\r\n(x1^2)*exp(x1 / safe_pow(0.21631206646319978, 0.7948274113717162))\r\n\r\nERROR: LoadError: Operation ^ in expression not found in operations (+, *, /, -, SymbolicRegression.CoreModule.OperatorsModule.safe_pow)!\r\nStacktrace:\r\n  [1] error(s::String)\r\n    @ Base ./error.jl:35\r\n  [2] findoperation(op::Function, ops::Tuple{typeof(+), typeof(*), typeof(/), typeof(-), typeof(safe_pow)})\r\n    @ DynamicExpressionsSymbolicUtilsExt ~/.julia/packages/DynamicExpressions/WE72I/ext/DynamicExpressionsSymbolicUtilsExt.jl:115\r\n  [3] convert(::Type{Node}, expr::SymbolicUtils.BasicSymbolic{Number}, operators::OperatorEnum{Tuple{…}, Tuple{…}}; variable_names::Vector{String})\r\n    @ DynamicExpressionsSymbolicUtilsExt ~/.julia/packages/DynamicExpressions/WE72I/ext/DynamicExpressionsSymbolicUtilsExt.jl:166\r\n  [4] convert\r\n    @ ~/.julia/packages/DynamicExpressions/WE72I/ext/DynamicExpressionsSymbolicUtilsExt.jl:142 [inlined]\r\n  [5] (::DynamicExpressionsSymbolicUtilsExt.var\"#9#10\"{Node, Vector{String}, OperatorEnum{Tuple{…}, Tuple{…}}})(x::SymbolicUtils.BasicSymbolic{Number})\r\n    @ DynamicExpressionsSymbolicUtilsExt ~/.julia/packages/DynamicExpressions/WE72I/ext/DynamicExpressionsSymbolicUtilsExt.jl:173\r\n  [6] iterate\r\n    @ ./generator.jl:48 [inlined]\r\n  [7] _collect(c::Vector{Any}, itr::Base.Generator{Vector{…}, DynamicExpressionsSymbolicUtilsExt.var\"#9#10\"{…}}, ::Base.EltypeUnknown, isz::Base.HasShape{1})\r\n    @ Base ./array.jl:811\r\n  [8] collect_similar(cont::Vector{Any}, itr::Base.Generator{Vector{Any}, DynamicExpressionsSymbolicUtilsExt.var\"#9#10\"{Node, Vector{…}, OperatorEnum{…}}})\r\n    @ Base ./array.jl:720\r\n  [9] map(f::Function, A::Vector{Any})\r\n    @ Base ./abstractarray.jl:3371\r\n [10] convert(::Type{Node}, expr::SymbolicUtils.BasicSymbolic{Number}, operators::OperatorEnum{Tuple{…}, Tuple{…}}; variable_names::Vector{String})\r\n    @ DynamicExpressionsSymbolicUtilsExt ~/.julia/packages/DynamicExpressions/WE72I/ext/DynamicExpressionsSymbolicUtilsExt.jl:171\r\n [11] #symbolic_to_node#15\r\n    @ ~/.julia/packages/DynamicExpressions/WE72I/ext/DynamicExpressionsSymbolicUtilsExt.jl:235 [inlined]\r\n [12] symbolic_to_node\r\n    @ ~/.julia/packages/DynamicExpressions/WE72I/ext/DynamicExpressionsSymbolicUtilsExt.jl:226 [inlined]\r\n [13] symbolic_to_node(eqn::SymbolicUtils.BasicSymbolic{…}, options::Options{…}; kws::@Kwargs{…})\r\n    @ SymbolicRegressionSymbolicUtilsExt ~/.julia/packages/SymbolicRegression/Znzix/ext/SymbolicRegressionSymbolicUtilsExt.jl:32\r\n [14] my_custom_objective(tree::Node{…}, dataset::Dataset{…}, options::Options{…})\r\n    @ Main ~/symbolic_regression/SymbolicRegression.jl/soumikd/scripts/model_rho.jl:38\r\n```",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks for the report. I think there is actually a missing implementation here. Basically, `findoperation` within `ext/DynamicExpressionsSymbolicUtilsExt.jl` should be using `declare_operator_alias` so that it can find the safe operator - as otherwise it doesn't understand that `^` and `safe_pow` should match. Sorry this doesn't work at the moment.\r\n\r\nWill try to fix soon. If you need this soon, I'd welcome a PR (but no pressure!).",
+              "createdAt": "2025-02-14T10:53:25Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMi0xNFQxMDo1MzoyNSswMDowMM4AuiW_"
+          }
+        }
+      }
+    }
+  }
+}

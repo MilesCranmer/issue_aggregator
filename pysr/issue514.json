@@ -1,20 +1,23 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 514,
         "title": "[Feature]: Composite regressors",
         "body": "### Feature Request\r\n\r\nA common pattern in applications of symbolic regression is that there exists some \"bottleneck latent\" parameters that can describe the data in fewer dimensions than that of the input features. For example, some data can have an underlying universal \"shape\", in the simplest case a univariate function of some rescaled variable (e.g. time for transition data, or radius for universal radial profiles). In more complicated cases, the universal template can depend on a location parameter, a scale parameter, and very few shape parameters. And these latent paraments can then be expressed as functions of other input features.\r\n\r\nSometimes we know such patterns from the domain knowledge. Otherwise we can also find such patterns by looking at the data with some transformation. I think it'd be a very useful inductive bias to build the intermediate latent steps into PySR. Assuming a pattern, this can help search for more complicated equations, and of course also with interpretability, which a deep learning bottleneck lacks.\r\n\r\nThe [example](https://astroautomata.com/PySR/examples/#9-custom-objectives) page already has one example assuming a final division operator, predicting $P(\\mathbf{x})/Q(\\mathbf{x})$. However, more complicated cases like $f(\\mu(x_2, x_3, \\cdots) + x_1 \\cdot \\sigma(x_3, x_4, \\cdots))$ need some hacking to work. Namely, splitting into 3 trees ($f$, $\\mu$, and $\\sigma$) and zero-padding every input to have the same number of features as the whole dataset. It would be nice to have a better solution for this. Each of the tree should have its features somehow specified, including the latent variables and possibly some subsets of the input features too. I wonder if a *composite regressor*, taking a list of `PySRRegressor`'s and a *custom model* can be implemented?\r\n\r\nThank you, and happy New Year!!",
-        "comments":
-        {
-          "nodes": [],
-          "pageInfo":
-          {
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Just added in v1.0.0!",
+              "createdAt": "2024-12-01T00:12:57Z"
+            }
+          ],
+          "pageInfo": {
             "hasNextPage": false,
-            "endCursor": null
+            "endCursor": "Y3Vyc29yOnYyOpHOlZO6pA=="
           }
         }
       }

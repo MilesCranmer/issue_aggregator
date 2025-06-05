@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 441,
         "title": "running out of RAM suddenly",
         "body": "Hi,\r\nFirst of all, thanks for your great Tool. I have a question regarding the RAM consumption. I went through the discussions and I found a similar Topic at #61 but I think my problem is different. Since about one week I keep getting an overflow of RAM memory and it's strange because I can't remember having this issue before. I haven't changed the parameters of the regressor and I'm still using a dataset with the same number of parameters. \r\n\r\nAt the beginning I left my simulation running multiple days and I haven't noticed any problems but suddenly I run out of RAM within a few hours, even if I reduce the complexity limit. The only thing I remember having changed in the meantime was that I've tried around with warm start, even though I’ve reset to “False” again.\r\n\r\nSome details: Right now, a simulation is running, with 25 features (which I know is quite a lot) and a maximum complexity of 10. There are 4 binary operators, 3 unary operators a max depth of 5 while the other parameters are left to default. After running for about 10h I have a RAM consumption of 15Gb and it keeps growing with a slow but steady rate.\r\n\r\nAny help, hint or clarification would be very much appreciated. Even if I'm simply mistaken and this is a normal behavior.\r\n\r\nThank you very much for your support.\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @marianstaggl,\r\n\r\nCould you answer the following questions to help debug it?\r\n\r\n1. Julia version?\r\n2. PySR version?\r\n3. Dataset size?\r\n4. Are you using `batching=True` or `False`?\r\n5. Are you using `multithreading=True` or `False`?\r\n6. How many `procs`? \r\n\r\nI have personally seen this when (3) my dataset is quite large, in which case you would need to use batching mode. I also see it sometimes for (5) when Julia garbage collection is too passive. This happens in particular in multiprocessing mode (when `multithreading=False`). I raised an issue here: https://github.com/JuliaLang/julia/issues/50673. But from the PySR side there isn't much to do right now. We could probably add a `worker_exeflags` argument to `PySRRegressor` which passes things like `heap-size-hint` to worker processes, so this garbage collection issue could be manually fixed.\r\n\r\nBut it could also be some other issue too.\r\n\r\nThanks,\r\nMiles",
               "createdAt": "2023-10-13T07:47:25Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "It is weird that you haven't seen it before. Were any libraries updated? Or Julia updated? And you are positive none of the settings changed?",
               "createdAt": "2023-10-13T07:49:23Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMC0xM1QwODo0OToyMyswMTowMM4AbvLy"
           }

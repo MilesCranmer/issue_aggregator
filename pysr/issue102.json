@@ -1,68 +1,56 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 102,
         "title": "Quitting pySR",
         "body": "**Describe the bug**\r\nI have been trying the example given in the introduction section. Equations were printed after the command `model.fit(X, y)`. However, I am facing the relatively simple issue of quitting the run. As given in the docs, I type q and press enter but nothing happens after that. Am I misinterpreting something?\r\n\r\nThe following message appeared before equations were printed\r\n**Message**\r\n``\r\n/home/shikhar/.local/lib/python3.8/site-packages/pysr/sr.py:291: UserWarning: \r\nYour Python version is statically linked to libpython. For example, this could be the python included with conda, or maybe your system's built-in python.\r\nThis will still work, but the precompilation cache for Julia will be turned off, which may result in slower startup times on the initial pysr() call.\r\n\r\nTo install a Python version that is dynamically linked to libpython, pyenv is recommended (https://github.com/pyenv/pyenv).\r\n\r\nTo silence this warning, you can run pysr.silence_julia_warning() after importing pysr.\r\n  warnings.warn(\r\n\r\nActivating project at `/tmp/tmpqggvkrhd`\r\n    Updating `/tmp/tmpqggvkrhd/Project.toml`\r\n  [8254be44] + SymbolicRegression v0.7.6\r\n    Updating `/tmp/tmpqggvkrhd/Manifest.toml`\r\n  [c3fe647b] + AbstractAlgebra v0.12.0\r\n  [4fba245c] + ArrayInterface v4.0.2\r\n  [d360d2e6] + ChainRulesCore v1.12.0\r\n  [9e997f8a] + ChangesOfVariables v0.1.2\r\n  [861a8166] + Combinatorics v1.0.2\r\n  [bbf7d656] + CommonSubexpressions v0.3.0\r\n  [34da2185] + Compat v3.41.0\r\n  [9a962f9c] + DataAPI v1.9.0\r\n  [864edb3b] + DataStructures v0.18.11\r\n  [163ba53b] + DiffResults v1.0.3\r\n  [b552c78f] + DiffRules v1.9.1\r\n  [ffbed154] + DocStringExtensions v0.8.6\r\n  [e2ba6199] + ExprTools v0.1.8\r\n  [1a297f60] + FillArrays v0.12.7\r\n  [6a86dc24] + FiniteDiff v2.10.0\r\n  [f6369f11] + ForwardDiff v0.10.25\r\n  [ff7dd447] + FromFile v0.1.2\r\n  [615f187c] + IfElse v0.1.1\r\n  [3587e190] + InverseFunctions v0.1.2\r\n  [92d709cd] + IrrationalConstants v0.1.1\r\n  [692b3bcd] + JLLWrappers v1.4.1\r\n  [0f8b85d8] + JSON3 v1.9.2\r\n  [7f8f8fb0] + LearnBase v0.4.1\r\n  [d3d80556] + LineSearches v7.1.1\r\n  [2ab3a3ac] + LogExpFunctions v0.3.6\r\n  [30fc2ffe] + LossFunctions v0.7.2\r\n  [1914dd2f] + MacroTools v0.5.9\r\n  [e1d29d7a] + Missings v1.0.2\r\n  [d41bc354] + NLSolversBase v7.8.2\r\n  [77ba4419] + NaNMath v0.3.7\r\n  [429524aa] + Optim v1.6.0\r\n  [bac558e1] + OrderedCollections v1.4.1\r\n  [d96e819e] + Parameters v0.12.3\r\n  [69de0a69] + Parsers v2.2.1\r\n  [85a6dd25] + PositiveFactorizations v0.2.4\r\n  [21216c6a] + Preferences v1.2.3\r\n  [fb686558] + RandomExtensions v0.4.3\r\n  [3cdcf5f2] + RecipesBase v1.2.1\r\n  [189a3867] + Reexport v1.2.2\r\n  [ae029012] + Requires v1.3.0\r\n  [a2af1166] + SortingAlgorithms v1.0.1\r\n  [276daf66] + SpecialFunctions v1.8.1\r\n  [aedffcd0] + Static v0.5.1\r\n  [90137ffa] + StaticArrays v1.3.3\r\n  [82ae8749] + StatsAPI v1.2.0\r\n  [2913bbd2] + StatsBase v0.33.14\r\n  [856f2bd8] + StructTypes v1.8.1\r\n  [8254be44] + SymbolicRegression v0.7.6\r\n  [d1185830] + SymbolicUtils v0.6.3\r\n  [a759f4b9] + TimerOutputs v0.5.15\r\n  [3a884ed6] + UnPack v1.0.2\r\n  [efe28fd5] + OpenSpecFun_jll v0.5.5+0\r\n  [0dad84c5] + ArgTools\r\n  [56f22d72] + Artifacts\r\n  [2a0f44e3] + Base64\r\n  [ade2ca70] + Dates\r\n  [8bb1440f] + DelimitedFiles\r\n  [8ba89e20] + Distributed\r\n  [f43a241f] + Downloads\r\n  [b77e0a4c] + InteractiveUtils\r\n  [b27032c2] + LibCURL\r\n  [76f85450] + LibGit2\r\n  [8f399da3] + Libdl\r\n  [37e2e46d] + LinearAlgebra\r\n  [56ddb016] + Logging\r\n  [d6f4376e] + Markdown\r\n  [a63ad114] + Mmap\r\n  [ca575930] + NetworkOptions\r\n  [44cfe95a] + Pkg\r\n  [de0858da] + Printf\r\n  [3fa0cd96] + REPL\r\n  [9a3f8284] + Random\r\n  [ea8e919c] + SHA\r\n  [9e88b42a] + Serialization\r\n  [1a1011a3] + SharedArrays\r\n  [6462fe0b] + Sockets\r\n  [2f01184e] + SparseArrays\r\n  [10745b16] + Statistics\r\n  [fa267f1f] + TOML\r\n  [a4e569a6] + Tar\r\n  [8dfed614] + Test\r\n  [cf7118a7] + UUIDs\r\n  [4ec0a83e] + Unicode\r\n  [e66e0078] + CompilerSupportLibraries_jll\r\n  [deac9b47] + LibCURL_jll\r\n  [29816b5a] + LibSSH2_jll\r\n  [c8ffd9c3] + MbedTLS_jll\r\n  [14a3606d] + MozillaCACerts_jll\r\n  [4536629a] + OpenBLAS_jll\r\n  [05823500] + OpenLibm_jll\r\n  [83775a58] + Zlib_jll\r\n  [8e850b90] + libblastrampoline_jll\r\n  [8e850ede] + nghttp2_jll\r\n  [3f19e933] + p7zip_jll\r\n┌ Warning: `vendor()` is deprecated, use `BLAS.get_config()` and inspect the output instead\r\n│   caller = npyinitialize() at numpy.jl:67\r\n└ @ PyCall ~/.julia/packages/PyCall/L0fLP/src/numpy.jl:67\r\nStarted!\r\n\r\n``\r\n \r\n**Version**\r\nUbuntu 20.04\r\njulia 1.7.1\r\n\r\n**Additional context**\r\nI am trying this example on the terminal directly.\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Is this in ipython or python?\r\n\r\nCould you try typing q, then \\<enter\\> multiple times?\r\n\r\nI note that the quit won't happen immediately; it will take up to a couple seconds to quit, so that the backend has time to collect the current populations.",
               "createdAt": "2022-02-03T16:25:40Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I also wonder if it could be because your python is statically linked to libpython - maybe julia can't read stdin when this happens? If other things don't work, you could try setting up a dynamically linked python with:\r\n\r\n```bash\r\nPYTHON_CONFIGURE_OPTS=\"--enable-shared\" pyenv install 3.9.10\r\n```\r\n(after installing pyenv).",
               "createdAt": "2022-02-03T16:35:09Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "shikharmittal04"
               },
               "body": "I am using python. Thanks for the suggestions. I installed pyenv following the procedure on the page [https://www.liquidweb.com/kb/how-to-install-pyenv-on-ubuntu-18-04/](https://www.liquidweb.com/kb/how-to-install-pyenv-on-ubuntu-18-04/).\r\nI also did `PYTHON_CONFIGURE_OPTS=\"--enable-shared\" pyenv install 3.9.10` but I still get the same warning. And q +enter doesn't quit the run.",
               "createdAt": "2022-02-03T16:39:26Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I'm not sure where this error is coming from, sorry. If I could reproduce it I could take a look at this but I don't see this behavior on any of my machines so I'm not sure where to start. Maybe you could try to write a python unittest for this?\r\n\r\nHere are the current tests:\r\nhttps://github.com/MilesCranmer/PySR/blob/master/test/test.py\r\n\r\nThe run on ubuntu, macOS, and Windows. If a test breaks on one of these systems, I can try to debug it from there?",
               "createdAt": "2022-02-11T23:46:07Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "shikharmittal04"
               },
               "body": "Hi, I have to run this code as it is, right? Should there be any output or something, because the code did run with no errors?",
               "createdAt": "2022-02-13T04:24:37Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Oh, sorry, what I mean is to try to add a new test to `test.py` that tests the behavior you've seen. It would basically need to manually send 'q' through stdin to stop a test early.\r\nThis is a bit of work but I don't have the time to add it right now. I can look later, but in the meantime, if you would like, you could try setting this up?",
               "createdAt": "2022-02-13T05:37:15Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOPduS9w=="
           }

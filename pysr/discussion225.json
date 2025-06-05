@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 225,
         "title": "Double slash while using model.latex()",
         "body": "Hi,\r\n\r\nI am not sure if it is a bug so I put it here:\r\n\r\nHow can I remove the `\\\\` in the latex output? I only need one slash `\\` for the convenience of equation examination.\r\n\r\nmodel.latex()\r\n`x_{3} \\\\left(- \\\\frac{x_{0}}{x_{4}} + x_{3}\\\\right) \\\\left(\\\\frac{x_{2}}{\\\\left(x_{1} + 0.703\\\\right)^{3}} + 1.90\\\\right)`\r\n\r\nBest,\r\n\r\nMike",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "You can do `print(model.latex())` and they will change in the printout ",
               "createdAt": "2022-11-16T16:50:39Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0xMS0xNlQxNjo1MDozOSswMDowMM4AP3bF"
           }

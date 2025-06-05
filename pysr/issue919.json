@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 919,
+        "title": "[BUG]: Julia AttributeError when using TemplateExpressionSpec with multidimensional y",
+        "body": "### What happened?\n\n`model.fit(X, y)` error out due to Julia AttributeError when applying `TemplateExpressionSpec` on a two dimensional `y`.\n\n### MRE\n```python\nimport numpy as np\nfrom pysr import PySRRegressor, TemplateExpressionSpec\n\n# Create data\nX = np.random.randn(1000, 3)\ny = np.stack(\n    [\n        np.sin(X[:, 0] + X[:, 1]) + X[:, 2] ** 2,\n        np.sin(X[:, 0] - X[:, 1]) + X[:, 2] ** 3,\n    ],\n    axis=1,\n)\n\n# Define template: we want sin(f(x1, x2)) + g(x3)\ntemplate = TemplateExpressionSpec(\n    expressions=[\"f\", \"g\"],\n    variable_names=[\"x1\", \"x2\", \"x3\"],\n    combine=\"sin(f(x1, x2)) + g(x3)\",\n)\n\nmodel = PySRRegressor(\n    expression_spec=template,\n    binary_operators=[\"+\", \"*\", \"-\", \"/\"],\n    unary_operators=[\"sin\"],\n    maxsize=10,\n)\nmodel.fit(X, y)\n\n```\n\n### Version\n\n1.5.6\n\n### Operating System\n\nmacOS\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\nTraceback (most recent call last):\n  File \"/Users/wyn/Documents/Github/nacs-modeling/tln_modeling/tmp.py\", line 27, in <module>\n    model.fit(X, y)\n  File \"/Users/wyn/miniconda3/envs/Ark/lib/python3.11/site-packages/pysr/sr.py\", line 2289, in fit\n    self._run(X, y, runtime_params, weights=weights, seed=seed, category=category)\n  File \"/Users/wyn/miniconda3/envs/Ark/lib/python3.11/site-packages/pysr/sr.py\", line 2124, in _run\n    self.equations_ = self.get_hof(out)\n                      ^^^^^^^^^^^^^^^^^\n  File \"/Users/wyn/miniconda3/envs/Ark/lib/python3.11/site-packages/pysr/sr.py\", line 2636, in get_hof\n    ret_outputs = [\n                  ^\n  File \"/Users/wyn/miniconda3/envs/Ark/lib/python3.11/site-packages/pysr/sr.py\", line 2641, in <listcomp>\n    self.expression_spec_.create_exports(self, output, search_output),\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/wyn/miniconda3/envs/Ark/lib/python3.11/site-packages/pysr/expression_specs.py\", line 316, in create_exports\n    return _search_output_to_callable_expressions(equations, search_output)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/wyn/miniconda3/envs/Ark/lib/python3.11/site-packages/pysr/expression_specs.py\", line 388, in _search_output_to_callable_expressions\n    expression = out_hof.members[curComplexity - 1].tree\n                 ^^^^^^^^^^^^^^^\n  File \"/Users/wyn/.julia/packages/PythonCall/WMWY0/src/JlWrap/any.jl\", line 249, in __getattr__\n    return self._jl_callmethod($(pyjl_methodnum(pyjlany_getattr)), k)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: Julia: type Array has no field members\n```\n\n### Extra Info\n\n_No response_",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Confirming this is a real bug. I'm trying to fix it now.",
+              "createdAt": "2025-05-13T16:05:30Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOq32SKQ=="
+          }
+        }
+      }
+    }
+  }
+}

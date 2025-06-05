@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 871,
+        "title": "[Refactor]: Use SymPy's built-in torch export",
+        "body": "Seems like SymPy now has a native PyTorch export: https://github.com/sympy/sympy/pull/27760. I think it would reduce internal complexity if we depend on that rather than hand-rolling our own.\n\nThe one downside is that those exported modules are not trainable. But maybe that's actually better, depending on how people actually want to use the model? Would be a breaking change though.",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

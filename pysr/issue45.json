@@ -1,180 +1,154 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 45,
         "title": "Performance speed-up options?",
         "body": "Hello Miles! Thank you for open-sourcing this powerful tool! I am working on including PySR in my own research, and running into some performance bottlenecks.\r\n\r\nI found regressing a simple equation (e.g. the quick-start example) takes roughly 2 minutes. Ideally, I am aiming to reduce that time to ~30 seconds. Would you give me some pointers on this? Meanwhile, I will try break down the challenge in several pieces:\r\n\r\n1. Activating a **new environment** at each API call: I noticed that a new Julia (?) environment is created each time I call pysr() api (see terminal output below). Could we keep the environment up so we can skip this process for subsequent calls?\r\n```\r\nRunning on julia -O3 /tmp/tmpe5qmgemh/runfile.jl\r\n  Activating environment at `~/anaconda3/envs/rw/lib/python3.7/site-packages/Project.toml`\r\n    Updating registry at `~/.julia/registries/General`\r\n  No Changes to `~/anaconda3/envs/rw/lib/python3.7/site-packages/Project.toml`\r\n  No Changes to `~/anaconda3/envs/rw/lib/python3.7/site-packages/Manifest.toml`\r\nActivating environment on workers.\r\n  Activating environment at `~/anaconda3/envs/rw/lib/python3.7/site-packages/Project.toml`\r\n  Activating environment at `~/anaconda3/envs/rw/lib/python3.7/site-packages/Project.toml`\r\n  Activating  Activating  environment at `~/anaconda3/envs/rw/lib/python3.7/site-packages/Project.toml`\r\nenvironment at `~/anaconda3/envs/rw/lib/python3.7/site-packages/Project.toml`\r\n  Activating  Activating environment at `~/anaconda3/envs/rw/lib/python3.7/site-packages/Project.toml` \r\nenvironment at `~/anaconda3/envs/rw/lib/python3.7/site-packages/Project.toml`\r\nImporting installed module on workers...Finished!\r\nStarted!\r\n```\r\n\r\n2. If the above wouldn't work, then **allowing y to be vector-valued** (as mentioned in #35) would be a second-best option! Even better, if we could create a \"batched\" version of `pysr(X, y)` api `pysr_batched(X, y)`, such that `X` and `y` are python lists, and we return the results in a list as well, so that we only generate one Julia script, and call `os.system()` once to keep the Julia environment up.\r\n\r\n3. **Multi-threading**: I noticed that increasing `procs` from 4 to 8 resulted in slightly longer running time. I am running on a 8-core 16-tread CPU. Did I do something dumb?\r\n\r\n4. I went into `pysr/sr.py` and added `runtests=false` flag in line 438 and 440. That saved ~20 seconds.\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @yxie20,\r\n\r\nThanks for trying out PySR! Your suggestions are very good - I think having some batched call so that processes don't need to start for each dimension would be really nice.\r\n\r\n1. The workers aren't creating an environment, but rather, activating a Julia environment. This is done within each process. This is expensive at startup, but it should be negligible for long running jobs. This is required for multi-node computation since they are entirely separate processes. For single node, it would be nice to have multiple threads instead, but I think having a single interface makes things easier to maintain. For very short jobs, you can do `procs=0` which turns off multiprocessing but avoids this expensive startup. That may be a good solution to multi-dimensional output in the short term, actually?\r\n2. Good suggestions; would be nice to add, and I'd be very interested in having this too! Will take a few code changes in the [backend](https://github.com/MilesCranmer/SymbolicRegression.jl) but I think there's a smart way to do it that would incur very few structural changes.\r\n3. This is probably just because of startup time. More procs means more work for the head node. In the limit of large runtimes, more procs will be better (assuming you have populations>procs), but for very short runtimes indeed it will hurt. You can turn off multiprocessing with procs=0. On a 16 thread CPU you could do 16 procs, and have populations=2*16 so each thread is always occupied. Also, if you have many procs, you might want to increase ncyclesperiteration so that the processes take longer between sending results back to the head node; that way it doesn't get saturated.\r\n4. `runtests=True` runs some tests on the backend before execution. This includes things like testing user operators for bad definitions (e.g., `sqrt` instead of `sqrt_abs` - although I automatically swap these now), whether user-defined operators are successfully copied to processes on other nodes, and also testing whether the whole pipeline works. I think it's good to have as a default to flag issues that are difficult to debug once the pipeline is actually running, but indeed if you know your setup already works and want speed, you can turn it off.\r\n\r\nHopefully this helps!\r\nCheers,\r\nMiles",
               "createdAt": "2021-05-26T16:55:49Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "FYI I just added multi-output capabilities to the backend! On the `multi-output` branch in SymbolicRegression.jl. Will work its way into PySR soon enough.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2021-05-26T20:17:41Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "yxie20"
               },
               "body": "Thank you Miles! I'm excited to give it a try! Now a basic question: How can I update the Julia backend so that I PySR can use the `multi-output` branch?\r\n\r\nThanks again!",
               "createdAt": "2021-05-28T15:18:32Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "It will be in v0.6.0 of PySR. Not ready yet; I'll write when it is.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2021-05-28T18:45:03Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Release candidate is up:\r\n```bash\r\npip install --upgrade pysr==0.6.0rc1\r\n```\r\nIt will allow for a matrix of y.\r\n\r\nLet me know how this works!\r\nCheers,\r\nMiles",
               "createdAt": "2021-05-30T06:17:52Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "yxie20"
               },
               "body": "Looks like we got an error:\r\n```\r\nImporting installed module on workers...Finished!\r\nTesting module on workers...Finished!\r\nTesting entire pipeline on workers...Finished!\r\nStarted!\r\nERROR: LoadError: SystemError: opening file \"out2_/tmp/tmpjk5ery5w/hall_of_fame.csv\": No such file or directory\r\nStacktrace:\r\n  [1] systemerror(p::String, errno::Int32; extrainfo::Nothing)\r\n    @ Base ./error.jl:168\r\n  [2] #systemerror#62\r\n    @ ./error.jl:167 [inlined]\r\n  [3] systemerror\r\n    @ ./error.jl:167 [inlined]\r\n  [4] open(fname::String; lock::Bool, read::Nothing, write::Nothing, create::Nothing, truncate::Bool, append::Nothing)\r\n    @ Base ./iostream.jl:293\r\n  [5] open(fname::String, mode::String; lock::Bool)\r\n    @ Base ./iostream.jl:355\r\n  [6] open(fname::String, mode::String)\r\n    @ Base ./iostream.jl:355\r\n  [7] open(::SymbolicRegression.var\"#47#73\"{Options{Tuple{typeof(+), typeof(*)}, Tuple{typeof(cos), typeof(exp), typeof(sin)}, L2DistLoss}, Vector{PopMember}, SymbolicRegression.../Dataset.jl.Dataset{Float32}}, ::String, ::Vararg{String, N} where N; kwargs::Base.Iterators.Pairs{Union{}, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})\r\n    @ Base ./io.jl:328\r\n  [8] open\r\n    @ ./io.jl:328 [inlined]\r\n  [9] EquationSearch(datasets::Vector{SymbolicRegression.../Dataset.jl.Dataset{Float32}}; niterations::Int64, options::Options{Tuple{typeof(+), typeof(*)}, Tuple{typeof(cos), typeof(exp), typeof(sin)}, L2DistLoss}, numprocs::Int64, procs::Nothing, runtests::Bool)\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/8HpEO/src/SymbolicRegression.jl:398\r\n [10] EquationSearch(X::Matrix{Float32}, y::Matrix{Float32}; niterations::Int64, weights::Nothing, varMap::Vector{String}, options::Options{Tuple{typeof(+), typeof(*)}, Tuple{typeof(cos), typeof(exp), typeof(sin)}, L2DistLoss}, numprocs::Int64, procs::Nothing, runtests::Bool)\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/8HpEO/src/SymbolicRegression.jl:144\r\n [11] top-level scope\r\n    @ /tmp/tmpjk5ery5w/runfile.jl:7\r\nin expression starting at /tmp/tmpjk5ery5w/runfile.jl:7\r\nTraceback (most recent call last):\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pysr/sr.py\", line 759, in get_hof\r\n    all_outputs = [pd.read_csv(f'out{i}_' + str(equation_file) + '.bkup', sep=\"|\") for i in range(1, nout+1)]\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pysr/sr.py\", line 759, in <listcomp>\r\n    all_outputs = [pd.read_csv(f'out{i}_' + str(equation_file) + '.bkup', sep=\"|\") for i in range(1, nout+1)]\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pandas/io/parsers.py\", line 610, in read_csv\r\n    return _read(filepath_or_buffer, kwds)\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pandas/io/parsers.py\", line 462, in _read\r\n    parser = TextFileReader(filepath_or_buffer, **kwds)\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pandas/io/parsers.py\", line 819, in __init__\r\n    self._engine = self._make_engine(self.engine)\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pandas/io/parsers.py\", line 1050, in _make_engine\r\n    return mapping[engine](self.f, **self.options)  # type: ignore[call-arg]\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pandas/io/parsers.py\", line 1867, in __init__\r\n    self._open_handles(src, kwds)\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pandas/io/parsers.py\", line 1368, in _open_handles\r\n    storage_options=kwds.get(\"storage_options\", None),\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pandas/io/common.py\", line 647, in get_handle\r\n    newline=\"\",\r\nFileNotFoundError: [Errno 2] No such file or directory: 'out1_/tmp/tmpjk5ery5w/hall_of_fame.csv.bkup'\r\n\r\nDuring handling of the above exception, another exception occurred:\r\n\r\nTraceback (most recent call last):\r\n  File \"batch_test.py\", line 20, in <module>\r\n    temp_equation_file=True,\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pysr/sr.py\", line 365, in pysr\r\n    equations = get_hof(**kwargs)\r\n  File \"/home/yxie20/anaconda3/envs/rw/lib/python3.7/site-packages/pysr/sr.py\", line 763, in get_hof\r\n    raise RuntimeError(\"Couldn't find equation file! The equation search likely exited before a single iteration completed.\")\r\nRuntimeError: Couldn't find equation file! The equation search likely exited before a single iteration completed.\r\n```",
               "createdAt": "2021-06-05T20:39:59Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Sorry, this looks like a bug. I missed the behavior where both `temp_equation_file=True` and `multioutput=True`. Will fix now.",
               "createdAt": "2021-06-06T05:03:35Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Fixed in 0.6.3+",
               "createdAt": "2021-06-06T06:56:27Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "yxie20"
               },
               "body": "Thank you Miles! It seems like 0.6.3 is even slower than before. \r\n\r\n1) Did you change any default argument values?\r\n\r\n2) How come even if I set niterations to 5, pysr still runs 200 iterations? (I think this is the main reason why 0.6.3 runs much slower.\r\n\r\n3) Is there an early-stop option possible, perhaps based on MSE score to further speed-up the performance?\r\n\r\n4) I am also getting weird printout like this during the first few iterations:\r\n```\r\n==============================\r\n\r\nCycles per second: 0.000e+00\r\nHead worker occupation: 0.0%\r\nProgress: 0 / 200 total iterations (0.000%)\r\n==============================\r\nBest equations for output 1\r\nHall of Fame:\r\n-----------------------------------------\r\nComplexity  Loss       Score     Equation\r\n\r\n==============================\r\n```\r\n",
               "createdAt": "2021-06-07T12:42:50Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "1. Yes, the default arguments now do more iterations and have a larger number of populations, resulting in the default run taking longer. `annealing` has also been set to false, which makes simple equations take longer, but more complex equations achievable. For simple equations you could probably set `annealing=True` again.\r\n2. `niterations` arguments is iterations per population, so the progress bar shows `populations*niterations`.\r\n3. No, but you can set the `timeout` argument or hit `<ctrl-c>`. Might be nice to have a user-set condition for early stopping though, that's a good point.\r\n4. What do you mean by \"first few iterations\"? Do you mean it has 0 equations but several iterations have passed?",
               "createdAt": "2021-06-07T15:17:55Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "By the way, if you want smaller startup time, you could set `julia_optimization=0`. That will turn off the optimizing compiler for the Julia code, which should let it start faster.",
               "createdAt": "2021-06-07T15:20:03Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "yxie20"
               },
               "body": "Thank you for 1) and 2)! Looking forward to 3)!\r\n\r\nFor 4), exactly as you said. I get a few of those empty (zero equations) for several iterations. It always says:\r\n```\r\nCycles per second: 0.000e+00\r\nHead worker occupation: 0.0%\r\nProgress: 0 / <however much> total iterations (0.000%)\r\n``` \r\nthen no equations listed. After about 2 minutes of hanging, the normal printout appears. The hanging is much longer when populations is set to a large number.\r\n\r\nThe results are fine! Maybe it's nothing to worry about!",
               "createdAt": "2021-06-07T18:58:30Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "It doesn't say \"Progress: 1 / ...\", right? It's stuck at \"Progress: 0\"? This is expected behaviour, although maybe I should wait for some equations before starting the printing.\r\n\r\nBy the way - on PySR 0.6.5, which will be up later today - I added a patch which boosts performance by nearly 2x. It turns out the optimization library I was using (main bottleneck) did not require a differentiable function, so I implemented a faster non-differentiable version.",
               "createdAt": "2021-06-08T17:55:07Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "One other idea. The backend of PySR is in Julia, and Julia has a bit of a slow startup time, hence the slow startup of PySR.\r\n\r\nThere's a way to avoid the startup time, by using this package - https://github.com/dmolina/DaemonMode.jl. It would probably let you execute PySR runs in quick succession. The idea would be to startup a Julia daemon when first running PySR, pre-compile SymbolicRegression in that daemon, then execute each new script within that daemon. Thus, you wouldn't need to restart Julia everytime you call PySR.\r\n\r\nEdit: just tried it; it doesn't really help. ",
               "createdAt": "2021-06-09T03:43:30Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "More ideas, which would probably help quite a bit:\r\n\r\n1. Use `Threads` instead of `Distributed`. That would cut down on startup time quite a bit, since you are only using a single Julia process instead of one for each `procs`.\r\n2. Get PySR to start Julia with workers `julia -p {procs}`, rather than create them dynamically and copy-in user definitions.\r\n3. Make EquationSearch specialize to type of parallelism, rather than have it as a variable.",
               "createdAt": "2021-06-20T04:04:42Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "yxie20"
               },
               "body": "Following up: If early-stop (based on MSE) can be implemented, that would be super helpful in speeding up pysr on my end, where I have PySR running inside a large for loop. Do you think this is possible? Thank you! ",
               "createdAt": "2021-07-03T15:11:40Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Sure; what sort of things would you want to trigger the stop? An absolute error reached, or relative error, or something like no error improvement for N iterations?",
               "createdAt": "2021-07-05T03:48:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "yxie20"
               },
               "body": "I think both 2) relative error and 3) convergence makes sense! I can work with 1) absolute error as well. For my purposes, having both 2) and 3) or 1) and 3) will be sufficient.\r\n\r\nThank you, Miles!",
               "createdAt": "2021-07-05T13:41:03Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "yxie20"
               },
               "body": "Just a note on multiple-output (output y being dimensional) with early exit: \r\nRight now it seems like we compute each output dimension sequentially. To make early exit work correctly, we should probably early-exit on each dimension, so we don't exit when first few dimensions have finished while the rest hasn't started.\r\n\r\nThanks again!",
               "createdAt": "2021-07-07T00:07:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "FYI `multithreading` is now an option in PySR v0.6.11. That should help startup time.\r\n\r\n> Right now it seems like we compute each output dimension sequentially. \r\n\r\nActually, each output is computed at the same time asynchronously. One particular batch of computation may finish earlier than another, which might make it seem that it is done sequentially. \r\n\r\n> we should probably early-exit on each dimension, so we don't exit when first few dimensions have finished while the rest hasn't started.\r\n\r\nThis is a really good idea to do early stopping on each output separately. That would free up more cores for the remaining outputs.",
               "createdAt": "2021-07-12T21:28:02Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHONF6Duw=="
           }

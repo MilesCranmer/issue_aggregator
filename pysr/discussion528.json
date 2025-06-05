@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 528,
         "title": "A priori functional form with repeated functions",
         "body": "How would I force PySR to output functions only of the form y = f(x1) + f(x2) + f(x3) (it is important that f is the same for all three). I've been following discussion #291. I've been trying to achieve this by modifying the objective function. So far, I have the following. \r\n\r\n```julia\r\n# See if features in an expression:\r\nfunction contains(t, features)\r\n    if t.degree == 0\r\n        return !t.constant && t.feature in features\r\n    elseif t.degree == 1\r\n        return contains(t.l, features)\r\n    else\r\n        return contains(t.l, features) || contains(t.r, features)\r\n    end\r\nend\r\n\r\nfunction objective_function(tree, dataset::Dataset{T,L}, options) where {T,L} \r\n    #Ensures that the top node has two children\r\n    tree.degree != 2 && return L(Inf)\r\n    left = tree.l \r\n    right = tree.r \r\n\r\n    #Sets that the left side also has 2 children\r\n    left.degree != 2 && return L(Inf)\r\n    bot_left = left.l \r\n    bot_right = left.r \r\n\r\n    #Evaluates each of the parts\r\n    bot_left_pred, flag = eval_tree_array(bot_left, dataset.X, options)\r\n    !flag && return L(Inf)\r\n\r\n    bot_right_pred, flag = eval_tree_array(bot_right, dataset.X, options)\r\n    !flag && return L(Inf)\r\n\r\n    right_pred, flag = eval_tree_array(right, dataset.X, options)\r\n    !flag && return L(Inf)\r\n\r\n    #Sets form f(r12) + f(r13) + f(r23)\r\n    prediction = right_pred .+ bot_left_pred .+ bot_right_pred\r\n\r\n    #Takes out the wrong r from each equation\r\n    right_violating = Int(contains(right, (2,3))) + Int(!contains(right, 1))\r\n    bot_left_violating = Int(contains(bot_left, (1,3))) + Int(!contains(bot_left, 2))\r\n    bot_right_violating = Int(contains(bot_right, (1, 2))) + Int(!contains(bot_right, 3))\r\n\r\n    #Punishes having the wrong variables in the wrong equations\r\n    regularization = L(10000) * (right_violating .+ bot_left_violating .+ bot_right_violating)\r\n\r\n    #Returns squared error\r\n    diffs = prediction - dataset.y\r\n    return sum(diffs .^ 2) / length(diffs) + regularization\r\nend\r\n```\r\n\r\nThis has problems however. First of all, many functions generated do not even take the form y = f(x1) + g(x2) + h(x3), let alone having f = g = h. I'm stuck on how to proceed, and any help would be appreciated. Please note that this is also my first time seriously working with Julia, so any pointers on the language itself would also be very welcome.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Oh, if `f` is the same for all three, it might be easier to just use the original `tree` passed and simply evaluate with different inputs each time?\r\n\r\nFor example:\r\n\r\n```julia\r\nfunction objective_function(tree, dataset::Dataset{T,L}, options) where {T,L} \r\n    # Want base tree to have x1 as only feature; any other feature node will return early:\r\n    if any(node -> node.degree == 0 && !node.constant && node.feature != 1, tree)\r\n        return L(1e9)\r\n    end\r\n\r\n    # Evaluate once with only the feature passed\r\n    # which is like you are setting x1=x1, then x1=x2, then x1=x3.\r\n    f_x1, flag = eval_tree_array(tree, (@view dataset.X[[1], :]), options)  # Or just `dataset.X` is good too as it will take the first col anyways\r\n    !flag && return L(1e8)\r\n    f_x2, flag = eval_tree_array(tree, (@view dataset.X[[2], :]), options)\r\n    !flag && return L(1e8)\r\n    f_x3, flag = eval_tree_array(tree, (@view dataset.X[[3], :]), options)\r\n    !flag && return L(1e8)\r\n    \r\n    prediction = f_x1 .+ f_x2 .+ f_x3\r\n    \r\n    ...\r\nend\r\n```\r\n\r\nJust keep in mind the printed output is just going to be `f(x1)` even though it's evaluating the three combined.\r\n\r\nHopefully this helps. Btw the `L(1e9)` followed by `L(1e8)` stuff is just to reward the model for getting a bit farther through the loss function so it knows the direction to evolve in (whereas with `L(Inf)` it can't tell).",
               "createdAt": "2024-01-18T00:02:10Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMS0xOFQwMDowMjoxMCswMDowMM4AfI9Z"
           }

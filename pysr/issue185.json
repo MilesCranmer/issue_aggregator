@@ -1,108 +1,91 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 185,
         "title": "[BUG] Julia updating even when `update=False`",
         "body": "Hi, I hope you are doing well.\r\nI used PySR to solve the example on the PySR github page. However, each time I run the code, it upgrades Julia. I would appreciate it if you could tell me what the problem is. It is worth mentioning that I use a virtual environment for my code. You can see the results below.\r\n\r\nVersion (please include the following information):\r\n- OS: Ubuntu: 20.04.4\r\n- Julia version: 1.6.7\r\n- Python version: 3.9.12\r\n- PySR version: 0.10.1\r\n\r\n![Screenshot from 2022-09-04 18-59-58](https://user-images.githubusercontent.com/33625204/188320203-c7b54cc6-6501-4713-9a1b-71b303b02c16.png)\r\n![Screenshot from 2022-09-04 18-58-18](https://user-images.githubusercontent.com/33625204/188320210-202efc2a-88b5-4079-864d-6574bad2fd3a.png)\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @aminravanbakhsh,\r\nThis is normal behaviour. It is updating packages, not updating Julia itself. \r\n\r\nYou can disable this behaviour with `update=False`.\r\n\r\nAlso note that this only occurs the first time you run `fit(X, y)` in a Python process. Subsequent calls will not do this. If you quit and re-open Python, it will happen again. \r\n\r\nBest,\r\nMiles",
               "createdAt": "2022-09-04T15:46:28Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "aminravanbakhsh"
               },
               "body": "Hi Miles,\r\nThanks for your response. However, I used \"update = False\" and it didn't work. Do you have any other ideas about this?\r\n\r\nRegards,\r\nAmin",
               "createdAt": "2022-09-05T12:54:16Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Okay, that seems like a mistake. I just looked and indeed `Pkg.instantiate()` is called even when `update=False`.\r\n\r\nI pushed a fix to master.\r\n\r\nCan you try with the version on master? i.e., `pip install -U git+https://github.com/MilesCranmer/PySR.git@master`.\r\n\r\n**Note that since this is a new version, the first time you run it, you need to have `update=True`, so that the new environment can be installed. Subsequent calls can have `update=False`, though.**",
               "createdAt": "2022-09-05T13:34:38Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "aminravanbakhsh"
               },
               "body": "Thanks for your attention.\r\nUnfortunately it didn't work for me. Do you have any other ideas?",
               "createdAt": "2022-09-05T14:51:46Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Can you try now? (i.e., re-run the `pip install`?)\r\n\r\nNote that it will still display the `Activating project` message. It shouldn't display the `Updating registry` message now though.",
               "createdAt": "2022-09-05T16:15:56Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "aminravanbakhsh"
               },
               "body": "Unfortunately it didn't work too. \r\nI tried to reinstall the PySR. I received this warning, maybe it could help.\r\n\r\n![Screenshot from 2022-09-06 12-16-31](https://user-images.githubusercontent.com/33625204/188579869-41068a4a-9014-4061-8168-95b0cf61c6bd.png)\r\n\r\n",
               "createdAt": "2022-09-06T08:00:54Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "@aminravanbakhsh can you be more specific about what’s not working? From my test it seems like everything is good to go. ",
               "createdAt": "2022-09-06T13:30:22Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "aminravanbakhsh"
               },
               "body": "I am just saying that every time I run the code, it updates the registry, even when I reinstalled the PySR. I am just using a virtual environment on my Ubuntu 20.04.",
               "createdAt": "2022-09-06T14:24:14Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "It might not have updated your `pysr` since it is the same version before and after the fix. Can you run `pip uninstall pysr && pip install -U git+https://github.com/MilesCranmer/PySR.git@master`?\r\n\r\nYou are using `update=False`, right?",
               "createdAt": "2022-09-06T14:45:58Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "aminravanbakhsh"
               },
               "body": "Thanks for your helps Miles! It worked and I didn't receive the update message. However, it took a lot of time to start the process. Is it OK? Moreover, I am interested in how PySR works. Is there any paper that describes the PySR algorithm? ",
               "createdAt": "2022-09-07T12:51:06Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Awesome - yeah the first time you run it will take a while since Julia is compiling the backend. The second time you call `.fit()` (within the same Python instance) will be much faster though.\r\n\r\nPaper out soon!",
               "createdAt": "2022-09-07T15:08:41Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOSeGKig=="
           }

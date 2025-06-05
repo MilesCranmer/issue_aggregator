@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 556,
         "title": "How to Implement Operators for Sequence Data Calculation?",
         "body": "Hello, and thank you for your work. I've been exploring some operators for sequence data recently, such as calculating the mean of sequence data. However, I noticed that PySR operates on individual data pairs (x1, x2, x3, ...) - (y1) rather than matrices or sequences. Could you advise on how I might configure or modify PySR to achieve the functionality I'm looking for? Thank you in advance for your response.\r\n\r\nfor example:\r\nI want to use `shift(1)`, when I input series (x1, x2, ... , xn), I can get  ( x2, x3, ..., xn, Nan)\r\nor\r\nuse `mean(x)`, when I input series (x1, x2, ... , xn) , I can get `avg(x)`, (x1+x2+...+xn)/n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Related:\r\n\r\n- https://github.com/MilesCranmer/PySR/discussions/426\r\n- https://github.com/MilesCranmer/PySR/discussions/401\r\n- https://github.com/MilesCranmer/PySR/discussions/275\r\n- https://github.com/MilesCranmer/PySR/discussions/181",
               "createdAt": "2024-02-28T09:42:09Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMi0yOFQwOTo0MjowOSswMDowMM4Ag3iG"
           }

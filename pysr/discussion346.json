@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 346,
         "title": "Number of evaluated expressions (parameters)",
         "body": "Hello,\r\nI am comparing the performance of different symbolic regression approaches based on the number of evaluated expressions (Max 100,000). Could someone help me to understand which parameters should I set (and maybe which parameters are the most important) to constrain the approach to max 100.000 evaluations? \r\nI presume I must change parameters: niterations, populations, population_size, and ncyclesperiteration, but I am not sure how\r\nThank you in advance,\r\nSebastian",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "There is the `max_evals` parameter to set a max evaluations.\r\n\r\nNote that the library has been tuned for performance in terms of *wall time*, rather than efficiency in terms of evaluations. So taking the default parameters will be quite suboptimal for evaluation efficiency. Sadly I’m not sure which parameters are most relevant for such an performance metric.",
               "createdAt": "2023-06-07T13:53:48Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNi0wN1QxNDo1Mzo0OCswMTowMM4AXUJm"
           }

@@ -1,18 +1,13 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 435,
         "title": "[Feature]: Make sympy2torch export functions, not objects",
         "body": "### Feature Request\n\nRight now sympy2jax is functional. It returns a dictionary containing a function and some parameters. However, sympy2torch is object-oriented. It returns a module. \r\n\r\nI think the functional approach is a bit simpler so would reduce maintenance burden. From my experience trying to add `sympy.Piecewise` in #433, it's quite a bit of work. Therefore, for torch export, you would basically have a tensor of parameters and a function that takes that tensor and an array input. So you could do what you like with that, including putting it inside a class. But it's harder to go the other way, from an exported object back to a function.\r\n\r\nThe functional approach is also better for MCMC'ing parameters, which you can't really do with the PyTorch export right now.",
-        "comments":
-        {
+        "comments": {
           "nodes": [],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": null
           }

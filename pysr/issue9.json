@@ -1,60 +1,49 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 9,
         "title": "Potential speed regression",
         "body": "I think the speed might have taken a hit, for small populations, on my laptop ever since I switched from Threads to Distributed. Using Distributed is necessary to use this package across multiple nodes, but the fact that the speed seems noticeably different is a sign that I am doing something wrong.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Quick update: it seems like adding `@inbounds` to the following loop:\r\n\r\n```julia\r\n@inbounds for i=1:npopulations\r\n```\r\n\r\nseems to help **significantly**. This is one difference with the Threads code - I declare `@inbounds` at the start of this loop.\r\n\r\nIt seems as though Julia might have been checking for race conditions otherwise. Yet, I know that race conditions aren't possible in this section of the code, since the hall of fame update is only done by the head worker, so `@inbounds` seems to help the compiler realize that.\r\n\r\nThis is essentially a 2-3x speedup!\r\n\r\nAlso: I need to add a proper benchmark test. I like numpy's tool https://asv.readthedocs.io/en/stable/ since it can be used to measure speed regressions across a commit history. ",
               "createdAt": "2020-09-29T11:06:06Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Seems like there are still significant speed reductions with a recent commit... See the cycles per second of travis build 39: https://travis-ci.com/github/MilesCranmer/PySR/builds/186862848, which gives 5.030e+04 cycles per second.\r\n\r\nBut the most recent travis build https://travis-ci.com/github/MilesCranmer/PySR/builds/187199749 gets 1.870e+04 cycles per second for what (I think) is the same test...",
               "createdAt": "2020-09-29T13:47:01Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Very strange... maybe it's a missing `@async` somewhere? \r\n\r\nSee diff in julia/sr.jl here: https://github.com/MilesCranmer/PySR/compare/121e6ac88be620a8ef4f899e2df2c937f06ae519...master",
               "createdAt": "2020-09-29T13:56:12Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Okay, fixed on master. Will push new pip version soon.\r\n\r\nThe issue was the nested recursive threading introduced in 3a578d21ebf3fb397f7dd912626f1cd3013c2bc1. \r\n\r\nReading this post: https://julialang.org/blog/2019/07/multithreading/, where they do this same nested recursive threading to compute Fibonnaci numbers, made me think that it could be used for all operations on binary trees in PySR. It is supposed to be fine with millions of threads, and threads calling threads calling threads...\r\n\r\nBut for whatever reason it seems to have hurt the performance a lot - perhaps it doesn't play nice with Distributed also being used. ",
               "createdAt": "2020-09-29T15:47:56Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Benchmarks on v0.3.X with 4-core runs have been added to the `benchmarks/` folder. They are copied below:\r\n\r\nVersion | Cycles/second\r\n--- | ---\r\nv0.3.2 | 37526\r\nv0.3.3 | 38400\r\nv0.3.4 | 28700\r\nv0.3.5 | 32700\r\nv0.3.6 | 25900\r\nv0.3.7 | 26600\r\nv0.3.8 | 7470\r\nv0.3.9 | 6760\r\nv0.3.10 | \r\nv0.3.11 | 19500\r\nv0.3.12 | 19000\r\nv0.3.13 | 15200\r\nv0.3.14 | 14700\r\nv0.3.15 | 42000\r\n\r\nSo v0.3.15 has gotten rid of the speed regressions throughout v0.3.",
               "createdAt": "2020-09-29T20:35:20Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOKcf5_g=="
           }

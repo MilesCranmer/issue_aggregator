@@ -1,52 +1,42 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 143,
         "title": "[Feature] Refactor PySRRegressor to better support the scikit-learn interface",
         "body": "The current implementation of PySRRegressor loosely supports interfacing with scikit-learn. However, when trying to use PySRRegressor with scikit-learn functions such as `cross_val_score(PySRRegressor(), X, y)` it currently does not work. \r\nI think poviding full compatibility with scikit-learn would, for me at least, be very useful. \r\n\r\nThe easiest way to provide this additional compatibility would be refactoring the `PySRRegressor` to better conform with the [scikit-learn estimator development docs](https://scikit-learn.org/stable/developers/develop.html). \r\n\r\nTo do this the following should be done:\r\n1. No input validation in `__init__()`, instead validation should be performed in `.fit()`.\r\n2. No kwargs in `__init__()`.\r\n3. Move `__init__()` parameters that are not model hyper-parameters into `.fit()` or `.predict()`, e.g `tempdir` and `julia_project` are parameters that influence the execution of the model but not the model's result/score and thus should not be specified in `__init__()`.\r\n4.  By doing the above, the custom `set_params()` and `get_params()` methods in `PySRRegressor` can be removed, allowing the inherited `BaseEstimator` to provide these methods. This will make interfacing with scikit-learn functions such as `cross_val_score`  much simpler.\r\n5. Remove the `score` method in `PySRRegressor` that is currently `NotImplemented`. The `RegressorMixin` that `PySRRegressor` inherits provides a default scoring function that calculates an R^2 score.\r\n6. Estimated attributes such as `PySRRegrssor().equations` should have trailing underscores e.g `PySRRegrssor().equations_`. These attributes are values that are expected to be overriden each time `.fit()` is called.\r\n7. Docstrings are not in the perfered form.\r\n\r\n### Potential negative consequences\r\nThe biggest issue that I can see from making these modifications is the change to where execution parameters vs model hyper-parameters are definied. I.E parameters that are currently passed to the `PySRRegressor` constructor will need to be passed to `.fit()` instead. This would require users of PySR to update their code to the new format. Similarly, the current functionality to provide backwards compaitibility with decprecated keywords would be lost. However, personally, given the potential to simplify the code and more easily support other scikit-learn functions i think the benefits outweigh the cons.\r\n\r\nI'm really enjoying the package so far and I am more than happy to submit a pull-request for all of the above changes. \r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @tttc3,\r\n\r\nThanks so much for raising these points, I agree with everything you said. I would be very happy to accept a PR on this! Let me know how I can help.\r\n\r\nOne followup question: I have only ever seen scikit-learn estimators take hyperparameters in their `__init__()`, rather than `fit()`. Is (2) necessary because of the RegressorMixin? Could we skip (2) (and maybe also (3)), and the integration with scikit-learn functions still work? I thought `fit` is always passed `X, y` in the typical scikit-learn regressor models, rather than additional parameters–the additional parameters being saved from model instantiation?\r\n\r\nThanks again!\r\nMiles",
               "createdAt": "2022-05-23T15:54:35Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I do see your point about how parameters like `julia_project` and `tempdir` are runtime parameters so you might not want those passed from `get_params()`. For example, if I load someone's saved parameters, I wouldn't want it to use the same values for those.\r\n\r\nHowever, `n_jobs` is a typical parameter in scikit-learn models, and that seems to be similar to `julia_project`, for example, in that it would depend on what machine you are running it. So maybe it's fine to keep `julia_project` and `tempdir` in `__init__`.\r\n\r\nThoughts?",
               "createdAt": "2022-05-23T20:47:49Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "tttc3"
               },
               "body": "Having reread the fitting and instantiation portion of the docs I think I was wrong about the runtime parameters. The docs explicitly state **fit parameters should be restricted to directly data dependent variables**. Based on this, something like `variable_names` would make sense to go in `.fit()`, but as you've pointed out, `julia_project` etc... should probably stay in `__init__` as their values are not dependant on the data.\r\nGiven this, I think we skip point (3).\r\n\r\nI also think we should skip point (2). Having just ran some quick tests on `cross_val_score`, kwargs can stay in `__init__()` without any obvious issue. Because kwargs are only provided for backward compatibility and a `TypeError` is thrown for incompatible keywords in kwargs, the requirement that **every keyword argument accepted by __init__ should correspond to an attribute on the instance** is still met. The issues that I had experienced when calling `cross_val_score()` seem to have been caused by the custom `get_params()` and `set_params()` methods. ",
               "createdAt": "2022-05-24T10:27:45Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Sounds good to me! I also agree that `variable_names` really makes sense to go in `.fit()`.",
               "createdAt": "2022-05-24T15:43:13Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOQ7dnxQ=="
           }

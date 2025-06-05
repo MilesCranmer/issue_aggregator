@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 877,
+        "title": "Enforcing specific patterns of nested operators",
+        "body": "I am searching for expressions that involve logical operators and am trying to implement a custom \"implies\" and \"equals\" operator. I also have logical negation as one of my unary operators.\r\n\r\n```\r\njl.seval(\"\"\"`\r\n         function equals(x::T, y::T) where T\r\n            if x == y\r\n                return T(1.0)\r\n            else\r\n                return T(0.0)\r\n            end\r\n         end\r\n         \"\"\"\r\n         )\r\n```\r\n```\r\njl.seval(\"\"\"\r\n         function implies(x::T, y::T) where T\r\n            if (x != T(0.0) && x != T(1.0)) || (y != T(0.0) && y != T(1.0))\r\n                return T(NaN)\r\n            elseif (x == T(1.0) && y == T(0.0))\r\n                return T(0.0)\r\n            else\r\n                return T(1.0)\r\n            end\r\n         end\r\n         \"\"\"\r\n         )\r\n```\r\n\r\nFor an implies operator to make sense, I want to force a constraint that ''equals'' or ''logical negation'' appears nested _atleast_ once within the implies operator (so that it acts similar to a purely boolean logical operator and is not allowed to act on any arbitrary combination of features, constants and operators). \r\n\r\nLooking at the api, I could find the reverse constraint of the maximum number of nesting but not the minimum.\r\n\"Specifies how many times a combination of operators can be nested. For example, {\"sin\": {\"cos\": 0}}, \"cos\": {\"cos\": 2}} specifies that cos may never appear within a sin, but sin can be nested with itself an unlimited number of times. For binary operators, you only need to provide a single number: both arguments are treated the same way, and the max of each argument is constrained.\"\r\nIs this possible to do?\r\n\r\nCurrently I am trying to do this using a custom loss function and assigning a large loss to trees that don't have the right structure within an implies node (I looked at #721 to get an idea for this) Here is the relevant part of the custom loss function\r\n\r\n```\r\n# Require that `implies` always acts on an atomic formula. Both left and right children must either have `logical_neg` or `equals` as an operator.\r\n  equals_index = 3\r\n  implies_index = 4\r\n  logical_neg_index = 6\r\n\r\n  logical_error_implies = any(tree) do node\r\n    \r\n    is_implies_node = node.degree == 2 && node.op == implies_index\r\n\r\n    if is_implies_node\r\n      any(node) do node2\r\n        (node2.degree == 2 && node2.op != equals_index) || (node2.degree == 1 && node2.op != logical_neg_index) || (node2.constant) || (node2.feature)\r\n      end\r\n    else\r\n      false\r\n    end\r\n  end\r\n\r\n  if logical_error_implies\r\n    # Short circuit return if logical errors are present (that is, `implies` is not used correctly)\r\n    return L(loss.logicalErrorPenalty)\r\n  end\r\n```\r\n\r\nI am unsure what is wrong with my loss function as I still receive equations like: \r\n```\r\nequals(implies(width_D1, 0.021087242), logical_neg(-2.1764684))\r\n```\r\nas the best equation. width_D1 is the variable name for one of the features. The composition \"implies(width_D1, 0.021087242)\" should not be allowed. The loss I received for this equation is 1e6 while logicalErrorPenalty is 1e10 at the moment",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "There is the operators page here: https://ai.damtp.cam.ac.uk/pysr/operators/ that has a few logical operators. \r\n\r\nI'm not sure if this answers your question, could you say what in particular you are looking for",
+              "createdAt": "2025-03-23T15:21:08Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Ah, I think I understand now, thanks. \r\n\r\nAt the moment there is no way to enforce a negative limit on the number of times an operator is used within another one. Lower limits are really hard to insert into the search because often the search needs to \"step through\" an invalid expression to get to the final answer. Like if `cos(x * y)` was your final answer, you would need to go from `x` to `cos(x)` to `cos(x * y)`. So if you say that `cos` must always contain a `*`, it is probably hard to get there.\r\n\r\nSo, instead, what you need to do is include this kind of constraint in your loss function. It seems like you have already thought of that, which is great. \r\n\r\nMy suggestion to make this better is to make it a _soft_ penalty. Rather than throwing out a maximum loss whenever there is ANY mistake, you should count the number of mistakes, and multiply that with a penalty.\r\n\r\nThis gives the genetic algorithm a sense of direction, so it can move towards a correct expression. This is often better than just having a 0-or-infinity penalty system, where the genetic algorithm just has to make a lucky guess. If you can make it a softer penalty, that's better!\r\n\r\nSo in your code, I would suggest using a `count` and `sum` instead of an `any`, like this:\r\n\r\n```julia\r\n# Require that `implies` always acts on an atomic formula. Both left and right children must either have `logical_neg` or `equals` as an operator.\r\nequals_index = 3\r\nimplies_index = 4\r\nlogical_neg_index = 6\r\n\r\nnum_logical_errors = sum(tree) do node\r\n    is_implies_node = node.degree == 2 && node.op == implies_index\r\n    if is_implies_node\r\n        count(node) do node2\r\n            #= conditional check on node2 =#\r\n        end\r\n    else\r\n        0\r\n    end\r\nend\r\n\r\nif num_logical_errors > 0\r\n    # Short circuit return if logical errors are present (that is, `implies` is not used correctly)\r\n    return L(100 * num_logical_errors)\r\nend\r\n\r\n```\r\n\r\n`count` works similarly to `any` in Julia, but just counts the number of truths. ",
+              "createdAt": "2025-03-23T15:37:24Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Also I'm not sure I understand the conditional check, or maybe there's a bug there(?). Note that `node2.feature` is not a boolean. Furthermore you should only check `.constant` if you can verify that `node2.degree == 0`; otherwise it is random. (I need a proper API call for this at some point!)\r\n\r\nSee https://ai.damtp.cam.ac.uk/symbolicregression/dev/types/#Equations for the structure definition",
+              "createdAt": "2025-03-23T15:45:23Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0yM1QxNTo0NToyMyswMDowMM4AwCkA"
+          }
+        }
+      }
+    }
+  }
+}

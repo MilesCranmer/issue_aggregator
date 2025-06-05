@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 42,
         "title": "RuntimeError: $PATH error, Julia not found.",
         "body": "Hi Miles! \r\n\r\nI spent a few minutes trying to find out why the package kept raising `RuntimeError: $PATH error, Julia not found` even though Julia was callable from shell and was present in `$PATH`. Modifying all the calls to `subprocess.Popen` to include `shell=True` makes this issue go away (Ubuntu 18.04, called from a `jupyter lab` instance). For example\r\n\r\n`process = subprocess.Popen([\"julia\", \"-v\"],  stdout=subprocess.PIPE, bufsize=-1)` \r\n\r\nto \r\n\r\n`process = subprocess.Popen([\"julia\", \"-v\"],  shell=True, stdout=subprocess.PIPE, bufsize=-1)`.\r\n\r\nNot sure if there's a good reason for keeping `shell=False` for the initial call -- perhaps adding a secondary check with `shell` enabled after the first one fails might help make the first experience with `PySR` smoother for new users.\r\n\r\nEDIT: some additional [documentation ](https://stackoverflow.com/questions/5658622/python-subprocess-popen-environment-path)",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hey Michael! Very happy to see you trying out PySR :). (Sorry for the late response by the way - I was busy moving apartments last 1.5 weeks).\r\n\r\nGood point about `shell=True`. I think it was there originally, but was taken out to be compatible on Windows maybe?? But I will look at including this back in.\r\n\r\nJust to check, can you run `import os; print(os.environ['PATH'])` before the bug occurs? I want to check if that python instance is copying in your $PATH variable or not.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2021-04-12T18:38:26Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "Zymrael"
               },
               "body": "Cool, totally understand! Moving is always rather stressful. I've been using both the Julia version and `pysr` and both have definitely made my experimentation with symbolic regression more enjoyable.\r\n\r\n`os.environ['PATH']` from `IPython` does not contain the Julia path, likely stemming from a misconfigured setup on this particular remote server I was working on. Thee workarounds for posterity:\r\n\r\n* `shell=True` as mentioned above.\r\n* manually adding the Julia path e.g `...julia-1.6.0/bin` to `os.environ['PATH']` \r\n* and of course, the best approach is to solve the root problem and ensure matching PATHs, although this is not always possible / convenient (in example requiring a [restart](https://stackoverflow.com/questions/39625721/when-do-system-variables-update-in-ipython-kernel), which is case of remote servers running several jobs, might take some time).\r\n\r\nI'd suggest holding off on changing to `shell=True` for now unless others encounter similar issues. My remark here should be enough for future users of `pysr` :). I'll close the issue for the moment.",
               "createdAt": "2021-04-13T11:19:02Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOMMu5zQ=="
           }

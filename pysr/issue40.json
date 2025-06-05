@@ -1,44 +1,35 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 40,
         "title": "No such file or directory: 'julia': 'julia'",
         "body": "---------------------------------------------------------------------------\r\nFileNotFoundError                         Traceback (most recent call last)\r\n<ipython-input-25-e7d33be8fbdc> in <module>\r\n----> 1 equations = pysr(hash_characters, target.values, niterations=5)\r\n\r\n/opt/conda/lib/python3.7/site-packages/pysr/sr.py in pysr(X, y, weights, binary_operators, unary_operators, procs, loss, populations, niterations, ncyclesperiteration, alpha, annealing, fractionReplaced, fractionReplacedHof, npop, parsimony, migration, hofMigration, shouldOptimizeConstants, topn, weightAddNode, weightInsertNode, weightDeleteNode, weightDoNothing, weightMutateConstant, weightMutateOperator, weightRandomize, weightSimplify, perturbationFactor, timeout, extra_sympy_mappings, equation_file, test, verbosity, progress, maxsize, fast_cycle, maxdepth, variable_names, batching, batchSize, select_k_features, warmupMaxsizeBy, constraints, useFrequency, tempdir, delete_tempfiles, julia_optimization, julia_project, user_input, update, temp_equation_file, output_jax_format, warmupMaxsize, nrestarts, optimizer_algorithm, optimizer_nrestarts, optimize_probability, optimizer_iterations)\r\n    344 \r\n    345     _create_julia_files(**kwargs)\r\n--> 346     _final_pysr_process(**kwargs)\r\n    347     _set_globals(**kwargs)\r\n    348 \r\n\r\n/opt/conda/lib/python3.7/site-packages/pysr/sr.py in _final_pysr_process(julia_optimization, runfile_filename, timeout, **kwargs)\r\n    374     if timeout is not None:\r\n    375         command = [f'timeout', f'{timeout}'] + command\r\n--> 376     _cmd_runner(command, **kwargs)\r\n    377 \r\n    378 def _cmd_runner(command, **kwargs):\r\n\r\n/opt/conda/lib/python3.7/site-packages/pysr/sr.py in _cmd_runner(command, **kwargs)\r\n    379     if kwargs['verbosity'] > 0:\r\n    380         print(\"Running on\", ' '.join(command))\r\n--> 381     process = subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=-1)\r\n    382     try:\r\n    383         while True:\r\n\r\n/opt/conda/lib/python3.7/subprocess.py in __init__(self, args, bufsize, executable, stdin, stdout, stderr, preexec_fn, close_fds, shell, cwd, env, universal_newlines, startupinfo, creationflags, restore_signals, start_new_session, pass_fds, encoding, errors, text)\r\n    798                                 c2pread, c2pwrite,\r\n    799                                 errread, errwrite,\r\n--> 800                                 restore_signals, start_new_session)\r\n    801         except:\r\n    802             # Cleanup if the child failed starting.\r\n\r\n/opt/conda/lib/python3.7/subprocess.py in _execute_child(self, args, executable, preexec_fn, close_fds, pass_fds, cwd, env, startupinfo, creationflags, shell, p2cread, p2cwrite, c2pread, c2pwrite, errread, errwrite, restore_signals, start_new_session)\r\n   1549                         if errno_num == errno.ENOENT:\r\n   1550                             err_msg += ': ' + repr(err_filename)\r\n-> 1551                     raise child_exception_type(errno_num, err_msg, err_filename)\r\n   1552                 raise child_exception_type(err_msg)\r\n   1553 \r\n\r\nFileNotFoundError: [Errno 2] No such file or directory: 'julia': 'julia'",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Do you have Julia installed?",
               "createdAt": "2021-03-14T18:20:13Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "eladmw"
               },
               "body": "It looks like that's probably the problem, it hadn't occurred to me",
               "createdAt": "2021-03-15T00:39:44Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "No worries. I should add a better error message for that. ",
               "createdAt": "2021-03-15T12:45:22Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOL6W5rA=="
           }

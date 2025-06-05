@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 584,
         "title": "Question about input X's dimension",
         "body": " I have seen many posts that tutorial about training on 2dimensional's X or 1dimensional's X.  And I am going to make a symbolic regression model, which input X is 3-dimenstion and input y is 2-dimension.  Could `SymbolicRegression.jl`  handle this? If yes, how to do  it. (Please give me a short example please). Thank you.  ",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "You can do it with a custom loss function in the `loss_function` parameter: https://astroautomata.com/SymbolicRegression.jl/dev/api/ or https://astroautomata.com/PySR/examples/#9-custom-objectives. The idea is to flatten X into a 2D array, and then reshape it to 3D within the loss function.\r\n\r\nTo use `eval_tree_array` you have to pass a 2D array. Imagine batching a computation over all pixels.\r\n\r\n```julia\r\nconst nx = 32\r\nconst ny = 20  # For example\r\nfunction default_objective(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    X = dataset.X\r\n    (prediction, completion) = eval_tree_array(tree, X, options)\r\n    if !completion\r\n        return L(Inf)\r\n    end\r\n    # Here, X is a 2D array of shape [nx * ny, num_features]\r\n    # y is a 1D array of shape [nx * ny]\r\n    \r\n    prediction_reshaped = reshape(prediction, (nx, ny))\r\n    y_reshaped = reshape(dataset.y, (nx, ny))\r\n\r\n    # Some computation on the 2D predictions\r\n    \r\n    return L(loss)\r\nend\r\n```",
               "createdAt": "2024-03-26T09:51:11Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMy0yNlQwOTo1MToxMSswMDowMM4AiACR"
           }

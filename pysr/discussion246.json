@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 246,
         "title": "Step operator",
         "body": "Hi,\r\nI want to define customized operators which have a \"if-then-else\" structure. For example, \r\nlambda x: 1 if x>0 else -1 if x<0 else 0\r\nand\r\nlambda x: 1 if x>0 else 0  if x<0 else 0.5\r\n\r\nTo do so in PySR, I wrote the following code:\r\n```py\r\nmodel = PySRRegressor(\r\n    model_selection=\"best\", \r\n    binary_operators=[\"*\", \"+\", \"-\", \"/\"],\r\n    unary_operators=[\"Mystep\", \"Mysign\"],\r\n    extra_sympy_mappings={\"Mystep\": lambda x: 1 if x>0 else 0  if x<0 else 0.5, \r\n                                            \"Mysign\": lambda x: 1 if x>0 else -1 if x<0 else 0},\r\n)\r\n```\r\n\r\nBut, it doesn't work!\r\nAny advice is much appreciated\r\n\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Here's an implementation which might be what you're looking for: https://github.com/MilesCranmer/PySR/discussions/125\r\n\r\nEssentially you have to use `sympy.Piecewise`, rather than Python's `if`, in order to get a correct mapping to `sympy`",
               "createdAt": "2023-01-12T17:07:19Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wMS0xMlQxNzowNzoxOSswMDowMM4AR0Go"
           }

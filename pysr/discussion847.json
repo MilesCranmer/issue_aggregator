@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 847,
+        "title": "DynamicDiff within template_spec help",
+        "body": "Hi,\r\n\r\nI am struggling to pass on custom vectors to the D() parameter. \r\n\r\nI have been calculating the first derivate with respect to various variables with this code within the template_spec macro: \r\n```julia\r\ngrad_column = D(f, 1)(x1, x2, x3, x4, x5, x6).x\r\n```\r\nAs I know the physical limits of each variable that are possible through domain knowledge, I can pass through a much smaller set of values instead the actual database, I have tried to make a bunch of vectors to pass through instead:\r\n\r\nExample code for all different combinations for the 6 variables (should be 2,048 long)\r\n```julia\r\nn = 4 #num steps\r\nmin_val = -6 #set example range for standardised data of sd 1, mean 0\r\nmax_val = 6\r\ngap = (max_val - min_val) / (n - 1) \r\nvals = [min_val + gap*(i - 1) for i in 1:n]  #creates vector [-6, -2, 2, 6]\r\nx6_vals = [0, 1] #binary vector\r\ncombinations = collect(Iterators.product(vals, vals, vals, vals, vals, g_vals))\r\nx1_vec = [combo[1] for combo in combinations] #example vectors made \r\nx2_vec = [combo[2] for combo in combinations]\r\nx3_vec = [combo[3] for combo in combinations]\r\nx4_vec = [combo[4] for combo in combinations]\r\nx5_vec = [combo[5] for combo in combinations]\r\nx6_vec = [combo[6] for combo in combinations]\r\ngrad_column = D(f,1)(x1_vec, x2_vec, x3_vec, x4_vec, x5_vec, x6_vec)\r\n```\r\nHowever, this doesn't seem to work. I even tried to make each one a ValidVector, e.g. `ValidVector(x1_vec,true)` but that didn't work:\r\n```julia\r\nERROR: MethodError: no method matching (::ComposableExpression{Float32, DynamicExpressions.NodeModule.Node{…}, @NamedTuple{…}})(::Array{Float32, 6}, ::Array{Float32, 6}, ::Array{Float32, 6}, ::Array{Float32, 6}, ::Array{Float32, 6}, ::Array{Float32, 6})\r\n```\r\n\r\nThank you in advance!\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Could you share the full code for this? Just so I can try to reproduce it.\r\n\r\nEdit: actually from the error message alone I think I see the issue. It says `::Array{Float32, 6}`. That means these are 6-dimensional arrays, though they should be 1-D.",
+              "createdAt": "2025-03-02T04:29:31Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Ok I think the issue is the use of `Iterators.product`. You should be able to fix it by putting a `[:]` on the end to just get a single flat list of all combinations:\r\n\r\n```diff\r\n- combinations = collect(Iterators.product(vals, vals, vals, vals, vals, x6_vals))\r\n+ combinations = collect(Iterators.product(vals, vals, vals, vals, vals, x6_vals))[:]\r\n```\r\n\r\nAnd they should be wrapped in `ValidVector` before input",
+              "createdAt": "2025-03-02T04:34:53Z"
+            },
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "Thank you, that did the trick! g_vals was a transcription error from other code.\r\nSolution for whoever wants, works really well. \r\n```julia\r\nfunction generate_val(min_val, max_val, n) #n=number of steps\r\n    gap = (max_val - min_val) / (n - 1)\r\n    return [min_val + gap*(i - 1) for i in 1:n] \r\nend\r\nx1_val = generate_val(-8f0, 10f0, 4) #example ranges\r\nx2_val = generate_val(-8f0, 6f0, 4)\r\nx3_val = generate_val(-6f0, 9f0, 4)\r\nx4_val = generate_val(-5f0, 5f0, 3)\r\nx5_val = generate_val(-5f0, 5f0, 3)\r\nx6_val = [0f0,1f0] #binary var\r\ncombinations = collect(Iterators.product(x1_val, x2_val, x3_val, x4_val, x5_val, x6_val))[:]\r\nx1_vec = ValidVector([combo[1] for combo in combinations],true)\r\nx2_vec = ValidVector([combo[2] for combo in combinations],true)\r\nx3_vec = ValidVector([combo[3] for combo in combinations],true)\r\nx4_vec = ValidVector([combo[4] for combo in combinations],true)\r\nx5_vec = ValidVector([combo[5] for combo in combinations],true)\r\nx6_vec = ValidVector([combo[6] for combo in combinations],true)\r\nexpression_spec = @template_spec(expressions=(f,)) do x1, x2, x3, x4, x5, x6\r\n    o = f(x1, x2, x3, x4, x5, x6)\r\n    length(x1.x) == 50 && return o  #if batch case, do not check monotonicity to speed up search\r\n    o.valid || return o\r\n    for i in 1:2 #(check monotonicity for first two variables)\r\n        grad_column = D(f, i)(x1_vec, x2_vec, x3_vec, x4_vec, x5_vec, x6_vec).x\r\n        any(>(0.0f0), grad_column) && return #if monotonicity breached return this\r\n    end\r\n    return o\r\nend\r\n```",
+              "createdAt": "2025-03-02T14:27:02Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0wMlQxNDoyNzowMiswMDowMM4AvLH0"
+          }
+        }
+      }
+    }
+  }
+}

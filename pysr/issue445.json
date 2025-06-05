@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 445,
         "title": "[BUG]: Installation failed on Windows: failed to clone from SymbolicRegression.jl",
         "body": "### What happened?\r\n\r\nI successfully installed and used an older version of PySR (0.14.x). As I want to upgrade to the latest version, I uninstalled the existing PySR (via pip) as well as Julia 1.6.1 (I also deleted the `~/.julia` directory). Then I installed the latest Julia 1.6.3, and PySR 0.16.3 via pip. \r\nWhen I run the command `python -m pysr install`, the installation fails repeatedly, with the following Error message:\r\njulia.core.JuliaError: Exception 'failed to clone from https://github.com/MilesCranmer/SymbolicRegression.jl, error: GitError(Code:ERROR, Class:OS, failed to send request: 操作超时)'\r\nYet I can manually download the `SymbolicRegression.jl` repository in web browser, which shows the network connection works well (In addtion, I access Github behind proxy). \r\nAny idea how to figure out this? Many thanks! \r\n\r\n### Version\r\n\r\n0.16.3\r\n\r\n### Operating System\r\n\r\nWindows\r\n\r\n### Package Manager\r\n\r\nNone\r\n\r\n### Interface\r\n\r\nOther (specify below)\r\n\r\n### Relevant log output\r\n\r\n```shell\r\nTraceback (most recent call last):\r\n  File \"D:\\Applications\\Python\\lib\\runpy.py\", line 197, in _run_module_as_main\r\n    return _run_code(code, main_globals, None,\r\n  File \"D:\\Applications\\Python\\lib\\runpy.py\", line 87, in _run_code\r\n    exec(code, run_globals)\r\n  File \"D:\\Applications\\Python\\lib\\site-packages\\pysr\\__main__.py\", line 4, in <module>\r\n    _cli(prog_name=\"pysr\")\r\n  File \"D:\\Applications\\Python\\lib\\site-packages\\click\\core.py\", line 1137, in __call__\r\n    return self.main(*args, **kwargs)\r\n  File \"D:\\Applications\\Python\\lib\\site-packages\\click\\core.py\", line 1062, in main\r\n    rv = self.invoke(ctx)\r\n  File \"D:\\Applications\\Python\\lib\\site-packages\\click\\core.py\", line 1668, in invoke\r\n    return _process_result(sub_ctx.command.invoke(sub_ctx))\r\n  File \"D:\\Applications\\Python\\lib\\site-packages\\click\\core.py\", line 1404, in invoke\r\n    return ctx.invoke(self.callback, **ctx.params)\r\n  File \"D:\\Applications\\Python\\lib\\site-packages\\click\\core.py\", line 763, in invoke\r\n    return __callback(*args, **kwargs)\r\n  File \"D:\\Applications\\Python\\lib\\site-packages\\pysr\\_cli\\main.py\", line 37, in _install\r\n    install(julia_project, quiet, precompile)\r\n  File \"D:\\Applications\\Python\\lib\\site-packages\\pysr\\julia_helpers.py\", line 109, in install\r\n    _add_sr_to_julia_project(Main, io_arg)\r\n  File \"D:\\Applications\\Python\\lib\\site-packages\\pysr\\julia_helpers.py\", line 272, in _add_sr_to_julia_project\r\n    Main.eval(f\"Pkg.add([sr_spec, clustermanagers_spec], {io_arg})\")\r\n  File \"D:\\Applications\\Python\\lib\\site-packages\\julia\\core.py\", line 627, in eval\r\n    ans = self._call(src)\r\n  File \"D:\\Applications\\Python\\lib\\site-packages\\julia\\core.py\", line 555, in _call\r\n    self.check_exception(src)\r\n  File \"D:\\Applications\\Python\\lib\\site-packages\\julia\\core.py\", line 609, in check_exception\r\n    raise JuliaError(u'Exception \\'{}\\' occurred while calling julia code:\\n{}'\r\njulia.core.JuliaError: Exception 'failed to clone from https://github.com/MilesCranmer/SymbolicRegression.jl, error: GitError(Code:ERROR, Class:OS, failed to send request: 操作超时\r\n)' occurred while calling julia code:\r\nPkg.add([sr_spec, clustermanagers_spec], io=stderr)\r\n```\r\n\r\n\r\n### Extra Info\r\n\r\n_No response_",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "> In addtion, I access Github behind proxy\r\n\r\nHm, this might explain things. \r\n\r\nCould you try making a local copy of the PySR repository, and deleting these lines?\r\n\r\nhttps://github.com/MilesCranmer/PySR/blob/2f91f1f3377613949d2a15e5142e6dfef6a5b86c/pysr/julia_helpers.py#L266-L267\r\n\r\nThen it should download SymbolicRegression.jl from the Julia package registry instead of GitHub.",
               "createdAt": "2023-10-20T09:23:44Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "Nithouson"
               },
               "body": "This solution works. Many thanks! I will close this issue.\r\nBy the way, I also tried configuring git to work behind proxy:\r\n`git config --global https.proxy ...`\r\nNot sure whether this is also necessary.\r\n",
               "createdAt": "2023-10-26T02:07:18Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOah1DEw=="
           }

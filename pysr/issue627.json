@@ -1,68 +1,56 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 627,
         "title": "[BUG]: model.fit works but there's an error at the end in parse_expr",
         "body": "### What happened?\n\nWhen training a model using:\r\n`model = PySRRegressor(niterations=1000,maxsize=30,maxdepth=15,ncycles_per_iteration=100,populations=10,binary_operators=[\"+\", \"*\",\"/\"],\r\n    unary_operators=[\r\n        \"exp\",\r\n        \"inv(x) = 1/x\",\r\n        \"square\",\r\n        \"cube\",\r\n        \"sqrt\",\r\n        \"log\",\r\n        \"logistic(x) = 1 / (1 + exp(-x))\", \r\n        # ^ Custom operator (julia syntax)\r\n    ],\r\n    extra_sympy_mappings={\"inv\": lambda x: 1 / x,\"logistic\": lambda x: 1.0 / (1.0 + np.exp(-x))},)\r\n`\r\nit correctly finds and expression but then there is an error when trying to convert to an expression `loop of ufunc does not support argument 0 of type Mul which has no callable exp method`.\r\n\r\nI've tried different ways to introduce new mappings but have had no sucess. I would have expected that the error would be thrown out at the start of fitting and not at the end.\r\n\n\n### Version\n\n0.18.1\n\n### Operating System\n\nLinux\n\n### Package Manager\n\npip\n\n### Interface\n\nJupyter Notebook\n\n### Relevant log output\n\n```shell\n{\r\n\t\"name\": \"TypeError\",\r\n\t\"message\": \"loop of ufunc does not support argument 0 of type Mul which has no callable exp method\",\r\n\t\"stack\": \"---------------------------------------------------------------------------\r\nValueError                                Traceback (most recent call last)\r\nValueError: Error from parse_expr with transformed code: \\\"logistic (x0 )+(((x1 +-Float ('1.3587815' ))*square (x0 ))*Float ('0.00025213166' ))\\\"\r\n\r\nThe above exception was the direct cause of the following exception:\r\n\r\nTypeError                                 Traceback (most recent call last)\r\nCell In[9], line 1\r\n----> 1 model.fit(x, y)\r\n\r\nFile ~/.local/lib/python3.8/site-packages/pysr/sr.py:1929, in PySRRegressor.fit(self, X, y, Xresampled, weights, variable_names, X_units, y_units)\r\n   1926     self._checkpoint()\r\n   1928 # Perform the search:\r\n-> 1929 self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n   1931 # Then, after fit, we save again, so the pickle file contains\r\n   1932 # the equations:\r\n   1933 if not self.temp_equation_file:\r\n\r\nFile ~/.local/lib/python3.8/site-packages/pysr/sr.py:1779, in PySRRegressor._run(self, X, y, mutated_params, weights, seed)\r\n   1776 self.julia_state_stream_ = jl_serialize(out)\r\n   1778 # Set attributes\r\n-> 1779 self.equations_ = self.get_hof()\r\n   1781 if self.delete_tempfiles:\r\n   1782     shutil.rmtree(self.tempdir_)\r\n\r\nFile ~/.local/lib/python3.8/site-packages/pysr/sr.py:2249, in PySRRegressor.get_hof(self)\r\n   2246     torch_format = []\r\n   2248 for _, eqn_row in output.iterrows():\r\n-> 2249     eqn = pysr2sympy(\r\n   2250         eqn_row[\\\"equation\\\"],\r\n   2251         feature_names_in=self.feature_names_in_,\r\n   2252         extra_sympy_mappings=self.extra_sympy_mappings,\r\n   2253     )\r\n   2254     sympy_format.append(eqn)\r\n   2256     # NumPy:\r\n\r\nFile ~/.local/lib/python3.8/site-packages/pysr/export_sympy.py:86, in pysr2sympy(equation, feature_names_in, extra_sympy_mappings)\r\n     79     feature_names_in = []\r\n     80 local_sympy_mappings = {\r\n     81     **create_sympy_symbols_map(feature_names_in),\r\n     82     **(extra_sympy_mappings if extra_sympy_mappings is not None else {}),\r\n     83     **sympy_mappings,\r\n     84 }\r\n---> 86 return sympify(equation, locals=local_sympy_mappings)\r\n\r\nFile ~/.local/lib/python3.8/site-packages/sympy/core/sympify.py:496, in sympify(a, locals, convert_xor, strict, rational, evaluate)\r\n    494 try:\r\n    495     a = a.replace('\\\r\n', '')\r\n--> 496     expr = parse_expr(a, local_dict=locals, transformations=transformations, evaluate=evaluate)\r\n    497 except (TokenError, SyntaxError) as exc:\r\n    498     raise SympifyError('could not parse %r' % a, exc)\r\n\r\nFile ~/.local/lib/python3.8/site-packages/sympy/parsing/sympy_parser.py:1101, in parse_expr(s, local_dict, transformations, global_dict, evaluate)\r\n   1099 for i in local_dict.pop(null, ()):\r\n   1100     local_dict[i] = null\r\n-> 1101 raise e from ValueError(f\\\"Error from parse_expr with transformed code: {code!r}\\\")\r\n\r\nFile ~/.local/lib/python3.8/site-packages/sympy/parsing/sympy_parser.py:1092, in parse_expr(s, local_dict, transformations, global_dict, evaluate)\r\n   1089     code = compile(evaluateFalse(code), '<string>', 'eval')\r\n   1091 try:\r\n-> 1092     rv = eval_expr(code, local_dict, global_dict)\r\n   1093     # restore neutral definitions for names\r\n   1094     for i in local_dict.pop(null, ()):\r\n\r\nFile ~/.local/lib/python3.8/site-packages/sympy/parsing/sympy_parser.py:907, in eval_expr(code, local_dict, global_dict)\r\n    901 def eval_expr(code, local_dict: DICT, global_dict: DICT):\r\n    902     \\\"\\\"\\\"\r\n    903     Evaluate Python code generated by ``stringify_expr``.\r\n    904 \r\n    905     Generally, ``parse_expr`` should be used.\r\n    906     \\\"\\\"\\\"\r\n--> 907     expr = eval(\r\n    908         code, global_dict, local_dict)  # take local objects in preference\r\n    909     return expr\r\n\r\nFile <string>:1\r\n\r\nCell In[8], line 12, in <lambda>(x)\r\n      1 model = PySRRegressor(niterations=1000,maxsize=30,maxdepth=15,ncycles_per_iteration=100,populations=10,binary_operators=[\\\"+\\\", \\\"*\\\",\\\"/\\\"],\r\n      2     unary_operators=[\r\n      3         \\\"exp\\\",\r\n      4         \\\"inv(x) = 1/x\\\",\r\n      5         \\\"square\\\",\r\n      6         \\\"cube\\\",\r\n      7         \\\"sqrt\\\",\r\n      8         \\\"log\\\",\r\n      9         \\\"logistic(x) = 1 / (1 + exp(-x))\\\", \r\n     10         # ^ Custom operator (julia syntax)\r\n     11     ],\r\n---> 12     extra_sympy_mappings={\\\"inv\\\": lambda x: 1 / x,\\\"logistic\\\": lambda x: 1.0 / (1.0 + np.exp(-x))},)\r\n     14 x = np.array([merged_df[\\\"N\\\"].values,merged_df[\\\"voltage\\\"].values]).T\r\n     15 y = merged_df[\\\"P1\\\"].values*10\r\n\r\nTypeError: loop of ufunc does not support argument 0 of type Mul which has no callable exp method\"\r\n}\n```\n\n\n### Extra Info\n\n_No response_",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "It’s because `np.exp` is not a sympy function, it’s a numpy function",
               "createdAt": "2024-05-20T12:00:34Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "SrGonao"
               },
               "body": "For some reason, I thought that using sympy.exp() had not worked. \r\nTrying it now and everything seems ok. ~\r\nThanks for the quick reply.",
               "createdAt": "2024-05-20T12:36:34Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "SrGonao"
               },
               "body": "Sorry I remember why I used np.exp(). I'm still getting the error when having sympy.exp() and also get this extra warning:\r\n```p1_fitting_no_ions.py:57: DeprecationWarning: scipy.exp is deprecated and will be removed in SciPy 2.0.0, use numpy.exp instead\r\n  extra_sympy_mappings={\"inv\": lambda x: 1 / x,\"logistic\": lambda x: 1.0 / (1.0 + sp.exp(-x))},\r\nValueError: Error from parse_expr with transformed code: \"(-Float ('0.68147457' )+logistic (x1 ))*x0 \"\r\n\r\nThe above exception was the direct cause of the following exception:\r\n\r\nTraceback (most recent call last):\r\n  File \"p1_fitting_no_ions.py\", line 73, in <module>\r\n    model.fit(x, y)\r\n  File \"/home/gpaulo/.local/lib/python3.8/site-packages/pysr/sr.py\", line 1929, in fit\r\n    self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n  File \"/home/gpaulo/.local/lib/python3.8/site-packages/pysr/sr.py\", line 1779, in _run\r\n    self.equations_ = self.get_hof()\r\n  File \"/home/gpaulo/.local/lib/python3.8/site-packages/pysr/sr.py\", line 2249, in get_hof\r\n    eqn = pysr2sympy(\r\n  File \"/home/gpaulo/.local/lib/python3.8/site-packages/pysr/export_sympy.py\", line 86, in pysr2sympy\r\n    return sympify(equation, locals=local_sympy_mappings)\r\n  File \"/home/gpaulo/.local/lib/python3.8/site-packages/sympy/core/sympify.py\", line 496, in sympify\r\n    expr = parse_expr(a, local_dict=locals, transformations=transformations, evaluate=evaluate)\r\n  File \"/home/gpaulo/.local/lib/python3.8/site-packages/sympy/parsing/sympy_parser.py\", line 1101, in parse_expr\r\n    raise e from ValueError(f\"Error from parse_expr with transformed code: {code!r}\")\r\n  File \"/home/gpaulo/.local/lib/python3.8/site-packages/sympy/parsing/sympy_parser.py\", line 1092, in parse_expr\r\n    rv = eval_expr(code, local_dict, global_dict)\r\n  File \"/home/gpaulo/.local/lib/python3.8/site-packages/sympy/parsing/sympy_parser.py\", line 907, in eval_expr\r\n    expr = eval(\r\n  File \"<string>\", line 1, in <module>\r\n  File \"p1_fitting_no_ions.py\", line 57, in <lambda>\r\n    extra_sympy_mappings={\"inv\": lambda x: 1 / x,\"logistic\": lambda x: 1.0 / (1.0 + sp.exp(-x))},\r\n  File \"/home/gpaulo/.local/lib/python3.8/site-packages/scipy/_lib/deprecation.py\", line 20, in call\r\n    return fun(*args, **kwargs)\r\nTypeError: loop of ufunc does not support argument 0 of type Mul which has no callable exp method```\r\n",
               "createdAt": "2024-05-22T09:03:37Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Are you calling scipy.exp? It should be sympy.exp. (The error message is from scipy it looks like)",
               "createdAt": "2024-05-22T09:11:27Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "SrGonao"
               },
               "body": "Now that I'm reading the error it is strange that it does say scipy but I'm doing `import sympy as sp` and then sp.exp. \r\n",
               "createdAt": "2024-05-22T09:27:40Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "SrGonao"
               },
               "body": "I'm sorry for wasting your time. I was indeed using scipy in this script. I had fixed it in other scripts but not this one. ",
               "createdAt": "2024-05-22T09:34:33Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOfp6LGA=="
           }

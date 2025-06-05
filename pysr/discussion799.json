@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 799,
+        "title": "Getting loss value for testing set",
+        "body": "Hello everyone, \r\n\r\nI am having troubles getting the loss from a test set. My dataset is divided into train and test through `sklearn`. I understand that I can use `model.predict(test_set)`, but I was wondering if there is any direct way of getting the **loss** of the test batch along with every prediction. I implemented it myself but I am sure enough that is not the smartest way. \r\n\r\nCan somebody help me?\r\nThank you!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Maybe this?\r\n\r\n```python\r\nfrom sklearn.metrics import mean_squared_error as mse\r\n\r\ny_pred_test = model.predict(x_test)\r\nmse(y_pred_test, y_test)\r\n```",
+              "createdAt": "2025-01-07T10:19:25Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMS0wN1QxMDoxOToyNSswMDowMM4As3AB"
+          }
+        }
+      }
+    }
+  }
+}

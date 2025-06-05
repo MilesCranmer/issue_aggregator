@@ -1,44 +1,35 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 374,
         "title": "Using quadgk inside a custom objective",
         "body": "When I run this code:\r\n```\r\njl.eval(\"\"\"\r\nx1 = Node(;feature=1)\r\n\r\ntree = (((((x1 + x1) - x1) / ((x1 * x1) + (x1 - 0.101250745))) / 0.3167079) + (0.101250745 / -0.61750597))\r\n\r\ntree = Node{Float32}(tree)\r\n\r\nglobal integral = 1\r\nerr = -3\r\ntry\r\n    my_tuple = quadgk(x -> (eval_tree_array(tree, reshape([Float32(x)], 1, 1), options))[1][1], 0, 1, rtol=0.001)\r\n    global integral = my_tuple[1]\r\n    global err = my_tuple[2]\r\n    println(\"integral so the result of calling quadgk the first time is\", integral)\r\ncatch\r\n    println(\"A error when calling quadgk the first time\")\r\nend\r\n\r\n\r\n\r\ntry\r\n    my_tuple_new = quadgk(x -> (((((x + x) - x) / ((x * x) + (x - 0.101250745))) / 0.3167079) + (0.101250745 / -0.61750597)), 0, 1, rtol=0.001)\r\n    println(\"integral so the result of calling quadgk the first time is\", my_tuple_new[1])\r\n\r\ncatch\r\n    println(\"A error when calling quadgk the second time\")\r\nend\r\n\r\n\r\n\r\n\r\n\r\n\"\"\")\r\n```\r\nthis is the output:\r\n```\r\nintegral so the result of calling quadgk the first time is0.005200976747003625\r\nA error when calling quadgk the second time\r\n```\r\n\r\nI want a error to happen because I know that the definite integral of this math function from x=0 to x=1 is infinity and/or undefined.\r\nUnfortunately, in my Julia objective function, I am currently passing eval_tree_array into the quadgk function, which means that when I do \"model.fit(X, y)\", my Julia objective function actually finds a finite value (in this case, 0.0052009), so my Julia objective function actually returns a finite value for the loss.\r\n\r\n\r\nMy guess for why this difference happens is that eval_tree_array is black-box from the perspective of the quadgk function.\r\nIn other words, the quadgk function does not understand what the symbolic form of eval_tree_array in terms of x, which means that quadgk has to do a numerical Riemann-sum approximation when you pass eval_tree_array into it, so the output of quadgk is less accurate when you pass eval_tree_array into the quadgk function, then when you call quadgk function with a direct symbolic expression in terms of \"x\".\r\n\r\n\r\nAny ways to get around this, so that the Julia objective function can be accurate (can actually throw a error when it calls quadgk, like in the second time I called quadgk above)?\r\nPerhaps I could pass the string output of \"string_tree(tree, options)\" into quadgk in the Julia objective function?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Looking now. General advice is to avoid wrapping things with a catch-all `try-catch` otherwise it might just skip an error you didn't expect. It's better to only catch the errors you want to, like\r\n\r\n```julia\r\ntry\r\n    error(\"...\")\r\ncatch e\r\n    isa(e, ErrorException) || rethrow(e)\r\nend\r\n```",
               "createdAt": "2023-07-08T22:35:41Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Part of the issue is that you are avoiding checking the flag for `eval_tree_array`:\r\n\r\n```julia\r\neval_tree_array(tree, reshape([Float32(x)], 1, 1), options))[1][1]\r\n```\r\n\r\nThe return of `eval_tree_array` contains two things. The second thing it returns, which is being avoided here with the `[1]`, is the completion flag. The completion flag is `false` if an infinity is encountered during evaluation.\r\n\r\nWhat you actually want is something like\r\n\r\n```julia\r\nmy_tuple = quadgk(\r\n    x -> begin\r\n       output, completion = (eval_tree_array(tree, reshape([Float32(x)], 1, 1), options))\r\n       if !completion\r\n           error(\"Integration failed.\")\r\n       end\r\n       output[1]\r\n    end,\r\n    0,\r\n    1,\r\n    rtol=0.001\r\n)\r\n```",
               "createdAt": "2023-07-08T22:46:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "It actually looks like there is no way for QuadGK.jl to detect singularities: https://juliamath.github.io/QuadGK.jl/stable/quadgk-examples/. It will integrate right through them.\r\n\r\nThe way it recommends to get around is to look at the number of steps it takes. So for example, rather than setting rtol, you could set the `maxevals`, and just assume there's a singularity if it needs more evals than that:\r\n\r\n```julia\r\nfunction integrate_tree(tree, options)\r\n    result, result_err, actual_evals = try\r\n        quadgk_count(\r\n            x -> begin\r\n               output, completion = eval_tree_array(tree, reshape([Float32(x)], 1, 1), options)\r\n               if !completion\r\n                   error(\"Integration failed.\")\r\n               end\r\n               output[1]\r\n            end,\r\n            0,\r\n            1; \r\n            maxevals=1000\r\n        )\r\n    catch e\r\n        isa(e, ErrorException) || rethrow(e)\r\n        return L(Inf)\r\n    end\r\n    \r\n    if actual_evals >= 1000\r\n        return L(Inf)\r\n    end\r\n    return result # `result` stores the integration value\r\nend\r\n```\r\n\r\nmake sense? \r\n\r\nFor other issues about QuadGK.jl you might want to ask on their issues page as it is reaching the limits of my knowledge.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2023-07-08T23:05:32Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNy0wOVQwMDowNTozMiswMTowMM4AYY8k"
           }

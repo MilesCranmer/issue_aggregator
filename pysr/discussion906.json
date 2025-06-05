@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 906,
+        "title": "Writing a custom loss function",
+        "body": "Hello there,\r\n\r\ni am currently trying to write a custom loss function. The function is supposed to calculate some landscape features of the current term of the tree and compare it with some target features. The distance is the loss of the function. The dimensionality is 2D\r\n\r\nI am struggeling to implement this in Julia since I am new to that language. Maybe someone can give me a helping hand. \r\nTo calculate the landscape features i need to use the pflacco package.\r\nIt works like the following example:\r\n\r\n```\r\nimport pflacco as pf\r\nela_level = pf.calculate_ela_level(X,y,function)\r\n#X,y can be list or pandas.DataFrame or numpy array, function is the term of the tree\r\n# the function should take [x1,x2] as an input and return y\r\nela_loss = (ela_level - ela_level_target)^2\r\n\r\nreturn ela_loss\r\n\r\n```\r\nThis is only an example since i want to calculate multiple features. They are all calculated by calling a method from the pflacco package, which always works in a similar way. \r\n\r\nIn the documentation i found the way of creating a custom loss function by using julia snippets. \r\nI am unsure though how i can:\r\n1. accessthe target feature vector in the function\r\n2. use the python pflacco package inside the julia code\r\n3. pass the tree term as a function to the pf.calculate_ela methods in a way that it takes a vector of x1,x2 as an input and generates y as an output. \r\n\r\nI would greatly appreciate your help. \r\n\r\nThank you, \r\nLukas\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Is there a Julia version of flacco? Does anything in https://github.com/JuliaNLSolvers/Optim.jl or https://github.com/SciML/Optimization.jl do the same thing?\r\n\r\nGenerally you should avoid making calls to Python inside the loss function, because the Python GIL https://wiki.python.org/moin/GlobalInterpreterLock fundamentally prevents parallelism. It's better to find a Julia equivalent as then the search can still run in parallel.\r\n\r\nYou can also try to write it in Python and then ask ChatGPT to translate it to Julia.\r\n\r\n",
+              "createdAt": "2025-05-04T21:31:56Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0wNFQyMjozMTo1NiswMTowMM4Axt9E"
+          }
+        }
+      }
+    }
+  }
+}

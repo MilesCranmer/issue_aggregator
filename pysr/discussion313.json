@@ -1,52 +1,42 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 313,
         "title": "Restart training from a saved file",
         "body": "Dear Miles,\r\n\r\nI have been training a large number of models in parallel and have achieved some relatively good results. However, they did not quite meet my expectations and I am interested in further training. I am wondering if there is any feature that supports continuing training from a selected checkpoint.\r\n\r\nThank you for your attention to my question.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "You can use the `warm_start=True` parameter to continue where you left off. \r\n\r\nHowever after exiting Python, it is not possible to restart, as the Julia runtime will be closed and relevant variables erased. Perhaps one could serialize the Julia variables (`model.raw_julia_state_`) but I have not tried this.",
               "createdAt": "2023-04-22T15:01:59Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "zhyang-dev"
               },
               "body": "Thank you for your response. I tried loading the model from a file and setting the `warm_start` parameter to `True` before starting the training. The training process will restart. As you mentioned, this may be due to the inability to recover Julia variables. \r\nI was thinking that perhaps there could be an option to determine whether to serialize Julia's context for continued training. This might be helpful for those who need to restart the training process.\r\nFor now, i will try to  run the trainning forever and manually restart some of the slow loss reducing cases. Again, thank you for your help.",
               "createdAt": "2023-04-22T15:25:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Right: you can’t have a successful warm start without `raw_julia_state_`, and that is cleared from the state when the PySRRegressor is saved to a pickle file.\r\n\r\nHowever you could try to save this object using the Serialization library in Julia: https://docs.julialang.org/en/v1/stdlib/Serialization/. You will need to access this with PyJulia, \r\nfor example:\r\n\r\n```py\r\nfrom julia import Serialization\r\n\r\nSerialization.serialize(\r\n    \"checkpoint.pt\",\r\n    model.raw_julia_state_  # This is the trained model\r\n)\r\n```\r\n\r\nThen, in a new process:\r\n\r\n```py\r\nfrom pysr import PySRRegressor\r\n\r\nmodel = PySRRegressor.from_file(\"hall_of_fame...pkl\")\r\nmodel.warm_start = True\r\n\r\nfrom pysr.julia_helpers import init_julia\r\n\r\ninit_julia()\r\n\r\nfrom julia import SymbolicRegression  # Needed to load library (usually this is done by .fit())\r\nfrom julia import Serialization\r\n\r\nmodel.raw_julia_state_ = Serialization.deserialize(\"checkpoint.pt\")\r\n```\r\n\r\nNow it should be an identical model as before you closed Python.",
               "createdAt": "2023-04-22T16:12:39Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "Pulpas"
               },
               "body": "Dear Miles, tttc3, and Zhyang, \r\n\r\nI am also training several large number of models in parallel and have achieved some relatively good results. \r\nI would also like to restart from the previous model, which I thought was possible using the function:\r\n\r\n ```python\r\nmodel = PySRRegressor.from_file(str(\"file-name.pkl\"), warm_start=True)\r\n```\r\n combined with the option warm_start set to True, to start where the model was left off.\r\n\r\nHowever, it seems that the model does not start from it was left off. \r\n\r\nSo I looked it up and reached this thread where is it prescribed to save the Julia state, by doing \r\n\r\n```python\r\nfrom julia import Serialization\r\n\r\nSerialization.serialize(\r\n    \"checkpoint.pt\",\r\n    model.raw_julia_state_\r\n)\r\n```\r\n which I call after the model.fit() call.\r\n\r\nThen, I restart from the Julia state by loading the checkpoint.pt file along with the .pkl file doing\r\n```python\r\n        model = PySRRegressor.from_file(str(\"file-namepkl\"), warm_start=True)\r\n        \r\n        from pysr.julia_helpers import init_julia\r\n\r\n        init_julia()\r\n\r\n        from julia import SymbolicRegression  \r\n        from julia import Serialization\r\n\r\n        model.raw_julia_state_ = Serialization.deserialize(\"checkpoint.pt\")\r\n        \r\n        model.fit(X, y)\r\n```\r\n\r\nHowever, this does not restart from the saved state as I thought it would.\r\n\r\nIs there anything I'm missing out ? Did @tttc3, or @zhyang-dev successfully restart from previous state ?\r\n\r\nBest,\r\n\r\n",
               "createdAt": "2023-06-16T16:28:47Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNi0xNlQxNzoyODo0NyswMTowMM4AXpfn"
           }

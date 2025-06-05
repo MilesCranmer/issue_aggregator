@@ -1,44 +1,35 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 73,
         "title": "How to save PySR results?",
         "body": "Hi, thank you for providing us with a free symbolic regression library.\r\n\r\nSince I am new to this and I haven't fully understood everything yet. I would like to save my all results (after 12 hours of computation) from the output of pysr(). I've tried using pickle, shelve, dill and scipy.io but I can't get them to work. I keep getting different types of errors including this one below:\r\n\r\n>AttributeError: module '__main__' has no attribute 'inv'\r\n>AttributeError: Can't get attribute 'inv' on <module '__main__'>\r\n>PicklingError: Can't pickle inv: attribute lookup inv on __main__ failed\r\n\r\n\r\nWould you please advise me on what I should do to save the results so that I can come back and explore them later?\r\n\r\nThank you. \r\n\r\nFor reference this is my script that was based on the examples:\r\n```\r\n# Learn equations\r\n  equation = pysr(\r\n      X,\r\n      y[:,ii],\r\n      binary_operators=[\"plus\", \"mult\"],\r\n      unary_operators=[\r\n          \"cos\",\r\n          \"sin\",  # Pre-defined library of operators (see https://pysr.readthedocs.io/en/latest/docs/operators/)\r\n          \"inv(x) = 1/x\",\r\n      ],\r\n      loss=\"loss(x, y) = abs(x - y)\",  # Custom loss function\r\n      julia_project=\"../SymbolicRegression.jl\",\r\n  )  # Define your own operator! (Julia syntax)\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @jstan15,\r\n\r\nSorry you are having trouble saving it. It should save the raw equations automatically to a .csv file in the current directory - do you see those? You can load them back in by calling `pysr.get_hof` with the location of that file.\r\n\r\nTo save the `equations` object that gets outputted, since you are defining a custom operator `inv(x) = 1/x`, you should add:\r\n```\r\nextra_sympy_mappings={\"inv\": lambda x: 1/x}\r\n```\r\nas an argument to either `pysr` or `get_hof` when you re-load the saved files. This defines the `inv` function for SymPy so it can correctly map it into sympy (and I think the pickling will work correctly then. ",
               "createdAt": "2021-08-24T17:21:12Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "jstan15"
               },
               "body": "Hi @MilesCranmer, thank you for your detailed response.\r\n\r\nI had managed to save the pysr output using cloudpickle (https://pypi.org/project/cloudpickle/), before I read your reply. I'm not sure whether there are any downsides to using it, because I'm happy with the results so far.\r\n\r\nI'll try out your suggested method if I find anything wrong with cloudpickle.\r\n\r\nThank you once again.",
               "createdAt": "2021-08-27T09:42:17Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks for following up, cloudpickle looks like a nice tool.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2021-09-14T05:41:58Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHONsQenw=="
           }

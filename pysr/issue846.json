@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 846,
+        "title": "Not possible to load a model fitted with TemplateExpressionSpec",
+        "body": "\nUnfortunately template expressions aren't yet compatible with loading from file—should update the error message to mention this.\n\n\n\n### Discussed in https://github.com/MilesCranmer/PySR/discussions/844\n\n<div type='discussions-op-text'>\n\n<sup>Originally posted by **ibengtsson** February 28, 2025</sup>\nHi!\n\nFirst of all, thank you for a great library. \n\nI'm having some issues when working with TemplateExpresssionSpec, and it could very well be a fault on my end... If I create a model with a TemplateExpression, fit and save it, and then try and load it (with `from_file`) in a different script, I cannot do any model predictions. I just get the error:\n\n```\nValueError: Failed to evaluate the expression. If you are using a custom operator, make sure to define it in `extra_sympy_mappings`, e.g., `model.set_params(extra_sympy_mappings={'inv': lambda x: 1/x})`, where `lambda x: 1/x` is a valid SymPy function defining the operator. You can then run `model.refresh()` to re-load the expressions.\n```\n\nI don't use any custom operators in my TemplateEpxressionSpec, but maybe I still need to add some mappings to make the loading work?\n\nGrateful for any help!</div>",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "ibengtsson"
+              },
+              "body": "Thank you for adding this as an issue Miles! Do you think this would be fixed in the short-term or should I do some manual workaround in the meantime? ",
+              "createdAt": "2025-03-06T08:55:55Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "It is a deep issue on the Julia backend side of things, I don't think there are any workarounds possible. \n\nThe issue is basically because a template expression _type_ refers to the definition of the function. See the `E` type parameter [here](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/3a85b69659e387383f3210960460e4557eb259a8/src/TemplateExpression.jl#L106-L107). This is necessary for type stability in Julia. But it also means that when you restart Julia, even if you re-run the same code to create that function, the type itself might be a different object. So this kind of invalidates the state of the search.\n\nSo what we need to have is a custom serializer of `AbstractExpression` objects that can serialize the code of the template expression itself, and be able to re-instantiate under the same function object. Then we would need to define custom serializers for every part of the search state including `Population` and `HallOfFame` because they also implicitly contain the function object in their type. \n\nSo it's a bit tricky. I'm also not sure if there is any robust solution at all, because re-running the same code to define the function is kind of dependent on the current Julia runtime (such as what other libraries you are referring to). So it will be hard. \n\nIt is definitely possible though! It would probably need a day or two of full-time effort from me. And obviously more for those who don't know the codebase. (Maybe an LLM/Cursor can help get some of this done though!)",
+              "createdAt": "2025-03-06T14:18:09Z"
+            },
+            {
+              "author": {
+                "login": "ibengtsson"
+              },
+              "body": "Thank you for clarifying the issues! I'm not really fluent in Julia, but now I know were to start if I'll give it a try at least. ",
+              "createdAt": "2025-03-10T09:27:40Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOoYZR4w=="
+          }
+        }
+      }
+    }
+  }
+}

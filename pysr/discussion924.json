@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 924,
+        "title": "Verbosity not working",
+        "body": "Greetings,\r\n\r\nIn my experience `verbosity` doesn’t seem to work as expected. From what I understand, `verbosity = 0`, `verbosity = >0 & <1`, and `verbosity = 1` should correspond to no output, partial output, and full output, respectively. If my understanding is correct (which it very well could not be) that’s not the behavior I’m seeing.\r\n\r\nIn my case, setting `verbosity` to 1 or more prints every iteration, but anything below 1 prints nothing. I’ve looked around for a deeper explanation of this behavior but haven’t had any luck. Also, I'm using Spyder which I know is limited in some respect so that could be the issue.\r\n\r\nHere’s my code, in case some of my parameters are interfering with verbosity. But even with the most basic default model, I’m not seeing the expected behavior:\r\n\r\n```\r\nmodel = PySRRegressor(\r\n    model_selection=\"best\",\r\n    run_id=f'SkewNormal - {datetime.datetime.now().strftime(\"%Y-%m-%d-%H-%M-%S.%f\")[:-4]}',\r\n    niterations=10000000,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\"],\r\n    unary_operators=[\"log\", \"sqrt\", \"square\",\"exp\"\r\n                     # , \"sin\", \"cos\", \"tan\"\r\n                     ],\r\n    maxsize=12,\r\n    warm_start=True,\r\n    temp_equation_file=False,\r\n    output_directory=\"C:/Users/person/Desktop/output/Skewnormal\",\r\n    verbosity=1,\r\n    timeout_in_seconds=120,\r\n    # early_stop_condition=\"f(loss, complexity) = (loss <= 5.526e-15) && (complexity < 6)\",\r\n    print_precision=6\r\n)\r\n```\r\nThanks for your time! ",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "The verbosity parameter is an integer; but at the moment it's just 0=>nothing, and 1+=>verbose. So I'm assuming anything in between gets rounded down to 0",
+              "createdAt": "2025-05-15T06:37:32Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0xNVQwNzozNzozMiswMTowMM4AyLeb"
+          }
+        }
+      }
+    }
+  }
+}

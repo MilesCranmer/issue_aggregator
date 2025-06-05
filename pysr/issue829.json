@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 829,
+        "title": "Upper limit of 6 expressions",
+        "body": "### Discussed in https://github.com/MilesCranmer/PySR/discussions/828\n\n<div type='discussions-op-text'>\n\n<sup>Originally posted by **CleverCompiler-oss** February 13, 2025</sup>\nGood day! \nI am trying to predict 5 or more coefficients in a polynomial. \nFor degrees less than 5, this works. But starting with 5 different parameters, an error occurs:\n**_\"JuliaError: TaskFailedException\n    nested task error: BoundsError: attempt to access NTuple{6, Symbol} at index [7]\"_**\n\nI am using the following code:\n```\n\nimport numpy as np\nimport matplotlib.pyplot as plt\nfrom pysr import PySRRegressor, TemplateExpressionSpec\nX = np.random.randint(1, 21, 1000)\nY = np.array(1.2*X + 3.1*X**2 + 6.1*X**3 - 11.7*X**4 -0.9*X**5 + 47)\n\ntemplate = TemplateExpressionSpec(\n    function_symbols=['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'f'],\n    combine=\"((; a0, a1, a2, a3, a4, a5, f), (x,)) -> a5()*(f(x))^5 + a4()*(f(x))^4 + a3()*(f(x))^3 + a2()*(f(x))^2 + a1()*(f(x))^1 + a0()\",\n)\n\nmodel = PySRRegressor(\n    expression_spec=template,\n)\nmodel.fit(X.reshape(-1, 1), Y)\n```\nCan you tell me how this can be fixed? **Thank you very much!!!**</div>",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "This is a real bug. It's due to the code involved with coloring the printing:\n\n```julia\nfunction _colors(::Val{n}) where {n}\n    return ntuple(\n        (i -> (:magenta, :green, :red, :blue, :yellow, :cyan)[mod1(i, n)]), Val(n)\n    )\nend\n```\n\nthe fix is just to replace the `n` with 6:\n\n```diff\n function _colors(::Val{n}) where {n}\n     return ntuple(\n-        (i -> (:magenta, :green, :red, :blue, :yellow, :cyan)[mod1(i, n)]), Val(n)\n+        (i -> (:magenta, :green, :red, :blue, :yellow, :cyan)[mod1(i, 6)]), Val(n)\n    )\nend\n```\n\n",
+              "createdAt": "2025-02-13T20:46:37Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOnmjpaA=="
+          }
+        }
+      }
+    }
+  }
+}

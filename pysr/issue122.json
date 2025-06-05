@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 122,
         "title": "[BUG] *not working if y is pd.DataFrame*",
         "body": "It works when ` X` is `pd.DataFrame`.\r\nHowever, if `y` is `pd.DataFrame`, it gives the following error (it works if `y` is `np.array` though):\r\n\r\nWarning (from warnings module):\r\n  File \"C:\\Program Files\\Python39\\lib\\site-packages\\pysr\\sr.py\", line 942\r\n    warnings.warn(\"Resetting variable_names from X.columns\")\r\nUserWarning: Resetting variable_names from X.columns\r\nTraceback (most recent call last):\r\n  File \"C:\\Users\\butter\\Documents\\pySR_test.py\", line 41, in <module>\r\n    model.fit(X, y)\r\n  File \"C:\\Program Files\\Python39\\lib\\site-packages\\pysr\\sr.py\", line 808, in fit\r\n    self._run(\r\n  File \"C:\\Program Files\\Python39\\lib\\site-packages\\pysr\\sr.py\", line 953, in _run\r\n    assert not isinstance(y, pd.DataFrame)\r\nAssertionError\r\n\r\n\r\nIf `y` is `pd.Series` it gives following error:\r\nTraceback (most recent call last):\r\n  File \"C:\\Users\\butter\\Documents\\pySR_test.py\", line 41, in <module>\r\n    model.fit(X, y)\r\n  File \"C:\\Program Files\\Python39\\lib\\site-packages\\pysr\\sr.py\", line 808, in fit\r\n    self._run(\r\n  File \"C:\\Program Files\\Python39\\lib\\site-packages\\pysr\\sr.py\", line 985, in _run\r\n    y = y.reshape(-1)\r\n  File \"C:\\Program Files\\Python39\\lib\\site-packages\\pandas\\core\\generic.py\", line 5583, in __getattr__\r\n    return object.__getattribute__(self, name)\r\nAttributeError: 'Series' object has no attribute 'reshape'\r\n\r\nI think it would be fine to work with `y` too DataFrame.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This is actually expected behaviour - hence why there's the AssertionError. However, you raise a good point and I think I should just automatically convert `pd.Series` into numpy arrays internally, since to the user it seems like if `X` can be a series, then `y` should be too. Will close this when it's added.",
               "createdAt": "2022-04-09T17:06:08Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Fixed with [ad8332d](https://github.com/MilesCranmer/PySR/commit/ad8332d016b1b3310306f6b2c7ef8166ff9e5de1). y can be a pd.Series or pd.DataFrame.",
               "createdAt": "2022-04-26T20:41:44Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOQizB_Q=="
           }

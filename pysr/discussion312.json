@@ -1,92 +1,77 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 312,
         "title": "Computing AIC, computing convergence, beginner tips",
         "body": "Hi Miles,\r\n\r\nHope all's good! I would love to test PySR despite my pretty poor skills in Python/Julia (I work much more on R but I should definitely change that). I was a Eureqa user and I really love the interface/tool. I also got pretty cool results with Eureqa that were confirmed later with new data.\r\nI would like to test PySR with my dataset (taxa abundance and gene frequency) to predict toxicity. I am trying to follow the PySR doc with Docker but I am not sure how to define the predictive var and the response var. Is there any tutorial (for beginners) that you know of?  \r\nI can see how to set up the model and the search space. Not sure if there is a convergence or any search parameters to tell the model to stop searching (a bit what there was with Eureqa and convergence)?\r\nIs there a way to select (after the search) the simplest model based on AIC for example?\r\n\r\nSorry if these are very naive questions!\r\n\r\nThanks for your help,\r\n\r\nNico",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi Nico,\r\n\r\nThanks for reaching out!\r\n\r\nFor beginner tutorials, you could try the online tutorial here: https://colab.research.google.com/github/MilesCranmer/PySR/blob/master/examples/pysr_demo.ipynb\r\n\r\n> I can see how to set up the model and the search space. Not sure if there is a convergence or any search parameters to tell the model to stop searching (a bit what there was with Eureqa and convergence)?\r\n\r\nThere are no convergence tests available (sometimes the model might look like its converged, but then find a new branch of the evolutionary tree, and continue from there). However, there are some ways you can trigger an early stop; see the \"Stopping Criteria\" section of the API reference page: https://astroautomata.com/PySR/api/#stopping-criteria\r\n\r\n> Is there a way to select (after the search) the simplest model based on AIC for example?\r\n\r\nNot by default, although you can set up your own selection strategies. After the search, the Pareto front is stored in `model.equations_`, which is a [pandas dataframe](https://pandas.pydata.org/docs/user_guide/dsintro.html#dataframe) with columns for the loss, complexity, and the equation.\r\n\r\nFor example, to implement AIC, you could do this as follows:\r\n\r\n```py\r\nequations = model.equations_\r\n\r\nimport re\r\nnumber_matching_pattern = r\"(?<![a-zA-Z0-9_.])[+-]?(\\d+\\.\\d+|\\.\\d+|\\d+\\.|\\d+)(?:[eE][-+]?\\d+)?\"\r\n\r\n# Count number of constants:\r\nequations[\"number_constants\"] = [len(re.findall(number_matching_pattern, eq)) for eq in equations[\"equation\"]]\r\n\r\n# Compute log likelihood (for example)\r\nequations[\"log_like\"] = - equations[\"loss\"] * len(X)\r\n\r\n# Compute AIC:\r\nequations[\"aic\"] = 2 * equations[\"number_constants\"] - 2 * equations[\"log_like\"]\r\n\r\n# Find best AIC:\r\nbest_row = equations[\"aic\"].argmin()\r\n\r\n# Use in different contexts:\r\nmodel.sympy(index=best_row)  # SymPy version\r\nmodel.latex(index=best_row)  # LaTeX version\r\nmodel.predict(X, index=best_row)  # Make predictions with equation on some data `X`\r\n```\r\n\r\n",
               "createdAt": "2023-04-21T22:34:30Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "ntromas"
               },
               "body": "Hi Miles,\n\nThanks!!\nWonder if you would know tutorials with real data using docker and PySR?\nEx: importing a file, selecting predictive and response var, setting up the\nmodel, run it, selecting best equations, ...\n\nCheers!\n\nNico\n\nLe ven. 21 avr. 2023 18 h 34, Miles Cranmer ***@***.***> a\nécrit :\n\n> Hi Nico,\n>\n> Thanks for reaching out!\n>\n> For beginner tutorials, you could try the online tutorial here:\n> https://colab.research.google.com/github/MilesCranmer/PySR/blob/master/examples/pysr_demo.ipynb\n>\n> I can see how to set up the model and the search space. Not sure if there\n> is a convergence or any search parameters to tell the model to stop\n> searching (a bit what there was with Eureqa and convergence)?\n>\n> There are no convergence tests available (sometimes the model might look\n> like its converged, but then find a new branch of the evolutionary tree,\n> and continue from there). However, there are some ways you can trigger an\n> early stop; see the \"Stopping Criteria\" section of the API reference page:\n> https://astroautomata.com/PySR/api/#stopping-criteria\n>\n> Is there a way to select (after the search) the simplest model based on\n> AIC for example?\n>\n> Not by default, although you can set up your own selection strategies.\n> After the search, the Pareto front is stored in model.equations_, which\n> is a pandas dataframe\n> <https://pandas.pydata.org/docs/user_guide/dsintro.html#dataframe> with\n> columns for the loss, complexity, and the equation.\n>\n> For example, to implement AIC, you could do this as follows:\n>\n> equations = model.equations_\n> import renumber_matching_pattern = r\"(?<![a-zA-Z0-9_.])[+-]?(\\d+\\.\\d+|\\.\\d+|\\d+\\.|\\d+)(?:[eE][-+]?\\d+)?\"\n> # Count number of constants:equations[\"number_constants\"] = [len(re.findall(number_matching_pattern, eq)) for eq in equations[\"equation\"]]\n> # Compute log likelihood (for example)equations[\"log_like\"] = - equations[\"loss\"] * len(X)\n> # Compute AIC:equations[\"aic\"] = 2 * equations[\"number_constants\"] - 2 * equations[\"log_like\"]\n> # Find best AIC:best_row = equations[\"aic\"].argmin()\n> # Use in different contexts:model.sympy(index=best_row)  # SymPy versionmodel.latex(index=best_row)  # LaTeX versionmodel.predict(X, index=best_row)  # Make predictions with equation on some data `X`\n>\n> —\n> Reply to this email directly, view it on GitHub\n> <https://github.com/MilesCranmer/PySR/discussions/312#discussioncomment-5690635>,\n> or unsubscribe\n> <https://github.com/notifications/unsubscribe-auth/ABY5D6DBZ7BZDITCBMSX3RDXCMDQFANCNFSM6AAAAAAXHKB3EE>\n> .\n> You are receiving this because you authored the thread.Message ID:\n> ***@***.***>\n>\n",
               "createdAt": "2023-04-21T22:59:54Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I gave a talk+tutorial here: https://www.youtube.com/watch?v=q6tjKXmhiMs, although it also ventures into some deep learning stuff. The accompanying tutorial code is here: https://github.com/MilesCranmer/pysr_tutorial, which uses docker.",
               "createdAt": "2023-04-21T23:10:02Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "ntromas"
               },
               "body": "Fantastic, I will give a try ASAP!!\n\nThanks a lot for the help, highly appreciated!\n\nCheers,\n\nNico\n\nLe ven. 21 avr. 2023 à 19:29, Miles Cranmer ***@***.***> a\nécrit :\n\n> I don’t know what predictive and response variable are but I assume\n> predictive=X and response=y.\n>\n> —\n> Reply to this email directly, view it on GitHub\n> <https://github.com/MilesCranmer/PySR/discussions/312#discussioncomment-5690791>,\n> or unsubscribe\n> <https://github.com/notifications/unsubscribe-auth/ABY5D6BWYLUZOXYF7B4CLLDXCMJ7DANCNFSM6AAAAAAXHKB3EE>\n> .\n> You are receiving this because you authored the thread.Message ID:\n> ***@***.***>\n>\n\n\n-- \n***************************************************************\nNicolas Tromas PhD\nLS2N/Université de Montréal\nE-mail: ***@***.*** ***@***.***>\nResearchgate: NTromasPage\n<https://www.researchgate.net/profile/Nicolas_Tromas>\nWeb: http://www.shapirolab.ca/\n***************************************************************\n",
               "createdAt": "2023-04-22T01:48:46Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "ntromas"
               },
               "body": "Hi Miles,\n\nI think I made it working properly! However I wonder how to avoid that the\nsearch space is stuck. With Eureqa, I repeated each run 10x, then I kept\nthe best formula based on AICc.\nI also wonder how to improve the process time, taking into account that I\nmight have ~1000 observations, and 5000 predictive variables.\nTo start, I used a simpler dataset with only 40 predictive var andthe\nfollowing parameters:\ndefault_pysr_params = dict(populations=80,model_selection=\"best\",)\n\nfrom pysr import PySRRegressor\nmodel = PySRRegressor(niterations=40, binary_operators=[\"+\", \"*\",\n\"-\",\"/\"],unary_operators=[\"exp\",\"inv(x) =\n1/x\",],extra_sympy_mappings={\"inv\": lambda x: 1 / x},**default_pysr_params)\nmodel.fit(X,Y)\n\nThanks for your time and advices!!\n\nCheers,\n\nNico\n\nLe ven. 21 avr. 2023 à 21:48, Nicolas Tromas ***@***.***> a\nécrit :\n\n> Fantastic, I will give a try ASAP!!\n>\n> Thanks a lot for the help, highly appreciated!\n>\n> Cheers,\n>\n> Nico\n>\n> Le ven. 21 avr. 2023 à 19:29, Miles Cranmer ***@***.***> a\n> écrit :\n>\n>> I don’t know what predictive and response variable are but I assume\n>> predictive=X and response=y.\n>>\n>> —\n>> Reply to this email directly, view it on GitHub\n>> <https://github.com/MilesCranmer/PySR/discussions/312#discussioncomment-5690791>,\n>> or unsubscribe\n>> <https://github.com/notifications/unsubscribe-auth/ABY5D6BWYLUZOXYF7B4CLLDXCMJ7DANCNFSM6AAAAAAXHKB3EE>\n>> .\n>> You are receiving this because you authored the thread.Message ID:\n>> ***@***.***>\n>>\n>\n>\n> --\n> ***************************************************************\n> Nicolas Tromas PhD\n> LS2N/Université de Montréal\n> E-mail: ***@***.*** ***@***.***>\n> Researchgate: NTromasPage\n> <https://www.researchgate.net/profile/Nicolas_Tromas>\n> Web: http://www.shapirolab.ca/\n> ***************************************************************\n>\n\n\n-- \n***************************************************************\nNicolas Tromas PhD\nLS2N/Université de Montréal\nE-mail: ***@***.*** ***@***.***>\nResearchgate: NTromasPage\n<https://www.researchgate.net/profile/Nicolas_Tromas>\nWeb: http://www.shapirolab.ca/\n***************************************************************\n",
               "createdAt": "2023-04-24T14:16:18Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "ntromas"
               },
               "body": "Hi Miles,\n\nThanks a lot! Awesome 👌\nIs there a way to get R2 for each equations?\nI got really cool results for my dataset that were confirmed with other\nanalysis :)\n\nNico\n\nLe lun. 24 avr. 2023 10 h 46, Miles Cranmer ***@***.***> a\nécrit :\n\n> Maybe have a look at https://astroautomata.com/PySR/tuning/ as well as\n> the API reference page? There are some other discussions on improving\n> performance which might be useful too.\n>\n> —\n> Reply to this email directly, view it on GitHub\n> <https://github.com/MilesCranmer/PySR/discussions/312#discussioncomment-5709374>,\n> or unsubscribe\n> <https://github.com/notifications/unsubscribe-auth/ABY5D6AUJ26HN4KN2POI4ELXC2G2XANCNFSM6AAAAAAXHKB3EE>\n> .\n> You are receiving this because you authored the thread.Message ID:\n> ***@***.***>\n>\n",
               "createdAt": "2023-04-24T22:37:10Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "ntromas"
               },
               "body": "Hi Miles,\n\nThanks!! It  was not clear if PySR automatically split the dataset into\ntraining and testing dataset.\nIf not, I should generate it and then use y_pred with my testing df that\nwould have a similar number of columns than X.\n\nCheers!!\n\nNico\n\nLe mar. 25 avr. 2023 à 07:48, Miles Cranmer ***@***.***> a\nécrit :\n\n> You can do this with sklearn:\n>\n> import sklearn\n>\n> equation_index = 10  # choose an equation\n> y_pred = model.predict(X, equation_index)\n> r2 = sklearn.metrics.r2_score(y, y_pred)\n>\n> —\n> Reply to this email directly, view it on GitHub\n> <https://github.com/MilesCranmer/PySR/discussions/312#discussioncomment-5718886>,\n> or unsubscribe\n> <https://github.com/notifications/unsubscribe-auth/ABY5D6CAJG6ZSEQ4IGYOMDLXC62ZDANCNFSM6AAAAAAXHKB3EE>\n> .\n> You are receiving this because you authored the thread.Message ID:\n> ***@***.***>\n>\n\n\n-- \n***************************************************************\nNicolas Tromas PhD\nLS2N/Université de Montréal\nE-mail: ***@***.*** ***@***.***>\nResearchgate: NTromasPage\n<https://www.researchgate.net/profile/Nicolas_Tromas>\nWeb: http://www.shapirolab.ca/\n***************************************************************\n",
               "createdAt": "2023-04-25T21:25:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "ntromas"
               },
               "body": "Hi Miles,\n\nHope all's good!\n\nI would have 2 questions for you:\n1/ When I change from niteration=100 to =200, the time process is\nrespectively 20min to >1 day...Is it normal?\n2/When I compared R2 (with the best equation based on score)  from training\nand R2 from testing, I observe huge difference (e.g 90% vs 2%). I though SR\nwas robust to overfitting?\n\nCheers,\n\nNico\n\ndefault_pysr_params = dict(populations=100,model_selection=\"best\",)\n\nmodel = PySRRegressor(niterations=100, binary_operators=[\"+\", \"*\",\n\"-\",\"/\"],unary_operators=[\"exp\",\"inv(x) =\n1/x\",],extra_sympy_mappings={\"inv\": lambda x: 1 / x},**default_pysr_params)\n\n\n\nLe mar. 25 avr. 2023 à 19:48, Miles Cranmer ***@***.***> a\nécrit :\n\n> PySR does not do this split. You should only give your training data to\n> PySR.\n>\n> —\n> Reply to this email directly, view it on GitHub\n> <https://github.com/MilesCranmer/PySR/discussions/312#discussioncomment-5725423>,\n> or unsubscribe\n> <https://github.com/notifications/unsubscribe-auth/ABY5D6B5LMLSJB6KARHQ63DXDBPFNANCNFSM6AAAAAAXHKB3EE>\n> .\n> You are receiving this because you authored the thread.Message ID:\n> ***@***.***>\n>\n\n\n-- \n***************************************************************\nNicolas Tromas PhD\nLS2N/Université de Montréal\nE-mail: ***@***.*** ***@***.***>\nResearchgate: NTromasPage\n<https://www.researchgate.net/profile/Nicolas_Tromas>\nWeb: http://www.shapirolab.ca/\n***************************************************************\n",
               "createdAt": "2023-04-28T11:55:45Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mnky9800n"
               },
               "body": "Beginner materials is super awesome! I have really enjoyed the tutorials thus far.\r\n\r\nI am trying to interpret how PySR can do multiple equation regression. For example, a 2d pendulum, a falling sliding ladder, etc. I may be misunderstanding, but there should be two equations of motion x(t) and y(t), for example. But all the examples I find seem to only ever solve for one equation. Maybe I am not looking at the right examples?\r\n\r\nIf these examples do not exist, but there is some code somewhere in how to implement them. I would be happy to write the tutorial to make a 2d code example.",
               "createdAt": "2023-06-05T18:45:50Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNi0wNVQxOTo0NTo1MCswMTowMM4AXPqK"
           }

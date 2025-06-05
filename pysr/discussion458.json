@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 458,
         "title": "Is the code which generated the animation in the Readme public?",
         "body": "Hi everyone! I was wanting to generate animations for specific problems in my field in a similar style to the (beautiful) animation in the Readme, but I wasn't able to immediately find the code that generated it or similar questions asking for this here or in the issues page. Does anyone know where it was created or if the code is public? I'd love to do something similar, though it looks like it was generated using the 3B1B style library. ",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hey @Boxylmer,\r\nThe animation source code is in the pysr paper repo here: https://github.com/MilesCranmer/pysr_paper in the `animations` folder. I describe the process in `animations/README.md`.\r\nCheers,\r\nMiles",
               "createdAt": "2023-11-08T16:21:02Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMS0wOFQxNjoyMTowMiswMDowMM4AcqKF"
           }

@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 904,
+        "title": "Revisiting Symbolic regression with \"conditional constants\" (#521)",
+        "body": "Thank you for developing pySR! I am facing the problem as described in [#521](https://github.com/MilesCranmer/PySR/discussions/521) asked by @mkellerressel . Specifically, the problem is to learn an equation that has two types of inputs, numeric (x) and categorical (i). I want a single equation where the constants ($\\theta$) depend on the categorical variable, $y \\approx f(x,\\theta_i)$\r\n\r\nIn the responses there where three suggestions:\r\n(1) The approach of the paper [Rediscovering orbital mechanics with machine learning](https://arxiv.org/abs/2202.02306). I don't _think_ this approach will work for my more general case. Please correct me if I'm wrong.\r\n(2) Using custom trees via an update [Program synthesis/graph expressions #271](https://github.com/MilesCranmer/SymbolicRegression.jl/pull/271). At the time of the previous post, this wasn't implemented. But, it is now. Any pointers on how to do this would be greatly appreciated. For example, do I need to modify the source code?\r\n(3) Using a custom loss function as suggested by @gm89uk . This was really interesting approach, but it wasn't obvious to me how to extend for non-additive cases. For example, two non-linear constants.\r\n\r\nAny thoughts or pointers would be appreciated.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "The latest PySR which came out some time after those previous responses has a feature dedicated for this! Check out `TemplateExpressionSpec`, specifically with the `parameters` option: https://ai.damtp.cam.ac.uk/pysr/examples/#11-expression-specifications:\r\n\r\n```python\r\nspec = TemplateExpressionSpec(\r\n    expressions=[\"f\", \"g\"],\r\n    variable_names=[\"x1\", \"x2\", \"class\"],\r\n    parameters={\"p1\": 3, \"p2\": 3},\r\n    combine=\"p1[class] * sin(f(x1, x2)) + p2[class]\",\r\n)\r\n\r\nmodel = PySRRegressor(expression_spec=spec)\r\nmodel.fit(X, y)\r\n```\r\n\r\nIn this example, the third column of `X` is the categorical feature, and the first two are regular features.\r\n\r\nWe also prescribe the specific form they are used. But you can also just write down\r\n\r\n```python\r\n    combine=\"f(x1, x2, p1[class], p2[class])\"\r\n```\r\n\r\nand it is like your expression `f` has two conditional constants.",
+              "createdAt": "2025-04-28T18:40:46Z"
+            },
+            {
+              "author": {
+                "login": "mkellerressel"
+              },
+              "body": "`ParametricExpressionSpec` and `TemplateExpressionSpec` are great additions to pySR, thanks @MilesCranmer for including them! My master student who is working on the problem that sparked the question (https://github.com/MilesCranmer/PySR/discussions/521) has used them with success to tackle the 'conditional regression' problem.",
+              "createdAt": "2025-04-29T07:51:39Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNC0yOVQwODo1MTozOSswMTowMM4Axgbo"
+          }
+        }
+      }
+    }
+  }
+}

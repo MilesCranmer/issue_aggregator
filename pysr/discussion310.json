@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 310,
         "title": "Progress bar should print to stderr",
         "body": "I see that the progress bar can be turned off by setting progress=False. However, sometimes it is useful to look at the progress, while at the same time piping the results to another process. It looks like `SymbolicRegression.jl` is using an older version of `ProgressBars.jl`. \r\n\r\nIt has been pointed out that default behaviour of `ProgressBars.jl` should be to print to stderr - [cloud-oak/ProgressBars.jl/pull/47](https://github.com/cloud-oak/ProgressBars.jl/pull/47) -, and `ProgressBars.jl` has been updated to behave that way [cloud-oak/ProgressBars.jl](https://github.com/cloud-oak/ProgressBars.jl). Is there an easy way of making `SymbolicRegression.jl` compatible with updated `ProgressBars.jl`?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Good idea. The file `src/ProgressBars.jl` should be pretty much the same as the main repository except for a few tweaks. The patch from that PR should be hopefully straightforward to implement - want to add it in a pull request?",
               "createdAt": "2022-10-17T15:33:33Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "@Quarlos once #157 is merged, the upstream ProgressBars.jl will be used.",
               "createdAt": "2022-11-03T19:12:13Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0xMS0wM1QxOToxMjoxMyswMDowMM4APc41"
           }

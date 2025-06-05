@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 391,
         "title": "Frozen on M2 MacBook",
         "body": "Hi there, \r\n     trying the basic test implementation at https://github.com/MilesCranmer/PySR/blob/master/examples/pysr_demo.ipynb\r\nand when I get to model.fit(X, y) is hangs and says \r\n\r\nCompiling Julia backend...\r\n\r\nfor ever. What does this mean ? Is it doing anything? It has been like that for 10 mins. How long should it take normally to run on this test example? (some estimates would be useful). As I am on a jupyter notebook I understand that it is supposed to be printing out expressions every 5 seconds after the 1st iteration - so it hasn't yet done one iteration I think. If it makes a difference I am on an m2 mac.\r\n\r\nThanks for any help\r\n\r\nSteve A.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @steve-abel,\r\n\r\nSince you are running in Jupyter, have you checked the Jupyter logs? It prints the logs to stderr so it might be printing to the log file depending on how you have Jupyter set up.\r\n\r\nBut in general the \"Compiling Julia backend\" should be quite short. On an M2 mac it should be like ~10 seconds. My guess is just that it's printing the rest of the search results somewhere other than the Jupyter output.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2023-07-27T00:00:06Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNy0yN1QwMTowMDowNiswMTowMM4AZAzl"
           }

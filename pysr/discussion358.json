@@ -1,60 +1,49 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 358,
         "title": "How to create a custom loss function with a Riemann-sum approximation of the integral",
         "body": "Hi,\r\n\r\nI am creating a custom objective function and I want to calculate an approximation of the value of the integral of the guessed function over the domain x=0 to x=1.\r\nPurpose of doing this is so that I can scale my function's values by this amount so that the definite integral of the re-scaled guessed function over the domain x=0 to x=1 becomes 1.\r\n\r\nAssume there is only one independent variable, x.\r\n\r\n```\r\nobjective = \"\"\"\r\nfunction eval_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    # Evaluate numerator:\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    !flag && return L(Inf)\r\n    println(\"TREE\")\r\n    \r\n    num_rectangles = 1000\r\n    \r\n    norm_constant = 0\r\n    prev_expr_val = -1\r\n    for i in 0:num_rectangles:\r\n        cur_float_num = i / (1.0 * num_rectangles)\r\n        abstract_array = [cur_float_num]\r\n        cur_expr_val = eval_tree_array(tree, abstract_array, options)\r\n        \r\n        if i > 0:\r\n            cur_trapezoid_area = (cur_expr_val + prev_expr_val) * / (2.0 * num_rectangles)\r\n            norm_constant += cur_trapezoid_area\r\n        \r\n        prev_expr_val = cur_expr_val\r\n    \r\n    prediction = prediction / norm_constant\r\n    \r\n    print(\"HELLO WORLD\")\r\n    \r\n    return -1 * sum(log.(prediction.*prediction)) / (2*length(prediction))\r\nend\r\n\"\"\"\r\n\r\nmodel = PySRRegressor(\r\n    niterations=40,  # < Increase me for better results\r\n    binary_operators=[\"+\", \"*\", \"-\", \"/\"],\r\n    unary_operators=[\r\n        \"cos\",\r\n        \"exp\",\r\n        \"sin\",\r\n        \"inv(x) = 1/x\",\r\n        # ^ Custom operator (julia syntax)\r\n    ],\r\n    extra_sympy_mappings={\"inv\": lambda x: 1 / x},\r\n    # ^ Define operator for SymPy as well\r\n    #loss=\"loss(prediction, target) = (prediction - target)^2\",\r\n    full_objective=objective\r\n    # ^ Custom loss function (julia syntax)\r\n)\r\n```\r\n\r\nIs this close to how you would approximate the definite integral of the guessed function (the guessed function is represented by the tree \"tree\" here) in a custom Julia objective function?\r\nThank you, very much appreciated.\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This looks okay to me. Some notes:\r\n\r\n1. You should probably return early with `L(Inf)` if any of the `cur_expr_val` are negative. Or simply treat the square of the expression as the probability to guarantee this.\r\n2. You are mixing Python and Julia syntax. Instead of \r\n\r\n```julia\r\n if i > 0:\r\n    cur_trapezoid_area = (cur_expr_val + prev_expr_val) * / (2.0 * num_rectangles)\r\n    norm_constant += cur_trapezoid_area\r\n```\r\n\r\nyou should write\r\n\r\n```julia\r\n if i > 0\r\n    cur_trapezoid_area = (cur_expr_val + prev_expr_val) / (2.0 * num_rectangles)\r\n    norm_constant += cur_trapezoid_area\r\nend\r\n```\r\n\r\n(also there's an error in the expression)\r\n\r\nSimilarly for the for loop.\r\n\r\n3. Note you can also use external packages in case you don't want to do this from scratch. See https://astroautomata.com/PySR/examples/#7-julia-packages-and-types for an example.\r\n4. It would be faster if you vectorize the calculation along the domain at once. But maybe don't worry about that unless you need to, as it would require a bit of work.",
               "createdAt": "2023-06-29T16:51:10Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "unary-code"
               },
               "body": "Hi,\r\n\r\nI just ran this objective function:\r\n```\r\nobjective =\r\nfunction eval_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    # Evaluate numerator:\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    !flag && return L(Inf)\r\n    println(\"TREE\")\r\n    \r\n    num_rectangles = 1000\r\n    \r\n    # You make sure that this object is of type Matrix, not Vector and not Array.\r\n    evenly_spaced_numbers = reshape([LinRange(0, 1, num_rectangles + 1);], num_rectangles + 1, 1)\r\n    println(typeof(evenly_spaced_numbers))\r\n    println(size(evenly_spaced_numbers))\r\n    println(evenly_spaced_numbers[1:5, 1])\r\n    \r\n    prediction_on_evenly_spaced_numbers, flag_on_evenly_spaced_numbers = eval_tree_array(tree, evenly_spaced_numbers, options)\r\n    \r\n    println(length(prediction_on_evenly_spaced_numbers))\r\n    println(typeof(prediction_on_evenly_spaced_numbers))\r\n    println(prediction_on_evenly_spaced_numbers[1])\r\n    \r\n    prediction_on_evenly_spaced_numbers = prediction_on_evenly_spaced_numbers .* prediction_on_evenly_spaced_numbers\r\n    \r\n    println(length(prediction_on_evenly_spaced_numbers))\r\n    println(typeof(prediction_on_evenly_spaced_numbers))\r\n    println(prediction_on_evenly_spaced_numbers[1])\r\n    \r\n    norm_constant = 0\r\n    prev_expr_val = -1\r\n    for i in 0:num_rectangles\r\n        cur_expr_val = prediction_on_evenly_spaced_numbers[i+1]\r\n        \r\n        if (i > 0)\r\n            cur_trapezoid_area = (cur_expr_val + prev_expr_val) / (2.0 * num_rectangles)\r\n            norm_constant += cur_trapezoid_area\r\n        end\r\n        \r\n        prev_expr_val = cur_expr_val\r\n    end\r\n    \r\n    prediction = prediction / norm_constant\r\n    \r\n    println(\"HELLO WORLD\")\r\n    \r\n    return -1 * sum(log.(prediction.*prediction)) / (2*length(prediction))\r\nend\r\n\r\n```\r\n\r\nThe printed output of these three prints (before prediction_on_evenly_spaced_numbers .* prediction_on_evenly_spaced_numbers)\r\n```\r\nprintln(length(prediction_on_evenly_spaced_numbers))\r\nprintln(typeof(prediction_on_evenly_spaced_numbers))\r\nprintln(prediction_on_evenly_spaced_numbers[1])\r\n```\r\nis\r\n```\r\n1\r\nVector{Float64}\r\n1000.0\r\n```\r\n\r\nWhy is the \"prediction_on_evenly_spaced_numbers\" output of eval_tree_array(tree, evenly_spaced_numbers, options) only have 1 element?\r\nI would expect it to have 1001 elements, because \"evenly_spaced_numbers\" has 1001 elements.\r\n\r\nThanks.\r\n\r\n",
               "createdAt": "2023-06-29T19:03:44Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This is a common gotcha. In Julia, similar to Fortran, arrays are stored in column-major order. This means that columns come first, rows come second (i.e., functions operating on matrices usually expect data to come in this format). So for the function\r\n```julia\r\neval_tree_array(tree, X, options)\r\n```\r\n`X` has to have columns (features) first, and rows second. So that `X[feature, row]` is your data.\r\n\r\nWhat you wrote is\r\n```julia\r\nevenly_spaced_numbers = reshape([LinRange(0, 1, num_rectangles + 1);], num_rectangles + 1, 1)\r\n```\r\nwhich looks to be `X[row, feature]`. This is row-major order which is used in Python/C++, but incompatible with Julia/Fortran.\r\n\r\n(the backend should really try to automatically catch when users do this and throw an error.)\r\n",
               "createdAt": "2023-06-29T19:30:10Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "unary-code"
               },
               "body": "Oh okay, thanks for this suggestion. I fixed the order so now the code is \"reshape([LinRange(0, 1, num_rectangles + 1);], 1, num_rectangles + 1)\", but now the issue is that when I call model.fit(X, y), it takes *forever* (more than 10 minutes).\r\n\r\nThis was the only change I did, but just for your reference, the objective function is now\r\n```\r\nobjective = \"\"\"\r\nfunction eval_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    # Evaluate numerator:\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    !flag && return L(Inf)\r\n    println(\"TREE\")\r\n    \r\n    num_rectangles = 1000\r\n    \r\n    # You make sure that this object is of type Matrix, not Vector and not Array.\r\n    evenly_spaced_numbers = reshape([LinRange(0, 1, num_rectangles + 1);], 1, num_rectangles + 1)\r\n    println(typeof(evenly_spaced_numbers))\r\n    println(size(evenly_spaced_numbers))\r\n    println(evenly_spaced_numbers[1, 1:5])\r\n    \r\n    prediction_on_evenly_spaced_numbers, flag_on_evenly_spaced_numbers = eval_tree_array(tree, evenly_spaced_numbers, options)\r\n    \r\n    println(length(prediction_on_evenly_spaced_numbers))\r\n    println(typeof(prediction_on_evenly_spaced_numbers))\r\n    println(prediction_on_evenly_spaced_numbers[1])\r\n    \r\n    prediction_on_evenly_spaced_numbers = prediction_on_evenly_spaced_numbers .* prediction_on_evenly_spaced_numbers\r\n    \r\n    println(length(prediction_on_evenly_spaced_numbers))\r\n    println(typeof(prediction_on_evenly_spaced_numbers))\r\n    println(prediction_on_evenly_spaced_numbers[1])\r\n    \r\n    norm_constant = 0\r\n    prev_expr_val = -1\r\n    for i in 0:num_rectangles\r\n        cur_expr_val = prediction_on_evenly_spaced_numbers[i+1]\r\n        \r\n        if (i > 0)\r\n            cur_trapezoid_area = (cur_expr_val + prev_expr_val) / (2.0 * num_rectangles)\r\n            norm_constant += cur_trapezoid_area\r\n        end\r\n        \r\n        prev_expr_val = cur_expr_val\r\n    end\r\n    \r\n    prediction = prediction / norm_constant\r\n    \r\n    println(\"HELLO WORLD\")\r\n    \r\n    return -1 * sum(log.(prediction.*prediction)) / (2*length(prediction))\r\nend\r\n\"\"\"\r\n\r\n```\r\n\r\nWhat are some possible reasons why model.fit(X, y) takes forever?\r\nIs there a way to get model.fit(X, y) to show you the output of print statements within the custom objective function, before model.fit(X, y) finishes, so that I can understand what is being run?\r\nIs there a way to *force* model.fit(X, y) to finish, so that you can see the output of your debug print statements (that you put inside the lsos function) so that you can debug?",
               "createdAt": "2023-06-29T22:23:16Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Not sure I 100% understand the question but  a few things look to be slowing it down:\r\n\r\n1) the print statements,\r\n\r\n2) because you are doing 1000x more evaluations per expression,\r\n\r\n3) perhaps the biggest issue is that there are some type instabilities in your code — eg norm_constant starts off being an integer but then changes to a float. That kind of thing can really slow down Julia code as the compiler can’t do its magic. To fix it you should do `norm_constant = T(0)` so that it starts off being of type `T` (which is the same type as the evaluation output. Same issue for `prev_expr_val`.",
               "createdAt": "2023-06-29T22:40:31Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNi0yOVQyMzo0MDozMSswMTowMM4AYG7k"
           }

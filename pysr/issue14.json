@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 14,
         "title": "API for adding equation constraints",
         "body": "Curious to hear if anybody has an idea for an API that implements more detailed equation constraints than just maxdepth and maxsize.\r\n\r\nToday I added a constraint on equations with the argument `limitPowComplexity`, which says that the exponent in a power law should never have a complexity greater than one. This results in much more interpretable equations. E.g.,\r\n\r\n1. `x0^(5.0)` is allowed\r\n2. `x0^(5.0 + x3^(x0+x2))` is not allowed, since the complexity of `5.0 + x3^(x0+x2)` is greater than 1.\r\n\r\nNow, I think I can set this up more generally but I am curious how I should set up the API. Please let me know below if you have any thoughts.\r\n\r\nThis was my initial idea:\r\n\r\n```\r\npysr(...\r\n     constraints={'pow': (-1, 1), 'mult': (5, 5)}\r\n     )\r\n```\r\n\r\nThis says that anytime a `pow` operator appears, its left argument can have arbitrary complexity (`-1`), but its right argument must have complexity equal to or less than `1`. It also says that the `mult` operator should only multiply two factors together if each factor's complexity is less than or equal to 5.\r\n\r\nThe nice thing about setting a max complexity on a per-operator basis is that I can allow things like very large sums chains, but simple multiplications. I think this will set up ways of making equations easier to interpret for complex problems.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Okay it turns out this feature is ***really*** useful for getting more interpretable equations! So I just implemented it with this API. Here's documentation:\r\n\r\nhttps://pysr.readthedocs.io/en/latest/docs/options/#limiting-pow-complexity",
               "createdAt": "2020-10-13T10:04:11Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOKi2pGA=="
           }

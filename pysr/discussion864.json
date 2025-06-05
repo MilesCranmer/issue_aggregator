@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 864,
+        "title": "Change the ordering of how `sympy` mappings are collected so that user-defined mappings override existing ones",
+        "body": "Hi,\r\n\r\nIn https://github.com/MilesCranmer/PySR/issues/856 a problem with the `cbrt` function led to a redefinition of the `sympy` mapping here https://github.com/MilesCranmer/PySR/pull/858 . While this solved the problem of using `model.predict`, the new mapping is cumbersome to read in `sympy` or `latex` form, making it hard to reuse the expression downstream.\r\n\r\nA simple solution for this would be to change the mapping back to `sympy.cbrt` to force nice looking expressions for `latex` and other applications outside the python API. However, this is difficult to do without the user writing their own parsing function to emulate the functionality of https://github.com/MilesCranmer/PySR/blob/master/pysr/export_sympy.py.\r\n\r\nA simple solution would be to change in https://github.com/MilesCranmer/PySR/blob/871a7101d3f7ec2a94519d2419ebf4d3123ac272/pysr/export_sympy.py#L81\r\n\r\n```python\r\n    local_sympy_mappings = {\r\n        **create_sympy_symbols_map(feature_names_in),\r\n        **(extra_sympy_mappings if extra_sympy_mappings is not None else {}),\r\n        **sympy_mappings,\r\n    }\r\n```\r\n\r\nto\r\n\r\n```python\r\n    local_sympy_mappings = {\r\n        **create_sympy_symbols_map(feature_names_in),\r\n        **sympy_mappings,\r\n        **(extra_sympy_mappings if extra_sympy_mappings is not None else {}),\r\n    }\r\n```\r\n\r\nthis way, the `extra_sympy_mappigns` would override the internal ones (`sympy_mappings`), allowing for the user to change the `cbrt` to a more readable format after training and validating the result using the python API. \r\n\r\nThis change would also allow users to have more control over the `sympy` mappings used beyond the specific problem that I've encountered.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "That’s a really great point! Yes I am all for that. In fact I’d even consider the current behavior a bug; so this is very worth changing. (Happy to take a PR if you have time; otherwise I will eventually get to it)",
+              "createdAt": "2025-03-11T00:55:42Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0xMVQwMDo1NTo0MiswMDowMM4Avg-u"
+          }
+        }
+      }
+    }
+  }
+}

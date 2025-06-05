@@ -1,30 +1,30 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 521,
         "title": "Symbolic regression with \"conditional constants\"",
         "body": "I would like to do symbolic regression on a dataset with two variables, say $x$ (real scalar) and $i$ (categorical) with response $y$.\r\nThe goal is to find a symbolic function $f(x) \\approx y$ that may involve constants *conditional on the value* of $i$, that is the constants in $f$ should be the same for any given value $i = c$, but may be different for, say $i = d  \\neq c$ \r\nIs it possible to do this with PySR? \r\nNote that this is not equivalent to splitting the dataset given the level of $i$ and fitting a separate symbolic regression model on each part, as this will give different functions $f_i(x) \\approx y$ on each part. I would like to have the same symbolic form *only with different constants* for each level of $i$. \r\n\r\nAny advice is appreciated!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hey @mkellerressel,\r\n\r\nGreat question. So the first thing I would suggest is trying the approach used here: https://arxiv.org/abs/2202.02306. This learns a mass parameter for each planet while simultaneously learning a model that takes those mass parameters as input. Then, finally, the neural network is approximated with symbolic regression.\r\n\r\nNow, to fit separate constants during symbolic regression itself (so you could solve this just with PySR/SR.jl), its not set up yet but I am planning to add this via https://github.com/MilesCranmer/SymbolicRegression.jl/pull/271 as it would let you define custom types of trees — including trees that have a variable set of constants!\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2024-01-12T11:48:27Z"
+            },
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "Hi @mkellerressel,\r\n\r\nI had the same problem and solved it with a custom loss function:\r\nhttps://github.com/MilesCranmer/PySR/discussions/701#discussioncomment-10491385.\r\n\r\nThe categorial group is passed as a nominal  group as weights from pysr to the custom loss function.\r\n",
+              "createdAt": "2024-09-01T13:57:39Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
-            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMS0xMlQxMTo0ODoyNyswMDowMM4Ae7zX"
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wOS0wMVQxNDo1NzozOSswMTowMM4AoGg0"
           }
         }
       }

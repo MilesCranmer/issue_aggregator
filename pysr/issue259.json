@@ -1,60 +1,49 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 259,
         "title": "[BUG] Colab broken on current Julia version",
         "body": "Related to #249 \r\n\r\nWhen I run the current colab notebook, I can't even get past the Julia install step.\r\n\r\n```\r\nInstalling Julia 1.7.2 on the current Colab Runtime...\r\n2023-01-30 19:40:18 URL:https://julialang-s3.julialang.org/bin/linux/x64/1.7/julia-1.7.2-linux-x86_64.tar.gz [123295596/123295596] -> \"/tmp/julia.tar.gz\" [1]\r\nInstalling PyCall.jl...\r\n  Installing known registries into `~/.julia`\r\nfree(): invalid pointer\r\n\r\nsignal (6): Aborted\r\nin expression starting at none:1\r\ngsignal at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)\r\nabort at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)\r\n```\r\n\r\nThanks to @jwuphysics for mentioning this!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Seems like all Julia installations are currently breaking on Colab:\r\n\r\n- https://github.com/JuliaLang/julia/issues/48461\r\n- https://discourse.julialang.org/t/google-colab-compatibility-broken/93004/9",
               "createdAt": "2023-01-31T01:48:30Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "fitriaramlan"
               },
               "body": "I think the colab broken is still happening?",
               "createdAt": "2023-02-06T23:45:54Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This should be fixed by https://github.com/googlecolab/colabtools/issues/3385.\r\n\r\nNot sure what errors you are seeing @fitriaramlan; the current colab notebook runs fine for me: https://colab.research.google.com/github/MilesCranmer/PySR/blob/master/examples/pysr_demo.ipynb",
               "createdAt": "2023-02-07T00:26:15Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "fitriaramlan"
               },
               "body": "Thanks @MilesCranmer. I was still using the previous code on the first cell. but now it runs well for me too.",
               "createdAt": "2023-02-07T10:21:53Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Great!",
               "createdAt": "2023-02-07T16:15:40Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOVLNW7Q=="
           }

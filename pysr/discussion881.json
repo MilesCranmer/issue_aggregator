@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 881,
+        "title": "Regress an expression of control laws",
+        "body": "First thanks for your excellent open-sourced work. I am using pySR to find the underneath expression in control problem. Currently, I use a Reinforcement Learning algorithm DDPG to train a neural network to stabilize  Pendulum and keep it vertical. Now, I randomly generated states (Pendulum x, y in cartesian coordinates and angular velocity) and feed forward them to DDPG and got output, namely, actions. I use pySR to fit states and actions, but the result show that loss is high and score is low. \r\nBinary operator: + - * /\r\nUnary operator: cos sine\r\nI also use plot to visualize actions Truth and predictions by pySR, and it give me a plot below.  Can you give me some advice on how to improve the regression result?\r\n![output](https://github.com/user-attachments/assets/d87cad6e-94e6-40df-a3f6-41c61cea7408)\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Have a look through the tuning page here: https://ai.damtp.cam.ac.uk/pysr/tuning/",
+              "createdAt": "2025-03-26T10:36:15Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0yNlQxMDozNjoxNSswMDowMM4AwKq5"
+          }
+        }
+      }
+    }
+  }
+}

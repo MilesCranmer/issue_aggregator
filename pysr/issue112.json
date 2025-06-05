@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 112,
         "title": "Loss function ideas",
         "body": "Thought of a couple of improvements to the loss function.\r\n\r\n1. The complexity frequencies should be a moving count, rather than summed over the entire search. This is because a new expression may be encountered later in the search that is much simpler, and so the frequencies need to be reset to account for this.\r\n2. The adaptive parsimony should actually be part of the loss function. Right now it is part of the simulated annealing which doesn't make much sense - it will just result in expressions being kept far more often than is necessary.\r\n3. When an expression is kept (a mutation fails), the expression should not replace the oldest expression - it should simply leave the population as is!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "3. is fixed by https://github.com/MilesCranmer/SymbolicRegression.jl/commit/e1aa4c1029c3193fcebf1b4512ef20e94513cb54, which adds the `skip_failed_mutation` option.\r\n\r\nEdit: now included in PySR 0.7.8 as default.",
               "createdAt": "2022-02-23T00:42:38Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "These should all be implemented now.",
               "createdAt": "2022-05-08T01:09:44Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOQsbV_g=="
           }

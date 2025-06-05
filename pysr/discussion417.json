@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 417,
         "title": "How to tell Symbolic Regression to create trees without using constants?",
         "body": "Hi,\r\n\r\nI wonder how can we tell SymbolicRegression.jl to not use any constants (e.g., 2.0, 15.6) when it creates trees. I am using SRRegressor via MLJ interface. Thank you.\r\n\r\nRegards",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "You can set the complexity of constants to a very large number. Like `complexity_of_constants=100`. Then it will avoid them.",
               "createdAt": "2023-08-27T00:46:49Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wOC0yN1QwMTo0Njo0OSswMTowMM4AaEEu"
           }

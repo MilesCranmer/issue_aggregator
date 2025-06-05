@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 38,
         "title": "Predefined function form",
         "body": "Hi Miles,\r\n\r\nIn the regression process, can we pre-define a function form first, and let the regression start from this function?\r\nfor example, If our objective function is x0**2 + 2.0*cos(x3) - 2.0 like example.py, that is simple, pysr can get the result quickly.\r\nhowever, In some research processes, our objective function may be more complicated, such as x0**2+(x1*x0)*exp(sin(x2)*x1), At this time, pysr may take longer to optimize and may fall into a local optimal solution.\r\nso, So, I wonder if it is possible to predefine a function form in the pysr function, for example, x0*exp(sin(x2)). Let the regression start from this function to speed up the efficiency of optimization. It is like applying a boundary condition to the solution equation. \r\n\r\nthanks.\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @nice-mon,\r\n\r\nMy recommendation for this, if you do know a common functional form, is to define this as a new feature. e.g., set x4=x0*exp(sin(x2)) before passing it.\r\n\r\nThe other option is to play with the `constraints` kwarg: https://pysr.readthedocs.io/en/latest/docs/options/#constraining-operator-complexity which I think can help with this. e.g., you could say that `exp` can only have complexity of at most 2 in its input, and maybe `sin` at most 1.\r\n\r\nBut in general, I would definitely expect PySR to find this function pretty easily with the right hyperparameters. Can you try re-running it with the future default hyperparameters listed here: https://github.com/MilesCranmer/PySR/issues/33? These hyperparameters are much better at avoiding local optima, partly because they turn off annealing.\r\n\r\nCheers!\r\nMiles",
               "createdAt": "2021-03-08T21:08:50Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "RafaGago"
               },
               "body": "Maybe adding a new constraint parameter saying how many times an operator can be used could help. Alternatively being able to specify complexity weights for each operator. \r\n\r\nIt would be useful for what I'm playing with. ",
               "createdAt": "2021-07-20T20:50:57Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHONKwwPg=="
           }

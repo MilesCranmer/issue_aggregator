@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 844,
+        "title": "Loading a model fitted with TemplateExpressionSpec",
+        "body": "Hi!\r\n\r\nFirst of all, thank you for a great library. \r\n\r\nI'm having some issues when working with TemplateExpresssionSpec, and it could very well be a fault on my end... If I create a model with a TemplateExpression, fit and save it, and then try and load it (with `from_file`) in a different script, I cannot do any model predictions. I just get the error:\r\n\r\n```\r\nValueError: Failed to evaluate the expression. If you are using a custom operator, make sure to define it in `extra_sympy_mappings`, e.g., `model.set_params(extra_sympy_mappings={'inv': lambda x: 1/x})`, where `lambda x: 1/x` is a valid SymPy function defining the operator. You can then run `model.refresh()` to re-load the expressions.\r\n```\r\n\r\nI don't use any custom operators in my TemplateEpxressionSpec, but maybe I still need to add some mappings to make the loading work?\r\n\r\nGrateful for any help!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Unfortunately template expressions aren't yet compatible with loading from file, sorry. I should definitely update the error message to mention this though, so I will move this to an issue.",
+              "createdAt": "2025-03-01T18:43:58Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0wMVQxODo0Mzo1OCswMDowMM4AvKBb"
+          }
+        }
+      }
+    }
+  }
+}

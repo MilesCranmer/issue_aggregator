@@ -1,18 +1,13 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 630,
         "title": "[Feature]: How to get the value of a constant in a fixed expression",
         "body": "### Feature Request\n\nHi, thanks for developing the helpful tool.\r\nI want to use pysr to get the values of the constants C1 and C2 in the following fixed expression:\r\ny=(1-C1)*x1/(x2+1)+x3/(C2+1)\r\nx1,x2,x3,y are known data sets.\r\nHow should I use pysr to get the constant C1 and C2?\r\nThanks！",
-        "comments":
-        {
+        "comments": {
           "nodes": [],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": null
           }

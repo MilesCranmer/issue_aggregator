@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 349,
         "title": "Update version of PySr",
         "body": "Hi,\r\nI want to update the PySr package. I went through all the installation steps from scratch. For example, I update Julia and then PySr. But it seems that the old version is still running.\r\nI am wondering if there is any straightforward way to update PySr.\r\nThanks ",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "More info needed: \r\n- Are you using pip or conda?\r\n- What did you try to update it?\r\n- How did you install Julia",
               "createdAt": "2023-06-12T19:54:49Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNi0xMlQyMDo1NDo0OSswMTowMM4AXe_D"
           }

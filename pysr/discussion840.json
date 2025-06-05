@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 840,
+        "title": "Meaning/definition of « steps » in Tensorboard ",
+        "body": "Hello!\r\n\r\nThank you for the integration of the tensorboard logger. However, on most graphs in Tensorboard I find it difficult to understand the X-axis, which is named « steps », and does not seem to be defined in the PySR documentation.\r\n\r\nIntuitively, I would have imagined that this number of steps would match « niterations » or « niterations * ncycles_per_iteration », but it does not seem to the case.\r\n\r\nHence my question, what is the intuitive definition/meaning of these « steps » ? Or more concretely, in the Julia code how often/when are logged the loss of the different complexities ?\r\n\r\nThanks in advance,\r\nErwan",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Here is where the logger callback sits: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/725876517e5ce2a50b5085532532e9238b3bf217/src/SymbolicRegression.jl#L993. So the total number of logger \"steps\" is equal to `niterations * populations * num_outputs`, where `num_outputs` is the number of target features (i.e., `y.shape[1]`, if it is a 2D array). Otherwise `num_outputs=1`.\r\n\r\nIndeed it might be nicer to store it in terms of fractional niterations or something, but I'm not sure how to do that in tensorboard. Let me know if you know of a way.",
+              "createdAt": "2025-02-27T09:13:12Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMi0yN1QwOToxMzoxMiswMDowMM4AvDyL"
+          }
+        }
+      }
+    }
+  }
+}

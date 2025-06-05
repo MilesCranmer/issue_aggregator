@@ -1,52 +1,42 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 585,
         "title": "Error Running PySR with Julia in Windows 10 (Anaconda Environment)",
         "body": "**Environment Details:**\r\n\r\n- Operating System: Windows-10-10.0.19045-SP0\r\n- Python Version: 3.11.7\r\n- Julia Version: (Unfortunately, I wasn't able to retrieve this detail due to the current issue, but it's supposed to be compatible with the latest pysr and juliacall versions.)\r\n- juliacall Version: 0.9.19\r\n- PySR Version: 0.18.0\r\n\r\n**My Problem:**\r\n\r\nHello, I'm encountering an error when trying to use PySR. The initialization of PySR fails. Despite installing and setting up PySR and Julia, as well as ensuring that the juliacall package is up to date, I run into a CalledProcessError during the execution of Julia package management commands initiated by juliacall. I have no idea how to resolve this issue. This error occurs despite following the setup procedures for PySR and Julia within an Anaconda environment on Windows 10.\r\n\r\n`CalledProcessError: Command '['C:\\\\Users\\\\[USERNAME]\\\\AppData\\\\Local\\\\anaconda3\\\\envs\\\\sym_reg\\\\julia_env\\\\pyjuliapkg\\\\install\\\\bin\\\\julia.exe', '--project=C:\\\\Users\\\\[USERNAME]\\\\AppData\\\\Local\\\\anaconda3\\\\envs\\\\sym_reg\\\\julia_env', '--startup-file=no', '-e', 'import Pkg; Pkg.Registry.update(); Pkg.add([Pkg.PackageSpec(name=\"PythonCall\", uuid=\"6099a3de-0909-46bc-b1f4-468b9a2dfc0d\"), Pkg.PackageSpec(name=\"SymbolicRegression\", uuid=\"8254be44-1295-4e6a-a16d-46603ac705cb\", url=raw\"https://github.com/MilesCranmer/SymbolicRegression.jl\", rev=raw\"v0.24.1\"), Pkg.PackageSpec(name=\"Serialization\", uuid=\"9e88b42a-f829-5b0c-bbe9-9e923198166b\")]); Pkg.resolve(); Pkg.precompile()']' returned non-zero exit status 1.`\r\n\r\n**Steps taken so far:**\r\n\r\n- Ensured juliacall is up to date by running `pip install --upgrade juliacall`, which confirmed version 0.9.19 is installed.\r\n- Attempted to manually specify the Julia executable's path using the JULIA_PYTHONCALL_EXE environment variable before importing PySR, without success. I wrote the code like this: `julia_path = \"C:\\\\Users\\\\[USERNAME]\\\\AppData\\\\Local\\\\anaconda3\\\\envs\\\\sym_reg\\\\julia_env\\\\pyjuliapkg\\\\install\\\\bin\\\\julia.exe\"` and `os.environ[\"JULIA_PYTHONCALL_EXE\"] = julia_path`\r\n- Activated Julia Environment: I activated the specific Julia project environment located at `C:\\Users\\[USERNAME]\\AppData\\Local\\anaconda3\\envs\\sym_reg\\julia_env` using the `Pkg.activate` command, ensuring that all package operations were localized to this environment. After activating the environment, I executed `Pkg.instantiate()` to install and update dependencies as defined in the environment's Project.toml and Manifest.toml files. This command updated the registry and added the PythonCall v0.9.19 and SymbolicRegression v0.24.1 packages among others. I also used `Pkg.add()` to explicitly add `PythonCall`, `SymbolicRegression` and `Serialization`.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "gm89uk"
               },
               "body": "Hi  @sbalasbas3, I had this issue following updating to Pysr 18.0, and spent the evening trying to fix it. \r\nhttps://github.com/MilesCranmer/PySR/issues/267#issuecomment-1741268870\r\nThis fix worked for me. \r\n1) C:\\Users\\<your username>\\anaconda3\\julia_env\\pyjuliapkg\\install\\bin\\julia.exe, I opened the REPL and followed the instructions. \r\n\r\nGood luck.",
               "createdAt": "2024-03-26T16:54:47Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "The main difference in 0.18.0 is it installs SymbolicRegression.jl from the git repo rather than from the Julia registry. Perhaps some machines don't have the right LibGit libraries. Let me revert that change and push a patch.\r\n\r\nThe change was made as sometimes the registries are out-of-date. But I guess there are worse effects like this one.\r\n\r\n",
               "createdAt": "2024-03-26T17:13:48Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hoping https://github.com/MilesCranmer/PySR/pull/587 will fix this.",
               "createdAt": "2024-03-26T17:19:33Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Fixed in 0.18.1, just releasing now. Give Conda ~5 hours to update, or install the pip version. Can you verify it is fixed?",
               "createdAt": "2024-03-26T17:56:41Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMy0yNlQxNzo1Njo0MSswMDowMM4AiBb0"
           }

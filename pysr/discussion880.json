@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 880,
+        "title": "Nonlinear least squares parameter optimiziation of extracted functions with automatic differentiation",
+        "body": "Hi @MilesCranmer ! I've been trying to use automatic differentiation on the data structure provided by Symbolic Regression to optimize parameters of the functions post-search. Haven't been able to sort out all the issues yet thus I would be really grateful for any hints on perhaps simpler ways to achieving this in Julia.\r\n\r\nIn reference to this discussion https://github.com/MilesCranmer/PySR/discussions/596, here an MWE to show my current attempt: \r\n\r\n```julia\r\nusing SymbolicRegression, MLJBase\r\nusing NonlinearSolve\r\n\r\nfunction evaltree_newparams(eqtree, x, params)\r\n    constants = filter(node -> node.degree == 0 && node.constant, eqtree)\r\n    foreach(zip(constants, params)) do (constant, β)\r\n        constant.val = β\r\n    end\r\n    eqtree(x)\r\nend\r\n\r\nfunction lsqfitting(fitfct, (x,y), sigma, β0)\r\n    res(β,(x,y)) = fitfct(x,β) .- y\r\n    prob = NonlinearLeastSquaresProblem(res, β0, (x,y))\r\n    sol = solve(prob, GaussNewton(); maxiters=1000)\r\n    chi2(β) = sum(abs2, res(β,(x,y)) ./ sigma)\r\n    return sol.u, inv(2*ForwardDiff.hessian(chi2,sol.u)), chi2(sol.u)\r\nend\r\n\r\nn = 100\r\nnd = 5\r\nX = randn(n, nd);\r\ny = @. cos(X[:, 1] * 2.1 - 0.5) + 0.2 * X[:, 3] * X[:, 2];\r\n\r\nmodel = SRRegressor(binary_operators=[+, -, *, /], unary_operators=[cos], niterations=100);\r\nmach = machine(model, X, y);\r\nfit!(mach, verbosity=0);\r\n\r\nequations = report(mach).equations\r\nbest = equations[end-1]\r\neq = get_tree(best)\r\nfunction_to_fit = (x, β) -> evaltree_newparams(eq, x, β) \r\n\r\nlsqfitting(function_to_fit, (X',y), 1, rand(nd))\r\n```\r\nIt breaks here ` constant.val = β` since `The type `Float64` exists, but no method is defined for this combination of argument types when trying to construct it.`\r\n```julia\r\nERROR: MethodError: no method matching Float64(::ForwardDiff.Dual{ForwardDiff.Tag{NonlinearFunction{…}, Float64}, Float64, 5})\r\n```",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "See https://github.com/MilesCranmer/SymbolicRegression.jl/blob/master/src/ConstantOptimization.jl for how I do constant optimization internally. You could just call that directly",
+              "createdAt": "2025-03-25T08:55:19Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0yNVQwODo1NToxOSswMDowMM4AwHJM"
+          }
+        }
+      }
+    }
+  }
+}

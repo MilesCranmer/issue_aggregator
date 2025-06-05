@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 405,
         "title": "Symbolic Regression with Gradients",
         "body": "Hi,\r\n\r\nI am a huge fan of symbolic regression and of your python package. I have a question if the following would make symbolic regression better:\r\n\r\nSay you have some data and make a neural network learn the underlying function as a black box model. \r\nThis enables us to have gradients of that function.\r\nNow one would be able to use the (zeroth, first, seconds, ...) derivates on which one could use SR.\r\nWouldn't this help validating the Regression on the regular data as one artificially creates new functions?\r\n\r\nWhen having multiple outputs from the SR algorithm one could internally compare if things mathematically match and add another loss term.\r\n\r\nWould be happy to hear your thoughts on this.\r\n\r\nBest,\r\n\r\nLeon\r\n\r\n \r\n\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi Leon,\r\nThanks for your interest and the question! Yes this is definitely possible. Would https://github.com/MilesCranmer/PySR/discussions/401 provide some insight into this?\r\n\r\nNote that there isn’t second order derivatives yet. But if/when https://github.com/MilesCranmer/SymbolicRegression.jl/pull/254 is completed, I think second order diff of expressions might be easier.\r\n\r\ncheers!\r\nMiles",
               "createdAt": "2023-08-16T10:41:16Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wOC0xNlQxMTo0MToxNiswMTowMM4AZtXm"
           }

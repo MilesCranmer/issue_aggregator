@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 839,
+        "title": "v1.5.0",
+        "body": "## Backend Changes\r\n\r\n### Major Changes\r\n\r\n* Change behavior of batching to resample only every iteration; not every eval  by @MilesCranmer in https://github.com/MilesCranmer/SymbolicRegression.jl/pull/421\r\n  * This result in a speed improvement for code with `batching=true`\r\n  * It should also result in improved search results with batching, because comparison within a single population is more stable during evolution. In other words, there is no _lucky batch_ phenomena.\r\n  * This also refactors the batching interface to be cleaner. There is a `SubDataset <: Dataset` rather than passing around an array `idx` explicitly.\r\n  * Note that other than the slight behaviour change, this is otherwise backwards compatible - the old way to write custom loss functions that take `idx` will still be handled.\r\n\r\n### Other changes\r\n\r\n* feat: better error for mismatched eltypes by @MilesCranmer in https://github.com/MilesCranmer/SymbolicRegression.jl/pull/414\r\n* CompatHelper: bump compat for Optim to 1, (keep existing compat) by @github-actions in https://github.com/MilesCranmer/SymbolicRegression.jl/pull/403\r\n* feat: explicitly monitor errors in workers by @MilesCranmer in https://github.com/MilesCranmer/SymbolicRegression.jl/pull/417\r\n* feat: allow recording crossovers by @MilesCranmer in https://github.com/MilesCranmer/SymbolicRegression.jl/pull/415\r\n* add script for converting record to graphml by @MilesCranmer in https://github.com/MilesCranmer/SymbolicRegression.jl/pull/416\r\n* ci: redistribute part 1 of test suite by @MilesCranmer in https://github.com/MilesCranmer/SymbolicRegression.jl/pull/424\r\n* refactor: rename to `.cost` by @MilesCranmer in https://github.com/MilesCranmer/SymbolicRegression.jl/pull/423\r\n* fix: batched dataset for optimisation by @MilesCranmer in https://github.com/MilesCranmer/SymbolicRegression.jl/pull/426\r\n* refactor: task local storage instead of thread local by @MilesCranmer in https://github.com/MilesCranmer/SymbolicRegression.jl/pull/427\r\n\r\n## Frontend Changes\r\n\r\n* Update backend to v1.8.0 by @MilesCranmer in https://github.com/MilesCranmer/PySR/pull/833\r\n* test: update deprecated sklearn test syntax by @MilesCranmer in https://github.com/MilesCranmer/PySR/pull/834\r\n* chore(deps): bump juliacall from 0.9.23 to 0.9.24 by @dependabot in https://github.com/MilesCranmer/PySR/pull/815\r\n* use standard library logging by @MilesCranmer in https://github.com/MilesCranmer/PySR/pull/835\r\n* Remove warning about many features, as not really relevant anymore by @MilesCranmer in https://github.com/MilesCranmer/PySR/pull/837\r\n* chore(deps): update beartype requirement from <0.20,>=0.19 to >=0.19,<0.21 by @dependabot in https://github.com/MilesCranmer/PySR/pull/838\r\n* chore(deps): update jax[cpu] requirement from <0.5,>=0.4 to >=0.4,<0.6 by @dependabot in https://github.com/MilesCranmer/PySR/pull/810\r\n\r\n\r\n**Full Changelog**: https://github.com/MilesCranmer/PySR/compare/v1.4.0...v1.5.0\n\n<hr /><em>This discussion was created from the release <a href='https://github.com/MilesCranmer/PySR/releases/tag/v1.5.0'>v1.5.0</a>.</em>",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

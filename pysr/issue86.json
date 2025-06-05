@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 86,
         "title": "how to set julia?",
         "body": "I suffer this problem\r\n\r\nYour current $PATH is: /home/lzd/miniconda3/envs/hybridmodel/bin:/home/lzd/miniconda3/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin\r\nPySR could not start julia. Make sure julia is installed and on your $PATH.\r\n\r\ncould you help me sovle this problem?\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "What is the output of `which julia`?",
               "createdAt": "2021-12-31T16:27:14Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Closing as stale; feel free to open again if needed",
               "createdAt": "2022-02-03T16:59:29Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOPVhSrw=="
           }

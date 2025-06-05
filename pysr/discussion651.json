@@ -1,44 +1,35 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 651,
         "title": "Issues with Regressing Circuit Using PySR: Positive Parameters and Custom Loss Functions",
         "body": "Dear Developers,\r\n\r\nThank you for your excellent work on the PySR repository. It is truly fantastic. I have been working on regressing a ZARC circuit using the code below, but I have encountered some issues:\r\n\r\n1. The code seems unable to fit the model because it uses complex parameters (not only complex inputs) with some semi-default loss function (see below).\r\n2. When I attempt to use a custom loss function, the regression still does not work, to handle positivity as discussed in https://github.com/MilesCranmer/PySR/discussions/449 \r\n\r\nCould there be a workaround for this? Specifically, I am looking for a solution where the symbolic regression parameters are positive, but the function input and output remain complex.\r\n\r\nThank you for your kind help.\r\n\r\nP.S. This question is related but somewhat different to https://github.com/MilesCranmer/PySR/discussions/338\r\n\r\nCODE:\r\n\r\n```python \r\nimport numpy as np\r\nimport matplotlib.pyplot as plt\r\nfrom pysr import PySRRegressor\r\nfrom sympy import latex, re\r\n\r\n# File name\r\nfile_name = './results/ZARC.csv'\r\n\r\n# Parameters for ZARC model\r\nR_inf, R_ct, phi, tau_0 = 10, 50, 0.8, 0.01\r\n\r\n# Compute impedance of ZARC model\r\ndef Z_ZARC(s, R_inf, R_ct, phi, tau_0):\r\n    return R_inf + R_ct / (1 + (s * tau_0)**phi)\r\n\r\n# Frequency range\r\nN_freqs = 71\r\nfreq_vec = np.logspace(-1, 6, N_freqs)\r\n\r\n# Exact impedance\r\nZ_exact = Z_ZARC(1j * 2 * np.pi * freq_vec, R_inf, R_ct, phi, tau_0)\r\n\r\n# Synthetic data with noise\r\nnp.random.seed(1225)\r\nsigma_n_exp = 0.2\r\nZ_exp = Z_exact + sigma_n_exp * (np.random.normal(0, 1, N_freqs) + 1j * np.random.normal(0, 1, N_freqs))\r\n\r\n# Normalize data\r\nZ_abs_mean, Z_abs_std = np.mean(np.abs(Z_exp)), np.std(np.abs(Z_exp))\r\nZ_normalized = (Z_exp - Z_abs_mean) / Z_abs_std\r\n\r\n\r\n# PySRRegressor model setup\r\nmodel = PySRRegressor(\r\n    equation_file=file_name,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\", \"mypow(x,y)=(x)^(y.re)\"],\r\n    constraints={\"/\": (-1, 9)},\r\n    extra_sympy_mappings ={\"mypow\": lambda x,y: x**re(y)},\r\n    niterations=100,\r\n    maxsize=30,\r\n    maxdepth=10,\r\n    adaptive_parsimony_scaling=100.0,\r\n    precision=64,\r\n    verbosity=1,\r\n    elementwise_loss=\"f(x, y) = abs2(x - y)/abs2(x)\"\r\n)\r\n\r\n# Fit the model\r\nmodel.fit((1j * 2 * np.pi * freq_vec).reshape(-1, 1), Z_normalized)\r\n\r\n# Predict using the model\r\nZ_pred_normalized = model.predict((1j * 2 * np.pi * freq_vec).reshape(-1, 1))\r\nZ_pred = Z_abs_mean + Z_abs_std * Z_pred_normalized\r\n\r\n# Plot results\r\nplt.figure(figsize=(10, 5))\r\nplt.plot(np.real(Z_exact), -np.imag(Z_exact), '--', linewidth=2, color='blue', label='Exact')\r\nplt.plot(np.real(Z_exp), -np.imag(Z_exp), 'o', markersize=7, color='red', label='Synthetic Exp')\r\nplt.plot(np.real(Z_pred), -np.imag(Z_pred), 'x', markersize=7, color='green', label='Symbolic Regression')\r\nplt.legend(frameon=False, fontsize=15)\r\nplt.axis('scaled')\r\nplt.gca().set_aspect('equal', adjustable='box')\r\nplt.xlabel(r'$Z_{\\mathrm{re}}/\\Omega$', fontsize=20)\r\nplt.ylabel(r'$-Z_{\\mathrm{im}}/\\Omega$', fontsize=20)\r\nplt.tight_layout()\r\nplt.show()\r\n\r\n# Print best equation\r\nbest_equation = model.sympy()\r\nprint('*********')\r\nprint('Best equation found:', best_equation)\r\nprint('Best equation in LaTeX:', latex(best_equation))\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks!\r\n\r\n> Specifically, I am looking for a solution where the symbolic regression parameters are positive, but the function input and output remain complex.\r\n\r\nBy this, do you mean parameters which have no imaginary component and whose real component is positive? (Since “positive” doesn’t apply to complex numbers)\r\n\r\nOr do you mean positive imaginary and positive real component?",
               "createdAt": "2024-06-17T06:12:29Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "So, right now, there are various assumptions that the expressions have has the same numeric type as the dataset. i.e., expressions will have complex-valued constants.\r\n\r\nHowever, perhaps you could try a soft constraint that the parameters are close to the positive real line? See https://astroautomata.com/PySR/examples/#9-custom-objectives for an example. There are many other examples in the discussions page.\r\n\r\nHere's how you could do it:\r\n\r\n```julia\r\nfunction my_objective(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    (prediction, completion) = eval_tree_array(tree, dataset.X, options)\r\n    y = dataset.y\r\n    if !completion\r\n        return L(Inf)\r\n    end\r\n    \r\n    function node_penalty(node)\r\n        is_constant_node = node.degree == 0 && node.constant\r\n        if is_constant_node\r\n            val = node.val\r\n            return L(abs(abs(val) - val))  # How far the constant is from its projection to the positive real line\r\n        else\r\n            return L(0)\r\n        end\r\n    end\r\n    \r\n    # Aggregate the node penalty over every node in the tree:\r\n    total_node_penalty = sum(node_penalty, tree)\r\n    total_node_penalty *= 1000.0  # Upweight penalty (likely need to tune this?)\r\n    \r\n    # Regular relative MSE loss:\r\n    prediction_loss = sum(i -> abs2(prediction[i] - y[i])/abs2(y[i]), eachindex(y)) / length(y)\r\n\r\n    return L(total_node_penalty + prediction_loss)\r\nend\r\n```\r\n\r\nthen pass that as a string to `loss_function`.\r\n\r\nLet me know how that works!\r\n\r\nNote that constants will still have some small complex component. But hopefully this will eliminate most of them...",
               "createdAt": "2024-06-17T13:45:37Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "P.S., your initial loss was provided as `elementwise_loss`\r\n```python\r\n    elementwise_loss=\"f(prediction, target) = abs2(prediction - target)/abs2(prediction)\"\r\n```\r\n\r\nhowever, you don't want to do this, as the genetic algorithm will \"game the system\" and send prediction to infinity! You probably want to use \r\n```python\r\n    elementwise_loss=\"f(prediction, target) = abs2(prediction - target)/abs2(target)\"\r\n```\r\n\r\ninstead. \r\n\r\nBut use the `loss_function` parameter instead with the full loss function in https://github.com/MilesCranmer/PySR/discussions/651#discussioncomment-9794977",
               "createdAt": "2024-06-17T13:56:46Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNi0xN1QxNDo1Njo0NiswMTowMM4AlXYd"
           }

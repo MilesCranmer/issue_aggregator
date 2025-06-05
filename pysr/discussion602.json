@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 602,
         "title": "How to get better fit of the data ?",
         "body": "```python\r\n#want to estimate    U_pred=f(x,t)\r\n\r\nimport sympy as sp\r\nimport numpy as np\r\nimport pandas as pd\r\nfrom sklearn.preprocessing import MinMaxScaler\r\nfrom pysr import PySRRegressor\r\nfrom sklearn.model_selection import train_test_split\r\n\r\ndf1 = pd.read_csv(\"solitary.csv\")\r\n\r\n# Extract features and target variable\r\nX_raw = df1[['x', 't']].values\r\ny = df1['U_pred'].values # Normalize features using Min-Max scaling\r\nscaler = MinMaxScaler()\r\nX_scaled = scaler.fit_transform(X_raw)\r\n\r\n# Fit the PySR model\r\nmodel = PySRRegressor(\r\n    niterations=50,\r\n    batching=True,\r\n    batch_size=264,\r\n    elementwise_loss=\"L2EpsilonInsLoss(0.000001)\",\r\n    fast_cycle=True,\r\n    binary_operators=[\"+\", \"*\"],\r\n    unary_operators=[\"cos\", \"exp\", \"sin\", \"quart(x) = x^4\", \"inv(x)=x^-1\"],\r\n    extra_sympy_mappings={\"quart\": lambda x: x**4, \"inv\": lambda x: 1/x},\r\n    populations=40,\r\n   \r\n)\r\nmodel.fit(X_scaled, y)\r\n\r\n # Predict using the model on the normalized features\r\ny_pred = model.predict(X_scaled)\r\n\r\n# Calculate R^2 score\r\nr2 = r2_score(y, y_pred)\r\nprint(\"R^2 score:\", r2)\r\n#Output: R^2 score: 0.92. \r\n```\r\nHowever, my goal is to achieve at least 0.98. Is this feasible? I noticed that the final model, after simplification, does not include the variable corresponding to 't'. Despite trying various loss functions, including the default and others from the documentation, the results remained largely unchanged. Any suggestions? I'm seeking a model in the form of 'u_pred = f(x,t)', but it consistently provides the best model as a function of 'x' alone",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Check out https://astroautomata.com/PySR/tuning/",
               "createdAt": "2024-04-18T21:29:01Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNC0xOFQyMjoyOTowMSswMTowMM4Ai8SA"
           }

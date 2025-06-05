@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 438,
         "title": "Trouble with setting up the evolution",
         "body": "Hi,\r\n\r\nAs a quick preface, I'm not very proficient with multiple topics brought up in the _readme_ and _Tuning and Workflow Tips_, such as julia and IPython. \r\nFor context, I am using a conda environment and am mainly using Virtual Studio Code as a way of coding. As of now, the main part of the symbolic regression code looks like this:\r\n\r\n```\r\nmodel = PySRRegressor(\r\n    niterations=1000,  # < Increase me for better results\r\n    binary_operators=[\"+\", \"*\", '-', '/'],\r\n    unary_operators=[\r\n        \"cos\",\r\n        \"sin\",\r\n    ],\r\n    procs=8,\r\n    populations=30,\r\n    model_selection=\"best\",\r\n    maxsize = 15,\r\n\r\n)\r\n\r\nmodel.fit(X_train, y_train)\r\n```\r\nI managed to get IPython working, but it does not look like it is getting to the evolution part, since it does not show anything in the terminal. The last thing that is shown in the terminal is a warning regarding the static environment: \r\n```\r\nUserWarning: Your system's Python library is static (e.g., conda), so precompilation will be turned off. For a dynamic library, try using `pyenv` and installing with `--enable-shared`: https://github.com/pyenv/pyenv/blob/master/plugins/python-build/README.md#building with---enable-shared. warnings.warn(\r\n```\r\n\r\nI was wondering what could be the problem regarding the evolution not starting (and maybe how to fix the static environment error, since I have not worked with pyenv)\r\n\r\nIf any extra information is neccesary, I would be happy to provide them\r\nThanks!\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Could you share the size of your dataset? Also, when you say its not starting, can you see if it is running? (e.g., if the CPUs are in use).",
               "createdAt": "2023-10-06T11:21:24Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMC0wNlQxMjoyMToyNCswMTowMM4Abf7f"
           }

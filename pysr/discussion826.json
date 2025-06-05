@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 826,
+        "title": "Aggregating losses from different tasks",
+        "body": "Hi, thank you for all your work! It is amazing!!! \r\n\r\nDoes PySR support multitask learning? Specifically, I have several datasets for different tasks and I would want to compute losses relative the datasets and aggregate them in some way. I have looked up documentation and it seems like the only way to do that is just combine all datasets into one matrix `X` and call `.fit` on it. But going this direction makes it impoossible to distinguish the datasets. Does anybody know any other way of approaching it?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi, thanks!\r\n\r\nIf you are ok with having fixed weightings, I would just make a custom loss function and sum up the different losses.\r\n\r\nI recommend using a TemplateExpressionSpec for this and just putting all the datasets into X; then you can call an expression multiple times with different features each time.\r\n",
+              "createdAt": "2025-02-13T22:21:08Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMi0xM1QyMjoyMTowOCswMDowMM4Aug7T"
+          }
+        }
+      }
+    }
+  }
+}

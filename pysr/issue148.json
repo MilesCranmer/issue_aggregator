@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 148,
         "title": "[BUG] OSError when installing Rosetta version of Julia on M1 machine",
         "body": "**Describe the bug**\r\nWhen I install the Rosetta version of Julia (not compiled natively to M1/ARM CPUs), I see this error after running `pysr.install()`:\r\n```python\r\nOSError: dlopen(/Applications/Julia-1.7.app/Contents/Resources/julia/lib/libjulia.1.7.dylib, 0x000A): tried: '/Applications/Julia-1.7.app/Contents/Resources/julia/lib/libjulia.1.7.dylib' (mach-o file, but is an incompatible architecture (have 'x86_64', need 'arm64e'))\r\n```\r\n\r\n**Version (please complete the following information):**\r\n- OS: macOS 12.3.1, with Apple M1 Pro\r\n- Version: v0.9.0-1\r\n- Does the bug appear with the latest version of PySR? Yes\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "One solution seems to be to set up the entire environment with `arch -x86_64 python ...`, but it would require you to build a new python env. I guess mixing the x86_64 version of Julia and an arm64 version of Python might just not be possible...?",
               "createdAt": "2022-06-05T23:46:07Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Okay there's actually a native version of Julia for M1 - scroll down to https://julialang.org/downloads/#upcoming_release (will add to README).",
               "createdAt": "2022-06-05T23:48:03Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHORFxwfA=="
           }

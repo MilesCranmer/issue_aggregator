@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 818,
+        "title": "Implementing Mahalanobis Distance Loss",
+        "body": "Hello,\r\n\r\nFirst, thank you for making such a helpful package.\r\n\r\nI am currently trying to code a custom loss function calculates the Mahalanobis distance (https://en.wikipedia.org/wiki/Mahalanobis_distance ) as the loss. The below code is what I have so far, along with a test dataset to use:\r\n\r\n```\r\n#create the dataset columns\r\nX = abs(np.random.randn(12, 3))\r\nmanif = [1, 1, 1, 3, 3, 3,1, 1, 1, 3, 3, 3]\r\ny= [50, 150, 100, 75, 80 , 250 ,50, 150, 100, 75, 80 , 250 ]\r\nweights3 = [1,1,1,1,1,1, 1,1,1,1,1,1]\r\n#create the whole dataset\r\nXwithmanif = pd.concat([pd.DataFrame(X), pd.Series(manif)], axis = 1)\r\nXwithmanif.columns = ['x1', 'x2', 'x3', 'manif']\r\n#initialize Statistics package in Julia\r\njl.seval('using Statistics')\r\n\r\n#create the mahal loss\r\nmahalloss2 = \"\"\"\r\nfunction mahalloss2(tree, dataset::Dataset{T,L}, options) where {T,L}\r\n\r\n    X = copy(dataset.X)\r\n    y = copy(dataset.y)\r\n\r\n    weights2 = dataset.weights \r\n    temploss = Vector{Float64}()\r\n    \r\n    X_without_manifs = vcat(\r\n        X[1:3, :],  # The actual data\r\n        transpose(X[4, :] .* 0 )) # Pass zeroed version\r\n#since the manifs are used to just separate out the different cov matrices and not for actual prediction\r\n    \r\n    prediction, flag = eval_tree_array(tree, X_without_manifs, options)\r\n    if !flag\r\n        return L(Inf)\r\n    end\r\n\r\n    Xnomanifs = X[1:3, :]\r\n    \r\n    Xtotal = hcat(transpose(X), y)\r\n\r\n    Xwithpred = hcat(transpose(Xnomanifs), prediction)\r\n\r\n    #break out the cov matrices\r\n    Xclass12 = Xtotal[(Xtotal[:,4] .== 1) ,:]\r\n    Xclass3 = Xtotal[(Xtotal[:,4] .== 3) ,:]\r\n    \r\n    Xclass12nomanif = Xclass12[:, 1:end .!= 4]\r\n    Xclass3nomanif = Xclass3[:, 1:end .!= 4]\r\n\r\n    invcov12 = inv(Statistics.cov(Xclass12nomanif))\r\n    invcov3 = inv(Statistics.cov(Xclass3nomanif))\r\n\r\n    #get the mean of each X feature for each class\r\n    class12mean = Statistics.mean.(eachcol(Xclass12nomanif))\r\n    class3mean = Statistics.mean.(eachcol(Xclass3nomanif))\r\n\r\n    #calculate Mahanal\r\n    for i in 1:length(y)\r\n        if prediction[i] < 0 #prediction can't be less than 0\r\n            #append!(temploss, 999)\r\n            return L(Inf)\r\n        elseif y[i] < 200 #if class 1/2\r\n            x_minus_mu = Xwithpred[i, :] - class12mean\r\n            tempmahal = transpose(x_minus_mu) * (invcov12) * x_minus_mu\r\n            append!(temploss, tempmahal)\r\n        else #if class 3\r\n            x_minus_mu = Xwithpred[i, :] - class3mean\r\n            tempmahal = transpose(x_minus_mu) * (invcov3) * x_minus_mu\r\n            append!(temploss, tempmahal)\r\n        end\r\n\r\n    end\r\n    return sum(temploss.* weights2)\r\n\r\nend \r\n\"\"\"\r\n#run through pysr\r\nmodel = PySRRegressor(\r\n    niterations=10,\r\n    binary_operators=[\"*\", \"+\", \"-\", \"greater\"],\r\n    loss_function=mahalloss2,\r\n)\r\nmodel.fit(Xwithmanif, y, weights = weights3 )\r\nmodel.get_best().equation\r\n```\r\n\r\nThe issue I am having is that currently it will run near infinitely (I haven't been able to get it to stop and have had to restart kernel multiple times to interrupt it). I have tried doing print statement debugging and just watch the code constantly repeat and never reaching the final return of the loss function. Some specific questions I have:\r\n-Should I return L(Inf) or just append a very high loss for if predictions are negative? \r\n-How come the code seems to be running many more loops than the niterations I set? \r\n-Why is it not returning the final sum, which should be the loss?\r\n\r\nPlease let me know if I can help supply any more information that might be helpful to answer these questions. ",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks for the question, glad to hear it's useful!\n\nFor Mahalanobis I would first try out Distances.jl instead of writing one from scratch as they likely have a fairly optimised version of it: https://github.com/JuliaStats/Distances.jl, and it will plug in just fine. Optimising the metric might be the issue in all honesty.\n\nSee the Primes.jl example in the PySR documentation for how to install and then interface with an external package.\n\nLet me know if this works!",
+              "createdAt": "2025-01-30T02:28:26Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMS0zMFQwMjoyODoyNiswMDowMM4AtyL9"
+          }
+        }
+      }
+    }
+  }
+}

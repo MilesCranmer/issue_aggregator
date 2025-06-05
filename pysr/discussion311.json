@@ -1,44 +1,35 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 311,
         "title": "Loss Questions",
         "body": "Hello, \r\nI was wondering if there is a way to compute a loss function that is indicative of linearity. \r\nI am trying to find an equation that is not purely equal to y, but proportional. I don't not mind if there is a coeff or an intercept. \r\nHow to extract a metric that is indicative of linearity, like the total sum of squared, and use it as the loss function (in using the python API)\r\n\r\nThanks :)",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I think there isn't a way to write an elementwise loss function that gives you this. However, I think you could use the branch in #143, and use some measure of correlation for your loss.\r\n\r\nFor example, the Pearson correlation coefficient: https://en.wikipedia.org/wiki/Pearson_correlation_coefficient.\r\n![image](https://user-images.githubusercontent.com/7593028/205958261-282d8917-820f-4147-bf0a-6f634b922dc6.png)\r\n\r\nYou could take the absolute value of it as your loss function. You would need to specify the full loss function, rather than just the elementwise loss.\r\n\r\nIn other words, take this function: https://docs.julialang.org/en/v1/stdlib/Statistics/#Statistics.cor and essentially replace this line:\r\nhttps://github.com/MilesCranmer/SymbolicRegression.jl/blob/9034341558382188b6c4a9092d847ca8a7162b1d/src/LossFunctions.jl#L45\r\nwith it.",
               "createdAt": "2022-12-06T15:45:37Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "Hadri59"
               },
               "body": "Alright ! Thanks a lot for the advice ! I will take a look :) ",
               "createdAt": "2022-12-07T22:09:02Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Updated answer is to pass a custom loss function to `full_objective` (PySR) or `loss_function` (SymbolicRegression.jl).",
               "createdAt": "2023-04-21T19:40:12Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNC0yMVQyMDo0MDoxMiswMTowMM4AVtEc"
           }

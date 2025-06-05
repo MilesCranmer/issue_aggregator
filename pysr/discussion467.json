@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 467,
         "title": "How to make subtrees with specific number of variables?",
         "body": "I am using custom loss to divide tree into several subtrees.\n```\ntree.degree != 2 && return L(Inf)\n\n P = tree.l\n Q = tree.r \n```\n\n**But i need P to have 1 variable [P(x)] and Q to have 3 variables\n[Q(x1, x2, x3)]. **\n\nI guess, i need to use training set with 3 features, but i cant figure out how to restrain P to have only 1.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Maybe this helps? https://github.com/MilesCranmer/PySR/discussions/465",
               "createdAt": "2023-11-16T13:26:15Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "DmitriiKumancev"
               },
               "body": "Assuming that your tree represents a decision or regression model, and P(x) and Q(x1, x2, x3) are the predictions of the model for different subtrees, you can structure your custom loss function accordingly.\r\n\r\nHere's a simplified example in Python using TensorFlow:\r\n`import tensorflow as tf\r\n\r\ndef custom_loss(y_true, y_pred):\r\n    # Assuming y_true and y_pred are the true values and predicted values, respectively\r\n\r\n    # Split the predicted values into P and Q\r\n    P = y_pred[:, 0]  # Assuming the first column corresponds to P\r\n    Q = y_pred[:, 1:]  # Assuming the remaining columns correspond to Q's variables\r\n\r\n    # Define your constraints on P and Q in the loss function\r\n    loss_P = tf.reduce_mean(tf.square(P - y_true))  # Example constraint on P\r\n\r\n    # Example constraint on Q's variables\r\n    constraint_Q = tf.reduce_mean(tf.square(Q[:, 0] + Q[:, 1] + Q[:, 2] - y_true))\r\n\r\n    # Combine the individual losses with weights or other constraints as needed\r\n    total_loss = loss_P + constraint_Q\r\n\r\n    return total_loss\r\n\r\n# Example usage:\r\n# model.compile(optimizer='adam', loss=custom_loss)\r\n# model.fit(train_features, train_labels)\r\n`\r\n\r\nIn this example, the model predicts both P and Q, and the loss function includes constraints on P and Q. You can customize the constraints based on your specific requirements. Ensure that your model architecture outputs the appropriate number of values for P and Q.\r\n\r\nIt's important to adapt this example to your specific model architecture, requirements, and constraints. The goal is to design a loss function that guides the training process to achieve the desired behavior for P and Q in your decision tree.\r\n\r\n",
               "createdAt": "2023-11-21T09:58:22Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMS0yMVQwOTo1ODoyMiswMDowMM4AdGc7"
           }

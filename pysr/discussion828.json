@@ -1,0 +1,54 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 828,
+        "title": "It is impossible to determine more than 4 coefficients in the function",
+        "body": "Good day! \r\nI am trying to predict 5 or more coefficients in a polynomial. \r\nFor degrees less than 5, this works. But starting with 5 different parameters, an error occurs:\r\n**_\"JuliaError: TaskFailedException\r\n    nested task error: BoundsError: attempt to access NTuple{6, Symbol} at index [7]\"_**\r\n\r\nI am using the following code:\r\n```\r\n\r\nimport numpy as np\r\nimport matplotlib.pyplot as plt\r\nfrom pysr import PySRRegressor, TemplateExpressionSpec\r\nX = np.random.randint(1, 21, 1000)\r\nY = np.array(1.2*X + 3.1*X**2 + 6.1*X**3 - 11.7*X**4 -0.9*X**5 + 47)\r\n\r\ntemplate = TemplateExpressionSpec(\r\n    function_symbols=['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'f'],\r\n    combine=\"((; a0, a1, a2, a3, a4, a5, f), (x,)) -> a5()*(f(x))^5 + a4()*(f(x))^4 + a3()*(f(x))^3 + a2()*(f(x))^2 + a1()*(f(x))^1 + a0()\",\r\n)\r\n\r\nmodel = PySRRegressor(\r\n    expression_spec=template,\r\n)\r\nmodel.fit(X.reshape(-1, 1), Y)\r\n```\r\nCan you tell me how this can be fixed? **Thank you very much!!!**",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Very weird, I’ll take a look.\r\n\r\nBy the way, you should avoid evaluating `f(x)` repeatedly if possible. Templates allow arbitrary Julia code so you can just make a variable that gets reused, like `fx = f(x); a5()*fx + ...` and so forth",
+              "createdAt": "2025-02-13T14:32:01Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Also, try out #823, should make such searches MUCH more efficient.",
+              "createdAt": "2025-02-13T14:33:22Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Moved to #829 ",
+              "createdAt": "2025-02-13T20:58:32Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Should be fixed on v1.4.0 of PySR once the backend v1.7.2 is available on the registry (~30 min).",
+              "createdAt": "2025-02-13T22:17:55Z"
+            },
+            {
+              "author": {
+                "login": "CleverCompiler-oss"
+              },
+              "body": "Everything is working! You've been very helpful! Thanks",
+              "createdAt": "2025-02-14T13:09:13Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMi0xNFQxMzowOToxMyswMDowMM4Auiqy"
+          }
+        }
+      }
+    }
+  }
+}

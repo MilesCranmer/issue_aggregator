@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 213,
         "title": "[Code cleanup] make options more hierarchical",
         "body": "The current list of options is way too long to be understood by a user. I think a refactoring should be done where new objects are used to hierarchically define the parameters. \r\n\r\nFor example, rather than have 8 parameters passed flatly for the mutation weightings, you could have a single MutationWeights object that could be passed - and would have additional documentation on what the mutation weightings are. \r\n\r\nI think it would make sense to start by writing down a hierarchical parameter grouping, and go from there.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Draft of parameter hierarchy:\r\n\r\n```yaml\r\nalgorithm:\r\n  search_space:\r\n    - binary_operators\r\n    - unary_operators\r\n    - maxsize\r\n    - maxdepth\r\n  search_size:\r\n    - niterations\r\n    - populations\r\n    - population_size\r\n    - ncyclesperiteration\r\n  mutations:\r\n    - weight_add_node\r\n    - weight_insert_node\r\n    - weight_delete_node\r\n    - weight_do_nothing\r\n    - weight_mutate_constant\r\n    - weight_mutate_operator\r\n    - weight_randomize\r\n    - weight_simplify\r\n    - crossover_probability\r\n    - annealing\r\n    - alpha\r\n    - perturbation_factor\r\n    - skip_mutation_failures\r\n  tournament:\r\n    - tournament_selection_n\r\n    - tournament_selection_p\r\n  optimization:\r\n    - optimizer_algorithm\r\n    - optimizer_nrestarts\r\n    - optimize_probability\r\n    - optimizer_iterations\r\n    - should_optimize_constants\r\n  migration:\r\n    - fraction_replaced\r\n    - fraction_replaced_hof\r\n    - migration\r\n    - hof_migration\r\n    - topn\r\n  objective:\r\n    - loss\r\n    - model_selection\r\n    complexity:\r\n      - parsimony\r\n      - constraints\r\n      - nested_constraints\r\n      - complexity_of_operators\r\n      - complexity_of_constants\r\n      - complexity_of_variables\r\n      - warmup_maxsize_by\r\n      - use_frequency\r\n      - use_frequency_in_tournament\r\n\r\npreprocessing:\r\n  - denoise\r\n  - select_k_features\r\n\r\nstop_criteria:\r\n  - max_evals\r\n  - timeout_in_seconds\r\n  - early_stop_condition\r\n\r\nperformance:\r\n  - procs\r\n  - multithreading\r\n  - cluster_manager\r\n  - batching\r\n  - batch_size\r\n  - precision\r\n  - fast_cycle\r\n  - turbo\r\n  - random_state\r\n  - deterministic\r\n  - warm_start\r\n\r\nvisualization:\r\n  - verbosity\r\n  - update_verbosity\r\n  - progress\r\n\r\nenvironment:\r\n  - temp_equation_file\r\n  - tempdir\r\n  - delete_tempfiles\r\n  - julia_project\r\n  - update\r\n\r\nexporting:\r\n  - equation_file\r\n  - output_jax_format\r\n  - output_torch_format\r\n  - extra_sympy_mappings\r\n  - extra_torch_mappings\r\n  - extra_jax_mappings\r\n```",
               "createdAt": "2022-11-01T21:09:25Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "#216 Will fix this.",
               "createdAt": "2022-11-02T21:51:56Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOTZEcZg=="
           }

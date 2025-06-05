@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 811,
+        "title": "[BUG]: `num_features` for TemplateExpressionSpec doesn't work as written in API Ref",
+        "body": "### What happened?\n\nHeyo PySR team! The `num_features` parameter in `TemplateExpressionSpec` is described in the API Reference as taking a Python dictionary as input, but doesn't behave that way, yielding a `TypeError` as shown below:\n\n### The Code & The Error\n\n**Code yielding TypeError:**\n```\n# Create data\nX = np.random.randn(1000, 5)\ny = np.sin(X[:, 0] + X[:, 3] + X[:, 4]) * X[:, 2]**2\n\n# Define template: we want f(x1, x4, x5) + g(x3)\n# We'll obtain independent expressions for f and g \n# where the respective variables of each are expressed\n# as #1 for the first variable, #2 for the second, \n# and so on.\n# While the output can be evaluated, it is NOT compatible with\n# the exporting features for typesetting and modeling in other libraries.\n# \ntemplate_py = TemplateExpressionSpec(\n    function_symbols=[\"f\", \"g\"],\n    combine=\"\"\"((; f, g), (a, b, c, d, e)) -> let\n    _f = f(a, d, e) \n    _g = g(c)\n    _out = _f + _g\n    end\"\"\",\n    num_features={\"f\": 2, \"g\": 1},\n)\n\nmodel = PySRRegressor(\n    expression_spec=template_py,\n    binary_operators=[\"+\", \"*\", \"-\", \"/\"],\n    unary_operators=[\"sin\"],\n    model_selection=\"score\",\n    maxsize=25,\n    tournament_selection_n=15,\n    tournament_selection_p=0.9,\n    niterations=50,\n    populations=100,\n    population_size=80,\n    should_simplify=True,\n    topn=10,\n    # annealing=True,\n    # alpha=2,\n    #full_objective=jl.seval(objective),\n)\nmodel.fit(X, y)\n```\n**ERROR:**\n`JuliaError: TypeError: in typeassert, expected Symbol, got a value of type String`\n\n### The Fix\n\nThis error is fixed if you rewrite the dictionary in Julia rather than Python, but I haven't managed to get it to pass a Python dict as described in the documentation. Here's the template with the single line change that allows the model to run:\n```\ntemplate_jl = TemplateExpressionSpec(\n    function_symbols=[\"f\", \"g\"],\n    combine=\"\"\"((; f, g), (a, b, c, d, e)) -> let\n    _f = f(a, d, e) \n    _g = g(c)\n    _out = _f + _g\n    end\"\"\",\n    num_features=jl.seval(\"\"\"Base.Dict(Symbol(\"f\") => 3, Symbol(\"g\") => 1)\"\"\"),\n)\n```\n\nThe `ExpressionSpec` feature is a great addition, but it has some drawbacks which are bypassed by using a custom objective instead, though not without writing a bit of Julia. \n\nThe expression output when using the templates is a tad confusing at first (outputting the numbers corresponding to variables in an expression, and restarting the numbering in the other expression) and it would be good to note that in the relevant section of the documentation.\n\n\n### Version\n\n1.3.1\n\n### Operating System\n\nLinux\n\n### Package Manager\n\npip\n\n### Interface\n\nJupyter Notebook\n\n### Relevant log output\n\n```shell\nJuliaError: TypeError: in typeassert, expected Symbol, got a value of type String\nStacktrace:\n [1] merge(a::@NamedTuple{}, itr::PyDict{Any, Any})\n   @ Base ./namedtuple.jl:372\n [2] _pysr_create_template_structure(function_symbols::AbstractVector, combine::Function, num_features::Union{Nothing, AbstractDict})\n   @ Main ./none:10\n [3] pyjlany_call(self::typeof(_pysr_create_template_structure), args_::Py, kwargs_::Py)\n   @ PythonCall.JlWrap ~/.julia/packages/PythonCall/Nr75f/src/JlWrap/any.jl:43\n [4] _pyjl_callmethod(f::Any, self_::Ptr{PythonCall.C.PyObject}, args_::Ptr{PythonCall.C.PyObject}, nargs::Int64)\n   @ PythonCall.JlWrap ~/.julia/packages/PythonCall/Nr75f/src/JlWrap/base.jl:73\n [5] _pyjl_callmethod(o::Ptr{PythonCall.C.PyObject}, args::Ptr{PythonCall.C.PyObject})\n   @ PythonCall.JlWrap.Cjl ~/.julia/packages/PythonCall/Nr75f/src/JlWrap/C.jl:63\n```\n\n### Extra Info\n\n_No response_",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks for the report! Yes this looks like a bug.\n\nI’m the meantime note that you don’t need to provide `num_features`; it gets inferred by Julia. Only if that inference fails is it needed.",
+              "createdAt": "2025-01-20T07:18:42Z"
+            },
+            {
+              "author": {
+                "login": "jc-umana-FI"
+              },
+              "body": "Thanks for the response! \n\nI'm actually wondering if the inference does really even take. Between this method and using a custom objective, the hall of fame still returns expressions that don't meet the \"variable necessity\" constraints of the forms I try to impose. \n\nFor example, in the above model, what I'd want is for the hall of fame to only return expressions that contain some combination of variables `a, d,` and `e` in the f part of the function, no less than those three variables. The reason I tried to use `num_features` is because my hall of fame was still producing constant expressions or expressions containing 1 or 2 variables out of the necessary 3. Granted, the chosen \"best\" expression does meet all the criteria that I set, but I'd rather the model only output expressions that are actually comparable and meet the criteria for number of variables.\n\nDo you have a proposed fix for this? Essentially, I've been trying to change what is presented in the hall of fame to relevant expressions only, but also constraining the search space further could accomplish the same thing. ",
+              "createdAt": "2025-01-20T07:40:24Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Oh if the inference doesn’t work, there will be an error. So it must already be getting it correctly.\n\nIf it never uses all 3 features, maybe it just doesn’t need to? Like maybe they are heavily correlated or something? The model is incentivised to favour simplicity and accuracy and nothing else, so it won’t try to add more features than are actually needed.",
+              "createdAt": "2025-01-20T08:18:16Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOmxMC4Q=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 453,
         "title": "[Feature]: Adding linting to pre-commit hooks",
         "body": "## Feature Request\r\nChoose a linter to use in the project. Adding this linter to the pre-commit hooks as the final stage. Remove isort as it's functionality would be covered by another linter.\r\n\r\n## Context\r\nIt was great to see the addition of pre-commit hooks to the project for consistent code formatting. Very handy to have automated formatting using black in [this recent commit](https://github.com/MilesCranmer/PySR/commit/6fdc3b9f9176205576a2547a8b8cec6933b5272c). Often in automated formatting is followed by automated linting and I feel the project could be improved by this addition. I can see isort has been added to manage imports, would you consider adding a linter with a more comprehensive suite of linting tests?\r\n\r\n## Decisions \r\nBlack has [a guide](https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html) on using black with linting tools, the two most popular are Pylint and Flake8. [Flake8](https://flake8.pycqa.org/en/latest/index.html) is less comprehensive but has a suite of plugins to further extends its functionality. [Pylint](https://pylint.readthedocs.io/en/stable/) has a more comprehensive suite of linting tests included and has [fewer conflicts](https://inventwithpython.com/blog/2022/11/19/python-linter-comparison-2022-pylint-vs-pyflakes-vs-flake8-vs-autopep8-vs-bandit-vs-prospector-vs-pylama-vs-pyroma-vs-black-vs-mypy-vs-radon-vs-mccabe/) with Black\r\n\r\n## Possible Problems\r\nThere can be some conflicts between the automated formatting between black and the linter. Worst case scenario these can be supressed, or the settings for black or the linter can be modified. In my experience, conflicts are often manageable and do indicate the need for a code structure change.\r\n\r\n## Responsibility\r\nAdding this may incur other changes in the code base, so I understand if I would not be the best person to add this.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @w2ll2am,\r\nSounds great! If you want to add this in a PR I’d be happy to review it,\r\nCheers,\r\nMiles",
               "createdAt": "2023-11-12T14:33:37Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOa7bbAw=="
           }

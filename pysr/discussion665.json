@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 665,
         "title": "AttributeError: module 'pysr' has no attribute 'Problem'",
         "body": "I'm just getting started with PySR. Walking through the Toy Examples with Code. When I do \r\n```python\r\nfrom pysr import *\r\n```\r\nI get the error in the title:\r\n```\r\nAttributeError: module 'pysr' has no attribute 'Problem'\r\n```\r\nI am running IPython in an Apptainer container built from the `continuumio/miniconda3` Docker image.  \r\n\r\nWhen I switch to \r\n```python\r\nimport pysr\r\n```\r\nand preface things with `pysr.` as required everything works as expected.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Looks like a bug. I made an issue #666 to track it.\r\n\r\nEdit: Fixed.",
               "createdAt": "2024-07-11T01:42:44Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNy0xMVQwMjo0Mjo0NCswMTowMM4AmNQI"
           }

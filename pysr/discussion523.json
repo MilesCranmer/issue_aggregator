@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 523,
         "title": "How to access the Pareto front in the `full_objective_function`",
         "body": "Hi,\r\n\r\nThank you for developing this library! I am wondering if there is a simple way to access the Pareto front in the `full_objective_function`. Specifically, I would like to get a list of tuples containing the complexity and loss value for each expression in julia objective function, like [(complexity1, loss1), (complexity2, loss2),...]. This would allow me to evaluate a given expression tree based on the Pareto optimal values.\r\n\r\nAdditionally, is there a way to pass an expression tree provided by the PyCall into Julia with this library? \r\n\r\nThanks again!\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hey @randomx207,\r\n\r\nInteresting idea. I will note that one assumption in SymbolicRegression.jl is that the loss function is static and does not change over time. For example, I'm not sure how to actually create the Pareto frontier if the loss of any member of the frontier is co-dependent on the rest of the frontier (if that makes sense?). In addition, losses are cached, and if the loss were to change as a function of the global search, this would mean you would need to do many more calculations than are currently used, as you would need to re-compute the loss for any equation when comparing it to other candidates.\r\n\r\nHowever, one option that you could consider is simply re-running the search from a checkpoint (`warm_start=True` and calling `.fit(X, y)` again in PySR, or simply calling `fit!(mach)` on a trained machine in Julia), but with a different loss function each time. Basically: \r\n\r\n1. Run the search with an initial loss function.\r\n2. Create a new loss function based on the Pareto front returned from (1).\r\n3. Change the options to use that loss function, and continue the search.\r\n4. Repeat.\r\n\r\nI think this would actually work for you, because restarting a search would automatically force the re-calculation of all cached losses and the Pareto frontier. This would also be a \"cleaner\" approach compared with depending on the instantaneous Pareto frontier in the loss.\r\n\r\nYou could tweak `niterations` and `ncycles_per_iteration` based on how often you want to update the loss function with the new Pareto front.\r\n\r\nDoes that help at all?\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2024-01-16T16:39:52Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "randomx207"
               },
               "body": "Hi @MilesCranmer, \r\n\r\nI would also like to ask: what should I do if I want to generate an initial population (i.e., a sympy expression list, or preorder traversal token list, whatever) in Python, and pass it to julia during the pysr population initialization phase? I have looked at https://github.com/MilesCranmer/PySR/discussions/491 and have clone the source code, but I want to know:\r\n1. Is it possible to modify the function `function Population` to pass expressions from PyCall?\r\n2. If so, how do I build a pysr tree from python's expression objects? I don't know julia well. Can you help me?\r\n\r\nfor example, what I want to do is like this\r\n\r\n```\r\n    return Population{T,L}(\r\n        [\r\n            PopMember(\r\n                dataset,\r\n                call_python_and_get_a_tree(),       # here\r\n                options;\r\n                parent=-1,\r\n                deterministic=options.deterministic,\r\n            ) for i in 1:population_size\r\n        ],\r\n```",
               "createdAt": "2024-01-21T12:29:39Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMS0yMVQxMjoyOTozOSswMDowMM4AfRd6"
           }

@@ -1,18 +1,13 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 582,
         "title": "Search-replace old code snippets with new syntax",
         "body": "As we have a fairly large volume of old issues/discussions, I am wary that some of the syntax is now out of date. Most notably, `eval` is now `seval`. And various kwargs are out-of-date.\r\n\r\nI think as part of the 1.0 milestone, we should update the solutions in issues/discussions for the new syntax.",
-        "comments":
-        {
+        "comments": {
           "nodes": [],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": null
           }

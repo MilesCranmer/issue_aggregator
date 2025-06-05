@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 198,
         "title": "Summation over n elements",
         "body": "Hello, \nis it possible to make an operator that sums arbitrary amount of variables, that are satisfying some condition\n\nFor example:\nSum over all distances, that are smaller, than 4.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @DenisSvirin,\r\n\r\nFor problems like this, where you sum a function over a set, I recommend taking the approach specified in this paper: https://arxiv.org/abs/2006.11287 (youtube video here: https://www.youtube.com/watch?v=HKJB0Bjo6tQ).\r\n\r\nThe basic idea is you learn neural network of the form $y = f(\\sum_i g(x_i))$. You would set $f$ and $g$ equal to multi-layer perceptrons. Optimize them, and then fit symbolic forms to their input and output. You can see an example of exactly this functional form in the last example of this PySR tutorial: https://colab.research.google.com/github/MilesCranmer/PySR/blob/master/examples/pysr_demo.ipynb (scroll to near the end).\r\n\r\nFor your operators, you would probably want to define\r\n```julia\r\ncond(x::T, y::T) where {T} = (x > zero(T)) ? y : zero(T)\r\n```\r\nas a binary operator - then it could learn that $cond(distance-4, f(x))$ is the function.\r\nCheers,\r\nMiles",
               "createdAt": "2022-09-29T16:40:26Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "Pierre-Bartet"
               },
               "body": "Is there a way (or any research outside PySR) to actually allow aggregation operators (such as sums)?",
               "createdAt": "2023-10-26T15:07:24Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMC0yNlQxNjowNzoyNCswMTowMM4AcNNS"
           }

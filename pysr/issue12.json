@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 12,
         "title": "the use of the package : PySR",
         "body": "Hi, I just begin to use the package. I use the python. But , I don't know whether it just need python3 .Do I need to install julia in order to use it?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I think these are answered in the installation section: https://github.com/MilesCranmer/PySR#installation. Python3, yes; Julia, yes.",
               "createdAt": "2020-10-09T12:39:11Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOKhcYaw=="
           }

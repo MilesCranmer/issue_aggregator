@@ -1,18 +1,13 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 126,
         "title": "[Feature] Automatic Plotting + LaTeX rendering",
         "body": "It would be great if PySR would automatically generate plots for discovered expressions, as well as LaTeX of the expression form, during training. Then, one does not need to stop training to test the expressions - there would already be plots + generated latex for each expression. \r\n\r\nThis could be done occasionally, in the backend of SymbolicRegression.jl. It could be generated to a temporary folder.",
-        "comments":
-        {
+        "comments": {
           "nodes": [],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": null
           }

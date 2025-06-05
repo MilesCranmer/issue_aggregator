@@ -1,18 +1,13 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 601,
         "title": "[DOCS] Import sections of JuliaCall docs",
         "body": "It would be useful to import sections of the JuliaCall docs so things are presented up-front rather than the user needing to find it. For example I think all the environment variables https://juliapy.github.io/PythonCall.jl/stable/juliacall/#julia-config could be displayed on the PySR docs too. \r\n\r\n(Would help prevent, e.g.,  #600)",
-        "comments":
-        {
+        "comments": {
           "nodes": [],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": null
           }

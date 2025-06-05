@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 255,
         "title": "reestimate constants of equation",
         "body": "Hi,\r\nHow can I reestimate the constants of an equation?\r\nLets say I split training data into a training and a validation set to pick the best equation, how would I then reestimate the constant of the specific equation with the whole training set?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "If you get the JAX format with .jax(i), or the PyTorch format with .pytorch(i), for equation i, the constants are tunable parameters, so you can fit them afterwards.\r\n\r\nIf on the Julia (backend) side, you can call SymbolicRegression.ConstantOptimizationModule.optimize_constants, and pass a different dataset object than the one given for the equation search.",
               "createdAt": "2023-01-25T13:49:13Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mikamyrseth"
               },
               "body": "If anyone else is looking for this, a simple Jax implementation with mse could look like this. \r\n\r\n``` \r\nimport jax.numpy as jnp\r\nimport jax.scipy.optimize as jopt\r\n\r\njax_moddel = model.jax(best_equation)\r\njax_callablle = jax_moddel['callable']\r\njax_params = jax_moddel['parameters']\r\n\r\ndef loss(params, x, y):\r\n        return jnp.mean((jax_callablle(x, params) - y) ** 2)\r\n\r\njax_params = jopt.minimize(\r\n    fun=loss,\r\n    x0=jax_params,\r\n    args=(X_new.to_numpy(), Y_new.to_numpy()),\r\n    method=\"BFGS\",\r\n    tol=0.000001\r\n).x\r\n\r\nprediction = jax_callablle(X_new.to_numpy(), jax_params)\r\n```",
               "createdAt": "2023-01-31T07:24:17Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wMS0zMVQwNzoyNDoxNyswMDowMM4ASaaA"
           }

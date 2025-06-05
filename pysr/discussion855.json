@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 855,
+        "title": "Specifying template expression and custom loss function",
+        "body": "Hi! \r\nI wonder whether it is possible to specify template expression as well as custom loss function. I tried doing it myself, but got errors. Are there any simple case examples?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "You can use `loss_function_expression`",
+              "createdAt": "2025-03-04T13:09:11Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0wNFQxMzowOToxMSswMDowMM4AvQgM"
+          }
+        }
+      }
+    }
+  }
+}

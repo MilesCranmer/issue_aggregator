@@ -1,132 +1,112 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 20,
         "title": "[Windows] Always returning the same equation?",
         "body": "I don't know if this is a Windows issue or what (I work on a Linux partition, but I just wanted to play around with this - I haven't actually done serious work Windows for 7 years or so, so I'm at a loss), but after fitting one equation, it's *always* returning that equation.  Even with different data, in a different notebook.\r\n\r\nI've looked to see if I could find the julia file it creates - nope.  And they're different files every time. \r\n\r\nAny ideas?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I see this issue sometimes if the second run crashes, and the same `equation_file=...` argument is used (by default this is `hall_of_fame.csv` for all runs). The equation_file is used to save the current best list of equations in case of crashes or early quits by the user. It should normally be overwritten though if at least a single iteration of PySR completes. If you use a different equation_file argument, do you see the same issue? Are you quitting early by any chance? Do you see any verbose output on your second run?\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2020-12-22T21:10:15Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Actually it might be wise for me to overwrite `equation_file` at the beginning of a PySR run so this issue doesn't come up!\r\n\r\nOr, even better, I should have the default `equation_file` have a time stamp in the name!",
               "createdAt": "2020-12-22T21:20:15Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Okay, just pushed v0.3.33 - it has the default `equation_file` with a format with date and time of launch: e.g., `hall_of_fame_2020_12_22_16:55:44.csv`. This should prevent a new run from printing the previous run's equations if it exits before an iteration is complete. Let me know if this works!\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2020-12-22T22:06:14Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "JQVeenstra"
               },
               "body": "Thanks for the quick response!\r\n\r\nI'm getting the following error: OSError: [Errno 22] Invalid argument: 'hall_of_fame_2020_12_22_19:11:15.csv.bkup'\r\n\r\nSigning off for now.\r\n\r\nCheerio,\r\nJQ",
               "createdAt": "2020-12-23T00:14:52Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "No problem!\r\n\r\nSorry, my fault! I didn't realize \":\" can't be inside a filename on Windows. Will fix in v0.3.34.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2020-12-23T00:30:09Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Pushed!\r\nCheers,\r\nMiles",
               "createdAt": "2020-12-23T00:48:51Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "JQVeenstra"
               },
               "body": "Very much appreciated!\n\nWill take it for a spin tomorrow.\n\nOn Tue., Dec. 22, 2020, 19:49 Miles Cranmer, <notifications@github.com>\nwrote:\n\n> Closed #20 <https://github.com/MilesCranmer/PySR/issues/20>.\n>\n> —\n> You are receiving this because you authored the thread.\n> Reply to this email directly, view it on GitHub\n> <https://github.com/MilesCranmer/PySR/issues/20#event-4142243679>, or\n> unsubscribe\n> <https://github.com/notifications/unsubscribe-auth/ACA64XBZZSJMCISTR4LAG3LSWE5ABANCNFSM4VGD6VUA>\n> .\n>\n",
               "createdAt": "2020-12-23T00:50:51Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "JQVeenstra"
               },
               "body": "Hey Miles,\r\n\r\nSo with the fix, you've (at least in Windows) created some other bugs.\r\n\r\nHow would you like to deal with this?\r\n\r\n1. You could reopen this issue and I could give the error messages that are relevant\r\n2. I could create a new issue\r\n3. I could switch to my Linux box, pull, create a branch, try to reproduce, fix it, create a PR, and be done with it.\r\n\r\nOption 3 might take a while, as I'm only working when I feel like it over the holidays.\r\n\r\nWhatever works for you.\r\n\r\nTake care!\r\n\r\nCheeio,\r\nJQ",
               "createdAt": "2020-12-23T16:38:49Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks for the report. What error message are you seeing on Windows? I have\ncontinuous testing on Linux which looks like it’s working, and I test on\nMac locally as well.\n\nOn Wed, Dec 23, 2020 at 11:39 AM JQ Veenstra <notifications@github.com>\nwrote:\n\n> Hey Miles,\n>\n> So with the fix, you've (at least in Windows) created some other bugs.\n>\n> How would you like to deal with this?\n>\n>    1. You could reopen this issue and I could give the error messages\n>    that are relevant\n>    2. I could create a new issue\n>    3. I could switch to my Linux box, pull, create a branch, try to\n>    reproduce, fix it, create a PR, and be done with it.\n>\n> Option 3 might take a while, as I'm only working when I feel like it over\n> the holidays.\n>\n> Whatever works for you.\n>\n> Take care!\n>\n> Cheeio,\n> JQ\n>\n> —\n> You are receiving this because you modified the open/close state.\n>\n>\n> Reply to this email directly, view it on GitHub\n> <https://github.com/MilesCranmer/PySR/issues/20#issuecomment-750378753>,\n> or unsubscribe\n> <https://github.com/notifications/unsubscribe-auth/ABZ5YREYW52FMKPWI4OBZ5DSWIMKRANCNFSM4VGD6VUA>\n> .\n>\n-- \nMiles Cranmer\nastroautomata.com\nPhD Candidate and NSERC Fellow at Princeton\nI build interpretable ML algorithms to accelerate astrophysics.\n",
               "createdAt": "2020-12-23T19:04:39Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "JQVeenstra"
               },
               "body": "in, e.g.,\r\n```\r\nequations = pysr(tr[xcols].values, tr['target'], niterations=5,\r\n        binary_operators=[\"plus\", \"mult\"],\r\n        unary_operators=[\"cos\", \"exp\", \"sin\", \"arcsinh\", \"log\", \"inverse\"])\r\n```\r\nI'm always getting\r\n```\r\nRunning on julia -O3 -p 4 C:\\Users\\jqvee\\AppData\\Local\\Temp\\tmpq72rhue4\\runfile.jl\r\nCouldn't find equation file!\r\n```\r\n\r\nWhich leads to an empty data frame (obviously)",
               "createdAt": "2020-12-23T19:22:08Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "JQVeenstra"
               },
               "body": "apologies, it seems to be an issue with one of my unary functions.",
               "createdAt": "2020-12-23T21:24:21Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Ah, I see. Let me know if there would be a more helpful error message for this!\r\n\r\nIndeed both \"log\" and \"inverse\" are invalid operators (see https://pysr.readthedocs.io/en/latest/docs/operators/); log isn't valid for negative numbers so can't be used, and inverse is not defined. You can instead do \"logm\" (defined as log(abs(x))) and give an inline definition for inverse like this:\r\n\r\n```\r\nequations = pysr(tr[xcols], tr['target'], niterations=5,\r\n        binary_operators=[\"plus\", \"mult\"],\r\n        unary_operators=[\"cos\", \"exp\", \"sin\", \"arcsinh\", \"logm\", \"inverse(x) = 1/x\"])\r\n```\r\n\r\nand this should work. The `inverse(x) = 1/x` can be any julia code FYI.\r\n\r\nNote also that you can pass the pandas array for X and it will use the column names for variables when printing equations.",
               "createdAt": "2020-12-23T21:43:41Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "JQVeenstra"
               },
               "body": "Yep, gotcha re pandas.\n\nMy bad, I was feeling a little lazy and didn't read the docs well.\n\nOn Wed., Dec. 23, 2020, 16:43 Miles Cranmer, <notifications@github.com>\nwrote:\n\n> Ah, I see. Let me know if there would be a more helpful error message for\n> this!\n>\n> Indeed both \"log\" and \"inverse\" are invalid operators (see\n> https://pysr.readthedocs.io/en/latest/docs/operators/); log isn't valid\n> for negative numbers so can't be used, and inverse is not defined. You can\n> instead do \"logm\" (defined as log(abs(x))) and give an inline definition\n> for inverse like this:\n>\n> equations = pysr(tr[xcols], tr['target'], niterations=5,\n>         binary_operators=[\"plus\", \"mult\"],\n>         unary_operators=[\"cos\", \"exp\", \"sin\", \"arcsinh\", \"logm\", \"inverse(x) = 1/x\"])\n>\n> and this should work. The inverse(x) = 1/x can be any julia code FYI.\n>\n> Note also that you can pass the pandas array for X and it will use the\n> column names for variables when printing equations.\n>\n> —\n> You are receiving this because you authored the thread.\n> Reply to this email directly, view it on GitHub\n> <https://github.com/MilesCranmer/PySR/issues/20#issuecomment-750485019>,\n> or unsubscribe\n> <https://github.com/notifications/unsubscribe-auth/ACA64XF32CJIANMDW5335P3SWJQBVANCNFSM4VGD6VUA>\n> .\n>\n",
               "createdAt": "2020-12-23T22:14:00Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "JQVeenstra"
               },
               "body": "Thanks!\n\nOn Wed., Dec. 23, 2020, 17:13 JQ Veenstra, <jqveenstra@gmail.com> wrote:\n\n> Yep, gotcha re pandas.\n>\n> My bad, I was feeling a little lazy and didn't read the docs well.\n>\n> On Wed., Dec. 23, 2020, 16:43 Miles Cranmer, <notifications@github.com>\n> wrote:\n>\n>> Ah, I see. Let me know if there would be a more helpful error message for\n>> this!\n>>\n>> Indeed both \"log\" and \"inverse\" are invalid operators (see\n>> https://pysr.readthedocs.io/en/latest/docs/operators/); log isn't valid\n>> for negative numbers so can't be used, and inverse is not defined. You can\n>> instead do \"logm\" (defined as log(abs(x))) and give an inline definition\n>> for inverse like this:\n>>\n>> equations = pysr(tr[xcols], tr['target'], niterations=5,\n>>         binary_operators=[\"plus\", \"mult\"],\n>>         unary_operators=[\"cos\", \"exp\", \"sin\", \"arcsinh\", \"logm\", \"inverse(x) = 1/x\"])\n>>\n>> and this should work. The inverse(x) = 1/x can be any julia code FYI.\n>>\n>> Note also that you can pass the pandas array for X and it will use the\n>> column names for variables when printing equations.\n>>\n>> —\n>> You are receiving this because you authored the thread.\n>> Reply to this email directly, view it on GitHub\n>> <https://github.com/MilesCranmer/PySR/issues/20#issuecomment-750485019>,\n>> or unsubscribe\n>> <https://github.com/notifications/unsubscribe-auth/ACA64XF32CJIANMDW5335P3SWJQBVANCNFSM4VGD6VUA>\n>> .\n>>\n>\n",
               "createdAt": "2020-12-23T22:14:13Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOLLue-g=="
           }

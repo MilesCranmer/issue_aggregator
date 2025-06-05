@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 917,
+        "title": "Parametric optimisation using Parametrized Template Expressions vs Parametrized Expressions",
+        "body": "Hi Miles,\r\n\r\nIt seems parameter optimisation works differently behind the scenes for Parametrized Expressions and Parametrized Template Expressions. In the problems I have been tackling, Parametrized Template Expressions is far quicker than Parametrized Expressions for the exact same problem. \r\n\r\nAre there circumstances where Parametrized Expression optimisation is superior/advised to be used in favour of Parametrized Template Expressions?\r\n\r\nThank you\r\n\r\nGeorge",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Very interesting! This is very good news. Yes maybe I should just recommend template expressions always and avoid mentioning parametric expressions since they are both slower and less flexible.\r\n\r\nWhat happened was I had initially coded up parametric expressions in a slightly overly complex way, without seeing any other way to do it. Then I wrote template expressions. Then I added parameters to template expressions with a clever trick - one that took a while for me to realise. It turns out this way of incorporating parameters was far superior in both efficiency and simplicity (and flexibility, as you can have multiple categorical variables) to the way they are implemented in parametric expressions. It was just hard to see this before all the infrastructure was in place. So in retrospect I probably wouldn't even have added parametric expressions at all.\r\n\r\nMaybe what we can do is remove parametric expressions from the examples and add a warning message that the user should use template expressions instead? The warning message can even have a helpful message for how the user can change their code.",
+              "createdAt": "2025-05-10T12:40:17Z"
+            },
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "I've played around with it a bit more and the speed difference is night and day. It does feel like the current Parametrized Expressions is somewhat redundant, perhaps even counterproductive (by distracting users from the seemingly superior better template expression structure). Simple and better fits nicely with the ethos of SR! ",
+              "createdAt": "2025-05-12T21:26:05Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0xMlQyMjoyNjowNSswMTowMM4AyD7h"
+          }
+        }
+      }
+    }
+  }
+}

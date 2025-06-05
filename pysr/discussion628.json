@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 628,
         "title": "Can we use GPU for accelerating SR?",
         "body": "Any chance we can use an nvidia gpu for accelerating an SR workload?\r\nI am not familiar with julia. has anyone looked into it?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "See https://github.com/SymbolicML/DynamicExpressions.jl/pull/65. Help appreciated!",
               "createdAt": "2024-05-21T06:07:01Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNS0yMVQwNzowNzowMSswMTowMM4AkQVW"
           }

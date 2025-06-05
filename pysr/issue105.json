@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 105,
         "title": "[Feature] Manual equation picking",
         "body": "The current model output looks like this:\r\n```python\r\nPySRRegressor.equations = [\r\n\t   pick     score                                           equation       loss  complexity\r\n\t0        0.000000                                          4.4324794  42.354317           1\r\n\t1        1.255691                                          (x0 * x0)   3.437307           3\r\n\t2        0.011629                          ((x0 * x0) + -0.28087974)   3.358285           5\r\n\t3        0.897855                              ((x0 * x0) + cos(x3))   1.368308           6\r\n\t4        0.857018                ((x0 * x0) + (cos(x3) * 2.4566472))   0.246483           8\r\n\t5  >>>>       inf  (((cos(x3) + -0.19699033) * 2.5382123) + (x0 *...   0.000000          10\r\n]\r\n```\r\nI think the easiest way to allow manual control over the model selection is simply let the user run `model.pick(4)`, to select index `4` of this list. This may change the model selection strategy to, e.g., `\"best:4\"` - meaning that temporarily, the 4th row is selected, but if `model.fit` is ran again, it will be reset to the \"best\" equation.\r\n\r\n@patrick-kidger what's your opinion on this?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "patrick-kidger"
               },
               "body": "So I've not looked too closely at the current PySR implementation here, but if I had to design an API from scratch it would go something like this:\r\n\r\n```python\r\nclass PySRRegressor:\r\n    def get_best(self, score_fn=some_default) -> Optional[Equation]:\r\n        best_score = float(\"-inf\")\r\n        best_equation = None\r\n        for i, equation in self.equations:\r\n            score = score_fn(i, equation, ...)  # plus any other data that might be relevant\r\n            if score > best_score:\r\n                best_score = score\r\n                best_equation = equation\r\n        return best_equation\r\n```\r\n\r\ni.e. just pass the appropriate way of identifying things as a function at the time it's needed. No caching that choice as a hidden state.\r\n\r\n(And where now if you have some oracle telling you from on high that \"equation 4 is the best one\" then you can implement `score_fn = lambda i, eq: float(\"inf\") if i == 4 else float(\"-inf\")`.)\r\n\r\nAs a more general principle, \"cache as hidden state\" is useful if you expect to need to use the same value multiple times, e.g.\r\n```python\r\ninstance = MyClass(some_state)\r\ninstance.do_this(...)  # uses some_state\r\ninstance.do_that(...)  # uses some_state\r\n```\r\nBut I don't think that's the case here. Correct me if I'm wrong, but I think it's typical to call something needing the scoring function (such as `PySRRegressor.get_best`) only once.",
               "createdAt": "2022-02-11T18:46:48Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This has been added. All functions which use one equation (`sympy()`, `predict()`, `jax()`, `pytorch()`, `latex()`, `get_best()`) now let you specify the row index of the equation you wish to use: e.g., `model.predict(X, index=5)`. You can therefore apply your own score function to `model.equation`, and then pass the index of the equation to the functions you wish to use.",
               "createdAt": "2022-05-20T15:03:46Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOQ4hxKA=="
           }

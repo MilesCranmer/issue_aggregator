@@ -1,44 +1,35 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 324,
         "title": "Constraining asymptotic behavior",
         "body": "Moved from #276:\r\n\r\n@dominik-rehse:\r\n> Dear @MilesCranmer,\r\n> \r\n> Thank you for implementing this awesome feature, which I saw only now!\r\n> \r\n> Would this - at least in principle - allow for symbolic constraints on the functional form (e.g.,   $\\lim_{x\\to\\infty} f(x)=0$\r\n> )? If so, could you provide any hints on how to implement something like that? I am not really familiar with Julia and could not immediately find more information on symbolic operations in the docs of [SymbolicRegression.jl](https://github.com/MilesCranmer/SymbolicRegression.jl).\r\n> \r\n> Thanks,\r\n> Dominik",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Great question. Actually the simplest and perhaps best way to constraint asymptotic behavior is to add datapoints in the direction of the asymptotes. While for other ML techniques, it wouldn't work, for SR this actually is very effective.\r\n\r\nFor example, for your constraint, I would add:\r\n\r\n```python\r\nlarge_number = 100_000\r\nx = np.append(x, large_number)\r\ny = np.append(y, 0)\r\n\r\nlarge_number_2 = 1_000_000\r\nx = np.append(x, large_number2)\r\ny = np.append(y, 0)\r\n```\r\n\r\nassuming that `x` is a 1D array (you would have to reshape it when passing to PySR).\r\n\r\nYou can also add some `weights` to enforce the constraint more.",
               "createdAt": "2023-05-08T11:51:38Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "One other option is to try this package: https://github.com/JuliaMath/Richardson.jl which can numerically estimate limits. This is perhaps the \"proper\" way to do it, but I'm not sure how effective it would be.\r\n\r\nYou can see how to install Julia packages into PySR in this example: https://astroautomata.com/PySR/examples/#7-julia-packages-and-types (or one could also use the Julia backend directly).\r\n\r\nHere's an example of using Richardson:\r\n\r\n```julia\r\nusing Richardson\r\n\r\nfunction my_custom_objective(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    if !flag\r\n        return L(Inf)\r\n    end\r\n    limit_val, precision = extrapolate(1.0, x0=Inf) do x\r\n        out, completed = eval_tree_array(tree, [x]', options)\r\n        !completed && (out .= NaN)\r\n        return out[1]\r\n    end\r\n    !isfinite(limit_val) && return L(Inf)\r\n    prediction_loss = sum((prediction .- dataset.y) .^ 2) / dataset.n\r\n    asymptote_loss = (limit_val - 0.0) ^ 2\r\n    loss = prediction_loss + 100 * asymptote_loss\r\n    return loss\r\nend\r\n```",
               "createdAt": "2023-05-08T11:54:02Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "dominik-rehse"
               },
               "body": "Dear @MilesCranmer,\r\n\r\nThank you for the prompt and super-helpful replies!\r\n\r\n-Dominik",
               "createdAt": "2023-05-08T13:18:26Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNS0wOFQxNDoxODoyNiswMTowMM4AWRVW"
           }

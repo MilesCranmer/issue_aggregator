@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 533,
         "title": "how to pass an expression from PyCall",
         "body": "Hi @MilesCranmer, \r\n\r\nI would also like to ask: what should I do if I want to generate an initial population (i.e., a sympy expression list, or preorder traversal token list, whatever) in Python, and pass it to julia during the pysr population initialization phase? I have looked at https://github.com/MilesCranmer/PySR/discussions/491 and have clone the source code, but I want to know:\r\n1. Is it possible to modify the function `function Population` to pass expressions from PyCall?\r\n2. If so, how do I build a pysr tree from python's expression objects? I don't know julia well. Can you help me?\r\n\r\nfor example, what I want to do is like this\r\n\r\n```\r\n    return Population{T,L}(\r\n        [\r\n            PopMember(\r\n                dataset,\r\n                call_python_and_get_a_tree(),       # here\r\n                options;\r\n                parent=-1,\r\n                deterministic=options.deterministic,\r\n            ) for i in 1:population_size\r\n        ],\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "This is tricky, I guess the main thing you can do is modify the `PopMember` constructor. But other than that there isn’t currently an easy way to specify the way new equations are generated in a fresh population. Maybe also look at https://github.com/MilesCranmer/SymbolicRegression.jl/issues/193 for what I want to do.\r\n\r\nFor constructing trees, take a look at DynamicExpressions.jl which is how the node type is defined.",
               "createdAt": "2024-01-29T07:38:02Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMS0yOVQwNzozODowMiswMDowMM4Afk-1"
           }

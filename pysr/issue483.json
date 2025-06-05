@@ -1,18 +1,13 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 483,
         "title": "Rethinking default behavior for number of iterations",
         "body": "Something I have noticed is that many users expect the result of `.fit(X, y)` to be converged for the default parameters, and are surprised that running it a second time results in a different equation. This is a reasonable assumption given that converged solutions are the typical behavior for other ML models or optimization routines!\r\n\r\nSo, I think the default behavior for PySR should be a bit more clear that \"convergence\" is not really well-defined for symbolic regression. Perhaps we could leave the same behavior, but basically show a warning to the user if `niterations` is not set explicitly, such as:\r\n\r\n```\r\nNo stopping criteria given, so will exiting after 40 iterations. Increase `niterations` to search for longer.\r\n```\r\n\r\nThis seems like a simple solution which would make it clear to users that they shouldn't expect the equations to be converged.\r\n\r\nWe might also think about renaming `niterations` to `max_iterations` to be more clear about this. We should make this in line with the other stopping criteria: https://astroautomata.com/PySR/api/#stopping-criteria",
-        "comments":
-        {
+        "comments": {
           "nodes": [],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": null
           }

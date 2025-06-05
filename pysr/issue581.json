@@ -1,20 +1,44 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 581,
         "title": "[Feature]: TensorBoard support",
         "body": "### Feature Request\n\nJust to track https://github.com/MilesCranmer/SymbolicRegression.jl/pull/277 on the PySR side. We can have another install on the Julia side in `pysr/julia_extensions.py` for TensorBoard and Wandb.",
-        "comments":
-        {
-          "nodes": [],
-          "pageInfo":
-          {
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "BrotherHa"
+              },
+              "body": "Hello @MilesCranmer, \r\nI am working with PySR for my master´s thesis and noticed the new option of SymbolicRegression.jl to specify a logger. I am interested in this feature and therefore I wanted to ask, if it is already possible to use the logging option with PySR and if that is the case, how to implement it? I already tried to \"update\" the SymbolicRegression.jl File used in PySR manually to use the latest SymbolicRegression.jl version, like explained here (https://astroautomata.com/PySR/backend/), which did unfortunately not work.\r\nThank you very much for your support in advance!\r\nBest Regards",
+              "createdAt": "2024-11-30T15:52:49Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "See https://github.com/MilesCranmer/PySR/pull/748. The 1.0 change requires a lot of updates. But it still doesn’t have the tensorboard logger built in, that’s still a todo item.",
+              "createdAt": "2024-11-30T16:20:30Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Ok I added tensorboard logging in #748. Will merge soon...",
+              "createdAt": "2024-11-30T21:48:18Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Released",
+              "createdAt": "2024-12-01T00:12:10Z"
+            }
+          ],
+          "pageInfo": {
             "hasNextPage": false,
-            "endCursor": null
+            "endCursor": "Y3Vyc29yOnYyOpHOlZO5mA=="
           }
         }
       }

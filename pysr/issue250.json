@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 250,
         "title": "Jupyter error \"tried to read a stream that is not readable\"",
         "body": "### Discussed in https://github.com/MilesCranmer/PySR/discussions/248\r\n\r\n<div type='discussions-op-text'>\r\n\r\n<sup>Originally posted by **quasars100** January 15, 2023</sup>\r\nHi,\r\nSorry this is a basic question about installation - I followed all instructions (Julia was already installed, then I ran \"pip install -U pysr\" followed by \" python -c 'import pysr; pysr.install()' \").  There was no issues regarding importing Pysr in python; however, when I try running\r\n\r\nmodel = PySRRegressor(\r\n    niterations=40,  # < Increase me for better results\r\n    binary_operators=[\"+\", \"*\"],\r\n    unary_operators=[\r\n        \"cos\",\r\n        \"exp\",\r\n        \"sin\",\r\n        \"inv(x) = 1/x\",\r\n        # ^ Custom operator (julia syntax)\r\n    ],\r\n    extra_sympy_mappings={\"inv\": lambda x: 1 / x},\r\n    # ^ Define operator for SymPy as well\r\n    loss=\"loss(x, y) = (x - y)^2\",\r\n    # ^ Custom loss function (julia syntax)\r\n)\r\nmodel.fit(x,y)\r\n\r\n the following error appeared:\r\n\r\nRuntimeError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: tried to read a stream that is not readable\r\nStacktrace:\r\n [1] watch_stream(stream::Base.PipeEndpoint)\r\n   @ SymbolicRegression.SearchUtilsModule ~/.julia/packages/SymbolicRegression/37l4B/src/SearchUtils.jl:79\r\n [2] _EquationSearch(::SymbolicRegression.CoreModule.ProgramConstantsModule.SRThreaded, datasets::Vector{SymbolicRegression.CoreModule.DatasetModule.Dataset{Float32}}; niterations::Int64, options::Options{typeof(loss), Int64, 0.86, 10}, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing)\r\n   @ SymbolicRegression ~/.julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:418\r\n [3] EquationSearch(datasets::Vector{SymbolicRegression.CoreModule.DatasetModule.Dataset{Float32}}; niterations::Int64, options::Options{typeof(loss), Int64, 0.86, 10}, parallelism::String, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing)\r\n   @ SymbolicRegression ~/.julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:383\r\n [4] EquationSearch(X::Matrix{Float32}, y::Matrix{Float32}; niterations::Int64, weights::Nothing, varMap::Vector{String}, options::Options{typeof(loss), Int64, 0.86, 10}, parallelism::String, numprocs::Nothing, procs::Nothing, addprocs_function::Nothing, runtests::Bool, saved_state::Nothing, multithreaded::Nothing)\r\n   @ SymbolicRegression ~/.julia/packages/SymbolicRegression/37l4B/src/SymbolicRegression.jl:320\r\n [5] invokelatest(::Any, ::Any, ::Vararg{Any}; kwargs::Base.Pairs{Symbol, Any, NTuple{8, Symbol}, NamedTuple{(:weights, :niterations, :varMap, :options, :numprocs, :parallelism, :saved_state, :addprocs_function), Tuple{Nothing, Int64, Vector{String}, Options{typeof(loss), Int64, 0.86, 10}, Nothing, String, Nothing, Nothing}}})\r\n   @ Base ./essentials.jl:731\r\n [6] _pyjlwrap_call(f::Function, args_::Ptr{PyCall.PyObject_struct}, kw_::Ptr{PyCall.PyObject_struct})\r\n   @ PyCall ~/.julia/packages/PyCall/twYvK/src/callback.jl:32\r\n [7] pyjlwrap_call(self_::Ptr{PyCall.PyObject_struct}, args_::Ptr{PyCall.PyObject_struct}, kw_::Ptr{PyCall.PyObject_struct})\r\n   @ PyCall ~/.julia/packages/PyCall/twYvK/src/callback.jl:44>\r\n\r\nOne reason might be that my Julia version is currently 1.8.5 instead of 0.6.0 (which isn't supported anymore, when I tried to downgrade the current version), or it could be another issue.\r\nIs there any way to fix the issue?\r\nWhen I tried running the code with an older Julia version (1.0), it said I had to update Julia first.\r\nThank you.\r\n\r\n</div>",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "The `watch_stream` should be wrapped in a try-catch to avoid this. It’s not immediately apparent how to actually get it working within Jupyter… maybe it needs a button to stop the search, rather than watching for “q”.",
               "createdAt": "2023-01-16T16:34:00Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOUoK6Lw=="
           }

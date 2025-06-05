@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 406,
         "title": "Learning optimal basis function",
         "body": "I'm fitting a model to predict dropout in special forces selection. So far, I have mostly used random forests which outperform linear models. However, Nassim Nicholas Taleb [pointed out](https://twitter.com/nntaleb/status/1691181151451226113) something nice:\r\n\r\n<img src=\"https://github.com/MilesCranmer/PySR/assets/20724914/d987eca1-1d06-47e8-83de-2c7d65288427\" width=300>\r\n\r\nThat is, IQ is not linearly related to fatalities, but only below a certain threshold IQ is linearly related. Therefore, I should probably model it with a ReLU:\r\n\r\n<img src=\"https://github.com/MilesCranmer/PySR/assets/20724914/06e9a8af-1a95-4f23-8c90-d893cf065eb2\" width=300>\r\n\r\nAs also shown in on of the scatter plots in Taleb's [Medium article](https://medium.com/incerto/iq-is-largely-a-pseudoscientific-swindle-f131c101ba39):\r\n\r\n![image](https://github.com/MilesCranmer/PySR/assets/20724914/730a5106-e045-4b2b-99e4-a0d08fb5f197)\r\n\r\nFor my special forces dropout prediction case, it does make a lot of sense. Predicting who will be a great special forces soldier is impossible because it's a power law and those are generally extremely hard to predict. However, you can turn the problem around to predict what's in the way of becoming a soldier. For example, you can be a great person with amazing soldier skills, but if you cannot carry a backpack then the amazing skills don't matter. Similarly, having a great car doesn't matter if one wheel is missing.\r\n\r\nAnyway, in my case, I have a $n$ variables (roughly 10) for which I want to feat a ReLU (or something similar) on each variable and then sum them via a logistic (because I'm doing binary classification). So an equation along the lines of \r\n\r\n$y_i = \\text{logistic}(b_0 + f(x_1, a_1, b_2, c_2) + f(x_2, a_2, b_2, c_2) + \\ ... \\ + f(x_n, a_n, b_n, c_n))$\r\n\r\nWhere $f(x_i, a_i, b_i, c_i)$ denotes some kind of function where SymbolicRegression tries to find the best fitting ReLU with slope $a_i$, location for the angle $b_i$, and direction $c_i$ for feature $x_i$ for all features $i$ in $1:\\text{number of features}$.\r\n\r\nWould this be possible in SymbolicRegresssion.jl and what would be the best way to do this?\r\n\r\n\r\n\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @rikhuijzer,\r\n\r\nThanks for sharing this problem, it sounds very interesting. It is definitely possible, but perhaps not in the exact form you are looking for. The RFC here: https://github.com/MilesCranmer/SymbolicRegression.jl/issues/193 has some ideas for how we could set this up. What do you think? I think it would basically involve making a meta expression type in DynamicExpressions.jl – the meta expression would impose some specific evaluation strategy, and wrap one or more `Node` types for holding the symbolic form of `f`.\r\n\r\nThere is a way to approach this problem with the current code, but it's a bit brute force. You would do it with a custom objective that would explicitly evaluate the symbolic expression for each of the 10 variables. See https://astroautomata.com/PySR/examples/#9-custom-objectives for an example. This is the Python side of the docs but it's the same API for the Julia version, just replace `full_objective` -> `loss_function`. As seen in the example, you can have a custom functional form or evaluation scheme created within the loss function. One thing you could try to do is have an inner optimization loop over `a1, b1, c1, ...` within the loss function – and for each triplet of parameters, you would copy those into a column of `X`, and then call `eval_tree_array`. However, this seems a bit inefficient because it would need to optimize those variables every time the loss function is called. I guess batching will be really important here to avoid expensive optimizations.\r\n\r\nCheers!\r\nMiles",
               "createdAt": "2023-08-17T06:17:33Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Also - if you are open to not using pure symbolic regression, you could try the deep learning -> symbolic regression approach as mentioned here: https://github.com/MilesCranmer/symbolic_deep_learning.\r\n\r\nHere's a full example of how you could solve this with Flux.jl:\r\n\r\n```julia\r\n# using CUDA, cuDNN\r\nusing Flux\r\nusing Fluxperimental: @compact\r\nusing Random: seed!\r\nusing ProgressBars\r\nusing Statistics: mean\r\nusing MLJ\r\n\r\nseed!(0)\r\n\r\nconst n_variables = 10\r\nconst v_n_variables = Val(n_variables)\r\n\r\nn_hidden = 128\r\n\r\n##########################################################\r\n## Flexible neural network model to find the optimal basis:\r\n##########################################################\r\nmodel = @compact(\r\n    f = Chain(\r\n        Dense(4, n_hidden, relu),\r\n        Dense(n_hidden, n_hidden, relu),\r\n        Dense(n_hidden, n_hidden, relu),\r\n        Dense(n_hidden, 1),\r\n    ),\r\n    a = randn(n_variables),\r\n    b = randn(n_variables),\r\n    c = randn(n_variables),\r\n    b0 = randn(),\r\n) do x\r\n    # Assume x: (n_variables, n_rows)\r\n    @assert axes(x, 1) == axes(a, 1)\r\n    nrows = size(x, 2)\r\n\r\n    raw_inputs = cat(\r\n        reshape(x, axes(x, 1), 1, axes(x, 2)),\r\n        repeat(a, 1, 1, nrows),\r\n        repeat(b, 1, 1, nrows),\r\n        repeat(c, 1, 1, nrows);\r\n        dims = 2,\r\n    )\r\n    inputs = ntuple(i -> raw_inputs[i, :, :], v_n_variables)\r\n\r\n    # inputs: (n_variables, 4, n_rows)\r\n    outputs = sum(f, inputs)\r\n\r\n    return sigmoid(outputs .+ b0)[1, :]\r\nend\r\n\r\nmodel = model |> gpu\r\nmodel(randn(10, 3) |> gpu)  # Should be 3 outputs\r\n\r\n##########################################################\r\n## Create dataset:\r\n##########################################################\r\ntrue_f = (x, a, b, c) -> relu(x * a - b) * c\r\ntrue_b0 = -0.1\r\nX = randn(Float32, n_variables, 10_000)\r\nunknown_vals = (a = randn(n_variables), b = randn(n_variables), c = randn(n_variables))\r\nY = [\r\n    sigmoid(\r\n        sum([\r\n            true_f(X[i, j], unknown_vals.a[i], unknown_vals.b[i], unknown_vals.c[i]) for\r\n            i in axes(X, 1)\r\n        ]) + true_b0,\r\n    ) for j in axes(X, 2)\r\n]\r\nloader = Flux.DataLoader((X, Y) |> gpu, batchsize = 64, shuffle = true)\r\n\r\noptim = Flux.setup(Flux.Adam(3e-4), model)\r\n\r\n##########################################################\r\n## Train network:\r\n##########################################################\r\nlosses = []\r\np = ProgressBar(1:1000)\r\nfor i in p\r\n    for (x, y) in loader\r\n        loss, grads = Flux.withgradient(model) do m\r\n            ŷ = m(x)\r\n            Flux.Losses.mse(ŷ, y)\r\n        end\r\n        Flux.update!(optim, model, grads[1])\r\n        push!(losses, loss)\r\n    end\r\n    set_multiline_postfix(p, \"Loss = $(mean(losses[end-30:end]))\" * \" \"^40)\r\nend\r\n\r\n##########################################################\r\n## Create training data for SymbolicRegression.jl:\r\n##########################################################\r\nsr_X = (a = Float32[], b = Float32[], c = Float32[], x = Float32[])\r\nsr_y = Float32[]\r\nfor _ = 1:1000\r\n    i = rand(1:10)\r\n    row = rand(axes(X, 2))\r\n    a = model.variables.a[i]\r\n    b = model.variables.b[i]\r\n    c = model.variables.c[i]\r\n\r\n    x = X[i, row]\r\n    y = model.variables.f([x, a, b, c] |> gpu) |> cpu\r\n\r\n    push!(sr_X.a, a)\r\n    push!(sr_X.b, b)\r\n    push!(sr_X.c, c)\r\n    push!(sr_X.x, x)\r\n    push!(sr_y, only(y))\r\nend\r\n\r\n# Fit the neural net with SymbolicRegression.jl:\r\nsr_regressor = @load SRRegressor\r\nsr_model = sr_regressor(\r\n    unary_operators = [exp, relu, tanh],\r\n    binary_operators = [+, -, *, /],\r\n    niterations = 1000,\r\n)\r\nmach = machine(sr_model, sr_X, sr_y)\r\nfit!(mach)\r\n```\r\n\r\nIt should hopefully find the basis function. Just keep in mind that it may use the parameters in a different way than the \"ground truth\" here, because the neural net is not told how to use them - it just uses them to optimize its predictions.",
               "createdAt": "2023-08-17T07:22:29Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wOC0xN1QwODoyMjoyOSswMTowMM4AZvfU"
           }

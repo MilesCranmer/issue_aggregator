@@ -1,52 +1,42 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 64,
         "title": "issue with calling best_callable when best returns a constant function.",
         "body": "When calling best_callable on a function pysr returns as a constant, I get the following error.\r\n\r\nTypeError: _lambdifygenerated() missing 1 required positional argument: 'x1'\r\n\r\nCould best_callable be adapted for constant functions as well?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "What version of PySR are you running? This looks like the old API.",
               "createdAt": "2021-07-12T16:03:34Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "bowenyou"
               },
               "body": "I have this version pysr-0.5.16.post2 and even uninstalling and reinstalling gives me this version using pip. Is there a julia/python version requirement?\r\n\r\n",
               "createdAt": "2021-07-12T16:58:54Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Ah, that is why. You need 0.6 and up. Upgrade with:\r\n```\r\npip install --upgrade pysr\r\n```",
               "createdAt": "2021-07-12T17:10:52Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "By the way - sorry I didn't mention it, but to use `best_callable`, pass the same `X` as you passed to the PySR call. The same is true even for constant solutions (though in that case, I suppose any array would work...).",
               "createdAt": "2021-07-12T21:22:07Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHONF51CQ=="
           }

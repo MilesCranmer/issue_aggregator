@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 821,
+        "title": "How can I use the TemplateExpressionSpec() function for a function that depends on a single variable?",
+        "body": "Hello! I am trying to determine the coefficient **_a_** in the **_sin(x)_** function, for the case when **_X_** is a vector using the following code:\r\n```\r\nimport numpy as np\r\nfrom pysr import PySRRegressor, TemplateExpressionSpec\r\nX = np.random.randn(10, 1)\r\ny = np.array(2.0001 * np.sin(X))\r\ntemplate = TemplateExpressionSpec(\r\n    function_symbols=[\"a\", \"f\"],\r\n    combine=\"((; a, f), (x)) -> a() * sin(f(x))\",\r\n    #num_features = {\"f\": 1,},\r\n)\r\nmodel = PySRRegressor(\r\n    expression_spec=template,\r\n    binary_operators=[\"+\"],\r\n    maxsize=10,\r\n) \r\nmodel.fit(X, y)\r\n```\r\nAn error appears as a result of the execution.: **“JuliaError: MethodError: no method matching sin(::Base.Iterators.Repeated{ValidVector{Vector{Float64}}}) The function `sin` exists, but no method is defined for this combination of argument types.”.**\r\nCan you tell me how to fix it? Thanks!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Ah, it's because you have to write `(x,)` instead of `(x)` - the former is a tuple (which is what we want - it uses tuple destructuring syntax), while the latter simplifies to just `x`.",
+              "createdAt": "2025-02-05T14:34:40Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMi0wNVQxNDozNDo0MCswMDowMM4AuC3v"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 883,
+        "title": "Tuning the number of constants",
+        "body": "Hi! \r\n\r\nI wonder whether it is possible to fix the desired number of constants in a tree when initializing a model? Can it be done in case of template expressions too?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I guess you could set the complexity of constants to a very high number, and pass parameters in a template expression. Or you could write a custom complexity mapping that counts the number of constants and compares that number to some value.",
+              "createdAt": "2025-03-30T12:02:41Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMy0zMFQxMzowMjo0MSswMTowMM4AwUjF"
+          }
+        }
+      }
+    }
+  }
+}

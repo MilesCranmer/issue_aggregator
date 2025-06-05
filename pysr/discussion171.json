@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 171,
         "title": "Avoid variables in power",
         "body": "Hi there!\r\n\r\nI'm getting used to the syntax and features of PySR and think it's excellent! One issue I'm having is with setting constraints on the power law. I wouldn't mind having a result (e.g. `x_0^{0.3125}` but I want to try avoiding powers to another variable, (e.g. `x_0^{0.3125 x_1}`).\r\nI saw the constrain (-1,1) for `pow`, but this seems to allow variables _and_ constants. Is there a way to set it to only allow constants?\r\n\r\nAlso, could someone shed light on what the numbers actually represent?\r\n\r\nThanks!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @python-ista! \r\n\r\n`(-1, 1)` means that the left argument (in `pow`, this is the base) can have arbitrarily large complexity, while the `1` signifies that the right argument can only have complexity of at most 1. By default, all operators, variables, and constants have a complexity of 1. The total complexity of an expression is computed but summing the individual complexities.\r\n\r\nOne thing you could try is to set `complexity_of_variables=2` which, along with `constraints={\"pow\": (-1, 1)}`, would prevent variables appearing in the exponent while still allowing constants.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2022-08-01T14:21:53Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0wOC0wMVQxNToyMTo1MyswMTowMM4AMlS6"
           }

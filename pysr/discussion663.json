@@ -1,18 +1,13 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 663,
         "title": "Symbolic regression with know equation",
         "body": "Dear all member,\r\n\r\nIs it possible to train the symbolic regression model with know equation?\r\nfor example, \r\nthe known equation is \r\n\r\n$$ y = x_1 + x_2 \\times \\alpha + \\frac{\\beta}{x_3} $$\r\n\r\nand the training process that can follow the samilar equation structure.\r\n\r\nBest,\r\nZhao",
-        "comments":
-        {
+        "comments": {
           "nodes": [],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": null
           }

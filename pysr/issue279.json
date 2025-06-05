@@ -1,52 +1,42 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 279,
         "title": "weight_optimize not a valid argument for regressor",
         "body": "### Discussed in https://github.com/MilesCranmer/PySR/discussions/278\r\n\r\n<div type='discussions-op-text'>\r\n\r\n<sup>Originally posted by **krn-hov** March 15, 2023</sup>\r\nWhen I try and set the weight_optimize parameter I get the \r\nTypeError: weight_optimize is not a valid keyword argument for PySRRegressor.\r\nThe regressor should update automatically I thought, in case this should be a version issue. But yes, I am curious if others are able to set this parameter. Especially since I want to use a large ncyclesperiteration.</div>",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "@krn-hov what PySR version? It's a parameter so I can set it on my end.",
               "createdAt": "2023-03-15T16:06:44Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "krn-hov"
               },
               "body": "I am running version 0.11.6. I tried rerunning the pysr.install() command as well but it didn't make a difference. \r\n[weight_optimize_error.txt](https://github.com/MilesCranmer/PySR/files/10983228/weight_optimize_error.txt)\r\n",
               "createdAt": "2023-03-15T17:46:15Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Oh, the current version is v0.11.17. `weight_optimize` was only introduced in a more recent version, it's not available in 0.11.6. So run `pip install -U pysr` to update PySR (followed by `pysr.install()`).",
               "createdAt": "2023-03-15T18:21:24Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Closing this as it appears to be a version issue. Don't hesitate to reopen if still giving problems!\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2023-03-15T19:45:46Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOV6mo9w=="
           }

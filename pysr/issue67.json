@@ -1,188 +1,161 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 67,
         "title": "[Errno 2] No such file or directory",
         "body": "I have installed pysr-0.6.12.post1 and I have been try to run the example.py but after solve some previous closed bug reports a FileNotFoundError occurs. I'm using Windows 10 and Python 3.7 the version of Julia is 1.6.2. The error message is the following.\r\n\r\nFileNotFoundError: [Errno 2] No such file or directory: 'hall_of_fame_2021-08-04_230410.180.csv.bkup'\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Sorry for the late response.\r\n\r\nThis error message occurs when PySR can't find the output of the symbolic regression search. It could occur for many different reasons, though. What is the full message that was printed? I think that will give me a clue for what is going on.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2021-08-10T04:21:06Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "jzsmoreno"
               },
               "body": "Sorry too for the late.\r\n\r\nThe message after the one I show above is the following below. I don't know if you need the full message. The section where it raise the RuntimeError is this, `equations = get_hof(**kwargs)`. I hope that this could help. Thanks alot \r\n\r\nRuntimeError: Couldn't find equation file! The equation search likely exited before a single iteration completed. \r\n\r\nCheers,\r\nJosé",
               "createdAt": "2021-08-12T19:02:58Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "No worries.\r\nCan you send the full error message (the traceback)? This error is similar to the first error - it is a result of the backend not correctly executing the search.",
               "createdAt": "2021-08-12T19:04:18Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "jzsmoreno"
               },
               "body": "The full message is the following: \r\n\r\n```\r\nin expression starting at C:\\Users\\Valeria\\AppData\\Local\\Temp\\tmpy85xyhl6\\runfile.jl:7\r\nTraceback (most recent call last):\r\n  File \"C:\\Users\\Valeria\\anaconda3\\lib\\site-packages\\pysr\\sr.py\", line 1001, in get_hof\r\n    all_outputs = [pd.read_csv(str(equation_file) + \".bkup\", sep=\"|\")]\r\n  File \"C:\\Users\\Valeria\\anaconda3\\lib\\site-packages\\pandas\\io\\parsers.py\", line 610, in read_csv\r\n    return _read(filepath_or_buffer, kwds)\r\n  File \"C:\\Users\\Valeria\\anaconda3\\lib\\site-packages\\pandas\\io\\parsers.py\", line 462, in _read\r\n    parser = TextFileReader(filepath_or_buffer, **kwds)\r\n  File \"C:\\Users\\Valeria\\anaconda3\\lib\\site-packages\\pandas\\io\\parsers.py\", line 819, in __init__\r\n    self._engine = self._make_engine(self.engine)\r\n  File \"C:\\Users\\Valeria\\anaconda3\\lib\\site-packages\\pandas\\io\\parsers.py\", line 1050, in _make_engine\r\n    return mapping[engine](self.f, **self.options)  # type: ignore[call-arg]\r\n  File \"C:\\Users\\Valeria\\anaconda3\\lib\\site-packages\\pandas\\io\\parsers.py\", line 1867, in __init__\r\n    self._open_handles(src, kwds)\r\n  File \"C:\\Users\\Valeria\\anaconda3\\lib\\site-packages\\pandas\\io\\parsers.py\", line 1362, in _open_handles\r\n    self.handles = get_handle(\r\n  File \"C:\\Users\\Valeria\\anaconda3\\lib\\site-packages\\pandas\\io\\common.py\", line 642, in get_handle\r\n    handle = open(\r\nFileNotFoundError: [Errno 2] No such file or directory: 'hall_of_fame_2021-08-12_144743.312.csv.bkup'\r\n\r\nDuring handling of the above exception, another exception occurred:\r\n\r\nTraceback (most recent call last):\r\n  File \"untitled0.py\", line 16, in <module>\r\n    equations = pysr(\r\n  File \"C:\\Users\\Valeria\\anaconda3\\lib\\site-packages\\pysr\\sr.py\", line 478, in pysr\r\n    equations = get_hof(**kwargs)\r\n  File \"C:\\Users\\Valeria\\anaconda3\\lib\\site-packages\\pysr\\sr.py\", line 1003, in get_hof\r\n    raise RuntimeError(\r\nRuntimeError: Couldn't find equation file! The equation search likely exited before a single iteration completed.\r\n```",
               "createdAt": "2021-08-12T19:58:06Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Weird, are there no other logs (output of Julia)? The Julia error message is what I usually look for.",
               "createdAt": "2021-08-13T12:55:39Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "jzsmoreno"
               },
               "body": "Sorry for the late, here it is:\r\n```\r\nRunning on julia -O3 C:\\Users\\Valeria\\AppData\\Local\\Temp\\tmpdmv52hz8\\runfile.jl\r\n  Activating environment at `C:\\Users\\Valeria\\anaconda3\\lib\\site-packages\\Project.toml`\r\n    Updating registry at `C:\\Users\\Valeria\\.julia\\registries\\General`\r\n  No Changes to `C:\\Users\\Valeria\\anaconda3\\Lib\\site-packages\\Project.toml`\r\n  No Changes to `C:\\Users\\Valeria\\anaconda3\\Lib\\site-packages\\Manifest.toml`\r\nERROR: LoadError: InexactError: trunc(Int32, 2.8980162473e10)\r\n```",
               "createdAt": "2021-08-14T22:44:09Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @jzsmoreno,\r\n\r\nI think I finally figured this out, it took me a while. I think this issue is caused by the issue described at the bottom of this thread: (in the backend code) https://github.com/MilesCranmer/SymbolicRegression.jl/issues/43, which I just fixed in both PySR and the backend. Can you try out the new version of PySR (0.6.13), and tell me if this  happens again?\r\n\r\nThanks!\r\nMiles",
               "createdAt": "2021-09-14T20:45:35Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "jzsmoreno"
               },
               "body": "Hi @MilesCranmer,\r\n\r\nI update the package as you mention, but now I get a similar error `FileNotFoundError: [Errno 2] No such file or directory: 'hall_of_fame_2021-09-14_225224.625.csv.bkup'` and the output of Julia is the following.\r\n\r\n```\r\nRunning on julia -O3 C:\\Users\\Valeria\\AppData\\Local\\Temp\\tmpovz0l_ns\\runfile.jl\r\n  Activating environment at C:\\Users\\Valeria\\anaconda3\\lib\\site-packages\\Project.toml\r\n    Updating registry at C:\\Users\\Valeria\\.julia\\registries\\General\r\n    Updating git-repo https://github.com/JuliaRegistries/General.git\r\n  No Changes to C:\\Users\\Valeria\\anaconda3\\Lib\\site-packages\\Project.toml\r\n  No Changes to C:\\Users\\Valeria\\anaconda3\\Lib\\site-packages\\Manifest.toml\r\nERROR: LoadError: InexactError: trunc(Int32, 3.1678560497e10)\r\n```\r\n\r\nThanks! By the way... sorry for the trouble\r\nJosé \r\n\r\n",
               "createdAt": "2021-09-15T04:13:15Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @jzsmoreno,\r\nDoes this issue still occur when you set `multithreading=True`?\r\nCheers,\r\nMiles",
               "createdAt": "2022-01-10T18:39:34Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "jzsmoreno"
               },
               "body": "Hi @MilesCranmer ,\r\n\r\nSorry for the inconvenience. It's wierd, when I don't use `multithreading=True`, I also obtain the following output:\r\n\r\n`FileNotFoundError: [Errno 2] No such file or directory: 'hall_of_fame_2022-01-10_130751.568.csv.bkup'`\r\n\r\nBut when I use `multithreading=True`, all I get is the following:\r\n\r\n`ERROR: LoadError: InexactError: trunc(Int32, 4.1844363392e10)`\r\n\r\nCheers, hope you're well \r\nJosé\r\n",
               "createdAt": "2022-01-10T19:59:00Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hm, I'm really not sure what this is from. Can you send me your full script and data file (if applicable)?\r\n\r\nThanks,\r\nMiles",
               "createdAt": "2022-01-10T20:59:12Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "jzsmoreno"
               },
               "body": "I'm really start to think that is an error of Julia, because I couldn't simply run the example.py file. The errors I get are the ones from running the example. This is the entire output: \r\n\r\n`Running on julia -O3 --threads 4 C:\\Users\\jzsmo\\AppData\\Local\\Temp\\tmpdkf7vvk_\\runfile.jl`\r\n  **Activating environment at** `C:\\Users\\jzsmo\\SymbolicRegression.jl\\Project.toml`\r\n    **Updating registry at** `C:\\Users\\jzsmo\\.julia\\registries\\General`\r\n    **Updating git-repo** `https://github.com/JuliaRegistries/General.git`\r\n  **No Changes to** `C:\\Users\\jzsmo\\SymbolicRegression.jl\\Project.toml`\r\n  **No Changes to** `C:\\Users\\jzsmo\\SymbolicRegression.jl\\Manifest.toml`\r\n`ERROR: LoadError: InexactError: trunc(Int32, 4.1844552344e10)`\r\n`Stacktrace:`\r\n \r\n\r\n> ` [1] trunc`\r\n>     `@ .\\float.jl:695 [inlined]`\r\n>   `[2] round`\r\n>     `@ .\\float.jl:296 [inlined]`\r\n>   `[3] getTime`\r\n>     `@ C:\\Users\\jzsmo\\.julia\\packages\\SymbolicRegression\\dhfuI\\src\\Utils.jl:19 [inlined]`\r\n>   `[4] PopMember(t::Node, score::Float32; ref::Int32, parent::Int32)`\r\n>     `@ SymbolicRegression...\\PopMember.jl C:\\Users\\jzsmo\\.julia\\packages\\SymbolicRegression\\dhfuI\\src\\PopMember.jl:31`\r\n>   `[5] #PopMember#2`\r\n>     `@ C:\\Users\\jzsmo\\.julia\\packages\\SymbolicRegression\\dhfuI\\src\\PopMember.jl:51 [inlined]`\r\n>   `[6] PopMember`\r\n>     `@ C:\\Users\\jzsmo\\.julia\\packages\\SymbolicRegression\\dhfuI\\src\\PopMember.jl:51 [inlined]`\r\n>   `[7] (::SymbolicRegression...\\Population.jl.var\"#2#3\"{Int32, Options{Tuple{typeof(+), typeof(*)}, Tuple{typeof(cos), typeof(exp), typeof(sin), typeof(inv)}, typeof(loss)}, Int32, SymbolicRegression...\\Dataset.jl.Dataset{Float32}, Float32})(i::Int32)`\r\n>     `@ SymbolicRegression...\\Population.jl .\\none:0`\r\n>  ` [8] iterate`\r\n>     `@ .\\generator.jl:47 [inlined]`\r\n>   `[9] collect`\r\n>     `@ .\\array.jl:678 [inlined]`\r\n>  `[10] #Population#1`\r\n>     `@ C:\\Users\\jzsmo\\.julia\\packages\\SymbolicRegression\\dhfuI\\src\\Population.jl:29 [inlined]`\r\n> ` [11] (::SymbolicRegression.var\"#37#69\"{Int32, Options{Tuple{typeof(+), typeof(*)}, Tuple{typeof(cos), typeof(exp), typeof(sin), typeof(inv)}, typeof(loss)}, Vector{SymbolicRegression...\\Dataset.jl.Dataset{Float32}}})(i::Int32)`\r\n>     `@ SymbolicRegression .\\none:0`\r\n> ` [12] iterate`\r\n>     `@ .\\generator.jl:47 [inlined]`\r\n>  `[13] collect(itr::Base.Generator{UnitRange{Int32}, SymbolicRegression.var\"#37#69\"{Int32, Options{Tuple{typeof(+), typeof(*)}, Tuple{typeof(cos), typeof(exp), typeof(sin), typeof(inv)}, typeof(loss)}, Vector{SymbolicRegression...\\Dataset.jl.Dataset{Float32}}}})`\r\n>     `@ Base .\\array.jl:678`\r\n>  `[14] #36`\r\n>     `@ .\\none:0 [inlined]`\r\n>  `[15] iterate`\r\n>     `@ .\\generator.jl:47 [inlined]`\r\n>  `[16] collect(itr::Base.Generator{UnitRange{Int32}, SymbolicRegression.var\"#36#68\"{Options{Tuple{typeof(+), typeof(*)}, Tuple{typeof(cos), typeof(exp), typeof(sin), typeof(inv)}, typeof(loss)}, Vector{SymbolicRegression...\\Dataset.jl.Dataset{Float32}}}})`\r\n>     `@ Base .\\array.jl:678`\r\n>  `[17] _EquationSearch(::SymbolicRegression...\\ProgramConstants.jl.SRThreaded, datasets::Vector{SymbolicRegression...\\Dataset.jl.Dataset{Float32}}; niterations::Int32, options::Options{Tuple{typeof(+), typeof(*)}, Tuple{typeof(cos), typeof(exp), typeof(sin), typeof(inv)}, typeof(loss)}, numprocs::Int32, procs::Nothing, runtests::Bool)`\r\n>     `@ SymbolicRegression C:\\Users\\jzsmo\\.julia\\packages\\SymbolicRegression\\dhfuI\\src\\SymbolicRegression.jl:241`\r\n>  `[18] EquationSearch(datasets::Vector{SymbolicRegression...\\Dataset.jl.Dataset{Float32}}; niterations::Int32, options::Options{Tuple{typeof(+), typeof(*)}, Tuple{typeof(cos), typeof(exp), typeof(sin), typeof(inv)}, typeof(loss)}, numprocs::Int32, procs::Nothing, multithreading::Bool, runtests::Bool)`\r\n>    ` @ SymbolicRegression C:\\Users\\jzsmo\\.julia\\packages\\SymbolicRegression\\dhfuI\\src\\SymbolicRegression.jl:181`\r\n>  `[19] EquationSearch(X::Matrix{Float32}, y::Matrix{Float32}; niterations::Int32, weights::Nothing, varMap::Vector{String}, options::Options{Tuple{typeof(+), typeof(*)}, Tuple{typeof(cos), typeof(exp), typeof(sin), typeof(inv)}, typeof(loss)}, numprocs::Int32, procs::Nothing, multithreading::Bool, runtests::Bool)`\r\n>     `@ SymbolicRegression C:\\Users\\jzsmo\\.julia\\packages\\SymbolicRegression\\dhfuI\\src\\SymbolicRegression.jl:145`\r\n>  `[20] #EquationSearch#22`\r\n>     `@ C:\\Users\\jzsmo\\.julia\\packages\\SymbolicRegression\\dhfuI\\src\\SymbolicRegression.jl:157 [inlined]`\r\n> ` [21] top-level scope`\r\n>    ` @ C:\\Users\\jzsmo\\AppData\\Local\\Temp\\tmpdkf7vvk_\\runfile.jl:7`\r\n> `in expression starting at C:\\Users\\jzsmo\\AppData\\Local\\Temp\\tmpdkf7vvk_\\runfile.jl:7`\r\n> `Traceback (most recent call last):`\r\n>  ` File \"C:\\Users\\jzsmo\\anaconda3\\lib\\site-packages\\pysr\\sr.py\", line 1005, in get_hof`\r\n>     `all_outputs = [pd.read_csv(str(equation_file) + \".bkup\", sep=\"|\")]`\r\n>   `File \"C:\\Users\\jzsmo\\anaconda3\\lib\\site-packages\\pandas\\util\\_decorators.py\", line 311, in wrapper`\r\n>     `return func(*args, **kwargs)`\r\n>   `File \"C:\\Users\\jzsmo\\anaconda3\\lib\\site-packages\\pandas\\io\\parsers\\readers.py\", line 586, in read_csv`\r\n>     `return _read(filepath_or_buffer, kwds)`\r\n>   `File \"C:\\Users\\jzsmo\\anaconda3\\lib\\site-packages\\pandas\\io\\parsers\\readers.py\", line 482, in _read`\r\n>     `parser = TextFileReader(filepath_or_buffer, **kwds)`\r\n>   `File \"C:\\Users\\jzsmo\\anaconda3\\lib\\site-packages\\pandas\\io\\parsers\\readers.py\", line 811, in __init__`\r\n>     `self._engine = self._make_engine(self.engine)`\r\n>   `File \"C:\\Users\\jzsmo\\anaconda3\\lib\\site-packages\\pandas\\io\\parsers\\readers.py\", line 1040, in _make_engine`\r\n>     `return mapping[engine](self.f, **self.options)  # type: ignore[call-arg]`\r\n>   `File \"C:\\Users\\jzsmo\\anaconda3\\lib\\site-packages\\pandas\\io\\parsers\\c_parser_wrapper.py\", line 51, in __init__`\r\n>     `self._open_handles(src, kwds)`\r\n>   `File \"C:\\Users\\jzsmo\\anaconda3\\lib\\site-packages\\pandas\\io\\parsers\\base_parser.py\", line 229, in _open_handles`\r\n>     `errors=kwds.get(\"encoding_errors\", \"strict\"),`\r\n>   `File \"C:\\Users\\jzsmo\\anaconda3\\lib\\site-packages\\pandas\\io\\common.py\", line 707, in get_handle`\r\n>     `newline=\"\",`\r\n> \r\n\r\n`During handling of the above exception, another exception occurred:`\r\n\r\n`Traceback (most recent call last):`\r\n ```\r\n File \"c:\\Users\\jzsmo\\Documents\\example.py\", line 22, in <module>\r\n    multithreading=True,\r\n  File \"C:\\Users\\jzsmo\\anaconda3\\lib\\site-packages\\pysr\\sr.py\", line 482, in pysr\r\n    equations = get_hof(**kwargs)\r\n  File \"C:\\Users\\jzsmo\\anaconda3\\lib\\site-packages\\pysr\\sr.py\", line 1008, in get_hof\r\n    \"Couldn't find equation file! The equation search likely exited before a single iteration completed.\"\r\nRuntimeError: Couldn't find equation file! The equation search likely exited before a single iteration completed.\r\n```\r\n\r\nThanks to you,  \r\nJosé",
               "createdAt": "2022-01-10T21:28:03Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "What version of Julia is this? Have you tried a newer Julia version? This is very strange indeed... sorry I haven't figured this out yet. All the unit tests pass on Windows so I'm not sure if it's a Windows Julia issue or what.\r\n\r\nCan you set `delete_tempfiles=False`, and then locate the directory containing `runfile.jl` (it prints where this file is stored)? These are all the Julia files it is using to run the search. Can you give me the contents of `runfile.jl`?\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2022-01-10T21:37:29Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "jzsmoreno"
               },
               "body": "Don't worry, it happens, this is the file `runfile.jl` and it is located here `C:\\Users\\jzsmo\\AppData\\Local\\Temp\\tmpoz6wg5a8`. The version of Julia is 1.6.2\r\n```\r\nimport Pkg\r\nPkg.activate(\"..\\\\SymbolicRegression.jl\")\r\nPkg.update()\r\nusing SymbolicRegression\r\ninclude(\"C:\\\\Users\\\\jzsmo\\\\AppData\\\\Local\\\\Temp\\\\tmpoz6wg5a8\\\\hyperparams.jl\")\r\ninclude(\"C:\\\\Users\\\\jzsmo\\\\AppData\\\\Local\\\\Temp\\\\tmpoz6wg5a8\\\\dataset.jl\")\r\nEquationSearch(X, y, niterations=5, varMap=[\"x0\",\"x1\",\"x2\",\"x3\",\"x4\"], options=options, numprocs=0, multithreading=true)\r\n```\r\n\r\nSorry again for the inconvenience,\r\nJosé",
               "createdAt": "2022-01-10T21:55:42Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Everything looks good... The one thing that looks off is `Pkg.activate(\"..\\\\SymbolicRegression.jl\")`.\r\n\r\nI just looked at `example.py` and it seems that it calls `pysr` with:\r\n```python\r\npysr(...\r\n    julia_project=\"../SymbolicRegression.jl\",\r\n)\r\n```\r\nThis should not be the case. **The one on README.md does not contain this** (my mistake!) - it seems like that extra argument entered in the `example.py` version somehow. I have since removed this faulty argument. Can you try again with the following?\r\n\r\n```python\r\nimport numpy as np\r\nfrom pysr import pysr, best\r\n\r\n# Dataset\r\nX = 2 * np.random.randn(100, 5)\r\ny = 2 * np.cos(X[:, 3]) + X[:, 0] ** 2 - 2\r\n\r\n# Learn equations\r\nequations = pysr(\r\n    X,\r\n    y,\r\n    niterations=5,\r\n    binary_operators=[\"plus\", \"mult\"],\r\n    unary_operators=[\r\n        \"cos\",\r\n        \"exp\",\r\n        \"sin\",  # Pre-defined library of operators (see https://pysr.readthedocs.io/en/latest/docs/operators/)\r\n        \"inv(x) = 1/x\",\r\n    ],\r\n    loss=\"loss(x, y) = abs(x - y)\",  # Custom loss function\r\n)  # Define your own operator! (Julia syntax)\r\n\r\n...  # (you can use ctl-c to exit early)\r\n\r\nprint(best(equations))\r\n```\r\n\r\nThanks,\r\nMiles",
               "createdAt": "2022-01-11T16:17:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "jzsmoreno"
               },
               "body": "Sorry for the late @MilesCranmer, already tried it but I get the same result with this `runfile.jl` output.\r\n\r\n```\r\nimport Pkg\r\nPkg.activate(\"C:\\\\Users\\\\jzsmo\\\\anaconda3\\\\lib\\\\site-packages\")\r\nPkg.update()\r\nusing SymbolicRegression\r\ninclude(\"C:\\\\Users\\\\jzsmo\\\\AppData\\\\Local\\\\Temp\\\\tmpjp94ffd1\\\\hyperparams.jl\")\r\ninclude(\"C:\\\\Users\\\\jzsmo\\\\AppData\\\\Local\\\\Temp\\\\tmpjp94ffd1\\\\dataset.jl\")\r\nEquationSearch(X, y, niterations=5, varMap=[\"x0\",\"x1\",\"x2\",\"x3\",\"x4\"], options=options, numprocs=0, multithreading=true)\r\n```\r\n\r\nThanks, \r\nJosé  ",
               "createdAt": "2022-01-12T05:30:12Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks!\r\n\r\nSo, I finally figured this out. I think your version of SymbolicRegression.jl is very out-of-date. The bug you are seeing is from this function `getTime`, as of the version one year ago:\r\n```julia\r\nfunction getTime()::Int\r\n    return round(Int32, 1e3*(time()-1.6e9))\r\nend\r\n```\r\nThis only has 32-bit precision, hence issues with rounding with computing the current time. In fact I can reproduce your bug like so:\r\n```julia\r\njulia> round(Int32, 1e3*(time()-1.6e9))\r\nERROR: InexactError: trunc(Int32, 4.1974427244e10)\r\nStacktrace:\r\n [1] trunc\r\n   @ ./float.jl:695 [inlined]\r\n [2] round(#unused#::Type{Int32}, x::Float64)\r\n   @ Base ./float.jl:296\r\n [3] top-level scope\r\n   @ REPL[1]:1\r\n```\r\n\r\nThis was patched 1 year ago, in version 0.3.0 of SymbolicRegression.jl (and version PySR 0.3.0). All versions after this have instead:\r\n```julia\r\nfunction getTime()::Int\r\n    return round(Int, 1e3*(time()-1.6e9))\r\nend\r\n```\r\nwhich is 64-bit precision.\r\n\r\nSo the next question is: why does your machine choose a version of SymbolicRegression.jl that is <0.3.0, when the current version requires version 0.6.10? I am confused about this.\r\n\r\nCan you print the contents of `C:\\Users\\jzsmo\\SymbolicRegression.jl\\Project.toml`?\r\n\r\nThanks,\r\nMiles",
               "createdAt": "2022-01-12T08:03:03Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "jzsmoreno"
               },
               "body": "Thank you very much @MilesCranmer is that the problem!, the contents of  `C:\\Users\\jzsmo\\SymbolicRegression.jl\\Project.toml` is empty. I think I was able to update the version using `Pkg.add(name=\"SymbolicRegression\", version=\"0.6.10\")`. But the problem I think it's because I have the 32-bit version of Julia.",
               "createdAt": "2022-01-12T17:46:58Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "jzsmoreno"
               },
               "body": "Sorry @MilesCranmer for all the problems, indeed that was the problem, using a 32-bit version of Julia. With the 64-bit version I had no problem and it is already running the example. I think this is the root of many other issues. Like the other one I commented on. With this I think we can close the issue.\r\n\r\nThanks, \r\nJosé ",
               "createdAt": "2022-01-12T18:31:56Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Amazing!!! I am very happy we could solve this. Sorry it took so long, but glad it finally is working!\r\nCheers,\r\nMiles",
               "createdAt": "2022-01-13T21:50:14Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "jzsmoreno"
               },
               "body": "Hi @MilesCranmer \n\nYes! After some time, but we finally did it... But the way!, I have a python package called likelihood, if you wanna help me to improve it. \n\nCheers,\nJosé",
               "createdAt": "2022-01-16T19:57:22Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOPG-E6Q=="
           }

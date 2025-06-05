@@ -1,0 +1,75 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 941,
+        "title": "[BUG]: Cannot load model that has been fitted with TemplateExpressionSpec",
+        "body": "### What happened?\n\nWhen trying to load a model (`from_file(...)`) that has been fitted with a template  function, I get a pickle error. \n\n### Version\n\n1.5.8\n\n### Operating System\n\nmacOS\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\nTraceback (most recent call last):\n  File \"/Users/isakbe/Dev/modelling/il-sr/il_sr/scripts/minimal_example.py\", line 32, in <module>\n    main()\n  File \"/Users/isakbe/Dev/modelling/il-sr/il_sr/scripts/minimal_example.py\", line 28, in main\n    loaded_model = PySRRegressor().from_file(run_directory=\"./outputs/test\")\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/isakbe/Library/Caches/pypoetry/virtualenvs/il-sr-9TFUWRsR-py3.11/lib/python3.11/site-packages/pysr/sr.py\", line 1140, in from_file\n    model = cast(\"PySRRegressor\", pkl.load(f))\n                                  ^^^^^^^^^^^\nException: error deserializing this value\n```\n\n### Extra Info\n\nThe model used to produce the error was defined as:\n```\n    x = np.random.uniform(low=[-1, 3, 10], high=[6, 10, 100], size=(3000, 3))\n    y = np.sin(x[:, 0] - x[:, 2] ** 3) * np.exp(x[:, 1] / 5 + x[:, 0]) \n    \n\n    template = TemplateExpressionSpec(\n        expressions=[\"f\", \"g\"],\n        variable_names=[\"x1\", \"x2\", \"x3\"],\n        combine=\"sin(f(x1, x3)) * exp(g(x1, x2))\",\n    )\n\n    model = PySRRegressor(\n        binary_operators=[\"+\", \"-\", \"*\", \"/\", \"^\"],\n        expression_spec=template,\n        constraints={\"^\": (1, 9)},\n        run_id=\"test\",\n    )\n\n```",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks for posting this!\n\nSo, unfortunately, I am not sure this will be possible at the moment. The tricky part about template expressions compared to regular expressions is that they contain live Julia objects. And this doesn't play nice with Python pickling.\n\nRegular expressions are fine because they convert to SymPy and are stored in SymPy format. But this is hard to do in a general way for template expressions, because there are so many ways you could write one.\n\nI'm not sure. Maybe it is possible. Because I guess the template expression is _defined_ by the string... Just need a way to serialize the expression objects safely. I guess we could do the normal sympy conversion for both `f` and `g`? But we would need a way to go _back_ to Julia after unpickling... Which is going to be super hard. So I'm not sure. Maybe we need a better integration with Julia's `Serialization.jl`.",
+              "createdAt": "2025-05-27T01:44:04Z"
+            },
+            {
+              "author": {
+                "login": "ibengtsson"
+              },
+              "body": "Ah, then I understand the root cause... Yes, going back to the template definition in Julia based on a pickled Python object seems hard! I'll work with the .csv-file instead, that'll probably work fine in my case! Appreciate the explanation for why it is hard!",
+              "createdAt": "2025-05-27T07:52:38Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Just messing around with this a bit more in Julia. Seems like it fails to serialize a closure when you have enclosed variables:\n\n```julia\njulia> using Serialization\n\njulia> c = 1\n1\n\njulia> f = (x, y, z) -> c + x\n#15 (generic function with 1 method)\n\njulia> open(\"tmp.jls\", \"w\") do io\n           serialize(io, f)\n       end\n```\nand in a new session:\n```julia\njulia> using Serialization\n\njulia> f = open(\"tmp.jls\", \"r\") do io\n           deserialize(io)\n       end\n#15 (generic function with 1 method)\n\njulia> f(1, 2, 3)\nERROR: UndefVarError: `c` not defined in `Main`\nSuggestion: check for spelling errors or missing imports.\nStacktrace:\n [1] (::Serialization.__deserialized_types__.var\"#15#16\")(x::Int64, y::Int64, z::Int64)\n   @ Main ./REPL[4]:1\n [2] top-level scope\n   @ REPL[3]:1\n```\n\nSo I'm not sure what to do for this kind of situation. Maybe there's some other Julia package that can correctly trace the variables...",
+              "createdAt": "2025-05-28T11:03:17Z"
+            },
+            {
+              "author": {
+                "login": "GoldenGoldy"
+              },
+              "body": "I have exactly the same problem. However, this used to work fine before. I recently upgraded to the latest version of PySR (1.5.8), and now I have the problem described in this issue. And that is when attempting to load certain models that used to load fine before, when using an older version of PySR. I just tested this by downgrading to PySR version 1.0.0, and surely after this I can load models with template expressions again using \"from_file\". After this, I re-upgraded to 1.5.8 and now exactly the same model doesn't load with \"from_file\", resulting in the same error as reported in this issue.\nUnfortunately, I don't know what is the latest version of PySR with which it does load correctly, I went back to 1.0.0 just as a test to go back as far as possible to see if it would work again.\n\nIt seems like something has changed between the mentioned versions that results in the issue? Between these two PySR versions, there are a lot of changes also in the backend/Julia it seems, so changes on that side might result in the issue?\nWould this information possibly help to fix it also for the latest version of PySR?\n\nUPDATE:\nIt actually looks like, at least in my case, the error occurs when trying to load older models (from before updating PySR) with the new version of PySR, or vice versa, when trying to load newer models (generated with the new version of PySR) with the older version of PySR. Is this perhaps related to the changed format/structure for using template expressions?",
+              "createdAt": "2025-05-31T08:19:52Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Ah, I see. Yes you cannot load checkpoints across versions of PySR. A checkpoint should only be loaded within the same version.\n\nIt's because checkpoints may store different information for different versions. Also, if one of the internal types changes, trying to load the binary representation for the old type could result in correctness issues or worse.",
+              "createdAt": "2025-05-31T14:29:22Z"
+            },
+            {
+              "author": {
+                "login": "GoldenGoldy"
+              },
+              "body": "Right, I wasn't aware of that, but that makes sense, thanks!",
+              "createdAt": "2025-05-31T14:55:09Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I think we should store the version in the checkpoint so this can be warned about automatically. Would be useful!",
+              "createdAt": "2025-05-31T20:25:49Z"
+            },
+            {
+              "author": {
+                "login": "GoldenGoldy"
+              },
+              "body": "Sounds like a useful change indeed! And in general it can be useful to be able to see with what version a model was created.",
+              "createdAt": "2025-06-01T07:05:35Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOrnH2IQ=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 543,
         "title": "Issues with  making predictions using the expression selected using the function passed to selection_method",
         "body": "Hi Everyone,\r\n\r\nI'm thrilled and very excited about using SymbolicRegression.jl tool. I'm quite new so I'm trying to learn the  bits ans peaces that offers the package. I have used a simple example where I have some experimental data and tried to recover the equation behind it.\r\nit is based on an article I'm working on which describes The heat capacity of water ice in interstellar or interplanetary conditions. \r\n\r\nIt worked quite nicely and fitted pretty much the experimental data I had. Nevertheless, I had 2 issues : one of which was with using the selection_method to select an expression.\r\nI used the same expression as described in : https://astroautomata.com/SymbolicRegression.jl/dev/\r\nwhich is :\r\n\r\n```julia\r\nmach.model.selection_method = Returns(2)\r\npredict(mach, X)\r\n```\r\n\r\nbut the output result kept being the same as the best_indx expression function weirdly I don't know why (see the model below).\r\n\r\n```julia\r\nusing SymbolicRegression\r\nusing MLJ\r\nusing CSV\r\nusing DataFrames\r\nusing Plots\r\n\r\n# Loading the dataset from a CSV file\r\ndata = DataFrame(CSV.File(\"/Users/tahahaithem/Desktop/Mars project/data.csv\"))\r\n\r\n\r\n# Extract input features and target variable\r\nX = select(data, Not(:Cp))  # input features\r\ny = data.Cp  #  \"target_column\" \r\n\r\n# Define functions\r\nexp_sqrt(x) = exp(sqrt(abs(x)))\r\nT_sqr(x)    = x^2 \r\nT_six(x)    = x^6\r\nT_four(x)   = x^4\r\n\r\n# Load the symbolic regression model\r\nSRRegressor = @load SRRegressor pkg=SymbolicRegression\r\n\r\n# Create the model\r\nmodel = SRRegressor(binary_operators=[+, -, *], unary_operators=[exp, exp_sqrt, T_sqr, T_six, T_four], \r\n                    niterations=20000, \r\n                    populations=30, \r\n                    turbo=true,\r\n                    );\r\n\r\n# Create a machine\r\nmach = machine(model, X, y)\r\n\r\n# Train the model\r\nfit!(mach)\r\n\r\n# Let's look at the expressions discovered:\r\nreport(mach)\r\npredict(mach, X)  # This will make predictions using the expression selected using the function passed to selection_method. \r\n\r\n# Example of making predictions using expression 2 with:\r\nmach.model.selection_method = Returns(2)\r\ny_hat= predict(mach, X)\r\n\r\n# Plotting the experimental and predicted expressions using T as data\r\nscatter(y[:, 1], y_hat[:, 1], xlabel=\"Truth\", ylabel=\"Prediction\")\r\n\r\nplot(data.T, data.Cp, label=\"Experimental Data\",xlabel=\"Temperature,T[K]\", ylabel=\"Heat Capacity, Cp(T)[Jkg-1K-1]\", seriestype=:scatter)\r\nplot!(data.T, y_hat, label=\"Prediction\", lw=3)\r\n\r\nplot(data.T, (y[:, 1]./data.T), label=\"Experimental Data\",xlabel=\"Temperature,T[K]\", ylabel=\"Heat Capacity, Cp(T)/T [Jkg-1K-1]\", seriestype=:scatter)\r\nplot!(data.T, (y_hat[:, 1]./data.T), label=\"Prediction\", lw=3)`\r\n```\r\n\r\n\r\n\r\nThe second issue I had was how badly the equation found fitted the experimental data between a given range of data and that after different attempt with number of population and constraints. that I assume it is physically understandable as between T=0K and T=2.5 K there is another equation that governs that area. That being said, I don't know if there is a possibility to incorporate that as a constraints or maybe something else to improve the prediction ? (See Below the plot)\r\n\r\n<img width=\"485\" alt=\"Screenshot 2024-01-29 at 00 38 06\" src=\"https://github.com/MilesCranmer/PySR/assets/108194141/c008b882-3ff3-4fc1-baf1-d1a66cfeca92\">\r\n<img width=\"602\" alt=\"Screenshot 2024-01-29 at 07 51 42\" src=\"https://github.com/MilesCranmer/PySR/assets/108194141/73998e92-b067-4b67-9b10-95a53ed4326d\">\r\n<img width=\"485\" alt=\"Screenshot 2024-01-29 at 00 37 49\" src=\"https://github.com/MilesCranmer/PySR/assets/108194141/4e393fa4-2e58-4057-8625-415e21cce727\">\r\n\r\n\r\n\r\n\r\nThank you all for your future response, hope that they will be helpful. Have a good day\r\n\r\nHaithem.\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks @MrChewi. It's weird the `mach.model.selection_method = Returns(2)` doesn't work... I will have a look.\r\n\r\nFor the question about the constraint that heat capacity = 0 when temperature = 0, what I like to do for asymptotic constraints is weight points according to how important they are to fit. For example, you could do\r\n\r\n```julia\r\nweights = ones(size(y))\r\n\r\n# If y[end] is the C=0, T=0 point, then\r\nweights[end] = 10_000\r\n\r\nmach = machine(model, X, y, weights)\r\n```\r\n\r\nSo when you fit, it will emphasize the C=0,T=0 point a lot more. Simply increase the weighting of that point as needed.",
               "createdAt": "2024-02-07T13:27:30Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I confirm that setting `selection_method` in a fitted model does not work; sorry about that.\r\n\r\nI made a pull request here: https://github.com/MilesCranmer/SymbolicRegression.jl/pull/289 to enable the following syntax:\r\n\r\n```julia\r\nmodel = SRRegressor()\r\nmach = machine(model, X, y)\r\nfit!(mach)\r\n\r\n# Predict with 3rd equation:\r\npredict(mach, (data=X, idx=3))\r\n\r\n# Predict with most complex equation:\r\nr = report(mach)\r\npredict(mach, (data=X, idx=lastindex(r.equations)))\r\n```\r\n\r\nwhich is similar to how PySRRegressor works on the Python side.\r\n\r\nThis is also nice because it works for multi-output equations (pass an array for `idx`).\r\n\r\nWould be great if you could try it out and let me know if it gets the job done!\r\n\r\n---\r\n\r\nEdit: this is live on SymbolicRegression 0.23.2!",
               "createdAt": "2024-02-17T16:54:09Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMi0xN1QxNjo1NDowOSswMDowMM4Agbo2"
           }

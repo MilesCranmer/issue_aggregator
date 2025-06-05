@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 416,
         "title": "NaN's in gradients and Hessian",
         "body": "Hello all,\r\n\r\nI'm eagerly diving into PySR and have it up and running on a few examples that emerge from my mathematical research.  I have one series of warnings that show up repeatedly when I fit models, of the form\r\n\r\n Warning: Terminated early due to NaN in gradient.\r\n└ @ Optim ~/.julia/packages/Optim/Adqv3/src/multivariate/optimize/optimize.jl:98\r\n┌ Warning: Terminated early due to NaN in Hessian.\r\n└ @ Optim ~/.julia/packages/Optim/Adqv3/src/multivariate/optimize/optimize.jl:102\r\n\r\nI suspect these are simply domain issues -- I use 'log' as one of my unary operators, and while log itself doesn't have any domain issues on my data sets, certainly PySR-generated compositions like log(sin(x)-3) would be undefined everywhere and cause problems.\r\n\r\nI guess my questions, assuming I'm correct that this is the source of these warnings, are (a) are there best practices for handling domain issues in PySR?  I know I could contrain the complexity of functions appearing inside of logs, but that feels very artificial; and (b) if there's nothing better than just living with it (which I can gladly accept), is there a way of suppressing the long string of warnings?  I tried playing with the 'warnings' python package, but I don't think it tackles julia warnings?\r\n\r\n(It also occurs to me only now after writing this that I could use log(abs(x)) instead of log(x), but I'll leave the question as is for the broader context).\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hey @mclemanc,\r\n\r\nCan you update to a more recent version of PySR? This was fixed in https://github.com/MilesCranmer/PySR/pull/413 (with backend fix https://github.com/MilesCranmer/SymbolicRegression.jl/pull/256)\r\n\r\nBasically, NaNs in gradients are expected – they are simply ignored, and the expression is given a bad score, and likely removed from a population over time. However, this warning message was introduced by a recent Optim.jl change. Thus, the recent PySR version fixes Optim.jl to a more recent version to avoid the repeated warnings (which the user should not see).\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2023-08-25T16:01:15Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wOC0yNVQxNzowMToxNSswMTowMM4AaCLd"
           }

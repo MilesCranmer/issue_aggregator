@@ -1,20 +1,23 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 233,
         "title": "Defining a custom operator without needing the sympy mapping",
         "body": "This was in an email discussion with a user: \r\n\r\n> How can I define a custom operator, without needing to define a sympy mapping for it?\r\n\r\nThe solution is to define a `sympy.Function` with the name of your custom operator - then sympy won't map it into other sympy functions.\r\n\r\nFor example, say we want to define a custom logarithm function:\r\n\r\n```python\r\nimport sympy\r\nfrom pysr import PySRRegressor\r\n\r\nclass my_log(sympy.Function):\r\n    pass\r\n\r\nmodel = PySRRegressor(\r\n    unary_operators=[\"my_log(x::T) where T = (x > zero(T)) ? log(x) : T(NaN)\"], \r\n    extra_sympy_mappings={\"my_log\": my_log}\r\n)\r\n```\r\n\r\nThen, this can be used normally, and the sympy export will just use `my_log`, rather than needing to convert it to native sympy functions.\r\n\r\nThis could also be used if you want to define custom LaTeX for some operator.\r\n\r\n",
-        "comments":
-        {
-          "nodes": [],
-          "pageInfo":
-          {
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "AthulKunjipurayil"
+              },
+              "body": "model = PySRRegressor(\r\n    niterations=5,\r\n    binary_operators=[\"+\", \"*\",],\r\n    unary_operators=[\"exp\", \"sin\", \"myf(x)\"],\r\n    extra_sympy_mappings={ \r\n    'myf': lambda x: sympy.pow(x, 1/3)\r\n    },\r\n    **default_pysr_params,\r\n)\r\n\r\nmodel.fit(X, y)\r\nHi Miles,\r\n1. I am trying to learn PySR and was trying to use pow(x, 1/3). I couldn't find out why it says \"myf is not defined\". I haven't used Juila before. \r\n2. Can I define functions involving (X_0+X_1)/X_2 as user defined operators here? \r\nThanks!\r\n",
+              "createdAt": "2024-12-03T03:43:07Z"
+            }
+          ],
+          "pageInfo": {
             "hasNextPage": false,
-            "endCursor": null
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0xMi0wM1QwMzo0MzowNyswMDowMM4Arp1T"
           }
         }
       }

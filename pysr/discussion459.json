@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 459,
         "title": "How to acquire the index of equations picked by model.predict()",
         "body": "Hi Miles,\r\nThanks to your brilliant work, I have had an amazing experience using PySR. \r\n\r\nThe method model.sympy() and other export methods need user to input the list of indices of the equations wanted. What makes me confused is that I haven't found any effective way to obtain the indices of those functions picked by model.predict other than searching for them manually in the return of model.fit. Is there any way to get them automatically? \r\n\r\nAppreciate any generous response.\r\n\r\nVersion\r\n0.16.3\r\n\r\nOperating System\r\nWindows\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @GodfreyL023,\r\nThanks, I am glad to hear it is useful for you.\r\n\r\nYou can do this as follows:\r\n\r\n```python\r\nfrom pysr.sr import idx_model_selection\r\n\r\nidx = idx_model_selection(model.equations_, \"best\")\r\n```",
               "createdAt": "2023-11-09T12:15:57Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMS0wOVQxMjoxNTo1NyswMDowMM4AcsZa"
           }

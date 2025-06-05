@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 452,
         "title": "Confusion about Normalisation of Dataset.",
         "body": "Hello!\r\n\r\nPySR has turned out to be a hidden gem for us recently on certain problems. \r\nWhile testing on one of the datasets, the results (analytical solution) were fairly simple and more accurate when it ran on data without normalisation and the accuracy dipped slightly when we normalised the data. \r\n\r\nI might be drawing a parallel to NN here but do we need to normalise our data for Symbolic regression in general? or both of the approaches are equivalent?\r\nThanks",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @anubhavkamal,\r\n\r\nYou don’t *need* to normalize data in PySR, as it can find constants of any magnitude, including scales that are very large or small. However, if you are okay with the extra complexity of normalization constants, then it can definitely help the search if you normalize. The reason for this is that new constants in the equations are initialized with a call to `randn()` so it can be preferable for the initial constants to be similar magnitude to the data. But it’s highly problem dependent!\r\n\r\ncheers,\r\nMiles",
               "createdAt": "2023-10-31T10:28:39Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "anubhavkamal"
               },
               "body": "Thank you for the answer!\r\nIt helped!",
               "createdAt": "2023-10-31T13:13:35Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMC0zMVQxMzoxMzozNSswMDowMM4AcXOe"
           }

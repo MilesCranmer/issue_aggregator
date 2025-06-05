@@ -1,92 +1,77 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 419,
         "title": "[BUG]: ClusterManager not working on PBS",
         "body": "### What happened?\n\nWhen using the cluster manager on pbs the code breaks. It seems to fail to activate the workers due to wrong qsub flags. \n\n### Version\n\n0.14.1\n\n### Operating System\n\nLinux\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\noutput: \r\nCompiling Julia backend...\r\nError launching workers\r\nErrorException(\"\")\r\nActivating environment on workers.\r\nImporting installed module on workers...Finished!\r\nTesting module on workers...Finished!\r\nTesting entire pipeline on workers...Finished!\r\nerror: \r\nqsub: invalid option -- 'w'\r\nqsub: invalid option -- 'd'\r\nqsub: invalid option -- 't'\r\nusage: qsub [-a date_time] [-A account_string] [-c interval]\r\n\t[-C directive_prefix] [-e path] [-f ] [-h ] [-I [-X]] [-j oe|eo] [-J X-Y[:Z]]\r\n\t[-k keep] [-l resource_list] [-m mail_options] [-M user_list]\r\n\t[-N jobname] [-o path] [-p priority] [-P project] [-q queue] [-r y|n]\r\n\t[-R o|e|oe] [-S path] [-u user_list] [-W otherattributes=value...]\r\n\t[-S path] [-u user_list] [-W otherattributes=value...]\r\n\t[-v variable_list] [-V ] [-z] [script | -- command [arg1 ...]]\r\n       qsub --version\r\n/srv01/agrp/soybna/.local/lib/python3.8/site-packages/pysr/sr.py:1230: UserWarning: Note: Using a large maxsize for the equation search will be exponentially slower and use significant memory. You should consider turning `use_frequency` to False, and perhaps use `warmup_maxsize_by`.\r\n  warnings.warn(\r\n/srv01/agrp/soybna/.local/lib/python3.8/site-packages/pysr/julia_helpers.py:195: UserWarning: Your system's Python library is static (e.g., conda), so precompilation will be turned off. For a dynamic library, try `pyenv`.\r\n  warnings.warn(\r\nTraceback (most recent call last):\r\n  File \"run_pysr.py\", line 28, in <module>\r\n    model.fit(traindata['features'], traindata['init_hidden_rep'])\r\n  File \"/srv01/agrp/soybna/.local/lib/python3.8/site-packages/pysr/sr.py\", line 1845, in fit\r\n    self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n  File \"/srv01/agrp/soybna/.local/lib/python3.8/site-packages/pysr/sr.py\", line 1705, in _run\r\n    self.raw_julia_state_ = SymbolicRegression.EquationSearch(\r\nRuntimeError: <PyCall.jlwrap (in a Julia function called from Python)\r\nJULIA: MethodError: reducing over an empty collection is not allowed; consider supplying `init` to the reducer\r\nStacktrace:\r\n  [1] mapreduce_empty(#unused#::typeof(identity), op::Function, T::Type)\r\n    @ Base ./reduce.jl:367\r\n  [2] reduce_empty(op::Base.MappingRF{typeof(identity), SymbolicRegression.SearchUtilsModule.var\"#2#4\"{Dict{Int64, Int64}}}, #unused#::Type{Int64})\r\n    @ Base ./reduce.jl:356\r\n  [3] reduce_empty_iter\r\n    @ ./reduce.jl:379 [inlined]\r\n  [4] mapreduce_empty_iter(f::Function, op::Function, itr::Vector{Int64}, ItrEltype::Base.HasEltype)\r\n    @ Base ./reduce.jl:375\r\n  [5] _mapreduce(f::typeof(identity), op::SymbolicRegression.SearchUtilsModule.var\"#2#4\"{Dict{Int64, Int64}}, #unused#::IndexLinear, A::Vector{Int64})\r\n    @ Base ./reduce.jl:427\r\n  [6] _mapreduce_dim\r\n    @ ./reducedim.jl:365 [inlined]\r\n  [7] #mapreduce#800\r\n    @ ./reducedim.jl:357 [inlined]\r\n  [8] mapreduce\r\n    @ ./reducedim.jl:357 [inlined]\r\n  [9] #reduce#802\r\n    @ ./reducedim.jl:406 [inlined]\r\n [10] reduce\r\n    @ ./reducedim.jl:406 [inlined]\r\n [11] next_worker(worker_assignment::Dict{Tuple{Int64, Int64}, Int64}, procs::Vector{Int64})\r\n    @ SymbolicRegression.SearchUtilsModule ~/.julia/packages/SymbolicRegression/Y57Eu/src/SearchUtils.jl:23\r\n [12] _EquationSearch(parallelism::Symbol, datasets::Vector{Dataset{Float32, Float32, Matrix{Float32}, Vector{Float32}, Nothing, NamedTuple{(), Tuple{}}}}; niterations::Int64, options::Options{Int64, Optim.Options{Float64, Nothing}, L2DistLoss, Nothing, StatsBase.Weights{Float64, Float64, Vector{Float64}}}, numprocs::Int64, procs::Nothing, addprocs_function::typeof(addprocs_pbs), runtests::Bool, saved_state::Nothing)\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/Y57Eu/src/SymbolicRegression.jl:572\r\n [13] _EquationSearch\r\n    @ ~/.julia/packages/SymbolicRegression/Y57Eu/src/SymbolicRegression.jl:412 [inlined]\r\n [14] EquationSearch(datasets::Vector{Dataset{Float32, Float32, Matrix{Float32}, Vector{Float32}, Nothing, NamedTuple{(), Tuple{}}}}; niterations::Int64, options::Options{Int64, Optim.Options{Float64, Nothing}, L2DistLoss, Nothing, StatsBase.Weights{Float64, Float64, Vector{Float64}}}, parallelism::String, numprocs::Int64, procs::Nothing, addprocs_function::typeof(addprocs_pbs), runtests::Bool, saved_state::Nothing)\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/Y57Eu/src/SymbolicRegression.jl:399\r\n [15] EquationSearch(X::Matrix{Float32}, y::Matrix{Float32}; niterations::Int64, weights::Nothing, varMap::Vector{String}, options::Options{Int64, Optim.Options{Float64, Nothing}, L2DistLoss, Nothing, StatsBase.Weights{Float64, Float64, Vector{Float64}}}, parallelism::String, numprocs::Int64, procs::Nothing, addprocs_function::typeof(addprocs_pbs), runtests::Bool, saved_state::Nothing, multithreaded::Nothing, loss_type::Type)\r\n    @ SymbolicRegression ~/.julia/packages/SymbolicRegression/Y57Eu/src/SymbolicRegression.jl:332\r\n [16] invokelatest(::Any, ::Any, ::Vararg{Any}; kwargs::Base.Pairs{Symbol, Any, NTuple{8, Symbol}, NamedTuple{(:weights, :niterations, :varMap, :options, :numprocs, :parallelism, :saved_state, :addprocs_function), Tuple{Nothing, Int64, Vector{String}, Options{Int64, Optim.Options{Float64, Nothing}, L2DistLoss, Nothing, StatsBase.Weights{Float64, Float64, Vector{Float64}}}, Int64, String, Nothing, typeof(addprocs_pbs)}}})\r\n    @ Base ./essentials.jl:818\r\n [17] _pyjlwrap_call(f::Function, args_::Ptr{PyCall.PyObject_struct}, kw_::Ptr{PyCall.PyObject_struct})\r\n    @ PyCall ~/.julia/packages/PyCall/twYvK/src/callback.jl:32\r\n [18] pyjlwrap_call(self_::Ptr{PyCall.PyObject_struct}, args_::Ptr{PyCall.PyObject_struct}, kw_::Ptr{PyCall.PyObject_struct})\r\n    @ PyCall ~/.julia/packages/PyCall/twYvK/src/callback.jl:44>\n```\n\n\n### Extra Info\n\nSetting multithreading to False doesn't change anything.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks! This looks like it might be an issue in ClusterManagers.jl https://github.com/JuliaParallel/ClusterManagers.jl/issues/179\r\n\r\nWhat is your `qsub --version`?",
               "createdAt": "2023-08-30T11:03:53Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "nathaliesoy"
               },
               "body": "pbs_version = 20.0.1",
               "createdAt": "2023-08-30T11:30:00Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Okay this might take a bit longer to solve. It turns out to be really hard to set up a local version of PBS for testing things. But I'm working on it!\r\n\r\nhttps://github.com/JuliaParallel/ClusterManagers.jl/pull/193\r\n",
               "createdAt": "2023-08-30T12:44:03Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Basically what we need to do is modify these lines to fix ClusterManagers.jl:\r\n\r\nhttps://github.com/JuliaParallel/ClusterManagers.jl/blob/0b0ee3dc772beee0c8cccc77079d941b979ffeac/src/qsub.jl#L52-L54\r\n\r\n```julia\r\n            qsub_cmd = pipeline(`echo $(Base.shell_escape(cmd))` , (isPBS ?\r\n                    `qsub -N $jobname -wd $wd -j oe -k o -t 1-$np $queue` :\r\n                    `qsub -N $jobname -wd $wd -terse -j y -R y -t 1-$np -V $queue`))\r\n```\r\n\r\nIt sounds like they haven't yet updated this `qsub` call to PBS version 20. \r\n\r\nIf you are proficient with qsub and know what flags need to be used here, you might be able to make a local modification of ClusterManagers.jl, and then switch to that copy of ClusterManagers.jl with PySR with:\r\n\r\n```bash\r\ncd ClusterManagers.jl\r\njulia --project=@pysr-0.16.3 -e 'using Pkg; pkg\"dev .\"'\r\n```\r\n\r\nThis will get the PySR environment for 0.16.3 to use the local copy of ClusterManagers.jl. Then if you are able to update the `qsub` call in the `src/qsub.jl` file to the qsub version 20 syntax, it should work. ",
               "createdAt": "2023-08-30T12:48:04Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "nathaliesoy"
               },
               "body": "Thank you Miles for investigating this! I think I figured out the new PBS 20 flags and changed it accordingly. \r\n\r\nSo I added these two lines to my submission shell script \r\n```\r\ncd ClusterManagers.jl\r\njulia --project=@pysr-0.16.3 -e 'using Pkg; pkg\"dev .\"' \r\n```\r\nbut it doesn't look like it is picking up the local package. The julia version I am using is globally installed on the cluster. I can't recall, does the ClusterManagers.jl need to be in a specific folder? Do I need to set some path somewhere? \r\n",
               "createdAt": "2023-08-30T13:58:31Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Even if the Julia version is globally installed, you should have the environments appear in your local folder `~/.julia/environments`. There should be a `pysr-0.16.3` one in that folder (or whatever version of PySR you have installed). \r\n\r\nIf you open the file `~/.julia/environments/pysr-0.16.3/Manifest.toml`, and go to the \"ClusterManagers.jl\" section, it should tell you if it is a local version or not, and what folder it is using. Maybe the path name is a relative path rather than absolute? You could also try\r\n\r\n```julia\r\njulia --project=@pysr-0.16.3 -e 'using Pkg; Pkg.develop(path=\"/path/to/clustermanagers.jl\")' \r\n```\r\n\r\nand give the full absolute path (to the location of your modified ClusterManagers.jl) there?",
               "createdAt": "2023-08-30T14:10:27Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Oh wait, sorry. I just realized you said in the original post that you are using PySR 0.14.1. So either (1) update to PySR 0.16.3 and go through the normal installation with `python -m pysr install` before implementing these changes, or (2) use `--project=@pysr-0.14.1` instead of `-0.16.3`.",
               "createdAt": "2023-08-30T14:19:36Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "nathaliesoy"
               },
               "body": "okay so that part seems okay now, thanks! \r\nnow the issue is that when submitting it can't connect to the server, errno=15010, seems like a permission thing... Probably I should pick it up with our system administrator?",
               "createdAt": "2023-08-30T14:57:49Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hm, yeah the sysadmin might know best for that type of issue. How are you running things?\r\n\r\nYou could also try running a parallel Julia command manually, just to see if it gives a more helpful error message.\r\n\r\nFirst, create an interactive job on the cluster that you can ssh into. Ssh into it and start Julia with: `julia --project=@pysr-0.16.3`. Then, execute the following (copy-paste)\r\n\r\n```julia\r\nimport Distributed: pmap\r\nimport ClusterManagers: addprocs_pbs\r\n\r\nnum_workers = 10\r\n\r\n# Create the workers:\r\nprocs = addprocs_pbs(num_workers)\r\n\r\n# Run a computation on each worker:\r\npmap(worker_id -> worker_id^2, procs)\r\n```\r\n\r\nIt should return a vector like `[4, 9, 16, ...]` if successful. And each of those computations will have run on a different worker across the PBS allocation.",
               "createdAt": "2023-08-30T15:14:21Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOZUpg9Q=="
           }

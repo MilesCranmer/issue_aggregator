@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 173,
         "title": "[BUG] PySR sometimes fails without internet",
         "body": "`update=False` should be set to a new default: `update=None`, and updates should only be performed if the internet is connected.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Implemented.",
               "createdAt": "2022-11-28T23:21:59Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOT0RUJQ=="
           }

@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 664,
         "title": "At the same time meet the dimension and a priori",
         "body": "Hi Miles,\r\nIn my research, I need to make some kind of a priori of the equation form, and at the same time, I need to satisfy the balance of dimensions. However, when I custom-designed the loss, I found that the penalty of the dimensional part was offset. Here is my code example :\r\n```python\r\nx = np.random.rand(1000,3)\r\nones_array = np.ones((1000, 1))\r\nX = np.hstack((x, ones_array))\r\ny = X[:, 0]/(X[:, 1]*X[:, 2])+X[:, 1]/(X[:, 0]*X[:, 0]*X[:, 3])\r\n\r\nobjective = \"\"\"\r\nfunction my_custom_objective(tree, dataset::Dataset{T}, options) where {T<:Real}\r\n.....my loss.....(not contain dimension)\r\n\"\"\"\r\nmodel = PySRRegressor(\r\n    population_size=50,\r\n    ncyclesperiteration=500,\r\n    niterations=800,\r\n    early_stop_condition=(\"stop_if(loss, complexity) = loss < 1e-5\"),\r\n    binary_operators=[\"+\",\"-\",\"*\",\"/\"],\r\n    unary_operators=[\"square\"],\r\n    complexity_of_constants=100,\r\n    maxsize=40,\r\n    maxdepth=40,    \r\n    loss_function=objective,\r\n    dimensional_constraint_penalty=10**4,\r\n)\r\nmodel.fit(X, y, X_units=[\"Pa\", \"Pa\", \"1\", \"1/Pa\"],y_units=[\"1\"])\r\n```\r\nI found that the above loss does not deal with the problem of dimension.\r\nCould you help me see how to add dimensional constraints to custom loss ?\r\nLooking forward to your reply! Thanks.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "The default loss is here: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/cd23a6e25c64d00565c3ae3905d06dc3c63033ed/src/LossFunctions.jl#L45-L75\r\n\r\nIn particular the dimensional regularization is calculated on this line: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/cd23a6e25c64d00565c3ae3905d06dc3c63033ed/src/LossFunctions.jl#L71\r\n\r\nSo within a custom loss you could add a manual call, like\r\n\r\n```julia\r\nloss_val += SymbolicRegression.LossFunctionsModule.dimensional_regularization(tree, dataset, options)\r\n```",
               "createdAt": "2024-07-10T16:03:46Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNy0xMFQxNzowMzo0NiswMTowMM4AmMWE"
           }

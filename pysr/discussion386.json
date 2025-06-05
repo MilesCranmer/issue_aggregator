@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 386,
         "title": "Fixing a random seed",
         "body": "Hi\r\n\r\nAs far as I know, initial population and mutation are at least two exemplars where randomness comes into play in symbolic regression. I appreciate you kindly explaining how we can control seed of the random functions in PySr in order to reproducer the results if needed.\r\n\r\nCheers,",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "See https://astroautomata.com/PySR/api/#performance-and-parallelization\r\n\r\nfor example\r\n```\r\nrandom_state=42,\r\ndeterministic=True,\r\nprocs=0,\r\nmultithreading=False,\r\n```\r\nWould get deterministic results with a seed of 42.\r\n\r\nNote it’s slower as determinism requires that we can’t use multiple threads.\r\n",
               "createdAt": "2023-07-19T22:07:31Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNy0xOVQyMzowNzozMSswMTowMM4AYxRd"
           }

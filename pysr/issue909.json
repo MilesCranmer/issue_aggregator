@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 909,
+        "title": "[Feature]: Parallel execution for fitting multiple instances at a time",
+        "body": "### Feature Request\n\n## TL;DR\nI propose adding a utility or method to facilitate reconstruction of `PySRRegressor` instances from minimal state (e.g., best equation and metadata), enabling safe use with `joblib` and other multiprocessing tools. I have a workaround enabling this and it can be generalized.\n\n## Issue\nWhen attempting to return multiple fitted models (`PySRRegressor` object) from a parallelized loop, (using `Parallel(...)(delayed(my_func)(i) for i in inputs)` syntax from `joblib`) I've had issues due to pickle compatibility and had to resort to an alternative method. I encountered this problem with multiple configurations, leading me to assume that any fitted model is not pickle compatible.\n\nThis would be a common problem for anyone attempting to fit multiple models in parallel. If said use case is common in the user base, I believe a general solution could be implemented without necessarily ensuring all components of the regressor object to be pickle friendly.\n\n## My Workaround\n\nI achieved parallel execution by returning the best equation from the parallel loop and reconstructing the regressor after the parallel execution concluded.\n\n### Steps\n\n__Fit multiple models and collect the returns__\n```python\ndef fit_var(var: str):\n    sr = sr_generator(config=cfg)  # Create a new PySRRegressor\n    y = df[var]\n\n    # Pre-processing logic\n    ...\n\n    sr.fit(X, y)\n    out = sr.get_best().to_frame().T\n    return var, out\n\nresults = Parallel(...)(delayed(fit_var)(var) for var in vars)\n```\n\n__Reconstruct the model using dummy data__\n```python\nfor var, out in results:\n    dummy_frame = get_dummy_frame(...)  # 1-row DataFrame with correct feature/label names\n    label_name = ...  # store label names or use a common name to override (i.e. target or output)\n\n    sr = sr_generator(SrConfig(maxsize=7, niterations=1, verbosity=0))\n    sr.fit(dummy_frame.drop(label_name, axis=1), dummy_frame[label_name])\n    sr.equations_ = out\n    \n    # Store or utilize the instance\n    ...\n\n```\n\n`sr_generator` and `SrConfig` are methods from my library and don't exist in pysr. `sr_generator` just returns a new instance and `SrConfig` is a typed `kwargs` container to allow auto-complete, docs access, and linter support.\n\n## General Case\nThis could be generalized to a function which takes a collection of `(X, y)` pairs (`list[tuple[pd.DataFrame, pd.Series]]`) and regressor parameters for the fit-time instance. (`dict[str, Any]`)\n\n### Limitations & Considerations\n\n- Running the regressor instances in serial is (I presume) mandatory to eliminate the possibility of thread locking during execution.\n- This approach would lose access all information regarding the evolution process from within the regressor properties (the equation file could be preserved)\n- Warm starting with a single expression in `equations_` may lead to unexpected outcomes (I'm not familiar with the warm start logic)\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks! Do you think you could share a full example of a use-case for this?",
+              "createdAt": "2025-05-03T19:21:27Z"
+            },
+            {
+              "author": {
+                "login": "GongJr0"
+              },
+              "body": "Hi Miles,\n\nThanks for the quick reply and for developing PySR; it's a fantastic tool.\n\nI'm currently experimenting with PySR as part of an attempt to build a fully symbolic simulation engine for macroeconomic indicators. (Feel free to check out the [repo](https://github.com/GongJr0/MacroSim) if you're interested!) I’m not sure how broadly applicable this is for traditional symbolic regression use cases, but here’s why I needed the functionality I proposed:\n\nI'm attempting to create a system of equations that models how a set of features interact and relate to the output. This allows me to indefinitely extrapolate a scenario, (defined by initial inputs) ultimately forming recursive simulation engine. For a feature space of $n$ variables, this approach requires $n+1$ expressions where:\n\n- $n$ expressions model each feature variable\n- And one more expression is required to relate the feature space to the target variable\n\nTo generate these expressions, I dynamically classify variables into \"base\" and \"non-base\" groups using Granger causality and stationarity tests. Then, I train symbolic models such that:\n\n- Base variables are modeled using autoregressive terms.\n- Non-base variables are modeled using autoregressive terms and base variables as exogenous inputs.\n\nHere’s a simple diagram of the workflow:\n```mermaid\nflowchart TD\nA[\"Features\"]\nB[\"Base Model [AutoReg]\"]\nC[\"NonBase Model [AutoReg+BaseVar]\"]\n    \nA--\"Base Variables\"--> B\nA --\"Non-Base Variables\"--> C\nB --> C\n```\n\nAs I need to fit many models  with different feature sets, parallelism becomes essential. The current workaround lets me parallelize the fitting process, drastically improving runtime and feasibility for large systems.\n\nWhile my use case is really specific, I believe this functionality could also enable broader workflows, such as:\n\n- __Ensemble symbolic models__: combining outputs from multiple symbolic regressors (e.g., via a weighted linear combination of outputs) for robustness against overfitting, even if we sacrifice having a single closed-form expression.\n\nThanks again for your work on PySR. I'd be glad to contribute if this seems like a useful addition to you.",
+              "createdAt": "2025-05-03T22:28:30Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks. I see, thanks for the explanation.\n\nFor this, I wonder if you could you exploit the existing Julia parallelism to do this in a robust (and easier) way? The backend will automatically parallelise searches when you pass a multi-dimensional `y`. I wonder if that would be an easier way to do this? Python parallelism is always a bit tricky due to the GIL so all the parallelism in PySR happens on the Julia side.\n\nInternally it is calling this method: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/221a419f436cc832577169f2eb11bfff14052cce/src/SymbolicRegression.jl#L497-L508\n\n```julia\n    datasets = construct_datasets(\n        X,\n        y,\n        weights,\n        variable_names,\n        display_variable_names,\n        y_variable_names,\n        X_units,\n        y_units,\n        extra,\n        L,\n    )\n```\n\nwhich generates a vector of `Dataset` objects, one object per feature of `y`. Then the main loop actually stores an independent search state for every dataset object separately: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/221a419f436cc832577169f2eb11bfff14052cce/src/SymbolicRegression.jl#L563-L574.\n\nIndependently of this, you should also check out template expressions which might be helpful: https://ai.damtp.cam.ac.uk/pysr/examples/#template-expressions\n\nCheers!\nMiles",
+              "createdAt": "2025-05-03T23:29:53Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOqc4bVQ=="
+          }
+        }
+      }
+    }
+  }
+}

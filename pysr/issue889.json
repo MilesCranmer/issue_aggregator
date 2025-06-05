@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 889,
+        "title": "IOBuffer error",
+        "body": "This is an FYI. If you have experienced a bug with this kind of error message:\n\n```julia\nERROR: MethodError: no method matching IOBuffer(::Base.AnnotatedString{String})\nClosest candidates are:\n  IOBuffer(!Matched::SubString{String})\n    @ Base strings/io.jl:309\n  IOBuffer(!Matched::String)\n    @ Base strings/io.jl:308\n  IOBuffer(; read, write, append, truncate, maxsize, sizehint)\n    @ Base iobuffer.jl:119\n```\n\nThis is due to an upstream bug: https://github.com/timholy/ProgressMeter.jl/issues/343.\n\nI'm going to push a patch soon to SymbolicRegression.jl to freeze it to an older version, until ProgressMeter.jl gets fixed.",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

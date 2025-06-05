@@ -1,38 +1,23 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 660,
         "title": "Using non-tabular datasets, like sequences and grids, in PySR",
         "body": "Moving from #323:\r\n\r\n> @puja93: Hi @MilesCranmer... Thanks for the great paper and repo. \r\n> \r\n> Regarding the 8th point in your paper : \r\n> <img width=\"551\" alt=\"image\" src=\"https://github.com/MilesCranmer/PySR/assets/10529614/f373d3bb-bf34-44d8-ae38-7e8aef32695b\">\r\n> \r\n> Do you have any links for documentation or tutorial on that ? Especially for the sequential and grids dataset.\r\n> \r\n> Thanks in advance\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @puja93,\r\n\r\nGood question! So the primary recommended way to solve this is via PySR's integration with deep learning frameworks. For example, see the last part of the example colab notebook here: https://github.com/MilesCranmer/symbolic_deep_learning for a time series example.\r\n\r\nThe other way to solve this to create a custom loss function that incorporates your dataset structure. For example, you can learn recursive functions like https://github.com/MilesCranmer/PySR/discussions/540#discussioncomment-8356138 which could be used for time series data, or unpack the data explicitly as in https://github.com/MilesCranmer/PySR/discussions/426#discussioncomment-7025901. \r\n\r\nVectors and matrices will soon be supported in the symbolic expressions themselves (see https://github.com/SymbolicML/DynamicExpressions.jl/pull/85 for progress) – though the API for this isn't yet worked out. So for right now the above two options.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2024-07-04T18:31:15Z"
-            },
-            {
-              "author":
-              {
-                "login": "puja93"
-              },
-              "body": "Please correct me if i'm wrong @MilesCranmer \r\n\r\nWhat i understand is, we can eventually get either :\r\n\r\n**F(x_1, x_2, ..., x_m) = (y_1, y_2, ..., y_n)**      OR      **F(x_1, x_2, ..., x_m) = z**\r\n\r\nWith m = number of inputs, n = number of logprob results, z is the final output\r\n\r\nWhich then implies, we could find analytical formula for \r\n1. Fixed Input size - Fixed output size NN model (CNN, Vanilla DNN) / Grid  & Tabular\r\n2. Arbitrary input size - Fixed output size NN model (Transformer) / Sequence\r\n",
-              "createdAt": "2024-07-22T07:20:43Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
-            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNy0yMlQwODoyMDo0MyswMTowMM4Amkoz"
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNy0wNFQxOTozMToxNSswMTowMM4AmACW"
           }
         }
       }

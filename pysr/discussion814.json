@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 814,
+        "title": "Interpretation of charts in tensorboard",
+        "body": "Hi everyone,\r\n\r\nI'm sorry if the question sounds stupid but I'd like to know how to interpret some charts in tensorboard. Mainly this one \r\n\r\nsearch/data/population/complexities \r\n\r\n<img width=\"559\" alt=\"image\" src=\"https://github.com/user-attachments/assets/d72c4f8f-ce8c-4609-9df8-4c1dd8614925\" />\r\n\r\n\r\nI understand the X axis if sor complexities, but not sure to understand the Y axis and the highlighted white number (64.0 and 5279)\r\n\r\nMany thanks for your help :)\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "So this plot is basically 3D. x-axis complexity. y-axis is density. The third axis, z-axis (shown in layers of histograms) is the number of steps.",
+              "createdAt": "2025-01-21T15:05:32Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMS0yMVQxNTowNTozMiswMDowMM4AtaJ6"
+          }
+        }
+      }
+    }
+  }
+}

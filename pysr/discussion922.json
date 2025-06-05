@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 922,
+        "title": "Warm Start Limitations",
+        "body": "Hi Miles and Team,\r\n\r\nThanks for this package it is _amazing_! I have a few questions that hopefully won't be too difficult to answer...\r\n\r\nFirst, what parameters can be changed before `warm_start` is no longer possible? I can go through the source code but I'm hoping someone on the development side could rattle them off and save me a few hours of digging and experimentation. This info might be available online somewhere but I just haven't found it yet. I don't need an extensive list just the common parameters that might be adjusted from run-to-run.\r\n\r\nSecond, is there a way to customize the behavior and format of the HOF output, including what’s saved in the output directory? For example, the model might progress through complexities of 4, 6, 8, and 12 with decreasing loss. But if a better expression is found at complexity 9, the 12-complexity expression gets overwritten. Is there a way to save every expression that improves upon the previous one (maybe only if it improves the loss from the previous best expression with a higher complexity)? From a research standpoint, it would be valuable to observe how the training evolves in more detail. This information might already be available in the model object after calling fit, but I'm not sure. Ideally, having access to metrics like Complexity, Loss, Score, Equation, Runtime, Min Error, Max Error, etc., would be huge!\r\n\r\n![image](https://github.com/user-attachments/assets/5688a449-e77c-48db-986b-06d349c63074)\r\n\r\nThirdly, is there a reason that `maxsize` can't be set below 7? I'm asking out of curiosity. Theoretically, I could *hack* the effective `maxsize` below 7 by increasing `complexity_of_operators/variables/constants` values to 2 and setting `maxsize` to 12 or less. If it's a limitation with Julia or something I can try out my hack. I'm asking because demonstrating a simple symbolic regression use case, like linear regression, which effectively has a `maxsize` of 5, would be a helpful way to introduce people to the core concepts of symbolic regression.\r\n\r\nLastly, `verbosity `doesn’t seem to work as expected. From what I understand, `verbosity = 0`, `verbosity = >0 & <1`, and `verbosity = 1` should correspond to no output, partial output, and full output, respectively. If my understanding is correct that’s not the behavior I’m seeing. In my case, setting verbosity to 1 or more prints every iteration, but anything below 1 prints nothing. I’ve looked around for a deeper explanation of this behavior but haven’t had any luck. Also, I'm using Spyder which I know is limited in some respect so that could be the issue.\r\n\r\nHere’s my code, just in case some of my parameters are interfering with verbosity. But even with the most basic default model, I’m not seeing the expected behavior:\r\n\r\n```\r\nmodel = PySRRegressor(\r\n    model_selection=\"best\",\r\n    run_id=f'SkewNormal - {datetime.datetime.now().strftime(\"%Y-%m-%d-%H-%M-%S.%f\")[:-4]}',\r\n    niterations=10000000,\r\n    binary_operators=[\"+\", \"-\", \"*\", \"/\"],\r\n    unary_operators=[\"log\", \"sqrt\", \"square\",\"exp\"\r\n                     # , \"sin\", \"cos\", \"tan\"\r\n                     ],\r\n    maxsize=12,\r\n    warm_start=True,\r\n    temp_equation_file=False,\r\n    output_directory=\"C:/Users/person/Desktop/output/Skewnormal\",\r\n    verbosity=1,\r\n    timeout_in_seconds=120,\r\n    # early_stop_condition=\"f(loss, complexity) = (loss <= 5.526e-15) && (complexity < 6)\",\r\n    print_precision=6\r\n)\r\n```\r\nThanks for your time! Feel free to provide links if anything I'm asking for has been explained in a previous discussion threads or websites. \r\n\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Parameters that shouldn't be changed before a warm start\r\n\r\n- expression_spec\r\n- maxsize\r\n- maxdepth\r\n- binary_operators and unary_operators\r\n- precision\r\n\r\nI think these won't work (but haven't tried)\r\n\r\n- constraints and nested_constraints\r\n- complexity_* (i.e., anything related to how complexity is computed)\r\n\r\nThese affect the validity of saved expressions, so shouldn't be changed.\r\n\r\nI _think_ everything else should work.\r\n\r\nAlso, while the dataset can be changed, the features and the feature order shouldn't be.\r\n\r\nThere are also some subtleties like you can't fit on real-valued data, and then warm start on complex-valued data. This sort of thing is hard to document as there are so many different situations that could occur. But I suppose the parameters mentioned above could be added to the docs.",
+              "createdAt": "2025-05-14T07:57:48Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0xNFQwODo1Nzo0OCswMTowMM4AyIY8"
+          }
+        }
+      }
+    }
+  }
+}

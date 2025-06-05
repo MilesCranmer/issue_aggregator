@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 401,
         "title": "Symbolic integrals with SymbolicRegression.jl",
         "body": "Example of solving an integral with SymbolicRegression.jl. Since automatic differentiation is enabled (via Zygote.jl), you can literally just evaluate the forward derivative, and compute the loss against your function. Then the resultant expression == the integral! (Or some approximation of it)\r\n\r\nhttps://github.com/MilesCranmer/PySR/assets/7593028/11bf9ba5-b0ea-45b6-bdc5-1599759546dc\r\n\r\n\r\nCode:\r\n\r\n```julia\r\nusing MLJ  # for fit/predict\r\nusing SymbolicRegression  # for SRRegressor\r\nusing Zygote  # For `enable_autodiff=true`\r\nusing SymbolicUtils\r\n\r\nf(x) = x^2 + 2x + 1 + sin(x)\r\n\r\nX = reshape(0.0:0.01:10.0, :, 1)\r\ny = f.(X[:, 1])\r\n\r\nfunction derivative_loss(tree, dataset::Dataset{T,L}, options, idx) where {T,L}\r\n    # Column-major:\r\n    X = idx === nothing ? dataset.X : view(dataset.X, :, idx)\r\n    ∂y = idx === nothing ? dataset.y : view(dataset.y, idx)\r\n\r\n    ŷ, ∂ŷ, completed = eval_grad_tree_array(tree, X, options; variable=true)\r\n\r\n    !completed && return L(Inf)\r\n\r\n    mse = sum(i -> (∂ŷ[i] - ∂y[i])^2, eachindex(∂y)) / length(∂y)\r\n    return mse\r\nend\r\n\r\n\r\nmodel = SRRegressor(\r\n    binary_operators=[+, -, *, /],\r\n    unary_operators=[sin, cos, exp],\r\n    loss_function=derivative_loss,\r\n    enable_autodiff=true,\r\n    batching=true,\r\n    batch_size=25,\r\n    niterations=100,\r\n)\r\n\r\nmach = machine(model, X, y)\r\n\r\nfit!(mach)\r\n\r\nr = report(mach)\r\neq = r.equations[r.best_idx]\r\n\r\nsymbolic_eq = node_to_symbolic(eq, model)\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "tomaklutfu"
               },
               "body": "Does `y` argument to `machine` accept a named tuple so that we can feed derivative info too? I want to search for both function for `y` and ensure that the derivative of the searched functions is also reasonable. Or maybe with a vector of a custom element type like `Pairs` or `ForwardDiff`'s `Dual` type?",
               "createdAt": "2023-08-10T23:42:59Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "@tomaklutfu I have added your request to this PR: https://github.com/MilesCranmer/SymbolicRegression.jl/pull/249. Could you try it out? \r\n\r\nFor example:\r\n\r\n```julia\r\nfunction derivative_loss(tree, dataset::Dataset{T,L}, options, idx) where {T,L}\r\n    # Select from the batch indices, if given\r\n    X = idx === nothing ? dataset.X : view(dataset.X, :, idx)\r\n\r\n    # Evaluate both f(x) and f'(x), where f is defined by `tree`\r\n    ŷ, ∂ŷ, completed = eval_grad_tree_array(tree, X, options; variable=true)\r\n\r\n    !completed && return L(Inf)\r\n\r\n    y = idx === nothing ? dataset.y : view(dataset.y, idx)\r\n    ∂y = idx === nothing ? dataset.extra.∂y : view(dataset.extra.∂y, idx)\r\n\r\n    mse_deriv = sum(i -> (∂ŷ[i] - ∂y[i])^2, eachindex(∂y)) / length(∂y)\r\n    mse_value = sum(i -> (ŷ[i] - y[i])^2, eachindex(y)) / length(y)\r\n\r\n    return mse_value + mse_deriv\r\nend\r\n```\r\nwhere you pass the extra data as a NamedTuple:\r\n\r\n```julia\r\n    model = SRRegressor(;\r\n        binary_operators=[+, -, *],\r\n        unary_operators=[cos],\r\n        loss_function=derivative_loss,\r\n        enable_autodiff=true,\r\n        batching=true,\r\n        batch_size=25,\r\n        niterations=100,\r\n        early_stop_condition=1e-6,\r\n    )\r\n    mach = machine(model, X, y, (; ∂y=∂y))\r\n```",
               "createdAt": "2023-08-12T03:20:35Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wOC0xMlQwNDoyMDozNSswMTowMM4AZlbQ"
           }

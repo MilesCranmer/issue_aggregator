@@ -1,20 +1,30 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 323,
         "title": "PySR paper is out!",
         "body": "This is long-overdue but I finally finished a methods paper describing the algorithm in PySR and SymbolicRegression.jl. You can find it here: https://github.com/MilesCranmer/pysr_paper and the arXiv here: https://arxiv.org/abs/2305.01582. \r\n\r\nI consider this paper to be a \"v1,\" based on an older version of the codebase. I would like to write additional papers in the future describing major updates, and I plan to invite any significant open-source contributors to be co-authors!",
-        "comments":
-        {
-          "nodes": [],
-          "pageInfo":
-          {
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "puja93"
+              },
+              "body": "Hi @MilesCranmer... Thanks for the great paper and repo. \r\n\r\nRegarding the 8th point in your paper : \r\n<img width=\"551\" alt=\"image\" src=\"https://github.com/MilesCranmer/PySR/assets/10529614/f373d3bb-bf34-44d8-ae38-7e8aef32695b\">\r\n\r\nDo you have any links for documentation or tutorial on that ? Especially for the sequential and grids dataset.\r\n\r\nThanks in advance",
+              "createdAt": "2024-07-04T13:40:48Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @puja93,\r\n\r\nThanks for the question! I have answered it on the forum page here: https://github.com/MilesCranmer/PySR/discussions/660#discussioncomment-9961622.\r\n\r\nCheers,\r\nMiles",
+              "createdAt": "2024-07-04T18:31:49Z"
+            }
+          ],
+          "pageInfo": {
             "hasNextPage": false,
-            "endCursor": null
+            "endCursor": "Y3Vyc29yOnYyOpHOg7FnhA=="
           }
         }
       }

@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 69,
         "title": "Is there a way to prevent certain combinations of operators, like exp(cos(x)) ?",
         "body": "Hello. I'd like to use this package for Symbolic Regression of physics equations. \r\n\r\nNow, physics equations rarely exhibit exponentials of sinusoids. So is there a way for me to tell PySR to not use `exp(cos(x))` ? I know that I can constrain the complexity of `exp` to 1 through `constraints = {'exp':1}`, and that this would remove sinusoids, but I'd like to prevent exp from having the `cos` function as an argument altogether.\r\n\r\nCan this be done? If so, how may I do it? I was thinking about defining my own exponential function that cannot take sinusoids as an argument, but I am currently unsure about how to do this.\r\n\r\nThank you!",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @jburz2001,\r\n\r\nGreat question, this is something that I think would be useful for many. You are right that you could disable complex arguments with the `constraints` option, but unfortunately there is no current way to disallow specific patterns in the equation like you are interested in.\r\n\r\nWhile I don't have a timeline for when I would be able to implement this, what I can do is point you to where this could potentially be added if you are interested.\r\n\r\nIn the backend (https://github.com/MilesCranmer/SymbolicRegression.jl/), there is a function [here](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/856f7b1c80483ec113b4e878119de5ea121f227e/src/CheckConstraints.jl#L49-L68):\r\n\r\n```julia\r\nfunction check_constraints(tree::Node, options::Options, maxsize::Int)::Bool\r\n    if countNodes(tree) > maxsize\r\n        return false\r\n    end\r\n    for i=1:options.nbin\r\n        if options.bin_constraints[i] == (-1, -1)\r\n            continue\r\n        elseif flagBinOperatorComplexity(tree, Val(i), options)\r\n            return false\r\n        end\r\n    end\r\n    for i=1:options.nuna\r\n        if options.una_constraints[i] == -1\r\n            continue\r\n        elseif flagUnaOperatorComplexity(tree, Val(i), options)\r\n            return false\r\n        end\r\n    end\r\n    return true\r\nend\r\n```\r\nThis checks the user-passed constraints, and returns `false` if they are violated. It's used during the equation search, so you shouldn't need to change anything else. Here is where you could try to set up a more complex constraint check. \r\n\r\nIf interested in trying to implement this:\r\n1. An equation (I call equation variables `tree`, and the equation type `Node`) is a simple binary tree, defined [here](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/856f7b1c80483ec113b4e878119de5ea121f227e/src/Equation.jl). You would want to recursively traverse it to test your constraint. You can see some example functions that operate on equations [here](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/856f7b1c80483ec113b4e878119de5ea121f227e/src/EquationUtils.jl).\r\n2. You can work directly with the Julia backend independently (see the readme), or if you want to test it from Python, you can do: `julia_project=\"[path/to/SymbolicRegression.jl/repo]\"` as an argument to PySR, and it will use the local Julia code instead of the package.\r\n\r\n\r\nLet me know if you have questions!\r\nCheers,\r\nMiles",
               "createdAt": "2021-08-10T04:37:35Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Just following up on this. There is now the `nested_constraints` parameter, which is exactly built for this purpose.",
               "createdAt": "2023-04-21T19:23:42Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wNC0yMVQyMDoyMzo0MiswMTowMM4AVtCt"
           }

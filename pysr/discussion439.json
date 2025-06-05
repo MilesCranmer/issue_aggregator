@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 439,
         "title": "export result while equations are evolving",
         "body": "Hi,\r\nBy passing equation_file and/or temp_equation_file to PySRRegressor, we can save the latest updated \"hall of fame\". For example,\r\n![intermediate](https://github.com/MilesCranmer/PySR/assets/122554992/759b107d-77b7-4fba-aaaa-86228e311a7d)\r\nThe results can be saved as csv.\r\n\r\nThe output csv file gets updated while evolution. In other words, we always have one csv file which is being updated. I am wondering if there is a way to keep all intermediate csv files (or at least some of them). For example, can we store 1 separated csv file per niterations with its own unique name? What I want to finally achieve is to plot loss versus evolution for each Complexity. e.g. complexity = 5, then plotting the corresponding loss versus iterations/generations. \r\n\r\nAny advice is much appreciated, \r\n\r\nThank you so much for your support,\r\nCheers \r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @AKHCE,\r\n\r\nSorry for the late reply, I missed this post for some reason.\r\n\r\nThere is not a built-in mechanism for saving the csv file over time. However, there is a mechanism for saving the entire history of a search to a JSON file (including every single mutation that happens). It is a bit overkill and I'm not sure if it is useful, but you could try it out. \r\n\r\nIt's typically used from the Julia side so there's no built-in parameter in PySRRegressor. However, you could turn this on by adding to:\r\n\r\nhttps://github.com/MilesCranmer/PySR/blob/6abcc15afe7953b08b4f15d1a3e9a127e4e40691/pysr/sr.py#L1608\r\n\r\nadd a line\r\n\r\n```python\r\nval_recorder=Main.eval(\"Val(true)\")\r\n```\r\n\r\nand it should generate a JSON file `pysr_recorder.json` of the history of the search. Just keep in mind that it is going to be much slower. This JSON file is used only as a debugging tool (by myself) so there's not documentation on it.\r\n\r\nOther than that, you could modify the backend, particularly [this line](https://github.com/MilesCranmer/SymbolicRegression.jl/blob/4f0b8c576eaccbdcbb6497ab446a3abf6535aaec/src/SymbolicRegression.jl#L898), and get it to save a file given by the current `time()` rounded to some precision. \r\n\r\nYou can use a custom backend in PySR by following the instructions here: https://astroautomata.com/PySR/backend/\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2023-10-13T08:00:02Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMC0xM1QwOTowMDowMiswMTowMM4AbvNF"
           }

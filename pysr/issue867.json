@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 867,
+        "title": "[Feature]: Accessing more equations",
+        "body": "### Feature Request\n\nHello,\n\nAfter training a model, one would use model.equations_ to view the best equations at different complexity levels. However, I was wondering if there is a way to access a larger set of discovered equations, rather than just the top ranked ones?\n\nIf this functionality is not currently available, would it be possible to implement an option to retrieve more (or all) equations found during the optimization process? This could be useful for analyzing alternative solutions beyond the best-ranked equations.\n\nThank you for your time, and I appreciate all the work that has gone into PySR!",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,44 +1,35 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 308,
         "title": "\"Unsupervised\" Symbolic Regression",
         "body": "Just had a few little questions about using this package, the primary being how to do 'unsupervised' symbolic regression. I presume one could provide a loss function and modify `EvalLoss` that ignores Y so long as it outputs a scalar loss value, similar to issue #92. However, I assume that the output `prediction = evalTreeArray(...)` is always scalar, correct? This may limit what kind of unsupervised loss metrics we can use.\r\n\r\nAs for a general point of discussion, any thoughts on some how combining this evolving approach to something like dynamic mode decomposition? One could do a DMD like step with a featurization of X that is some combination of the allowed operators and quickly extract which ones contribute to a low loss. I suppose in a sense this can allow for quickly covering the 'breadth' of the operator space, while continued evolution allows for greater depth, so it may depend more on the structure of the underlying equations to see benefit.\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "klowrey"
               },
               "body": "Oh, one other related question to SymbolicRegression.jl is whether an initial equation can be provided to 'warm-start' the symbolic search. I know we can input our own unary or binary operators which can help shape the search direction, but an initial function structure could help if we know some prior information.",
               "createdAt": "2022-06-30T23:19:31Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Great questions! So, you could definitely create an arbitrary loss with `Options(loss=…)`, and define some per-row loss (like `myloss(x,y)=(x-y)^2`) that simply doesn’t use `y`. If you want a loss that considers the entire vector of outputs at once, you would indeed need to tweak `EvalLoss`.\r\n\r\nFor vector output and for more complex losses, I highly recommend training a neural network on the problem *first*, and then fitting the input->output relations of the neural network using symbolic regression. This is a really extensible way of finding symbolic models for general types of problems! For more info you could check out this explainer video: https://m.youtube.com/watch?v=HKJB0Bjo6tQ, and read the paper here: https://arxiv.org/abs/2006.11287. In the paper we were able to find things like symbolic Hamiltonians by training a Hamiltonian neural net, then fitting the input->output with SR. We also tried higher dimensional equations like force laws - with the right neural net inductive bias, you can pull it off!\r\n\r\nFor why you would want to do this rather than pure SR, I give some reasons here: https://twitter.com/milescranmer/status/1536493836360376325?s=21&t=FKuh7Uk_huDWR2kqL8U95A\r\n\r\nCheers,\r\nMiles ",
               "createdAt": "2022-07-01T00:14:32Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "klowrey"
               },
               "body": "Yeah the deep model first then distill out the symbolic regression second is one approach I'm considering, but it seems like how you structure the deep model can make or break the downstream symbolic regression, no? Event with a pure deep learning approach, the model structure can have big effects if you care about things like efficiency (most of us are not rich enough to not care...). I've actually seen that video before (and it's great work!) and spoken with Steve about similar techniques to use for dynamic controls, so it's exciting to see this kind of stuff developing more.\r\n\r\nIn the video you mention that things like SINDy can pick and choose from a set of functional basis while a GA approach isn't limited to that basis set. Isn't there a middle ground in considering the basis set for something like SINDy to be representative of the current population of equations for a GA approach? From the other direction, GA would be like adding more terms to a basis set then evaluating whether that basis term is useful or not. As such, the SINDy / DMD approach can quickly eliminate useless basis terms from it's functional set, while GA is useful for generating more basis terms: the likelihood a term is mutated can be weighted by the eigenvalues from a DMD-like approach. Random idea but seems like a cheap way to get vector outputs/inputs quickly.",
               "createdAt": "2022-07-01T19:43:55Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMi0wNy0wMVQyMDo0Mzo1NSswMTowMM4ALsqm"
           }

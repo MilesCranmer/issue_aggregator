@@ -1,132 +1,112 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 238,
         "title": "Repeated CI failures on Windows",
         "body": "Many of the Windows tests are now failing with various segmentation faults, which appear to be randomly triggered: \r\n\r\n- Nightly action: https://github.com/MilesCranmer/PySR/actions/workflows/CI_large_nightly.yml\r\n- PR action: https://github.com/MilesCranmer/PySR/pull/237\r\n\r\nThey seem to occur more frequently on older versions of Julia, and rarely on Julia 1.8.3. Regardless, a segfault anywhere is cause for concern and should be tracked down.\r\n\r\nThe errors include:\r\n\r\n1. Early segmentation fault (Julia 1.6.7) at first run, segfault during noise test (Julia 1.6.7 and others), as well as segfaults during warm start test.\r\n\r\ne.g., Windows:\r\n```\r\n D:\\a\\_temp\\221410f9-8bf7-4099-901d-eb9813d86c45.sh: line 1:  1098 Segmentation fault      python -m pysr.test main\r\nStarted!\r\n```\r\n\r\n<details><summary>also occurs on Ubuntu sometimes:</summary>\r\n\r\n```\r\nsignal (11): Segmentation fault\r\nin expression starting at none:0\r\nunknown function (ip: 0x7fd6a19bc215)\r\nunknown function (ip: 0x7fd6a19947ff)\r\nmacro expansion at /home/runner/.julia/packages/PyCall/ygXW2/src/exception.jl:95 [inlined]\r\nconvert at /home/runner/.julia/packages/PyCall/ygXW2/src/conversions.jl:94\r\npyjlwrap_getattr at /home/runner/.julia/packages/PyCall/ygXW2/src/pytype.jl:378\r\nunknown function (ip: 0x7fd68d30b1bd)\r\nunknown function (ip: 0x7fd6a19babda)\r\nunknown function (ip: 0x7fd6a198e9d4)\r\npyisinstance at /home/runner/.julia/packages/PyCall/ygXW2/src/PyCall.jl:170 [inlined]\r\npysequence_query at /home/runner/.julia/packages/PyCall/ygXW2/src/conversions.jl:752\r\npytype_query at /home/runner/.julia/packages/PyCall/ygXW2/src/conversions.jl:773\r\npytype_query at /home/runner/.julia/packages/PyCall/ygXW2/src/conversions.jl:806 [inlined]\r\nconvert at /home/runner/.julia/packages/PyCall/ygXW2/src/conversions.jl:831\r\njulia_kwarg at /home/runner/.julia/packages/PyCall/ygXW2/src/callback.jl:19 [inlined]\r\n#57 at ./none:0 [inlined]\r\niterate at ./generator.jl:47 [inlined]\r\ncollect_to! at ./array.jl:728\r\nunknown function (ip: 0x7fd68d341d9a)\r\n_jl_invoke at /buildworker/worker/package_linux64/build/src/gf.c:2237 [inlined]\r\njl_apply_generic at /buildworker/worker/package_linux64/build/src/gf.c:2419\r\ncollect_to! at ./array.jl:736\r\nunknown function (ip: 0x7fd68d33e35a)\r\n_jl_invoke at /buildworker/worker/package_linux64/build/src/gf.c:2237 [inlined]\r\njl_apply_generic at /buildworker/worker/package_linux64/build/src/gf.c:2419\r\ncollect_to! at ./array.jl:736\r\ncollect_to_with_first! at ./array.jl:706\r\nunknown function (ip: 0x7fd68d33d775)\r\n_jl_invoke at /buildworker/worker/package_linux64/build/src/gf.c:2237 [inlined]\r\njl_apply_generic at /buildworker/worker/package_linux64/build/src/gf.c:2419\r\ncollect at ./array.jl:687\r\nunknown function (ip: 0x7fd68d33afb4)\r\n_jl_invoke at /buildworker/worker/package_linux64/build/src/gf.c:2237 [inlined]\r\njl_apply_generic at /buildworker/worker/package_linux64/build/src/gf.c:2419\r\n_pyjlwrap_call at /home/runner/.julia/packages/PyCall/ygXW2/src/callback.jl:31\r\nunknown function (ip: 0x7fd68d3348d5)\r\n_jl_invoke at /buildworker/worker/package_linux64/build/src/gf.c:2237 [inlined]\r\njl_apply_generic at /buildworker/worker/package_linux64/build/src/gf.c:2419\r\npyjlwrap_call at /home/runner/.julia/packages/PyCall/ygXW2/src/callback.jl:44\r\nunknown function (ip: 0x7fd68d30aeee)\r\nunknown function (ip: 0x7fd6a19980c7)\r\n_PyObject_VectorcallTstate at /home/runner/work/_temp/SourceCode/./Include/cpython/abstract.h:116 [inlined]\r\n_PyObject_VectorcallTstate at /home/runner/work/_temp/SourceCode/./Include/cpython/abstract.h:103 [inlined]\r\nPyObject_Vectorcall at /home/runner/work/_temp/SourceCode/./Include/cpython/abstract.h:127 [inlined]\r\ncall_function at /home/runner/work/_temp/SourceCode/Python/ceval.c:5077 [inlined]\r\n_PyEval_EvalFrameDefault at /home/runner/work/_temp/SourceCode/Python/ceval.c:3537\r\nunknown function (ip: 0x7fd6a19ebbb7)\r\n_PyFunction_Vectorcall at /home/runner/work/_temp/SourceCode/Objects/call.c:396\r\nunknown function (ip: 0x7fd6a199a1e0)\r\nunknown function (ip: 0x7fd6a19ed97b)\r\nunknown function (ip: 0x7fd6a19ebbb7)\r\n_PyFunction_Vectorcall at /home/runner/work/_temp/SourceCode/Objects/call.c:396\r\nunknown function (ip: 0x7fd6a19ecdf6)\r\nunknown function (ip: 0x7fd6a1998972)\r\nunknown function (ip: 0x7fd6a199a1e0)\r\nunknown function (ip: 0x7fd6a19ecb12)\r\nunknown function (ip: 0x7fd6a1998972)\r\nunknown function (ip: 0x7fd6a19ecdf6)\r\nunknown function (ip: 0x7fd6a19ebbb7)\r\n_PyFunction_Vectorcall at /home/runner/work/_temp/SourceCode/Objects/call.c:396\r\nunknown function (ip: 0x7fd6a199a28d)\r\nunknown function (ip: 0x7fd6a19ef9b1)\r\nunknown function (ip: 0x7fd6a19ebbb7)\r\nunknown function (ip: 0x7fd6a1997d4c)\r\nunknown function (ip: 0x7fd6a1998f2b)\r\nunknown function (ip: 0x7fd6a1a46421)\r\nunknown function (ip: 0x7fd6a199802f)\r\n_PyObject_VectorcallTstate at /home/runner/work/_temp/SourceCode/./Include/cpython/abstract.h:116 [inlined]\r\n_PyObject_VectorcallTstate at /home/runner/work/_temp/SourceCode/./Include/cpython/abstract.h:103 [inlined]\r\nPyObject_Vectorcall at /home/runner/work/_temp/SourceCode/./Include/cpython/abstract.h:127 [inlined]\r\ncall_function at /home/runner/work/_temp/SourceCode/Python/ceval.c:5077 [inlined]\r\n_PyEval_EvalFrameDefault at /home/runner/work/_temp/SourceCode/Python/ceval.c:3520\r\nunknown function (ip: 0x7fd6a19ebbb7)\r\n_PyFunction_Vectorcall at /home/runner/work/_temp/SourceCode/Objects/call.c:396\r\nunknown function (ip: 0x7fd6a199a28d)\r\nunknown function (ip: 0x7fd6a19ef9b1)\r\nunknown function (ip: 0x7fd6a19ebbb7)\r\nunknown function (ip: 0x7fd6a1997d4c)\r\nunknown function (ip: 0x7fd6a1998f2b)\r\nunknown function (ip: 0x7fd6a1a46421)\r\nunknown function (ip: 0x7fd6a199802f)\r\n_PyObject_VectorcallTstate at /home/runner/work/_temp/SourceCode/./Include/cpython/abstract.h:116 [inlined]\r\n_PyObject_VectorcallTstate at /home/runner/work/_temp/SourceCode/./Include/cpython/abstract.h:103 [inlined]\r\nPyObject_Vectorcall at /home/runner/work/_temp/SourceCode/./Include/cpython/abstract.h:127 [inlined]\r\ncall_function at /home/runner/work/_temp/SourceCode/Python/ceval.c:5077 [inlined]\r\n_PyEval_EvalFrameDefault at /home/runner/work/_temp/SourceCode/Python/ceval.c:3520\r\nunknown function (ip: 0x7fd6a1998972)\r\nunknown function (ip: 0x7fd6a19ecdf6)\r\nunknown function (ip: 0x7fd6a1998972)\r\nunknown function (ip: 0x7fd6a19ecb12)\r\nunknown function (ip: 0x7fd6a19ebbb7)\r\n_PyEval_EvalCodeWithName at /home/runner/work/_temp/SourceCode/Python/ceval.c:4361\r\nunknown function (ip: 0x7fd6a19eb876)\r\nPyEval_EvalCode at /home/runner/work/_temp/SourceCode/Python/ceval.c:828\r\nunknown function (ip: 0x7fd6a1a6399f)\r\ncfunction_vectorcall_FASTCALL at /home/runner/work/_temp/SourceCode/Objects/methodobject.c:430\r\nunknown function (ip: 0x7fd6a19ecb12)\r\nunknown function (ip: 0x7fd6a19ebbb7)\r\n_PyFunction_Vectorcall at /home/runner/work/_temp/SourceCode/Objects/call.c:396\r\nunknown function (ip: 0x7fd6a19ecb12)\r\nunknown function (ip: 0x7fd6a19ebbb7)\r\n_PyFunction_Vectorcall at /home/runner/work/_temp/SourceCode/Objects/call.c:396\r\nunknown function (ip: 0x7fd6a1a7fdd6)\r\nunknown function (ip: 0x7fd6a1a7faae)\r\nPy_BytesMain at /home/runner/work/_temp/SourceCode/Modules/main.c:731\r\nunknown function (ip: 0x7fd6a1642d8f)\r\n__libc_start_main at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)\r\n_start at python (unknown line)\r\nAllocations: 185387713 (Pool: 185351460; Big: 36253); GC: 470\r\n/home/runner/work/_temp/bdd49862-48fd-4e82-bed8-685329606248.sh: line 1:  2324 Segmentation fault      (core dumped) python -m pysr.test main\r\n```\r\n\r\n</details>\r\n\r\n2. Git errors: (Julia 1.8.2)\r\n\r\n```\r\nPyCall is installed and built successfully.\r\n     Cloning git-repo `[https://github.com/MilesCranmer/SymbolicRegression.jl`](https://github.com/MilesCranmer/SymbolicRegression.jl%60)\r\nTraceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\n  File \"/Users/runner/work/PySR/PySR/pysr/julia_helpers.py\", line 87, in install\r\n    _add_sr_to_julia_project(Main, io_arg)\r\n  File \"/Users/runner/work/PySR/PySR/pysr/julia_helpers.py\", line 240, in _add_sr_to_julia_project\r\n    Main.eval(f\"Pkg.add([sr_spec, clustermanagers_spec], {io_arg})\")\r\n  File \"/Users/runner/hostedtoolcache/Python/3.9.14/x64/lib/python3.9/site-packages/julia/core.py\", line 627, in eval\r\n    ans = self._call(src)\r\n  File \"/Users/runner/hostedtoolcache/Python/3.9.14/x64/lib/python3.9/site-packages/julia/core.py\", line 555, in _call\r\n    self.check_exception(src)\r\n  File \"/Users/runner/hostedtoolcache/Python/3.9.14/x64/lib/python3.9/site-packages/julia/core.py\", line 609, in check_exception\r\n    raise JuliaError(u'Exception \\'{}\\' occurred while calling julia code:\\n{}'\r\njulia.core.JuliaError: Exception 'failed to clone from https://github.com/MilesCranmer/SymbolicRegression.jl, error: GitError(Code:ERROR, Class:Net, SecureTransport error: connection closed via error)' occurred while calling julia code:\r\nPkg.add([sr_spec, clustermanagers_spec], io=stderr)\r\n```\r\n\r\n3. Access errors during scikit-learn tests (these ones don't even fail the CI, which is a bit worrisome)\r\n\r\n[e.g.,](https://github.com/MilesCranmer/PySR/actions/runs/3664894286/jobs/6195846312)\r\n\r\n```\r\nFailed check_fit2d_predict1d with:\r\n    Traceback (most recent call last):\r\n      File \"D:\\a\\PySR\\PySR\\pysr\\test\\test.py\", line 671, in test_scikit_learn_compatibility\r\n        check(model)\r\n      File \"C:\\hostedtoolcache\\windows\\Python\\3.9.13\\x64\\lib\\site-packages\\sklearn\\utils\\_testing.py\", line 188, in wrapper\r\n        return fn(*args, **kwargs)\r\n      File \"C:\\hostedtoolcache\\windows\\Python\\3.9.13\\x64\\lib\\site-packages\\sklearn\\utils\\estimator_checks.py\", line 1300, in check_fit2d_predict1d\r\n        estimator.fit(X, y)\r\n      File \"D:\\a\\PySR\\PySR\\pysr\\sr.py\", line 1792, in fit\r\n        self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n      File \"D:\\a\\PySR\\PySR\\pysr\\sr.py\", line 1493, in _run\r\n        Main = init_julia(self.julia_project, julia_kwargs=julia_kwargs)\r\n      File \"D:\\a\\PySR\\PySR\\pysr\\julia_helpers.py\", line 180, in init_julia\r\n        Julia(**julia_kwargs)\r\n      File \"C:\\hostedtoolcache\\windows\\Python\\3.9.13\\x64\\lib\\site-packages\\julia\\core.py\", line 519, in __init__\r\n        self._call(\"const PyCall = Base.require({0})\".format(PYCALL_PKGID))\r\n      File \"C:\\hostedtoolcache\\windows\\Python\\3.9.13\\x64\\lib\\site-packages\\julia\\core.py\", line 554, in _call\r\n        ans = self.api.jl_eval_string(src.encode('utf-8'))\r\n    OSError: exception: access violation reading 0x000001BC1C501000\r\n```\r\n\r\n\r\n4. Torch errors.\r\n\r\nOne other curious thing is that this error is raised on some Windows tests (https://github.com/MilesCranmer/PySR/actions/runs/3664894286/jobs/6195713513). But, this should not take place...\r\n\r\n```\r\nRun python -m pysr.test torch\r\nD:\\a\\PySR\\PySR\\pysr\\julia_helpers.py:139: UserWarning: `torch` was loaded before the Julia instance started. This may cause a segfault when running `PySRRegressor.fit`. To avoid this, please run `pysr.julia_helpers.init_julia()` *before* importing `torch`. For updates, see https://github.com/pytorch/pytorch/issues/78829\r\n  warnings.warn(\r\nD:\\a\\_temp\\8727c9f4-d0f6-4345-84e6-e774762771ab.sh: line 1:   258 Segmentation fault      python -m pysr.test torch\r\nStarted!\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "@mkitti for error 3 in particular, do you have an idea of where I should check PyJulia? It almost looks like Python garbage collected the pointer to the Julia runtime which is strange.",
               "createdAt": "2022-12-10T17:21:16Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mkitti"
               },
               "body": "What changed?",
               "createdAt": "2022-12-10T18:47:58Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "So I have seen a few of these on-and-off for a while, especially on Windows. However, the rate has gone up recently. Perhaps this is because I have added more unit-tests over time, and tested more complex functionality (e.g., LoopVectorization.jl) and thus there is cumulatively a higher chance of each error occurring. I am really not sure what causes error 1 and 3 though. Error 2 and 4 seem doable to debug but seem more related to CI than the code itself; so I am mostly worried about 1+3. ",
               "createdAt": "2022-12-10T19:49:11Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I wonder if it has to do with the `_LIBJULIA` variable in PyJulia being cleaned up by the python gc?\r\nhttps://github.com/JuliaPy/pyjulia/blob/1e3de7bbd27312f9abd200761a0c04a03c40a23d/src/julia/libjulia.py#L90-L94\r\n\r\n`self.api` is set to an evaluation of [get_libjulia](https://github.com/JuliaPy/pyjulia/blob/1e3de7bbd27312f9abd200761a0c04a03c40a23d/src/julia/core.py#L466), which is defined [here](https://github.com/JuliaPy/pyjulia/blob/1e3de7bbd27312f9abd200761a0c04a03c40a23d/src/julia/libjulia.py#L108), which returns a global variable `_LIBJULIA`. However, that variable is actually not declared as global in that function, but just passed when the function is first defined. I wonder if that is the source of the issue?\r\n\r\ni.e., maybe the fix is\r\n\r\n```diff\r\n   def get_libjulia():\r\n+      global _LIBJULIA\r\n       return _LIBJULIA\r\n```",
               "createdAt": "2022-12-10T22:53:54Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Edit: looks like the access error in particular was introduced between these two commits: https://github.com/MilesCranmer/PySR/compare/c97f60de90203bd5091c3f49e031f49b17a0c6fa..da0bef974b69dc9215a0986145c53f5f7f4462a9. Maybe it has to do with setting `optimize=3` on Julia?",
               "createdAt": "2022-12-10T22:59:48Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Nope; neither the `optimize=2` nor the `global` change fixed it. Very confused...\r\n\r\nIt seems like the access errors first show up in `test_scikit_learn_compatibility`, which passes `PySRRegressor` to an internal test suite of scikit-learn: [here](https://github.com/MilesCranmer/PySR/blob/296ee040d727bbc685e617f976fe83b421c2033f/pysr/test/test.py#L671). I wonder if a recent change to this test suite is what suddenly caused this breakage in the Windows tests.",
               "createdAt": "2022-12-10T23:48:49Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I can't reproduce the errors on a local copy of Windows (in Parallels) - Python 3.10, Julia 1.8.3. I wonder if the GitHub action is just running out of memory or something...",
               "createdAt": "2022-12-11T17:27:43Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "mkitti"
               },
               "body": "Running out of memory would definitely put pressure on the garbage collector",
               "createdAt": "2022-12-11T20:50:30Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Indeed I think it is an overuse of memory from some sort of garbage not being properly collected from threads:\r\n\r\n<img width=\"2055\" alt=\"Screenshot 2022-12-20 at 6 58 21 PM\" src=\"https://user-images.githubusercontent.com/7593028/208789489-e1377107-7a78-477b-aff8-5807b7179cee.png\">\r\n\r\nI was launching searches repeatedly from IPython, and at one point there was 10 GB allocated in the RAM. Even when I set `model = None`, none of the memory was cleared by the Python/Julia GCs, indicating it is somehow sticking around.\r\n\r\nThe short term solution is to split the CI into separate launches of Python, so that memory is forced to clear after multiple tests.\r\n\r\nThe long term solution is to debug exactly why memory is not being freed. Perhaps it has something to do with jobs being added to this list through the use of `@async`: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/367d155f26c5a7f0faf26bf529b95f097f1f7f22/src/SymbolicRegression.jl#L652, and then garbage not being collected when this function exits?",
               "createdAt": "2022-12-21T00:04:17Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "\r\n~~Debugging list:~~\r\n\r\n~~- [ ] Does the memory leak appear in Julia, or just PyJulia?~~\r\n~~- [ ] Is the memory leak due to parallelism?~~\r\n  ~~- [ ] Does the memory leak occur when running in serial mode?~~\r\n  ~~- [ ] Does the memory leak occur when running until completion, rather than early stopping?~~\r\n~~- [ ] How does the memory leak scale with # populations, dataset size, etc.?~~\r\n~~- [ ] Does the memory leak appear only on some operating systems?~~\r\n~~- [ ] Is the memory leak due to running everything directly on `Main` in PyJulia, rather than in a scope?~~\r\n\r\n**Edit: seems like there isn't actually a memory leak; it's just the JIT cache.**",
               "createdAt": "2022-12-21T00:12:52Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Even just splitting it into 10 different subsets of tests seems to cause segfaults: https://github.com/MilesCranmer/PySR/actions/runs/3752052933.",
               "createdAt": "2022-12-21T19:17:46Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Got some cloud compute to try to debug this. Looks like the test triggering the series of access violations is `TestPipeline.test_high_dim_selection_early_stop` in `test.py`. In particular, something in the second half of this test (the second `model.fit`) seems to trigger it:\r\n\r\nhttps://github.com/MilesCranmer/PySR/blob/d04558686078f4b182ad01ca8fe589918883dab1/pysr/test/test.py#L300-L317\r\n\r\n\r\n---\r\n\r\nUpdates:\r\n\r\n1. Turned off `early_stop_condition`, and the bug went away. So perhaps stopping early is triggering some sort of memory access bug (e.g., from threads which haven't completed yet?)\r\n    - It looks like threads could continue to modify the contents of `returnPops` even after it has been returned to Python. Perhaps that is the issue. \r\n    - This could be tested by seeing if the problem goes away when serial mode is used instead, or when the `returnPops` store an explicit copy of populations.",
               "createdAt": "2023-02-18T05:20:13Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "The poster in #266 confirmed that multi-processing got rid of their issue. So it seems like a data race issue. I wonder if this is because `EquationSearch` is exiting before some threads are finished, because there is no safe way to cancel threads, whereas for processes, I simply call `rmprocs(procs)`: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/51d205c518eb3e99cfd45ac6a2d3dbbbd1944f32/src/SymbolicRegression.jl#L915\r\n\r\nOne possible solution is to implement a task handler that will safely kill tasks, as described here: https://discourse.julialang.org/t/how-to-kill-thread/34236/8.",
               "createdAt": "2023-02-18T19:59:06Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Presumably fixed by #535 ",
               "createdAt": "2024-02-12T09:04:07Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOc4evhQ=="
           }

@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 592,
         "title": "Question about the output of `Hall of Frame`",
         "body": "Hi, I am new to the SymbolicRegression. I have questions about how to control the output in hall of frame. \r\n\r\nQ1:  Is that possible to control the number of output in HOF?  (I tried to change the number of `topn` . It seems not working.) If yes, how? \r\n\r\nQ2:  It seems that each complexity has an unique result. Is that possible to give as many good results as possible , even that they have the same complexity.\r\n\r\nQ3: Sometimes, HOF will return formula like this  `y = constant_number`, which is not I want. I want formula which has at least one variable x. How could I fix this?\r\n\r\nQ4: I am training on a timeseries dataset and use custom loss function on Symbolic Regression Model. How could I input extra parameter (list of datetime) to my custom loss function? \r\n\r\nThank you. ",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Q1-3 => It's a bit hard to do this because of things like the fact that $x + 1.0$ and $x + 1.000000001$ are technically different expressions with perhaps identical losses. And also things like $x / 2.0$ compared to $x * 0.5$. So the thing done right now is that only the first expression to hit a particular (loss, complexity) threshold is taken for each complexity from 1 to `maxsize`. I confess I'm not really sure how to do otherwise – would you create some way of gauging diversity of expressions stored at each complexity. \r\n\r\nQ4 => can you convert them to floating point numbers for this?",
               "createdAt": "2024-04-03T22:02:03Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNC0wM1QyMzowMjowMyswMTowMM4AiV4V"
           }

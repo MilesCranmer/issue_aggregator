@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 80,
         "title": "Increase project stability by fixing Manifest.toml",
         "body": "There are potential problems with only storing Project.toml and not the Manifest.toml file. Simply fixing Project.toml means the Julia dependencies could push patches, and with default PySR settings (`update=True`), there could be changes to the Julia dependencies which could break small things. For stability reasons, it doesn't seem smart to depend on so many user projects which could push a new patch and potentially break PySR. I think it might be better I manually update the PySR Manifest.toml, do a full run of testing on it, and only then allow any new patches through.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Irrelevant with #535 ",
               "createdAt": "2024-02-12T09:05:41Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOc4e4XA=="
           }

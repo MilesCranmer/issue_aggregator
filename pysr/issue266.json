@@ -1,52 +1,42 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 266,
         "title": "[BUG] OSError: exception: access violation reading",
         "body": "PySR throws an \"OSError: exception: access violation reading\" error. It seems to occur often when fitting a model many times (tried with the exact same settings and data). Occurs both in Jupyter and when running from a Python file.\r\n\r\nVisual Studio Code outputs the following:\r\n\r\nTraceback (most recent call last):\r\n  File \"c:\\Users\\Tadeu\\Desktop\\pysr-access-violation.py\", line 44, in <module>\r\n    model.fit(X_train , dx , variable_names=[\"x\", \"y\", \"z\"])\r\n  File \"C:\\Users\\Tadeu\\anaconda3\\envs\\thesis\\lib\\site-packages\\pysr\\sr.py\", line 1792, in fit\r\n    self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n  File \"C:\\Users\\Tadeu\\anaconda3\\envs\\thesis\\lib\\site-packages\\pysr\\sr.py\", line 1493, in _run\r\n    Main = init_julia(self.julia_project, julia_kwargs=julia_kwargs)\r\n  File \"C:\\Users\\Tadeu\\anaconda3\\envs\\thesis\\lib\\site-packages\\pysr\\julia_helpers.py\", line 180, in init_julia\r\n    Julia(**julia_kwargs)\r\n  File \"C:\\Users\\Tadeu\\anaconda3\\envs\\thesis\\lib\\site-packages\\julia\\core.py\", line 519, in __init__\r\n    self._call(\"const PyCall = Base.require({0})\".format(PYCALL_PKGID))\r\n  File \"C:\\Users\\Tadeu\\anaconda3\\envs\\thesis\\lib\\site-packages\\julia\\core.py\", line 554, in _call\r\n    ans = self.api.jl_eval_string(src.encode('utf-8'))\r\n\r\nOSError: exception: access violation reading 0x0000025A5A9D1000\r\nException ignored in atexit callback: <_FuncPtr object at 0x0000025A5A83AF60>\r\nOSError: exception: access violation reading 0x0000025A5A9D1000\r\n\r\n \r\n\r\n- Windows 11\r\n- Julia 1.8.3\r\n- Python 3.10.9\r\n- Installed with pip\r\n- PySR 0.11.14 (just updated from .11 in an attempt to fix this) \r\n\r\n\r\n**PySR settings and a minimal example:**\r\n\r\n```\r\nimport numpy as np\r\nfrom scipy.integrate import odeint\r\nfrom pysr import PySRRegressor\r\n\r\nmodel = PySRRegressor(\r\n    model_selection=\"best\", \r\n    niterations=30,\r\n    population_size=90,\r\n    binary_operators=[\"+\", \"*\", \"/\",  \"-\"],\r\n    loss=\"loss(x, y) = (x - y)^2\",\r\n    warm_start=True\r\n)\r\ngoodwin = lambda x,  t , a1=5, a2=5, a3=5, c1=0.5, c2=0.5, c3 = 0.5, n=10, K=1: [\r\n    \r\n                     a1* K**n/(K**n  + x[2]**n ) - c1* x[0],\r\n                     a2*x[0] - c2 * x[1],\r\n                     a3*x[1] - c3*x[2]    ]\r\n\r\ninitial_cond = np.random.uniform(0, 5, 3) \r\nsol = odeint(goodwin, initial_cond, t) \r\nx = sol[:, 0]; y = sol[:, 1]; z = sol[:, 2];\r\nX_train = np.column_stack((x, y, z))\r\ndx = goodwin((x, y, z), 0)[0] \r\n\r\nmodel.fit(X_train, dx , variable_names=[\"x\", \"y\", \"z\"])\r\n```\r\n \r\nAs far as I can tell, this is enough to reproduce the error.  It occurs often enough that I usually have to restart Jupyter after fitting twice (this was not the case a month ago, for some reason). \r\n\r\n**Note**: I thought this could be caused by the different datasets that were being fed to the model, but locking it after the first run still leads to the bug. \r\nI also removed the division and multiplication operator and somehow it managed to fit ~7 times before crashing, way more than the maximum of 2 that I was seeing when using a larger pool of binary_operators. \r\n\r\nLet me know if there is something else I need to provide. I will also try to run this same example on a different computer to see if I get similar behaviour. \r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Related to the third error I am seeing in the Windows tests: https://github.com/MilesCranmer/PySR/issues/238 (also posted here: https://github.com/JuliaLang/julia/issues/47957). I unfortunately don't have a Windows machine where I can replicate this so it's a bit difficult for me to debug, but I can offer some questions which will help me track it down:\r\n\r\n- Does your machine have low RAM by any chance? \r\n- Are you running it inside a VM?\r\n- Does this error still occur in multiprocessing mode, with `multithreading=False, procs=procs` (where `procs` is the number of processors you have).\r\n- Does this error depend on how many `procs` you set? It could be a data race.\r\n- Does this error still occur in serial mode (`multithreading=False, procs=0`)?\r\n- If you run the pure-Julia example here: https://github.com/MilesCranmer/SymbolicRegression.jl/#quickstart, does the error still occur? If not, then it might be a PyJulia problem.\r\n- Does this error still occur if you do not import scipy and run odeint, but rather pre-compute that integral, and load it from a file? (sometimes Python libraries with C bindings can interfere).\r\n- Does the error frequency change if you pass `julia_kwargs={\"optimize\": 0}` to PySRRegressor?\r\n- Does the issue go away if you try PySR 0.10? I think this is where I noticed the access error in the tests.\r\n- Might also try Julia 1.8.5 but not sure it will fix things\r\n\r\nThe more information the better – these questions will help me figure out where the problem could be lurking. Thanks!\r\nMiles",
               "createdAt": "2023-02-17T23:45:57Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "TadeuNP"
               },
               "body": "- Memory usage is at around 11 out of 16 GB available.\r\n-  Not using a VM.\r\n-  The pure Julia example works fine. \r\n- Skipping Scipy and loading from a file did not fix it. \r\n- ` julia_kwargs={\"optimize\": 0}` did not fix it. As far as I can tell, it showed a similar error frequency as before. \r\n- **Error seems to disappear** when setting `multithreading=False`\r\n   - It seems to work independently of the number of procs set. Using 0, 1 or 12 procs all worked.\r\n - I have **not yet** tried updating Julia or PySR 0.10.\r\n\r\nAfter running a bunch of successful tests with multithreading disabled, I decided to turn it on. To my surprise, it worked perfectly. Then I noticed a new warning message:\r\n\r\nC:\\Users\\Tadeu\\anaconda3\\envs\\thesis2\\lib\\site-packages\\pysr\\julia_helpers.py:217: UserWarning: Julia has already started. The new Julia options {'threads': 12} will be ignored.\r\n\r\nI restarted the Jupyter kernel and attempted to fit a model twice, with multithreading enabled both times, and it failed.\r\n\r\nThanks! Let me know if there are more tests I can run.  ",
               "createdAt": "2023-02-18T14:03:01Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Awesome, thanks for answering those. So indeed using multiprocessing instead of multithreading seems like a good workaround for now (via `multithreading=False`). It’s actually just as fast, if not faster, than multi-threading; it just takes a bit longer to start each search.\r\n\r\nThis is also very helpful for finding the bug, thanks. Because it only occurs for multithreading, but not multiprocessing, I think it is a data race issue. (Multiprocessing copies between processes, whereas threads can access the same resources). It’s interesting that it only seems to occur in PyJulia context though…",
               "createdAt": "2023-02-18T15:43:49Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Should be fixed on most recent version. Ping me if not!",
               "createdAt": "2024-03-25T00:24:51Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOeDkkHw=="
           }

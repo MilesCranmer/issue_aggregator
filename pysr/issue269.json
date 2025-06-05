@@ -1,44 +1,35 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 269,
         "title": "[BUG] Using Round",
         "body": "Hi,\r\n\r\nI've wanted to experiment with using round, floor and ceil operators, which seem to be working fine in Julia, but gives an error when evaluated to Sympy. I assume I need to use some kind of sympy mapping to mitigate this error, but I can't really figure out what the correct mapping would be.\r\n\r\nI've tried:\r\nlambda x: x.round()\r\nlambda x: round(x)\r\nsp.round\r\n\r\nAny ideas?\r\n\r\n**Version (please include the following information):**\r\n- OS: MacOS\r\n- Julia version 1.8.5\r\n- Python version 3.10.2\r\n- pip version\r\n- PySR version 0.11.15\r\n\r\nTraceback (most recent call last):\r\n  File \"/Users/mika/gutta-skriver-master/masters.py\", line 128, in <module>\r\n    main()\r\n  File \"/Users/mika/gutta-skriver-master/masters.py\", line 41, in main\r\n    model.run_model(\r\n  File \"/Users/mika/gutta-skriver-master/CustomTypes/Model.py\", line 123, in run_model\r\n    model, prediction = symbolic_regression(\r\n  File \"/Users/mika/gutta-skriver-master/CustomTypes/Model.py\", line 1048, in symbolic_regression\r\n    model.fit(X=X_train, y=Y_train)\r\n  File \"/Users/mika/.pyenv/versions/3.10.2/lib/python3.10/site-packages/pysr/sr.py\", line 1792, in fit\r\n    self._run(X, y, mutated_params, weights=weights, seed=seed)\r\n  File \"/Users/mika/.pyenv/versions/3.10.2/lib/python3.10/site-packages/pysr/sr.py\", line 1666, in _run\r\n    self.equations_ = self.get_hof()\r\n  File \"/Users/mika/.pyenv/versions/3.10.2/lib/python3.10/site-packages/pysr/sr.py\", line 2118, in get_hof\r\n    eqn = sympify(eqn_row[\"equation\"], locals=local_sympy_mappings)\r\n  File \"/Users/mika/.pyenv/versions/3.10.2/lib/python3.10/site-packages/sympy/core/sympify.py\", line 496, in sympify\r\n    expr = parse_expr(a, local_dict=locals, transformations=transformations, evaluate=evaluate)\r\n  File \"/Users/mika/.pyenv/versions/3.10.2/lib/python3.10/site-packages/sympy/parsing/sympy_parser.py\", line 1101, in parse_expr\r\n    raise e from ValueError(f\"Error from parse_expr with transformed code: {code!r}\")\r\n  File \"/Users/mika/.pyenv/versions/3.10.2/lib/python3.10/site-packages/sympy/parsing/sympy_parser.py\", line 1092, in parse_expr\r\n    rv = eval_expr(code, local_dict, global_dict)\r\n  File \"/Users/mika/.pyenv/versions/3.10.2/lib/python3.10/site-packages/sympy/parsing/sympy_parser.py\", line 907, in eval_expr\r\n    expr = eval(\r\n  File \"<string>\", line 1, in <module>\r\n  File \"/Users/mika/.pyenv/versions/3.10.2/lib/python3.10/site-packages/sympy/core/expr.py\", line 3814, in round\r\n    raise TypeError(\"Cannot round symbolic expression\")\r\nTypeError: Cannot round symbolic expression\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I don’t see any symbolic round for sympy. You could write your own sympy function though:\r\n\r\n```python\r\nclass round(sympy.Function):\r\n    ...\r\n```\r\n\r\nwhich you could then pass as `round` to `extra_sympy_functions`. It will just show up in the output.",
               "createdAt": "2023-02-26T02:10:52Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Would be nice to have this as a built-in though. If you get something working want to submit a PR? I will otherwise get to this eventually",
               "createdAt": "2023-03-27T23:12:16Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hey @mikamyrseth,\r\n\r\nI figured out how to do this. While sympy does not have round, it does have ceiling. So, you can write:\r\n\r\n```py\r\nimport sympy\r\n\r\nround = lambda x: sympy.ceiling(x - 0.5)\r\n```\r\n\r\nThis works with symbolic expressions too:\r\n\r\n```py\r\nIn [5]: x = sympy.symbols(\"x\")\r\n\r\nIn [6]: round(x * 2.1)\r\nOut[6]: ceiling(2.1*x - 0.5)\r\n```\r\n\r\n(which is correct)\r\n\r\nLet me know if there are any other issues!\r\nCheers,\r\nMiles",
               "createdAt": "2023-04-07T21:56:15Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOWXKFQA=="
           }

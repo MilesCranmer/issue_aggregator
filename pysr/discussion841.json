@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 841,
+        "title": "TemplateExpressionSpec for finding constants",
+        "body": "I am trying to predict 2 constants in a function of the form:\r\n\r\n$Y = a + \\dfrac{b}{\\sqrt X}$\r\n\r\nwhere a and b are constants that I want to determine. However, my current implementation treats a, b, and x as constants, even though x is meant to be a variable.\r\n\r\nAdditionally, the training process only finds a single equation in the Hall of Fame, without exploring other possible solutions. I am aware that linear regression works well for this case, but I specifically want to use PySR to perform the fitting.\r\n\r\nBelow is my code for my TemplateExpressionSpec:\r\n\r\n```\r\nFunctionTemplate = TemplateExpressionSpec(\r\n                                                                              function_symbols=[\"a\", \"b\", \"x\"],\r\n                                                                              combine=\"((; a, b, f), (x,)) -> abs(a()) + abs(b()) * abs(f(x))^(-0.5)\"\r\n                                                                              )\r\n```\r\n\r\nDoes anybody know how this can be fixed and why it doesn't search for more numbers to fit this? Thank you!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "With the new syntax on PySR 1.5.0 I would write it like this:\r\n\r\n```julia\r\nFunctionTemplate = TemplateExpressionSpec(\r\n    expressions=[\"f\"],\r\n    variable_names=[\"x\"],\r\n    parameters={\"a\": 1, \"b\": 1},\r\n    combine=\"abs(a[1]) + abs(b[1]) / sqrt(f(x))\r\n)\r\n```\r\n",
+              "createdAt": "2025-02-27T09:50:47Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMi0yN1QwOTo1MDo0NyswMDowMM4AvD4_"
+          }
+        }
+      }
+    }
+  }
+}

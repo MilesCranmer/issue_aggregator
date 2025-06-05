@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 915,
+        "title": "Limiting features used in expression; and including derivatives in loss",
+        "body": "Not sure if bug, but let me describe my setup first. \r\n\r\nIn a custom loss, I use first two features x0 and x1 in the dataset.X as ''real'' input features, and a third one (x2) to pass ground truth of the target derivative wrt x0 to be used later in the loss, because I guess  there is no other way to transmit this information, as dataset.y is 1D array with length equal to dataset.X: \r\n\r\n```julia\r\nfunction custom_objective(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n\r\n    # dataset.y is ground truth k \r\n\r\n    x0 = dataset.X[1, :]          \r\n    x1 = dataset.X[2, :]        \r\n    dkdx0_true = dataset.X[3, :]    # ground truth dk/dx0 \r\n\r\n    X12 = dataset.X[1:2, :]    # real input features\r\n\r\n    # Evaluate symbolic expression of k(x0, x1)\r\n    k_pred, success = eval_tree_array(tree, X12, options)\r\n    if !success\r\n        return L(Inf)\r\n    end\r\n\r\n    loss_k = sum((k_pred ./ dataset.y .- 1).^2) / dataset.n \r\n\r\n    # Evaluate ∂k/∂x0 \r\n    dkdx0_pred, _, diff_success0 = eval_diff_tree_array(tree, X12, options, 0)\r\n   \r\n    if !diff_success0\r\n        return L(Inf)\r\n    end\r\n\r\n    # Compute the loss for dk/dx0\r\n    loss_dkdx0 = sum((dkdx0_pred ./ dkdx0_true .- 1).^2) / dataset.n \r\n\r\n    alpha = 0.1 \r\n   \r\n    return (1 - alpha)*loss_k + alpha*loss_dkdx0\r\nend\r\n```\r\n\r\nWeird thing is, with the input dataset contains only two features, or when the x2 feature is zeroed in the array, i.e. \r\n\r\n```julia\r\nX12 = copy(dataset.X)    # real input features\r\nX12[3, :] .= 0\r\n```\r\n\r\nx2 appears sometimes in the proposed expressions. \r\n\r\nIs this something I need to worry about - from the correctness of the result point of view, but also size-of-the-tree and computational efficiency?\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Yes, this will hit some correctness issues because of reducing the number of features without also constraining the genetic algorithm to use those features. Basically the genetic algorithm thinks the tree will be able to access the same number of features as passed in `X`, and will do undefined things if it does not, or even crash.\r\n\r\nYou need to have a check like the following, at the top of your custom loss:\r\n\r\n```julia\r\nfor node in tree\r\n    if node.degree == 0 && !node.constant && node.feature > 2  # detect any appearances of x3\r\n        return L(Inf)\r\n    end\r\nend\r\n```\r\n\r\nwhich would prevent accessing undefined memory in the `k_pred, success = eval_tree_array(tree, X12, options)` call. \r\n\r\nHowever, this is inefficient compared to just directly evolving in the space of trees which only include `x1` and `x2`. Luckily, you can do that using template expressions!  See https://ai.damtp.cam.ac.uk/pysr/examples/#template-expressions\r\n\r\nThis will actually limit the search at the point of mutations to only find trees that have features 1 and 2.\r\n\r\nFor example\r\n\r\n```python\r\nspec = TemplateExpressionSpec(\r\n    expressions=[\"k\"],\r\n    variable_names=[\"x1\", \"x2\", \"dkdx1_true\", \"y\"],\r\n    combine=\"\"\"\r\n        k_pred = k(x1, x2)\r\n\r\n        # ∂k/∂x1\r\n        dkdx1_pred = D(k, 1)(x1, x2)\r\n\r\n        loss_k = ((k_pred / y) - 1) ^ 2\r\n        loss_dkdx1 = ((dkdx1_pred / dkdx1_true) - 1) ^ 2\r\n\r\n        alpha = 0.1f0\r\n        # NOTE!! Needs to be 0.1f0 if you are using 32 precision (default); or 0.1 if 64 precision\r\n        # (In the future I'd like to make this automatic. But for now, need to follow this^)\r\n\r\n        (1 - alpha)*loss_k + alpha*loss_dkdx1\r\n    \"\"\"\r\n)\r\n```\r\n\r\nThen, when you create your model, you should do two things:\r\n\r\n1. Use this as the `expression_spec` in the `PySRRegressor`.\r\n2. Pass `X` that contains all of: `x1`, `x2`, `dkdx1_true`, as well as the real `y`.\r\n3. Pass anything for `y`; it will be ignored.\r\n4. Pass `elementwise_loss=(pred, target) -> pred`, so that it simply aggregates the output of the template expression (since we are returning per-value loss!), rather than compares to the target.\r\n\r\nThis is probably the cleanest way to do things.\r\n\r\nIf working directly on the Julia side, you can also have the template expression return a named tuple of both `k` and `dkdx1`, and in the loss function you can combine them, which is a bit nicer because your `predict(mach, X)` call will return `k` and `dkdx1` rather than the per-row loss. However, we can't handle complex return types in Python, sadly.\r\n",
+              "createdAt": "2025-05-08T22:30:30Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0wOFQyMzozMDozMCswMTowMM4Ax5vp"
+          }
+        }
+      }
+    }
+  }
+}

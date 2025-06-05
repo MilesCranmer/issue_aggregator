@@ -1,30 +1,37 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 679,
         "title": "Using custom dimensions from `DynamicQuantities`",
         "body": "Hello,\r\n\r\nI'm trying to do equation discovery in a dimensionally consistent way but I'm having a hard time of it. Many of my quantities are either number concentration (#/kg) or mass mixing ratio (kg of A/kg of B). I can not figure out how to express these units using the `PySR` utility. \r\n\r\nI've tried switching to the `SymbolicRegression.jl` library and then implementing my own set of dimensions (following the documentation for `DynamicQuantities`) as show here:\r\n\r\n```julia\r\n# ...\r\n\r\n# create our dimensions\r\nstruct ExtendedDimensions{R} <: AbstractDimensions{R}\r\n    length::R\r\n    mass::R\r\n    time::R\r\n    current::R\r\n    temperature::R\r\n    luminosity::R\r\n    amount::R\r\n    angle::R\r\n    mass_h2o::R\r\n    mass_air::R\r\n    count::R\r\nend\r\n\r\n# ... \r\n\r\nconst mmr   = Quantity(1.0, ExtendedDimensions(mass_h2o=1, mass_air=-1))\r\nconst nconc = Quantity(1.0, ExtendedDimensions(count=1, mass_air=-1))\r\nconst dens  = Quantity(1.0, ExtendedDimensions(mass_air=1, length=-3))\r\n\r\nX = (; A=data.A * mmr, B=data.B * nconc)\r\ny = data.C * mmr\r\n\r\n# create model\r\nmodel = SRRegressor(\r\n\tbinary_operators=[*,^,/],\r\n\tdimensional_constraint_penalty=10^5,\r\n\tnested_constraints=[(^) => [(^) => 0]],\r\n\tconstraints=[(^) => (-1,1)]\r\n)\r\n\r\n# create machine\r\nmach = machine(model, X, y)\r\n\r\n# do the fitting\r\nfit!(mach)\r\n\r\nr = report(mach)\r\n```\r\n\r\nbut I get this error when I run the script:\r\n\r\n```\r\nERROR: LoadError: Cannot create a dimensions of `Dimensions{DynamicQuantities.FixedRational{Int32, 25200}}` from `ExtendedDimensions{DynamicQuantities.FixedRational{Int32, 25200}}`. Please write a custom method for construction.\r\nStacktrace:\r\n  [1] Dimensions{DynamicQuantities.FixedRational{Int32, 25200}}(d::ExtendedDimensions{DynamicQuantities.FixedRational{Int32, 25200}})\r\n    @ DynamicQuantities ~/.julia/packages/DynamicQuantities/5QflN/src/types.jl:118\r\n  [2] convert(::Type{Dimensions{DynamicQuantities.FixedRational{Int32, 25200}}}, d::ExtendedDimensions{DynamicQuantities.FixedRational{Int32, 25200}})\r\n    @ DynamicQuantities ~/.julia/packages/DynamicQuantities/5QflN/src/utils.jl:323\r\n  [3] convert(::Type{Quantity{Float64, Dimensions{DynamicQuantities.FixedRational{Int32, 25200}}}}, q::Quantity{Float64, ExtendedDimensions{DynamicQuantities.FixedRational{Int32, 25200}}})\r\n    @ DynamicQuantities ~/.julia/packages/DynamicQuantities/5QflN/src/utils.jl:314\r\n  [4] get_units(::Type{Float64}, ::Type{Dimensions{DynamicQuantities.FixedRational{Int32, 25200}}}, x::ExtendedDimensions{DynamicQuantities.FixedRational{Int32, 25200}}, ::Function)\r\n    @ SymbolicRegression.InterfaceDynamicQuantitiesModule ~/.julia/packages/SymbolicRegression/RwU5c/src/InterfaceDynamicQuantities.jl:39\r\n  [5] get_si_units(::Type{Float64}, units::ExtendedDimensions{DynamicQuantities.FixedRational{Int32, 25200}})\r\n```\r\n\r\nI'm very new to Julia, but it seems to me like the `SRRegressor` needs to \"cast\" a derived type (`ExtendedDimensions`) to a \"base\" type (`Dimensions`), and as I understand that, it is not something that can be done. \r\n\r\nDoes anyone have any advice? Is it possible to use a custom version of `Dimensions`? \r\n\r\n(I'm asking here since it did not seem reasonable to open an issue on `SymbolicRegression.jl`'s github for this, and the forums link there sent me here).",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @HenryDane,\r\n\r\nThanks for the post! Do you want to post this is as an issue on SymbolicRegression.jl? Custom `AbstractDimensions` have actually not yet been set up within `SymbolicRegression` – simply because I didn't know anybody would want to customize this :). But that sounds like a cool use-case, and it should hopefully be fairly easy to add this.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2024-07-22T23:02:39Z"
+            },
+            {
+              "author": {
+                "login": "HenryDane"
+              },
+              "body": "Sure -- I'll open an issue on the `SymbolicRegression.jl` github. ",
+              "createdAt": "2024-07-22T23:39:36Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "P.S., as a quick hack, you could treat the other existing units as the units you are interested in. So, e.g., luminosity (cd) could be mass_h20.",
+              "createdAt": "2024-07-22T23:42:11Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
-            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNy0yM1QwMDowMjozOSswMTowMM4Amms7"
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNy0yM1QwMDo0MjoxMSswMTowMM4Ammvl"
           }
         }
       }

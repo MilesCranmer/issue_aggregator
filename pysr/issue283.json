@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 283,
         "title": "[Feature] Print with sigdigits",
         "body": "It would be nice if the default print used, e.g., 3 significant figures, rather than all the bits in a float32. The csv file and resultant sympy equation would still be max precision, but I see no need for the progress bar to display this.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Will be available with https://github.com/MilesCranmer/SymbolicRegression.jl/pull/220",
               "createdAt": "2023-06-20T21:17:22Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOX1dvBw=="
           }

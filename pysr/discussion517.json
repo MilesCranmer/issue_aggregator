@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 517,
         "title": "How to use a pure-Python loss function",
         "body": "Hi Miles,\r\n\r\nThank you for developing this excellent library! \r\n\r\nI read the discussion boards and issues but seem to find that the definition of the loss function is based on Julia. Is there a way for loss functions to call python libraries? Using a pure python function to evaluate the fitness of an expression?\r\n\r\nI think this is a very important feature, which can make PySR more extensible, I hope you can help me!\r\n\r\nLooking forward to your reply.\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @x66ccff,\r\n\r\nThis might be possible with PyCall.jl (calling Python from within Julia), but I highly recommend against it. The evaluation function needs to be very fast and any python code is going to slow things down. What sort of Python function do you have?\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2024-01-04T18:10:10Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMS0wNFQxODoxMDoxMCswMDowMM4Aek-P"
           }

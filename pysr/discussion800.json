@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 800,
+        "title": "Questions Encountered While Learning PySR",
+        "body": "Hello everyone,\r\n\r\nI'm currently in the process of learning how to use PySR for my projects, and I've encountered a few questions that I hope you might be able to help me with. Here are my queries:\r\n\r\n1. Is it possible to use PySR for regression to derive a function with a single input and single output? When I tried using a single input feature, I ran into an error indicating that at least two features are required.\r\n\r\n2. If I want to fit the data using polynomials, how should I configure PySR? Is it sufficient to set binary_operators=[\"+\", \"-\", \"*\", \"/\"] and leave unary_operators as an empty list, or are there additional settings I need to consider for polynomial fitting?\r\n\r\n3. As shown in the figure below, the blue dots represent the actual values, while the yellow dots depict the predictions made by the regression function obtained through PySR. Despite the apparent simplicity of this fitting problem, I've found that the results from PySR are not as satisfactory as expected in certain details. What adjustments can I make to improve the accuracy of the fitting?\r\n\r\n![image](https://github.com/user-attachments/assets/0e9d7494-6b85-4958-8223-5b0c598b6b8c)\r\n\r\nI appreciate any advice or insights you can provide on these issues. Thank you very much for your help!\r\n\r\nBest regards,",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "> Is it possible to use PySR for regression to derive a function with a single input and single output? When I tried using a single input feature, I ran into an error indicating that at least two features are required.\r\n\r\nYes just make sure the data is shaped (num_examples, 1).\r\n\r\n> If I want to fit the data using polynomials, how should I configure PySR? Is it sufficient to set binary_operators=[\"+\", \"-\", \"*\", \"/\"] and leave unary_operators as an empty list, or are there additional settings I need to consider for polynomial fitting?\r\n\r\nYes and I might also remove the division operator. Check out the examples page in the doc as it has some helpful discussion.\r\n\r\n> What adjustments can I make to improve the accuracy of the fitting?\r\n\r\nThere is a tuning page in the docs which could be helpful. You could also try weighting certain points higher, trying different losses, running for longer, etc.",
+              "createdAt": "2025-01-07T16:22:38Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wMS0wN1QxNjoyMjozOCswMDowMM4As31Q"
+          }
+        }
+      }
+    }
+  }
+}

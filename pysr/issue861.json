@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 861,
+        "title": "[Feature]: Continues traning with new dat",
+        "body": "### Feature Request\n\nIt will be great if PySR can support continues learning.\nLike load pre-trained model (pkl file) and train with new data",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "It should work currently if you set `model.warm_start=True` and then just call fit again",
+              "createdAt": "2025-03-06T07:28:24Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOoRz6XA=="
+          }
+        }
+      }
+    }
+  }
+}

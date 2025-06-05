@@ -1,18 +1,13 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 538,
         "title": "Using PySR to create an Autoregression Time Series Model",
         "body": "My friend & I are trying to develop a technique to create descriptive autoregressive models for (multivariate) nonlinear time series data for our master's capstone. I am trying to use PySR/symbolic regression to achieve this. I've noticed PySR becomes unhappy when there are more than 10 features & when there are more than 1000 observations. \r\nOur dataset is large. It has 9 features & contains 48000 observations per feature. Also, each useful lag acts as its own feature, so we have over 100 features when we finally get to training the model. We've thought about dimensionality reduction like PCA, but I feel like that goes against the point of the project which is more about the ability to interpret the model than the model's ability to predict. The hope is tobuild a model that performs somewhere between a linear method like SARIMA & a neural network.\r\n\r\nHow should PySR be tuned to handle this situation? I feel like you would want to throw a wide net first & retrieve the operators with the most relevance. Then, narrow down the possible operators. Our current approach is to determine intervals of 1000 observations that have a large variance & build a couple of models based on these abridged data sets. Here's an example of our \"wide net\" tuning settings.\r\n\r\n```python\r\nchina_pollution_final_small_1 = china_pollution_final_new[(china_pollution_final_new['t'] >= 1) & (china_pollution_final_new['t'] <= 1001)]\r\nlags_x = np.array(china_pollution_final_small_1.loc[:,china_pollution_final_new.columns.drop('L0_pollution')])\r\nlags_y = np.array(china_pollution_final_small_1['L0_pollution']).reshape(-1, 1)\r\n\r\nmodel_china_pollution_1 = PySRRegressor(niterations = 100,\r\n                                        binary_operators = [\r\n                                            \"+\", \r\n                                            \"*\", \r\n                                            \"/\", \r\n                                            \"-\", \r\n                                            \"^\"\r\n                                        ],\r\n                                        unary_operators = [\r\n                                            \"sin\",\r\n                                            \"log\", \r\n                                            \"sqrt\",\r\n                                            \"exp\",\r\n                                            \"erf\",\r\n                                            \"abs\",\r\n                                        ],\r\n                                        loss = \"L2DistLoss()\",\r\n                                        model_selection = \"best\",\r\n                                        denoise = False,\r\n                                        batching = True,\r\n                                        batch_size = 10000,\r\n                                        turbo = True,\r\n                                        fast_cycle = False,\r\n                                        tempdir = \"C:/Users/micha/Documents/PySR Hall of Fame\",)\r\n\r\nmodel_china_pollution_1.fit(lags_x, lags_y, variable_names=cols_to_use)\r\n\r\nmodel_china_pollution_1.sympy()\r\n```",
-        "comments":
-        {
+        "comments": {
           "nodes": [],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": null
           }

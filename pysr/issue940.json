@@ -1,0 +1,47 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 940,
+        "title": "[BUG]: Unhandled Task ERROR when running in multiprocessing",
+        "body": "### What happened?\n\nTrying out multiprocessing now when it's compatible with TemplateExpressionSpec, I ran into a new problem when running a larger dataset without batching or with a larger batch size. Regardless if I stop the SR search, let it run its intended iterations or use a timeout, I get a long error message related to the distributed processes. It doesn't crash the code execution on the Python side though, but it does mess up the saved checkpoint file and creates deserialization errors when I try to load it again. \n\nIf I use a smaller dataset or a small batch size, I don't get error messages. Is it perhaps related to the chosen heap size on the Julia processes? \n\n### Version\n\n1.5.8\n\n### Operating System\n\nmacOS\n\n### Package Manager\n\npip\n\n### Interface\n\nScript (i.e., `python my_script.py`)\n\n### Relevant log output\n\n```shell\nUnhandled Task ERROR: Distributed.ProcessExitedException(3)\nStacktrace:\n [1] take!(c::Channel{Any})\n   @ Base ./channels.jl:471\n [2] take!(::Distributed.RemoteValue)\n   @ Distributed /opt/homebrew/Cellar/julia/1.10.4/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:726\n [3] remotecall_fetch(f::Function, w::Distributed.Worker, args::Distributed.RRID; kwargs::@Kwargs{})\n   @ Distributed /opt/homebrew/Cellar/julia/1.10.4/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:461\n [4] remotecall_fetch(f::Function, w::Distributed.Worker, args::Distributed.RRID)\n   @ Distributed /opt/homebrew/Cellar/julia/1.10.4/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:454\n [5] remotecall_fetch\n   @ /opt/homebrew/Cellar/julia/1.10.4/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:492 [inlined]\n [6] call_on_owner\n   @ /opt/homebrew/Cellar/julia/1.10.4/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:565 [inlined]\n [7] fetch(r::Distributed.Future)\n   @ Distributed /opt/homebrew/Cellar/julia/1.10.4/share/julia/stdlib/v1.10/Distributed/src/remotecall.jl:619\n [8] (::SymbolicRegression.var\"#63#68\"{SymbolicRegression.SearchUtilsModule.SearchState{Float32, Float32, Expression{Float32, Node{Float32}, @NamedTuple{operators::Nothing, variable_names::Nothing}}, Distributed.Future, Distributed.RemoteChannel}, Int64, Int64})()\n   @ SymbolicRegression ~/Dev/modelling/SRCustom/SymbolicRegression.jl/src/SymbolicRegression.jl:980\n```\n\n### Extra Info\n\nThe error messages are usually repeated, so I guess they appear on most processes. Code example:\n```\nfrom pysr import PySRRegressor\nimport numpy as np\nfrom sklearn.metrics import r2_score\n\ndef main():\n\n    x = np.random.uniform(low=[-1, 3, 10], high=[6, 10, 100], size=(3000, 3))\n    y = np.sin(x[:, 0] - x[:, 2] ** 3) * np.exp(x[:, 1] / 5 + x[:, 0]) \n    \n\n    model = PySRRegressor(\n        binary_operators=[\"+\", \"-\", \"*\", \"/\", \"^\"],\n        unary_operators=[\"sin\", \"exp\"],\n        constraints={\"^\": (1, 9)},\n        parallelism=\"multiprocessing\",\n    )\n\n    \n    model.fit(x, y)\n    \n    preds = model.predict(x)\n    score = r2_score(y, preds)\n    print(score)\n\nif __name__ == \"__main__\":\n    main()\n```\n\nChanging the size of the input features array or using batching makes it not crash.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "These are harmless. When you use multiprocessing and exit early, the processes are killed before they have a chance to finish what they were doing. So it results in these lengthy error messages for each process that was killed.\n\nAdmittedly this is a bit annoying though! I'd like to have some way of avoiding these messages when the processes exit intentionally vs unintentionally.\n\nThe effect of a small batch size is probably just that the process is able to finish its processing. With a larger dataset it takes too long, so gets killed.",
+              "createdAt": "2025-05-23T20:08:42Z"
+            },
+            {
+              "author": {
+                "login": "ibengtsson"
+              },
+              "body": "Ah, thank you for pointing that out. It appears that the `from_file()`-method doesn't work at all for me when trying to load from a pickle-file. I thought it was the killed processes that caused this, but upon further tests it seems that this always happens now, regardless if I run in a distributed setting or not... \n\nI have a minimal example here:\n```\nfrom pysr import PySRRegressor\nimport numpy as np\n\ndef main():\n\n    x = np.random.uniform(low=[-1, 3, 10], high=[6, 10, 100], size=(3000, 3))\n    y = np.sin(x[:, 0] - x[:, 2] ** 3) * np.exp(x[:, 1] / 5 + x[:, 0]) \n    \n\n    model = PySRRegressor(\n        binary_operators=[\"+\", \"-\", \"*\", \"/\", \"^\"],\n        unary_operators=[\"sin\", \"exp\"],\n        constraints={\"^\": (1, 9)},\n        run_id=\"test\",\n    )\n\n    \n    model.fit(x, y)\n\n    # load model\n    loaded_model = PySRRegressor().from_file(run_directory=\"./outputs/test\")\n\nif __name__ == \"__main__\":\n    main()\n\n```\n\nwith an error message:\n\n```\n[ Info: Results saved to:\n  - outputs/test/hall_of_fame.csv\nAttempting to load model from outputs/test/checkpoint.pkl...\nTraceback (most recent call last):\n  File \"/Users/isakbe/Dev/modelling/il-sr/il_sr/scripts/minimal_example.py\", line 24, in <module>\n    main()\n  File \"/Users/isakbe/Dev/modelling/il-sr/il_sr/scripts/minimal_example.py\", line 21, in main\n    loaded_model = PySRRegressor().from_file(run_directory=\"./outputs/test\")\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/isakbe/Library/Caches/pypoetry/virtualenvs/il-sr-9TFUWRsR-py3.11/lib/python3.11/site-packages/pysr/sr.py\", line 1140, in from_file\n    model = cast(\"PySRRegressor\", pkl.load(f))\n                                  ^^^^^^^^^^^\nEOFError: Ran out of input\n``",
+              "createdAt": "2025-05-24T13:16:17Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "This is a different unrelated issue; is it okay if you make a new bug report?",
+              "createdAt": "2025-05-25T06:59:50Z"
+            },
+            {
+              "author": {
+                "login": "ibengtsson"
+              },
+              "body": "Of course!",
+              "createdAt": "2025-05-26T13:59:55Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOrXDfyQ=="
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,20 +1,23 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 676,
         "title": "Help with custom loss function",
         "body": "Hi,\r\n\r\nI am trying to create a custom loss function based on the dataset. But I am not sure how to use this way in the julia loss function or whether it would be even possible.\r\n\r\nAny help would be greatly appreciated!\r\n\r\nCurrent Code:\r\n\r\n```\r\nimport numpy as np\r\n\r\nt1 = []\r\nt2 = []\r\ndudx = []\r\ndvdy = []\r\nS11 = []\r\nS22 = []\r\nS12_Real = []\r\nS13_Real = []\r\n\r\nfilename = r'C:\\Users\\lenovo\\Desktop\\data.dat'\r\nwith open(filename, 'r') as file:\r\n    for line in file:\r\n        columns=line.split()\r\n        t1.append(float(columns[0]))\r\n        t2.append(float(columns[1]))\r\n        dudx.append(float(columns[2]))\r\n        dvdy.append(float(columns[3]))\r\n        S11.append(float(columns[4]))\r\n        S22.append(float(columns[5]))\r\n        S12_Real.append(float(columns[6]))\r\n        S13_Real.append(float(columns[7]))\r\n\r\nt1 = np.array(t1)\r\nt2 = np.array(t2)\r\ndudx = np.array(dudx)\r\ndvdy = np.array(dvdy)\r\nS11 = np.array(S11)\r\nS22 = np.array(S22)\r\nS12_Real = np.array(S11)\r\nS13_Real = np.array(S22)\r\n\r\nX=np.zeros((len(t1),2))\r\nX[:,0]=t1\r\nX[:,1]=t2\r\n\r\nfrom pysr import PySRRegressor\r\n\r\nobjective = \"\"\"\r\nfunction eval_loss(tree, dataset::Dataset, options)\r\n\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    if !flag\r\n        return Inf\r\n    end\r\n\r\n    S12 = (1.0 .- prediction) .* (S11 ./ dudx)\r\n    S13 = (1.0 .- prediction) .* (S22 ./ dvdy)\r\n\r\n    diffs1 = S12 - S12_Real\r\n    diffs2 = S13 - S13_Real\r\n\r\n    error1 = sum(diffs1 .^ 2) / length(diffs1)\r\n    error2 = sum(diffs2 .^ 2) / length(diffs2)\r\n    \r\n    error = error1 + error2\r\n\r\n    return error\r\nend\r\n\"\"\"\r\n\r\nmodel = PySRRegressor(\r\n    niterations=1000,\r\n    batch_size=1000,\r\n    binary_operators=[ \"+\", \"-\", \"*\", \"/\"],\r\n    loss_function=objective,\r\n)\r\nmodel.fit(X, y)\r\nmodel.get_best().equation\r\n```",
-        "comments":
-        {
-          "nodes": [],
-          "pageInfo":
-          {
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks for the post. I think what you will want to do is create a constant in Julia. You can see my answer here: https://github.com/MilesCranmer/PySR/discussions/668#discussioncomment-10039206 for a related tip. I think this will apply here as well – you would create a constant for `S11` and `S22`.",
+              "createdAt": "2024-07-22T23:11:13Z"
+            }
+          ],
+          "pageInfo": {
             "hasNextPage": false,
-            "endCursor": null
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNy0yM1QwMDoxMToxMyswMTowMM4Ammtn"
           }
         }
       }

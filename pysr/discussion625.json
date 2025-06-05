@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 625,
         "title": "Custom loss function with Hessians",
         "body": "Hello @MilesCranmer, and thank you for making PySR!\r\n\r\nI would like to write a custom loss function that looks like this:\r\n\r\n```julia\r\nfunction loss_hess(tree, dataset::Dataset{T,L}, options) where {T,L}\r\n    X = copy(dataset.X)  # shape (n, x)\r\n    y = copy(dataset.y)  # shape (n)\r\n\r\n    features = custom_fn1(X)  # shape (n, f)\r\n\r\n    y_pred = eval_tree_array(tree, features, options)\r\n    hess = batch_hessian(y_pred, X)  # shape (n, x, x)\r\n\r\n    return L(custom_fn2(X, y, hess))\r\nend\r\n```\r\n\r\nThat is, I need to do symbolic regression on`y`, but the loss function should include Hessian wrt. some parameters `X` from which input `features` are derived. Is something like this possible with PySR? I saw that `enable_autodiff` and `eval_grad_tree_array` exist, but I need Hessian and not gradient.\r\n\r\nThank you very much in advance.",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @mirjanic,\r\n\r\nMaybe you could use `eval_grad_tree_array` to get the 1st order derivatives, and then use [finite difference](https://en.wikipedia.org/wiki/Finite_difference) to get the 2nd order differences? It might even be faster than computing the exact Hessian.\r\n\r\nAlso check through other discussions in the forums, there are a few about including derivatives in the custom loss that might be useful.\r\n\r\nCheers,\r\nMiles\r\n\r\nP.S., Another option is Enzyme.jl as explained here: https://symbolicml.org/DynamicExpressions.jl/dev/eval/#Enzyme. However, this is experimental and won't be easy. It will require you to get pretty deep into the Julia codebase. But if this is really important for you then it's worth considering. I do think that Enzyme will eventually be **the way** to do this type of thing, but it hasn't reached a level of stability where I'm comfortable recommending it as the first thing to reach for.\r\n",
               "createdAt": "2024-05-13T14:11:42Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wNS0xM1QxNToxMTo0MiswMTowMM4Aj8FZ"
           }

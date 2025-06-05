@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 61,
         "title": "High RAM consumption issue",
         "body": "Hi,\r\n\r\nI would like to know is there is any way to reduce the memory consumption of the computation. My dataset is very small, 57 rows x 7 features. When I set `population=80`, `ninteration=20` the algorithm runs normally on Colab but after running for 2-3 hours (at 30% of the process) the RAM consumption increases hugely and cause the process stops (doesn't restart the kernel).  Is there any way to overcome this issue?",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi Vahid,\r\n\r\nThanks for trying PySR out. Colab is built for GPU-accelerated compute such as deep learning, but PySR itself only uses CPUs (hard to do genetic algorithms on GPU), so it's not optimal. I would recommend running it on your own machine, or on a cluster with many cores if you have access to one. I would expect 80 populations or so to be too much memory usage for Colab (they have very limited RAM), so this is not unexpected behaviour. You could probably run it on Colab with fewer populations, however. Also - you should set `procs=2` (default is 4), since Colab only has 2 cores if I remember correctly.\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2021-06-30T21:59:56Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMS0wNi0zMFQyMjo1OTo1NiswMTowMM4ADm2U"
           }

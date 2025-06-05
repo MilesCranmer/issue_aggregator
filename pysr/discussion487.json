@@ -1,36 +1,28 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 487,
         "title": "How to use PySr for dataset with high density variations in the feature space?",
         "body": "Dear Miles\r\n\r\nI have a dataset with two input variables say (x,y) and I am trying to fit z=f(x,y). When I am visualising the xyz 3-d plot, I can see a highly non-linear surface and it has varying density of dataset points. For example, in y from 0 to 0.2, I have some 10 points and for y from 0.8 to 1.0, I have 1000 points. Now, if I artificially generate some points from 0 to 0.2 using MC methods, it is inducing significant bias in the system. So, I do not want to do that. If I run PySr on this non-uniform dataset, I can see that it tries to reward the points in the high density region by minimizing their loss, while compromising loss on the low-density regions. I thought of assigning weights to the points based on their density but PySr is giving a highly complicated equation which is not interpretable. If I force nesting, then the equation becomes too simple and the results are still un-interpretable and the fit is bad. How can I use PySr to account for this variations in density? \r\n\r\nThank you so much for your help. ",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "I would set `weights` equal to the *inverse density* of points. You could compute an estimate for the density of points with a nearest neighbor approximation.\r\n\r\nThen maybe try the tips here: https://astroautomata.com/PySR/tuning/",
               "createdAt": "2023-12-16T15:12:16Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "Nakul9621"
               },
               "body": "I tried that initially to calculate density but it did not work out. I will try hyperparameter optimization using hyperopt. I think that might solve the issue.  Thank you for your suggestion!!",
               "createdAt": "2023-12-17T17:53:55Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMi0xN1QxNzo1Mzo1NSswMDowMM4AeDbr"
           }

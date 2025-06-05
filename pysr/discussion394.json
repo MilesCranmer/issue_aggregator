@@ -1,18 +1,13 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 394,
         "title": "Customized Loss Function",
         "body": "deleted as I almost found solution in https://astroautomata.com/PySR/examples/#9-custom-objectives.\r\n\r\n\r\n\r\n",
-        "comments":
-        {
+        "comments": {
           "nodes": [],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": null
           }

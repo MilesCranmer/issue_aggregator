@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 907,
+        "title": "PySR for (integer) sequences and constant optimization",
+        "body": "Thanks for the great code you are providing to the community!\r\nI would like to apply PySR to a research problem in theoretical particle physics, concretely to identifying integer sequences. To gauge its capabilities, I wanted to see whether it can rediscover the simplest sequence we found by hand, which is A052737 in oeis (excluding the alternating sign). Here is my code:\r\n\r\n```python\r\nimport numpy as np\r\nfrom scipy.special import gamma\r\n\r\nX = np.array([1, 2, 3, 4, 5, 6, 7, 8]).reshape(-1, 1)\r\ny = 0.5 * (-4)**X[:,0] * gamma(2*(X[:,0]-1)+1) / gamma((X[:,0]-1)+1)\r\n\r\nfrom pysr import PySRRegressor\r\n\r\nmodel = PySRRegressor(\r\n    maxsize=16,\r\n    niterations=1000,  # < Increase me for better results\r\n    binary_operators=[\"+\", \"*\", \"^\"],\r\n    unary_operators=[\r\n        \"gammaratio(x::T) where {T} = (x > -1) ? gamma(2*x+1)/gamma(x+1) : T(NaN)\",\r\n    ],\r\n    extra_sympy_mappings={\"gammaratio\": lambda x: gamma(2*x+1) / gamma(x+1)},\r\n    elementwise_loss=\"loss(prediction, target) = (prediction - target)^2\",\r\n    complexity_of_operators={\"+\": 1, \"*\": 1, \"^\": 2, \"gammaratio\": 1},\r\n    complexity_of_constants=1,\r\n    complexity_of_variables=2,\r\n    nested_constraints={\r\n        \"gammaratio\": {\"gammaratio\": 0, \"^\": 0},\r\n        \"^\": {\"gammaratio\": 0, \"^\": 0},\r\n    },\r\n    constraints={\r\n        \"^\": (1, 2),\r\n        \"gammaratio\": 4\r\n    },\r\n)\r\n\r\nmodel.fit(X, y)\r\n```\r\n\r\nAfter around 5000 iterations, PySR finds\r\n13          1.356e+17  1.097e-01  y = (7.8383 + (-1.5791 ^ x₀)) * gammaratio(0.89622 + x₀)\r\nThis is one mutation of \"+\" to \"*\" and one optimization of the constants away from the right answer\r\ny = (0.5 * (-4 ^ x₀)) * gammaratio(-1 + x₀)\r\nHowever, during 25000 further iterations, PySR never managed to find the right answer. \r\nMy suspicion is that this is because PySR either mutates or optimizes constants, so the result of the mutation drops out of tournament selection before its constants can get optimized. Does that sound reasonable?\r\nAnd if so, would there be a way to have PySR optimize constants before each tournament selection?\r\nMany thanks in advance!\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "What happens if you normalize your data first? The initialisation for constants is a unit variance Gaussian so it might take many steps to get to something at large magnitudes",
+              "createdAt": "2025-05-02T12:27:53Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I think part of the issue is that the loss function is entirely dominated by a couple of points:\r\n\r\n```python\r\n[ins] In [3]: X\r\nOut[3]:\r\narray([[1],\r\n       [2],\r\n       [3],\r\n       [4],\r\n       [5],\r\n       [6],\r\n       [7],\r\n       [8]])\r\n\r\n[ins] In [4]: y\r\nOut[4]:\r\narray([-2.00000000e+00,  1.60000000e+01, -3.84000000e+02,  1.53600000e+04,\r\n       -8.60160000e+05,  6.19315200e+07, -5.44997376e+09,  5.66797271e+11])\r\n```\r\n\r\nIt is trying to fit this with mean-square error so it will primarily just focus on the last two. \r\n\r\nIf I change the loss function to be relative error:\r\n\r\n```python\r\nmodel = PySRRegressor(\r\n    # ...\r\n    elementwise_loss=\"(pred, targ) -> abs(pred - targ)/(abs(pred)+1)\",\r\n)\r\n```\r\n\r\nthen it seems to work",
+              "createdAt": "2025-05-02T18:55:03Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNS0wMlQxOTo1NTowMyswMTowMM4AxqC8"
+          }
+        }
+      }
+    }
+  }
+}

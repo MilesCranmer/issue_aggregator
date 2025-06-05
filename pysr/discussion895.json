@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 895,
+        "title": "Can PySR constrain the formula with shared f(X) and g(X) in numerator and denominator?",
+        "body": "Hello everyone, I have a modeling scenario where I want to constrain the symbolic expression to a fixed formula structure like this:\r\n\r\n$$\r\ny(X) = \\frac{(1 + f(X)) \\cdot g(X)}{1 + f(X) + g(X)}\r\n$$\r\n\r\nwith the constraint that both the numerator and denominator must share the same f(X) and g(X) functions. Although my input data is X and the target is y, what I actually want is to discover the possible expressions of f(X) and g(X) that fit into a predefined structure. Can PySR enforce that the same f(X) and g(X) appear exactly in both the numerator and denominator? This kind of structure arises from physical constraints (like transmission-line theory), and it would be very helpful to control this behavior.\r\nThanks in advance for any insights!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "gm89uk"
+              },
+              "body": "Hi, yes you can with templateExpressionSpec:\r\n\r\nHave a look at the example here: \r\nhttps://astroautomata.com/PySR/api/#pysr.TemplateExpressionSpec\r\n\r\nYou can define f_predict and g_predict and use those variables again to return the exact form above, something like here: https://github.com/MilesCranmer/PySR/discussions/865#discussioncomment-12541256",
+              "createdAt": "2025-04-21T09:02:05Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNC0yMVQxMDowMjowNSswMTowMM4AxMrE"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 286,
         "title": "[docs] Add sections to documentation on getting shared Python lib",
         "body": "I realized the current warning message isn't great for specifying what a dynamic vs shared library is. I think it's worth it to have a small section on the docs about this, and what it means to have precompilation disabled. \r\n\r\nI think this section should replicate the contents of https://github.com/pyenv/pyenv/blob/master/plugins/python-build/README.md#building-with---enable-shared when it makes the recommendation that a shared library should be used instead.\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Fixed by #535 ",
               "createdAt": "2024-02-12T09:03:06Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOc4ep_g=="
           }

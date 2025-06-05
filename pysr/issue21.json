@@ -1,44 +1,35 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 21,
         "title": "Multithreading",
         "body": "Hello,\r\n\r\nBased on a short experiment and reading [the documentation](https://pysr.readthedocs.io/en/latest/docs/options/#processors), it seems PySR uses multiple processes, and not multithreading. Is this correct?\r\n\r\nIf so, I believe it does not have much advantage over a numpy implementation (such as [gplearn](https://github.com/trevorstephens/gplearn)). I will explain why.\r\n\r\nCreating [SymReg](https://github.com/danuker/symreg) led me to believe that it is important to have few individuals in a generation, and many generations, instead of many-individuals-few-generations. I suspect this is because more CPU time is used on selected individuals, instead of random ones.\r\n\r\nTrying to parallelize using multiprocessing led to a large overhead when forking - or distributing individuals to processes. This is why I am looking for alternative solutions, like multithreading, and Julia is both easy to understand and allows multithreading - where memory is shared instead of copied, which is much faster.\r\n\r\nI guess my issue is a bit vague, but I have the following questions:\r\n\r\n* What do you think of this?\r\n* Would you be open to a pull request using threads instead of processes (based on reproducible benchmarks, of course)?\r\n* Is there any PySR architecture choice making said PR difficult? I am willing to (slowly) learn Julia to create it. But if you think it's too difficult to implement multithreading, I'll go my own way in a new project (I also have a NSGA-II wish for PySR eventually; check out [Pareto elitism and NSGA-II in SymReg](https://github.com/danuker/symreg#technical-details)).\r\n* Have you got any tips on where to start? I have not looked at PySR code yet.\r\n\r\nIn any case, thank you for creating this project, it addresses a need of mine as well. I would love to learn from it :)",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @danuker,\r\n\r\nThanks for reaching out! Happy to hear you are also interested in open source for symbolic regression, I would be eager to collaborate in any way!\r\n\r\nIndeed PySR uses multiprocessing for the main loop (one process per population of equations). It used to use multithreading for everything, but since the transition to running over a multi-node compute cluster via slurm is only possible with multiprocessing, and the performance was similar, I switched. I should mention I actually still use multithreading if you turn on the \"fast_cycle\" option which enables this chunk of code: https://github.com/MilesCranmer/PySR/blob/b463028ef0f6b6acf0e21b726f261d9dde2ca81b/julia/sr.jl#L882, where it creates a thread for each subsample of individuals (threads running within each process). I also used to have multi-threading for traversing each equation (i.e., split into two threads at each binary operator), but this turned out to be very slow for whatever reason.\r\n\r\nI have found most other open-source implementations are prohibitively slow, hence why I made this package - I am  primarily interested in symbolic regression as a user rather than a developer, but I became a developer out of necessity. PySR used to be python-only (using numpy and then PyTorch) but this was _very_ slow compared to the current loop. Actually the Python code in PySR now is pretty much a meta-programming interface for Julia (slash easy way to glue it to other Python pipelines), and once the main symbolic regression loop has launched, Python and Julia don't talk to each other at all until it finishes. While indeed Python is fast at linear algebra due to numpy's fast code, it is very slow at recursive functions/binary trees (see https://julialang.org/benchmarks/), so I found the bottleneck became traversing and allocating the trees, rather than computing an operation.\r\n\r\nVery happy to collaborate! NSGA-II would be awesome to have. PySR has Pareto elitism implemented right now, but there are many other GP techniques I am eager to implement.\r\n\r\nCheers,\r\nMiles\r\n\r\nEdit: I should also add that Julia uses several optimizations, like multi-threading and SIMD vectorization, for doing linear algebra, which are used for evaluating equations.",
               "createdAt": "2020-12-27T19:27:30Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "danuker"
               },
               "body": "Wow! I am amazed at what is in there already, and at the impressive hardware at your disposal. Can't wait to try it out more in-depth, and to see when I can contribute.\r\n\r\nIf you already have Pareto elitism, what is missing for [NSGA-II](https://www.iitk.ac.in/kangal/Deb_NSGA-II.pdf) are:\r\n* multiple Pareto fronts (after you eliminate the best one, there are second-best, etc. recursively), \r\n* and the crowding distance (within each front, order individuals by [0-1]-normalized Manhattan distance to its neighbors) - choose the ones further from neighbors first, in order to preserve diversity.\r\n\r\nI will close this issue, since you said multithreading already exists as an option. Thanks for your response!\r\n\r\nHave a great day!",
               "createdAt": "2020-12-27T19:51:43Z"
             },
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks, you too! Excited to read more about this and look forward to collaborating :)",
               "createdAt": "2020-12-27T19:53:58Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOLMsevA=="
           }

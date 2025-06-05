@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 485,
         "title": "Bitwise operators",
         "body": "Hi , I would like to know how do i use bitwise operators such as XOR, OR ,AND ? .",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hi @sumanblack666,\r\n\r\nThere is OR and AND already: https://astroautomata.com/PySR/operators/. \r\nFor XOR we don't have this as a built-in but you could add it like this:\r\n\r\n```python\r\n    binary_operators=[\"logical_and\", \"logical_or\", \"logical_xor(x, y) = xor(x > 0, y > 0) ? one(x) : zero(x)\"],\r\n    extra_sympy_mappings={\r\n        \"logical_xor\": lambda x, y: sympy.Piecewise((1.0, (x > 0) ^ (y > 0)), (0.0, True)),\r\n    }\r\n```\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2023-12-14T17:41:52Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0xMi0xNFQxNzo0MTo1MiswMDowMM4Ad-BU"
           }

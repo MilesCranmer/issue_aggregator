@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 270,
         "title": "customized loss function",
         "body": "Hi,\r\nFirst of all, I would like to say big thanks to the developers for developing this precious package. It is truly powerful; especially, for using multicores to expedite exploration search .\r\n \r\nI am going to use your package but my case is not conventional one. I have a particular loss function. Wondering if you could kindly give me ideas/solutions by which the loss function becomes a python code whose inputs are correlations, and then the loss corresponding to each correlation is calculated based on some criteria implemented in the python code.\r\n\r\nIf you could also share a snippet of code for the solution, that would be an unforgettable help. \r\n\r\nMany thanks for your time and consideration, \r\nCheers,\r\nAhmad",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks for the question. See https://github.com/MilesCranmer/PySR/discussions/256 as well as https://github.com/MilesCranmer/PySR/issues/182",
               "createdAt": "2023-03-03T15:55:19Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyMy0wMy0wM1QxNTo1NToxOSswMDowMM4AT0Lg"
           }

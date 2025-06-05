@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 16,
         "title": "Add variable as operator",
         "body": "Hi\r\n\r\nIs it possible to add a variable as an operator to be used in the symbolic regression? Let's say I'm fairly sure my function has a pi in it (or something else, like a physical constant). \r\n\r\n\r\n\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Thanks for posting @philip-jakobsen!\r\n\r\nSo, there are a couple ways to do this:\r\n\r\n1) You could add pi as a variable. E.g., if you have a dataset X, then\r\n```python\r\nX = np.concatenate((X, np.ones(len(X), 1) * np.pi), axis=1)\r\n```\r\nThis will add a new column to the features with pi in it. Then, you can pass the \"variable_names\" argument to call the last feature \"pi\", or use a Pandas DataFrame as input instead of numpy array - https://pysr.readthedocs.io/en/latest/docs/options/#variable-names\r\n\r\n2) If you know that these constants will be multiplied against a variable, say, you could create an operator with pi in it:\r\n```python\r\npysr(..., unary_operators=[\"mult_by_pi(x) = 3.1415926f0 * x\"])\r\n```\r\n(the `f0` at the end is Julia syntax for creating a 32-bit float - all the operators are required to output 32-bit floats)\r\n\r\nHowever, I think in general that it might be most efficient to just allow PySR to fit real constants in the equation first (it is fast at this since it uses Nelder-Mead optimization to do so), and then, for each constant, try to reconstruct it from your known constants/integers afterward, which is an easier problem.",
               "createdAt": "2020-10-25T19:04:16Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOKrBGqg=="
           }

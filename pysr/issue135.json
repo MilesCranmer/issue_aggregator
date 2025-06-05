@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "issue":
-      {
+  "data": {
+    "repository": {
+      "issue": {
         "number": 135,
         "title": "TypeError: __init__() got an unexpected keyword argument 'population_size'",
         "body": "Got the following error while setting population_size argument in call to PySRRegressor(population_size=100), \r\n\r\n'TypeError: __init__() got an unexpected keyword argument 'population_size'\r\n",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "shreeprasadbhat"
               },
               "body": "Bug is resolved in latest version of pysr. I upgraded to version 0.8.3 from 0.7.11.",
               "createdAt": "2022-05-10T13:59:17Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpHOQucFDg=="
           }

@@ -1,28 +1,21 @@
 {
-  "data":
-  {
-    "repository":
-    {
-      "discussion":
-      {
+  "data": {
+    "repository": {
+      "discussion": {
         "number": 518,
         "title": "Performance issue debugging",
         "body": "Coming from https://github.com/MilesCranmer/SymbolicRegression.jl/pull/270#issuecomment-1878235137\r\n\r\nIf the time complexity roughly scales as $\\mathrm{maxsize}^2 \\cdot \\mathrm{datasize}$,\r\nthen the following code runs about 5x slower than expected.\r\n\r\nIt runs on 4 nodes each with 64 icelake cores for almost 2 days, and evaluates about 5e4 expr/sec.\r\n`max_size` is 64 and `batch_size` is 1k. The whole dataset has 7k+ points.\r\nHead worker occupation at first slowly increases to ~40%, then drops more slowly to below ~20% and is still decreasing.\r\nCPU load by uptime on each node is something like `load average: 66.29, 66.28, 66.20`.\r\n\r\n```python\r\nmodel = pysr.PySRRegressor(\r\n    # Search Space & Complexity\r\n    binary_operators=['+', '-', '*', '/', 'pow'],\r\n    unary_operators=['exp', 'log', 'tanh_p1(x) = tanh(x)+1',\r\n                     'atan_p1(x) = atan(x)+1', 'alg_sgmd(x) = x/sqrt(x^2+1)'],\r\n    extra_sympy_mappings={\r\n        'tanh_p1': lambda x: sympy.tanh(x) + 1,\r\n        'atan_p1': lambda x: sympy.atan(x) + 1,\r\n        'alg_sgmd': lambda x: x / sympy.sqrt(x**2 + 1)\r\n    },\r\n    maxsize=64,\r\n    full_objective=objective,\r\n    parsimony=1e-5,\r\n    adaptive_parsimony_scaling=1e3,\r\n\r\n    # Search Size\r\n    niterations=1000000,\r\n    populations=num_cores*4,\r\n    ncyclesperiteration=10000,\r\n\r\n    # Mutations\r\n    weight_simplify=0.01,\r\n    weight_optimize=0.01,\r\n\r\n    # Performance and Parallelization\r\n    procs=num_cores,\r\n    cluster_manager='slurm',\r\n    batching=True,\r\n    batch_size=1000,\r\n    turbo=True,\r\n\r\n    # Monitoring\r\n    verbosity=1,\r\n    print_precision=2,\r\n    progress=False,\r\n)\r\n```",
-        "comments":
-        {
-          "nodes":
-          [
+        "comments": {
+          "nodes": [
             {
-              "author":
-              {
+              "author": {
                 "login": "MilesCranmer"
               },
               "body": "Hey @eelregit,\r\n\r\nSorry, I forget if you already solved this. Is this issue still in place?\r\n\r\nOne quick tip is that the batch size is very large. I usually do batch size of 50 or even less. With 1000 points batch size and 7000 total, you might as well just run on the total dataset (because non-contiguous slicing can be expensive). \r\n\r\nAlso the `weight_optimize=0.01` is a bit high. Generally constant optimization is the bottleneck, and you are doing it more frequently than normal (I usually do 0.001 or less, even for multi-node). Especially with a large maxsize and large batches, it perhaps is not too surprising that it is quite slow in the search.\r\n\r\nAlso what is the `objective` here you are using?\r\n\r\nCheers,\r\nMiles",
               "createdAt": "2024-01-17T23:50:18Z"
             }
           ],
-          "pageInfo":
-          {
+          "pageInfo": {
             "hasNextPage": false,
             "endCursor": "Y3Vyc29yOnYyOpK5MjAyNC0wMS0xN1QyMzo1MDoxOCswMDowMM4AfI8T"
           }
