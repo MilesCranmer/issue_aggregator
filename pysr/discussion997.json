@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 997,
+        "title": "Variable Sparsity Penalty",
+        "body": "I'd like to propose a new penalty to encourage variable sparsity.\r\n\r\nI have repeatedly found that searches with fewer input variables have equal or lower loss than when I do extended searches with more variables. Ideally, if two equations at equal complexities have equal loss, the algorithm should, in most instances, by default, prioritise the equation with fewer input variables.\r\n\r\nI know this can be achieved through a custom loss function, but it would be cool to have as a modifiable input parameter; penalty for each additional unique feature used in each equation. This would be similar to the existing parsimony parameter, but instead of penalising expression complexity, it would penalise the number of unique variables used. \r\n\r\nThis would act as a form of L0 regularisation on the features, helping the search find expressions that are not only simple in structure but also rely on a minimal set of inputs.\r\n\r\nFrom what I understand, this is different to complexity_of_variables which does not address number of unique variables. Maybe this would slightly help SR in higher dimensional problems?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I think this might be a good use case for `complexity_mapping`? What do you think:\r\n\r\n```julia\r\nfunction variable_sparsity_complexity(expression)\r\n    tree = get_tree(expression)  # (for template expressions, would need to do something more complex)\r\n    num_nodes = Ref(0)\r\n    unique_features = Set{Int}()\r\n    foreach(tree) do node  # (equivalent to`for node in tree`, but is slightly faster)\r\n        num_nodes[] += 1\r\n        if node.degree == 0 && !node.constant\r\n            push!(unique_features, node.feature)\r\n        end\r\n    end\r\n    # complexity is normal complexity + number of unique features used\r\n    return num_nodes[] + length(unique_features)\r\nend\r\n\r\noptions_sparse = Options(;  # or SRRegressor\r\n    binary_operators=[+, -, *],\r\n    complexity_mapping=variable_sparsity_complexity,\r\n)\r\n```",
+              "createdAt": "2025-07-26T23:05:36Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0yN1QwMTowNTozNiswMjowMM4A1BUt"
+          }
+        }
+      }
+    }
+  }
+}

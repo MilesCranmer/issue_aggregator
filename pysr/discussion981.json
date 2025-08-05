@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 981,
+        "title": "Global Loss Function Capabilities",
+        "body": "I used to be able to define a global loss function (specifically Spearman rank correlation), but now element-wise loss makes that impossible. Is there a workaround for disabling the element wise requirement in Python? Or at least a good approximation for rank correlation?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Sorry I am not sure I follow. Are you okay to use `loss_function`? This let's you write an arbitrary loss.",
+              "createdAt": "2025-07-17T20:44:03Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0xN1QyMjo0NDowMyswMjowMM4A0oj9"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 996,
+        "title": "Why do the data types of `X` and `y` need to match?",
+        "body": "**Example:**\r\n\r\n$$\r\ny(x) = jx + x^a + b,\\quad j = \\sqrt{-1}\r\n$$\r\n\r\nHere, $x$, $a$, and $b$ are real, but $y$ is complex. To make this work in `SymbolicRegression.jl`, we can add a fictitious `0im` to `X` (`X = X .+ 0im`). This works for simple cases but slows down complex ones, since the search now explores the complex domain, even though all constants are real.\r\n\r\nAny way to avoid this and keep constants real? I know there's a [workaround](https://github.com/MilesCranmer/PySR/discussions/768#discussioncomment-11496143) via writing custom loss functions, but I'm asking more generally why are we enforcing the type match in the first place?\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "If you use the Julia backend directly, there is no such limitation. The Python side is a bit more rigid about this, which is partly for ease of use (so that most stuff “just works”) but also because of limitations in Scikit-Learn. For example, Scikit-Learn’s interface doesn’t even allow complex inputs to begin with (!), so PySR has to monkey patch it to force it to allow complex numbers. But MLJ.jl which is the Julia equivalent to Scikit-Learn, which SymbolicRegression.jl’s backend hooks into, allows arbitrary input and output types. (Even strings are allowed! https://ai.damtp.cam.ac.uk/symbolicregression/stable/examples/custom_types/)\r\n\r\nI guess in principle we could try to set up this on the Python side but it might be a pain and I feel the return on investment is low. Not sure",
+              "createdAt": "2025-07-26T11:06:37Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0yNlQxMzowNjozNyswMjowMM4A1AjO"
+          }
+        }
+      }
+    }
+  }
+}

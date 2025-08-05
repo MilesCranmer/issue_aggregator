@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 984,
+        "title": "Construction of binary operators having two complicated children",
+        "body": "Dear Miles,\r\n\r\nThanks very much for your package and excellent documentation. \r\n\r\nI had a question relating to the way trees are constructed in PYSR. \r\n\r\nI am working on a project which involves creating first order logical formulas which are true on a mathematical dataset. Roughly speaking, we want statements which involve arithmetic atomic formulas (statements such as **feature + 1 = feature'**) strung together with logicals, i.e. **implies(and (A,B), C)**, where **A**, **B** and **C** are such atomic formulas. To implement this, we have turned off PYSR's constants and just treat the integers as extra features. We have implemented the logicals as custom operators and they are largely working correctly.\r\n\r\nHowever, the problem we are having is as follows. We can easily create complex atomic formula of the form: **1+feature+feature'=feature''+2**, etc using the GA. Similarly, we can create syntactically incorrect statements of the form **implies('1', 1+feature=feature')**, which we penalise by a soft constraint in the loss function. We can also create complex, logical statements that don't have any arithmetic operators. For example, **implies(equals(feature', feature''), equals(feature''', feature''''))**. However, we never find any statements of the form **implies(A,B)**, where **A** and **B** are both correctly formed equals atomic formulas with at least one arithmetic operator, such as **1+feature=feature'**. \r\n\r\nWe have heavily encouraged these in the loss function and even set their loss to zero to see if they are ever created in the population; they seem to either be vanishingly rare or virtually impossible to create.\r\n\r\nWe have come to the conclusion that this has to do with the way trees are made within PYSR itself. In essence, I am guessing that trees are constructed by building out one of the children **A** repeatedly, then attaching a binary **implies(1, -)** to **A**. What this means is that an implies is stacked onto **A** with the other child being a degree 0 node (constant/feature).  After this, it is too rare for mutation to correctly occur inside the left child of implies to create a tree of the desired form. We were also hoping that boosting crossover probability could help for two trees **implies(1,A)** and **implies (B,1)**. However, this seems to have little to no impact.\r\n\r\nAs a result, we were wondering if you would have any recommendations for going under the hood of the PYSR algorithm itself, to support the creation of two sufficiently complex arithmetic children **A, B** which are then joined by a binary. Otherwise, any suggestions for the creation of such trees would be greatly appreciated.\r\n\r\nThanks for taking the time to read this.\r\n\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "In principle there is nothing necessarily forming a hard block against this from forming, because of the fact that crossovers exist. A crossover could in theory just take a tree with implies(A,1) and another tree B, and make an implies(A,B) tree.\r\n\r\nBut I suppose the issue here is that it’s exceedingly rare to get this, because your constraints are quite rigid. And it’s hard to get there via direct mutation because all of the intermediate states are blocked from forming.\r\n\r\nIs there any way you can relax certain constraints? i.e., rather than returning Inf if constraints are violated, could you return a large penalty that gets larger as the constraints are violated to a greater degree? Sometimes what I will do is count the number of violations, and return that added to the regular loss. It gives the genetic algorithm some “direction” to search on.\r\n\r\nThis is actually why the dimensional analysis constraint is implemented as a soft penalty rather than hard constraint.\r\n\r\n---\r\n\r\nTo summarise, I suppose my advice is to think about intermediate states along the road to the final form - how would you measure performance of these in a way that proximity to the final form ~ proximity in loss?",
+              "createdAt": "2025-07-19T08:54:00Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0xOVQxMDo1NDowMCswMjowMM4A0s8p"
+          }
+        }
+      }
+    }
+  }
+}

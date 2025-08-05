@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 991,
+        "title": "Constraint on variables/constants following specific operators",
+        "body": "Hi,\r\n\r\nI'd like to request a feature similar to `nested_constraints`, but instead to constrain the direct use of variables or constants after specific operators.\r\n\r\nFor example, consider a custom binary operator `S`. I want to disallow expressions like:\r\n\r\n```\r\nS(x, k)\r\n```\r\n\r\nwhere x is a variable and k is a constant.\r\n\r\nA potential API could look like this:\r\n\r\n```\r\nnested_constraints = [S => [\"x\" => 0, \"k\"]]\r\n```\r\n\r\nWould this be possible to support? Or is there an existing way to enforce this behavior?\r\n\r\nThanks!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "The best way to do extremely specific constraints like this is with a custom loss function where you can use arbitrary Julia code. For example see https://github.com/MilesCranmer/PySR/discussions/990#discussioncomment-13815158. There are many other examples throughout the forums which might be useful.\r\n\r\nI think at this level of specific constraints it’s better to just let people write out the loss function manually (as otherwise the API would become its own language!)",
+              "createdAt": "2025-07-19T22:16:07Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0yMFQwMDoxNjowNyswMjowMM4A0t99"
+          }
+        }
+      }
+    }
+  }
+}

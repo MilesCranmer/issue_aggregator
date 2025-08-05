@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 956,
+        "title": "[BUG]: The progress bar stops at a certain percentage and warm_start doesn't seem to be working",
+        "body": "### What happened?\r\n\r\nHello\r\n\r\nEvery time I start a new run, the model start having progress for a couple of minutes, but after 30 minutes or around 11% of progress it stops improving. I tried leaving it there for a couple hours to see if it just that the search time increased exponentially, but it doesn't look like. I would like to know if this might be a bug or maybe is a problem of my laptop. Also, When I try to run again starting from the last checkpoint (warm_start=True) it doesn't look like it works because it starts from a new checkpoint with different equations with higher loss.\r\n\r\nSystem: Hp Laptop\r\n\r\nEdition: Windows 11 Enterprise\r\nVersion: 24H2\r\nProcessor: 13th Gen Intel(R) Core(TM) i7-1360P   2.20 GHz\r\nRAM: 32.0 GB (31.6 GB usable)\r\nSystem Type: 64-bit operating system, x64-based processor\r\n\r\nPython: 3.11.9\r\nPySR version: 1.5.8\r\n\r\nCode running on Jupyter Kernel (notebook) in VS-Code\r\n\r\n\r\n### Version\r\n\r\n1.5.8\r\n\r\n### Operating System\r\n\r\nWindows\r\n\r\n### Package Manager\r\n\r\npip\r\n\r\n### Interface\r\n\r\nJupyter Notebook\r\n\r\n### Relevant log output\r\n\r\n```shell\r\n\r\n```\r\n\r\n### Extra Info\r\n\r\n```python\r\nloss_function = \"\"\"\r\nfunction f(tree, dataset::Dataset{T,L}, options) where {T,L}\r\n    ypred, completed = eval_tree_array(tree, dataset.X, options)\r\n    if !completed\r\n        return L(Inf)\r\n    end\r\n    y = dataset.y\r\n    return sqrt(sum(i -> (ypred[i] - y[i])^2, eachindex(y)))\r\nend\r\n\"\"\"\r\n\r\nmodel = PySRRegressor(\r\n    niterations=200,  # < Increase me for better results\r\n    ncycles_per_iteration = 380,\r\n    populations=250,\r\n    population_size=250,\r\n    binary_operators=[\"*\", \"/\", \"-\", \"+\"],\r\n    unary_operators=[\r\n        \"exp\",\r\n        \"sqrt\",\r\n        \"square\",\r\n        \"log10\",\r\n        \"cube\",\r\n    ],\r\n    # ^ Define operator for SymPy as well\r\n    warm_start=True,\r\n    maxsize=40,\r\n    loss_function=loss_function,\r\n    adaptive_parsimony_scaling =1000,\r\n    fraction_replaced_hof =0.1,\r\n    select_k_features = 5,\r\n    parsimony = 0.0001,\r\n    weight_optimize = 0.001,\r\n    nested_constraints = {\r\n        \"exp\": {\"exp\": 0},\r\n        \"sqrt\": {\"sqrt\": 0},\r\n        \"square\": {\"square\": 0},\r\n        \"log10\": {\"log10\": 0},\r\n        \"cube\": {\"cube\": 0},\r\n    },\r\n    output_directory=r'C:\\Users\\xxxxxx',\r\n)\r\nmodel.fit(X_train, y_train)\r\n ```",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Just to check: does it continue the search (just no longer finding better results), or does it completely freeze at 11%?\r\n\r\nAlso please use triple backticks to paste code in comments as it’s easier to read that way",
+              "createdAt": "2025-06-17T20:49:58Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNi0xN1QyMjo0OTo1OCswMjowMM4AzgOh"
+          }
+        }
+      }
+    }
+  }
+}

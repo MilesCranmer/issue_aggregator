@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 955,
+        "title": "[Feature]: Force the model to use the given variables and adjust the number of constants",
+        "body": "### Feature Request\n\nHello,\n\nI would like to know if there is any way I can configure the model, change the backend, or add a specific loss function that allows me to force it to use all the variables I give it, and adjust how many times they are repeated and the number of constant in the equations. This is more than one feature request or maybe is better to put it on the discussion board but I think is worth considering it as a feature. Let me know if maybe some of these are already possible to do.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "See https://github.com/MilesCranmer/PySR/discussions/572#discussion-6395827 and linked therein for relevant discussion\r\n\r\nAlso be sure to read through other discussions, I think many of them might be useful for your other question!\r\n\r\nalso see customisation page: https://ai.damtp.cam.ac.uk/pysr/backend/ and the loss_function parameter on the API page. There are quite a few examples of custom loss_function in the discussion pages, maybe some are useful to check out.",
+              "createdAt": "2025-06-17T20:42:27Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNi0xN1QyMjo0MjoyNyswMjowMM4AzgNz"
+          }
+        }
+      }
+    }
+  }
+}

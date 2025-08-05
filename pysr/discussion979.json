@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 979,
+        "title": "Custom subexpressions within final expressions",
+        "body": "Hello,\r\n\r\nCurrently, I have been able to specify the operators in the final expression.\r\n\r\nHowever, I would like to introduce a custom function (of input variables and constants) that is made optionally-available for the regressor to use as an element in the final expression.\r\n\r\nFor instance, I would like to introduce the power law, `A*x^n`, where `A` and `n` are constants to be fine tuned by the regressor, and `x` is one of the input variables. The final expression would ideally look something like the equation below, where the custom function (`15.6*x^2.4`) is merely an element.\r\n\r\n```\r\ny = 1/x - (15.6*x^2.4) / (x+4.2) \r\n```\r\n\r\nI tried to implement this in `TemplateExpressionSpec`, but it fixes a specific structure and number of inputs/coefficients. Is there an alternate approach that could allow me to achieve these custom functions?\r\n\r\nThanks for the help.\r\n\r\nRegards,\r\nJanzen\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "@janzenchoi could you perhaps give additional examples of what you mean? Essentially, what would \"candidate\" expressions look like for a single search? I think there's a way to make `TemplateExpressionSpec` work for this.",
+              "createdAt": "2025-07-15T15:09:17Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0xNVQxNzowOToxNyswMjowMM4A0g3x"
+          }
+        }
+      }
+    }
+  }
+}

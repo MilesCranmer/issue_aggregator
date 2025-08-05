@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 974,
+        "title": "Error trying to import pysr on Mac",
+        "body": "Hello,\n\nI am trying to import pysr on my Mac. I created a Python virtual environment \"python3 -m venv .venv\", activated it \"source .venv/bin/activate\", wrote \"pip install pysr\" which completed without error. Then I did \"python\" and \"import pysr\". The import pysr always fails due to \"Unsatisfiable requirements for OpenSSL_jll\" because the possible versions are 1.1.1 - 3.5.0 but the project restricts the version to 2.0.0. I even tried to overwrite the Project.toml file and make OpenSSL_jll a different version but when I try import pysr it always overwrites the Project.toml file and makes OpenSSL_jll be version 2.0.0. I am confused why it is doing this because it seems that OpenSSL_jll never had a version 2.0.0. Any thoughts about how to fix this? \n\nThank you",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Super weird. Not sure what the issue is from. Any chance you are behind a firewall or something?\r\n\r\nBut in any case, rather than overwriting Project.toml, you should be overwriting https://github.com/MilesCranmer/PySR/blob/master/pysr/juliapkg.json. juliacall uses a merge of all the juliapkg.json files it finds to generate the Project.toml.\r\n\r\nBetter yet is to make a new `juliapkg.json` for your project with the required Julia dependencies in addition to the ones that PySR provides.",
+              "createdAt": "2025-06-26T16:03:42Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNi0yNlQxODowMzo0MiswMjowMM4Az1XU"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 973,
+        "title": "Multi-variable Symbolic Integral",
+        "body": "Hi, I'm recently trying to perform a multi-variable symbolic integral. My naive idea is to use `TemplateExpressionSpec`, and I write a template as followed:\r\n\r\n```py3\r\ntemplate = TemplateExpressionSpec(\r\n    expressions=[\"f\"],\r\n    variable_names=[\"x\", \"y\"],\r\n    combine=\"(D(f, 1)(x, y), D(f, 2)(x, y))\",\r\n)\r\n\r\nmodel = PySRRegressor(\r\n    ...\r\n    expression_spec = template,\r\n    ...\r\n)\r\nmodel.fit(x, y1)\r\n```\r\nHere `x` and `y1` are both `(300,2)` numpy array, and I hope the template will allow a output with a tuple containing $\\partial f/\\partial x$ and $\\partial f/\\partial y$ at the same time. However, it returns with JuliaError:\r\n\r\n```\r\nCompiling Julia backend...\r\nTraceback (most recent call last):\r\n  File \"/path1/regression.py\", line 46, in <module>\r\n    model.fit(x, y1)\r\n  File \"/path2/lib/python3.12/site-packages/pysr/sr.py\", line 2287, in fit\r\n    self._run(X, y, runtime_params, weights=weights, seed=seed, category=category)\r\n  File \"/path2/lib/python3.12/site-packages/pysr/sr.py\", line 2083, in _run\r\n    out = SymbolicRegression.equation_search(\r\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/path3/.julia/packages/PythonCall/WMWY0/src/JlWrap/any.jl\", line 262, in __call__\r\n    return self._jl_callmethod($(pyjl_methodnum(pyjlany_call)), args, kwargs)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\njuliacall.JuliaError: type Tuple has no field x\r\n\r\n```\r\n\r\nI wonder if I can achieve this without very complicated usage of Julia? (Since I'm not very familiar with that) If so, what part should I modify? Any help would be very welcome!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "For multi-output template expressions you need to pass each output as a feature of X, rather than a feature of y. If passed via y, it will split it into separate equation searches.\r\n\r\nBasically something like\r\n\r\n```python\r\ntemplate = TemplateExpressionSpec(\r\n    expressions=[\"f\"],\r\n    variable_names=[\"x\", \"y\", \"dx\", \"dy\"],\r\n    combine=\"\"\"\r\n        fdx = D(f, 1)(x, y)\r\n        fdy = D(f, 2)(x, y)\r\n        \r\n        abs2(fdx - dx) + abs2(fdy - dy)\r\n\"\"\"\r\n)\r\n```\r\n\r\nThen because the template returns the elementwise loss directly, you can define a loss that just sums it:\r\n\r\n```python\r\nmodel = PySRRegressor(\r\n    elementwise_loss=\"my_loss(predicted, target) = predicted\",\r\n    expression_spec = template,\r\n    ...\r\n)\r\nmodel.fit(x, y1)\r\n```\r\n\r\nmake sure to include dx and dy in the features of `x`. You can put whatever you want for `y1`; it will be ignored.",
+              "createdAt": "2025-06-26T13:01:20Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNi0yNlQxNTowMToyMCswMjowMM4Az0u_"
+          }
+        }
+      }
+    }
+  }
+}

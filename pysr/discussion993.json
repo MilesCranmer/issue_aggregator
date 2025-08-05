@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 993,
+        "title": "Looking for a way to make PysR to include more features in the equations",
+        "body": "Hey :) , \r\nI am Looking for a way to make PysR to include more features in the equations \r\nthis is how i implemented the pysr model = PySRRegressor(\r\n        niterations=500,\r\n        binary_operators=[\r\n            \"+\", \"-\", \"*\", \"/\",\r\n        ],\r\n        unary_operators = [\"sqrt\", \"square\", \"log1p\", \"abs\", \"inv\"],\r\n        elementwise_loss=\"HuberLoss(1.0)\",\r\n        model_selection=\"best\",\r\n        maxsize=500,\r\n        parsimony=0.001,\r\n        populations=200,\r\n        batching=True,\r\n        batch_size=10000,\r\n        select_k_features=10,\r\n        progress=True,\r\n        verbosity=1,\r\n        random_state=42,\r\n        deterministic=False,\r\n        parallelism=\"multithreading\",\r\n        temp_equation_file=True,\r\n\r\n) i have total of 60 features but pysr is choosing only 2 every time , my dataset have 3m rows any idea how to make PysR to include more features ? ",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

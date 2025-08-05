@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 983,
+        "title": "Start SR from a given expression",
+        "body": "Hi,\r\n\r\nfirst of all I apologise if this question has been already answered. I used PySR on a large dataset and after some time I've got a nice symbolic expression. However, this is not 100% satisfactory and I want to do more SR to improve on that. \r\n\r\nI do not have the pickle file or the hall_of_fame.csv as I run other regressions after the lucky one so I believe everything has been overwritten. I just have the symbolic expression. Is there a simple way to seed the population with that expression?",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Have you checked your `outputs` folder? It shouldn't have been overwritten",
+              "createdAt": "2025-07-18T13:20:44Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0xOFQxNToyMDo0NCswMjowMM4A0qpp"
+          }
+        }
+      }
+    }
+  }
+}

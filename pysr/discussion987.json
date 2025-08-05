@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 987,
+        "title": "Symbolic Regression with Imaginary Output",
+        "body": "Hi,\n\nIs it possible to perform symbolic regression with functions defined over an imaginary domain using PySR?\n\nFor example, assume x is real and y is imaginary, with the ground truth defined as:\n\ny = x^2 + x^3 * j\n\nCan PySR handle such cases, or is there a recommended way to approach symbolic regression involving complex-valued outputs?\n\nThanks!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "ma-sadeghi"
+              },
+              "body": "Hi @SayyedAhmadKhadem, \n\nHere's a sample script that involves imaginary `y`:\n\n```julia\nusing SymbolicRegression\n\nn = 100\nX = reshape(range(0, 1, n), 1, n) .+ 0 * im\ny = @. X + X^2 * im\n\noptions = Options(\n    binary_operators=[+, *],\n    unary_operators=[],\n    populations=20,\n    verbosity=1,\n    should_simplify=true\n)\n\nhall_of_fame = equation_search(\n    X, y, niterations=40, options=options,\n    parallelism=:serial\n);\n```\n\n```julia\n──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nComplexity  Loss       Score      Equation\n1           1.758e-01  0.000e+00  y = 0.49999999999803724 + 0.33501683501706914im\n3           1.269e-02  1.314e+00  y = x₁ * (1.000000000000407 + 0.7537688442191768im)\n5           5.781e-03  3.931e-01  y = (x₁ * (1.000000000015833 + 1.0000000000313092im)) + (-6.081815606684415e-12 - 0.1649831650004...\n                                      6006im)\n7           1.257e-31  3.300e+01  y = ((x₁ * x₁) * (-4.0511214174920873e-16 + 1.0000000000000007im)) + x₁\n9           0.000e+00  3.722e+02  y = (((x₁ + x₁) * (-1.5098726244277427e-18 + 0.5im)) * x₁) + x₁\n──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n\n```",
+              "createdAt": "2025-07-19T05:16:02Z"
+            },
+            {
+              "author": {
+                "login": "SayyedAhmadKhadem"
+              },
+              "body": "Hi Amin\nThanks. It works perfectly.",
+              "createdAt": "2025-07-19T06:24:39Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0xOVQwODoyNDozOSswMjowMM4A0s0T"
+          }
+        }
+      }
+    }
+  }
+}

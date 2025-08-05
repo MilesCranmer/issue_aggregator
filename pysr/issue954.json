@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 954,
+        "title": "[Feature]: Force the model to use the given variables and adjust the number of constants",
+        "body": "### Feature Request\n\nHello,\n\nI would like to know if there is any way I can configure the model, change the backend, or add a specific loss function that allows me to force it to use all the variables I give it, and adjust how many times they are repeated and the number of constant in the equations. This is more than one feature request or maybe is better to put it on the discussion board but I think is worth considering it as a feature. Let me know if maybe some of these are already possible to do.",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

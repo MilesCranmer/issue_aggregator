@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 953,
+        "title": "[BUG]: The progress bar stops at a certain percentage and warm_start doesn't seem to be working",
+        "body": "### What happened?\n\nHello\n\nEvery time I start a new run, the model start having progress for a couple of minutes, but after 30 minutes or around 11% of progress it stops improving. I tried leaving it there for a couple hours to see if it just that the search time increased exponentially, but it doesn't look like. I would like to know if this might be a bug or maybe is a problem of my laptop. Also, When I try to run again starting from the last checkpoint (warm_start=True) it doesn't look like it works because it starts from a new checkpoint with different equations with higher loss.\n\nSystem: Hp Laptop\n\nEdition: Windows 11 Enterprise\nVersion: 24H2\nProcessor: 13th Gen Intel(R) Core(TM) i7-1360P   2.20 GHz\nRAM: 32.0 GB (31.6 GB usable)\nSystem Type: 64-bit operating system, x64-based processor\n\nPython: 3.11.9\nPySR version: 1.5.8\n\nCode running on Jupyter Kernel (notebook) in VS-Code\n\n\n### Version\n\n1.5.8\n\n### Operating System\n\nWindows\n\n### Package Manager\n\npip\n\n### Interface\n\nJupyter Notebook\n\n### Relevant log output\n\n```shell\n\n```\n\n### Extra Info\n\nloss_function = \"\"\"\nfunction f(tree, dataset::Dataset{T,L}, options) where {T,L}\n    ypred, completed = eval_tree_array(tree, dataset.X, options)\n    if !completed\n        return L(Inf)\n    end\n    y = dataset.y\n    return sqrt(sum(i -> (ypred[i] - y[i])^2, eachindex(y)))\nend\n\"\"\"\n\nmodel = PySRRegressor(\n    niterations=200,  # < Increase me for better results\n    ncycles_per_iteration = 380,\n    populations=250,\n    population_size=250,\n    binary_operators=[\"*\", \"/\", \"-\", \"+\"],\n    unary_operators=[\n        \"exp\",\n        \"sqrt\",\n        \"square\",\n        \"log10\",\n        \"cube\",\n    ],\n    # ^ Define operator for SymPy as well\n    warm_start=True,\n    maxsize=40,\n    loss_function=loss_function,\n    adaptive_parsimony_scaling =1000,\n    fraction_replaced_hof =0.1,\n    select_k_features = 5,\n    parsimony = 0.0001,\n    weight_optimize = 0.001,\n    nested_constraints = {\n        \"exp\": {\"exp\": 0},\n        \"sqrt\": {\"sqrt\": 0},\n        \"square\": {\"square\": 0},\n        \"log10\": {\"log10\": 0},\n        \"cube\": {\"cube\": 0},\n    },\n    output_directory=r'C:\\Users\\xxxxxx',\n)\nmodel.fit(X_train, y_train)\n ",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

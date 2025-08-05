@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 976,
+        "title": "Issues with global parameters with Parametrized Template Expressions",
+        "body": "Hi,\r\n\r\nI'm trying to use template_spec to discover a chromatic dispersion equation for various different ocular tissue, generally working up the number of parameters required to get a good fit. However, with no classes required, I am struggling to get global parameters to work:\r\n\r\n```julia\r\ny = zeros(nrow(df))\r\nexpression_spec = @template_spec(expressions = (f,),parameters=(p_lt=2, p_ad=2, p_cct=2)) do LTNg, ADNg, CCTNg, WAVELENGTH\r\n  pred_LTNg   = f(WAVELENGTH,p_lt[1],p_lt[2]) #Ng: group refractive indices, #np: phase refractive indices\r\n  pred_ADNg   = f(WAVELENGTH,p_ad[1],p_ad[2])\r\n  pred_CCTNg   = f(WAVELENGTH,p_cct[1],p_cct[2])\r\n  return (LTNg - pred_LTNg)^2 + (ADNg - pred_ADNg)^2 +(CCTNg - pred_CCTNg)^2\r\nend\r\nmodel = SRRegressor(\r\n    elementwise_loss = L1DistLoss(), #avoid squaring error twice. \r\n    niterations=1000000,\r\n    binary_operators=[+,-,*,/],\r\n    unary_operators=[square, sqrt],\r\n    maxsize=40,\r\n    bumper=true,\r\n    turbo=true,\r\n    populations=18,\r\n    population_size=100,#100 for DTComb\r\n    parsimony = 0.0,\r\n    batching=true,\r\n    batch_size=50,\r\n    expression_spec      = expression_spec,\r\n\r\n)\r\nmach = machine(model, X, y)\r\nfit!(mach)\r\n```\r\ni.e. this model should allow two global parameters per each component of the eye. LTNg, ADNg, CCTNg are all on the same row. \r\nIf I get this more basic model working, I will eventually add $n_g = n_p - \\frac{\\partial n_p}{\\partial \\lambda} \\cdot \\lambda$ using `DynamicDiff` to get a better fit. Would it be better to flatten the data?\r\n\r\nError: \r\n```julia\r\nERROR: MethodError: no method matching (::ComposableExpression{Float64, DynamicExpressions.NodeModule.Node{Float64}, @NamedTuple{operators::OperatorEnum{…}, variable_names::Nothing, eval_options::EvalOptions{…}}})(::ValidVector{Vector{Float64}}, ::Float64, ::Float64)\r\n\r\nClosest candidates are:\r\n  (::SymbolicRegression.ComposableExpressionModule.AbstractComposableExpression)(::ValidVector, ::ValidVector...) where N\r\n   @ SymbolicRegression C:\\Users\\georg\\.julia\\packages\\SymbolicRegression\\3nKj1\\src\\ComposableExpression.jl:190\r\n  (::SymbolicRegression.ComposableExpressionModule.AbstractComposableExpression)(::Any)\r\n   @ SymbolicRegression C:\\Users\\georg\\.julia\\packages\\SymbolicRegression\\3nKj1\\src\\ComposableExpression.jl:170\r\n  (::AbstractExpression)(::Any; ...)\r\n   @ DynamicExpressions C:\\Users\\georg\\.julia\\packages\\DynamicExpressions\\jrg0B\\src\\Expression.jl:509\r\n  ...\r\n```\r\n\r\nThank you in advance!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "I guess it’s complaining about being passed scalars directly. You could do something like\r\n\r\n```julia\r\nw = WAVELENGTH\r\nf(w, 0*w + p_lt[1], 0*w + p_lt[2])\r\n```\r\n\r\nSo now those scalars should become vectors",
+              "createdAt": "2025-07-06T23:29:13Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0wN1QwMToyOToxMyswMjowMM4A0LSM"
+          }
+        }
+      }
+    }
+  }
+}

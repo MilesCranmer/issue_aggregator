@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 1006,
+        "title": "Fitting Discontinuous Functions",
+        "body": "Hello,\r\n\r\nI am using `TemplateExpressionSpec` to fit an expression (i.e., `z0`) that is undefined/complex after a certain input value (e.g., `x0 = L`). The template returns the relative error, which the loss function interprets as the loss (as per your previous suggestions). However, in fitting the expression (`z0`), the loss function may try to evaluate the relative error where the fitted expression is undefined (i.e., `x0 > L`).\r\n\r\nIs there any way to configure the library's methods to have the loss function only conduct calculate the loss for defined / real values (i.e., `x0 < L`)? The following is a snippet of my code to fit the discontinuous expression.\r\n\r\n```\r\nexpression_spec = TemplateExpressionSpec(\r\n    expressions    = [\"f0\", \"fA\", \"fn\", \"fM\", \"fphi\", \"fchi\"],\r\n    variable_names = [\"x0\", \"x1\", \"x2\", \"y0\"],\r\n    combine        = \"\"\"\r\n        A = 10^fA(x2); n = abs(fn(x2)); M = 10^fM(x2); phi = abs(fphi(x2)); chi = abs(fchi(x2));\r\n        z0 = A*x1^n * ((1-(phi+1)*M*x1^chi*x0)^((phi+1-n)/(phi+1))-1) / (M*x1^chi*(n-phi-1)) + f0(x0,x1,x2);\r\n        ((y0-z0)/y0)^2\r\n    \"\"\"\r\n)\r\n\r\nregressor = PySRRegressor(\r\n    expression_spec  = expression_spec,\r\n    populations      = 32,\r\n    population_size  = 32,\r\n    maxsize          = 16,\r\n    niterations      = 128,\r\n    precision        = 64,\r\n    verbosity        = 0,\r\n    binary_operators = [\"+\", \"*\", \"/\"],\r\n    unary_operators  = [\"log\"],\r\n    elementwise_loss = \"take_first(p, t, w) = p\",\r\n)\r\n```\r\n\r\nThanks again for the help.\r\n",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

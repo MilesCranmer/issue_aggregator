@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 972,
+        "title": "Dimensional constraints in custom 'loss_function_expression'",
+        "body": "Hi!\r\n\r\nI know that dimensional constraints aren't working for template expressions (and I understand why it isn't trivial or even makes sense to make it available for the general case), but would it be possible to make use of it in a custom loss function? \r\n\r\nIn my case for instance, I look for equations of the form:\r\n```\r\ny = f(...) * exp(g(...) / h(...)),\r\n```\r\nso I know that f should have the same dimension as y, whilst g and h should have the same dimension dividing to 1. \r\n\r\nAny advice on where to alter the backend to make use of this information, if possible, would be greatly appreciated! ",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "The way it works internally is in `LossFunctions.jl` and `DimensionalAnalysis.jl`. There is a part in LossFunctions that looks like this:\r\n\r\n```julia\r\n    if regularization\r\n        loss_val += dimensional_regularization(tree, dataset, options)\r\n    end\r\n```\r\n\r\nwhich calls out to\r\n\r\n```julia\r\nfunction dimensional_regularization(\r\n    tree::Union{AbstractExpression{T},AbstractExpressionNode{T}},\r\n    dataset::Dataset{T,L},\r\n    options::AbstractOptions,\r\n) where {T<:DATA_TYPE,L<:LOSS_TYPE}\r\n    if !violates_dimensional_constraints(tree, dataset, options)\r\n        return zero(L)\r\n    end\r\n    return convert(L, something(options.dimensional_constraint_penalty, 1000))\r\nend\r\n```\r\n\r\nwhich then is unpacked using these:\r\n\r\n```julia\r\nfunction violates_dimensional_constraints(\r\n    tree::AbstractExpression, dataset::Dataset, options::AbstractOptions\r\n)\r\n    return violates_dimensional_constraints(get_tree(tree), dataset, options)\r\nend\r\nfunction violates_dimensional_constraints(\r\n    tree::AbstractExpressionNode, dataset::Dataset, options::AbstractOptions\r\n)\r\n    X = dataset.X\r\n    return violates_dimensional_constraints(\r\n        tree, dataset.X_units, dataset.y_units, (@view X[:, 1]), options\r\n    )\r\nend\r\n```\r\n\r\nSo I _think_ you could just pass each `f`, `g`, and `h` to the function `violates_dimensional_constraints` and specify the units you are requesting for each of them. The `(@view X[:, 1])` is just used as an example input by the way.\r\n\r\nThis function sits in `SymbolicRegression.DimensionalAnalysisModule`.\r\n\r\nSo it might look like:\r\n\r\n```julia\r\nfunction my_loss(ex::TemplateExpression, dataset::Dataset{T,L}, options) where {T,L}\r\n    prediction, complete = eval_tree_array(ex, dataset, options)\r\n    if !complete\r\n        return L(Inf)\r\n    end\r\n\r\n    f = ex.trees.f\r\n    g = ex.trees.g\r\n    h = ex.trees.h\r\n    \r\n    checker(args...) = SymbolicRegression.DimensionalAnalysisModule.violates_dimensional_constraints(args...)\r\n\r\n    f_violates = checker(\r\n        f,\r\n        [u\"km/s\", u\"m/s\", u\"kg\"],  #= X_units; the input dimensions to f =#\r\n        [u\"1\"], #= y_units; The expected output dimensions =#\r\n        ones(T, 3),  #= Example input with 3 features =#\r\n        options\r\n    )\r\n    g_violates = checker(\r\n        g,\r\n        [u\"K\"],  #= Different input units! =#\r\n        nothing,  #= No requirement for output units =#\r\n        ones(T, 1),  #= Example with 1 input feature =#\r\n        options\r\n    )\r\n```\r\nNote that if `f` takes 3 arguments in the template expression, you would pass 3 units to the `violates_dimensional_constraints` function. And so on.\r\n\r\nNote that the `u\"km/s\"` is DynamicQuantities syntax. So you would need to load that package.\r\n\r\nThese could be different between f, g, and h. You can set `y_units=nothing` if you don't care about the output units.\r\n\r\nYou would then pass this to `loss_function_expression`.\r\n\r\nIf you want to deal with the units of `f` flowing into the units of `g`, you will need to see how the unit propagation works here: https://github.com/MilesCranmer/SymbolicRegression.jl/blob/c3a974d8dfebf3ead2413fc670d9b86ef4a1c414/src/DimensionalAnalysis.jl#L200-L221. A \"wildcard\" basically just means that there is flexibility about units. e.g., the expression `[const] * x1` has a wildcard, because that constant could take any form. But the expression `[const] * x1 + x2` does _not_ have a wildcard - the units are fixed by `x2`.\r\n\r\nHope this helps!",
+              "createdAt": "2025-06-24T17:35:39Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNi0yNFQxOTozNTozOSswMjowMM4AzvvZ"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 998,
+        "title": "Forcing compactness",
+        "body": "In my field of research, formulas like a * b^1.5 * c / d^2 + const are quite common. These are relatively compact, with minimal compositional depth for each variable.\r\n\r\nHowever, while I’m currently achieving low error (around 1e-7) on toy formulas, the resulting expressions are overly complex. Here’s an example function:\r\n```python \r\nX = 0.1 + np.random.random((500, 4)\r\nf_help = (3.2+X[:, 2]) / (4.5 + X[:, 3])\r\ny = X[:, 0] * X[:, 1]**2 / (f_help**2)\r\n```\r\nIs there a way to guide PySR toward searching for functions of this kind? I tried adjusting adaptive_parsimony_scaling but the results were inconsistent.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Have you tried out template expressions? There are a few examples on the docs: `TemplateExpressionSpec` is the object to check out",
+              "createdAt": "2025-07-28T19:15:54Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0yOFQyMToxNTo1NCswMjowMM4A1E-X"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 985,
+        "title": "Custom power operator with exponents between 0 and 1 in PySR",
+        "body": "Hi, thanks for the great package!\n\nWe’d like to define a custom power operator in PySR such that the exponent is always constrained to lie between 0 and 1. For example, we want expressions like x^a, where a ∈ [0, 1].\n\nIs there a recommended way to implement such a constraint?\n\nThanks!",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

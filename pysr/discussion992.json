@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 992,
+        "title": "How to output more than one equation for each complexity",
+        "body": "I am new to Symbolic Regression and have set up a small example. For the output, it will generate an equation for each complexity level. But if I want to see top 3 equation for each complexity level. How could I change the parameter under Options ?\r\n\r\nThank you ",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "What do you need it for? This isn’t possible because it would end up displaying trivial perturbations of the expressions like `x + 1.5` and `1.5 + x`. So multiple expressions at each complexity aren’t recorded. The closest thing you could do is to use the tensor board feature which gives you the historical equations at each complexity’s ",
+              "createdAt": "2025-07-23T07:06:54Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0yM1QwOTowNjo1NCswMjowMM4A03rh"
+          }
+        }
+      }
+    }
+  }
+}

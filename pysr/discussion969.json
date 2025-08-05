@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 969,
+        "title": "Template Expression Parameters in Custom Loss Function",
+        "body": "Hello!\r\nI am using a Template Expression with parameters and I would like to impose a restriction on the values one of them can be. I was trying to do this using loss_function_expression, but I'm not sure how to call the parameters that are in the Template Expression inside of the loss function. \r\n\r\nThis is a simpler example: \r\n\r\n```python\r\ntemplate = TemplateExpressionSpec(\r\n    expressions = [\"g\"],\r\n    variable_names = [\"x\"],\r\n    parameters = {\"beta\": 2},\r\n    combine = \"g(x)/beta[2] + beta[1]\"\r\n)\r\n```\r\n\r\nI am trying to make it so that beta[1] can only be between 2 and 10. \r\n\r\nI am thinking of something like this:\r\n\r\n```python\r\nloss_function_expression = \"\"\"\r\n    function my_loss(tree, dataset::Dataset{T,L}, options) where {T,L}\r\n\r\n        prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n\r\n        if !flag\r\n\r\n            return L(Inf)\r\n\r\n            end\r\n\r\n        if tree.beta[1] > 10  #here would call the specific parameter from the tree\r\n\r\n           return L(Inf)\r\n\r\n           end\r\n\r\n        end\r\n\r\n        return sum((prediction .- dataset.y) .^ 2) / dataset.n\r\n\r\n    end\"\"\"\r\n```\r\n\r\nAny help would be appreciated, thank you!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Probably the easiest option is to just clamp it:\r\n\r\n```python\r\ntemplate = TemplateExpressionSpec(\r\n    expressions = [\"g\"],\r\n    variable_names = [\"x\"],\r\n    parameters = {\"beta\": 2},\r\n    combine = \"\"\"\r\n        sigmoid(z) = 1 / (1 + exp(-z))\r\n        soft_clamp(z, lo, hi) = sigmoid(z) * (hi - lo) + lo\r\n        \r\n        clamped_beta_1 = soft_clamp(beta[1], 2, 10)\r\n        \r\n        g(x)/beta[2] + clamped_beta_1\r\n    \"\"\"\r\n)\r\n```\r\n\r\n(The `combine` string is arbitrary Julia code)\r\n\r\nJust remember to apply the same transform to the parameter when using it in other contexts - since `beta[1]` itself is untransformed.",
+              "createdAt": "2025-06-18T16:58:31Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNi0xOFQxODo1ODozMSswMjowMM4Azivv"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 1007,
+        "title": "Fitting Discontinuous Expressions",
+        "body": "Hello,\r\n\r\nI am using `TemplateExpressionSpec` to fit two expressions, `z0` and `z1`. The `z0` expression is undefined/complex after `x0 > z1`. The template returns the sum of the relative errors, which the loss function interprets as the loss. The following is a snippet of my code to fit the discontinuous expression.\r\n\r\n```\r\nexpression_spec = TemplateExpressionSpec(\r\n    expressions    = [\"f0\", \"fA\", \"fn\", \"fM\", \"fphi\", \"fchi\"],\r\n    variable_names = [\"x0\", \"x1\", \"x2\", \"y0\", \"y1\"],\r\n    combine        = \"\"\"\r\n        A = 10^fA(x2); n = abs(fn(x2)); M = 10^fM(x2); phi = abs(fphi(x2)); chi = abs(fchi(x2));\r\n        z0 = A*x1^n * ((1-(phi+1)*M*x1^chi*x0)^((phi+1-n)/(phi+1))-1) / (M*x1^chi*(n-phi-1)) + f0(x0,x1,x2);\r\n        z1 = 1/((phi+1)*M*x1^chi);\r\n        ((y0-z0)/y0)^2 + ((y1-z1)/y1)^2\r\n    \"\"\"\r\n)\r\n\r\nregressor = PySRRegressor(\r\n    expression_spec  = expression_spec,\r\n    populations      = 32,\r\n    population_size  = 32,\r\n    maxsize          = 16,\r\n    niterations      = 128,\r\n    precision        = 64,\r\n    verbosity        = 0,\r\n    binary_operators = [\"+\", \"*\", \"/\"],\r\n    unary_operators  = [\"log\"],\r\n    elementwise_loss = \"take_first(p, t, w) = p\",\r\n)\r\n```\r\n\r\nIn fitting the expressions, the loss function may try to evaluate the relative error where the `z0` is undefined (i.e., `x0 > z1`).\r\n\r\nIs there any way to have the loss function only calculate the loss for defined / real `z0` values (i.e., when `x0 < z1 `)? \r\n\r\nThanks again for the help.\r\n",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Not sure if I follow butiIt should automatically do this already. The NaNs will propagate and the expression will receive an infinite loss. Therefore the genetic algorithm will avoid expression that give such terms. \r\n\r\nBut yes, it will consider all points in the dataset. If _any_ point is NaN, it will be thrown out.",
+              "createdAt": "2025-08-05T15:07:49Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wOC0wNVQxNzowNzo0OSswMjowMM4A1b52"
+          }
+        }
+      }
+    }
+  }
+}

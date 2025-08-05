@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 1003,
+        "title": "[Feature]: Mid-run population injections and other tools",
+        "body": "### Feature Request\n\nUsing pysr i wanted to automate some task  however it requires injection of new population (i get the current population apply some custom fns to it and inject back)       I also require training  Data to be changed midway       etc\n\nAll this is required because my training data has values with each value being {value:Num, err:SomeNum}          because its a physical measurment it has err the + - error rate      idk and i dont thing pysr lets you say hey heres my data just remember its valid of N = n +- a      so  like it trys to use different values of possible N of each data item   such that the equation stays clean  across all other data points ",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "The new \"guesses\" feature should allow this in #999 ",
+              "createdAt": "2025-07-30T18:23:25Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpHOuwDoeQ=="
+          }
+        }
+      }
+    }
+  }
+}

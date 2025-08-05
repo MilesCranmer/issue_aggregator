@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 971,
+        "title": "Find a combination from inputs",
+        "body": "I discovered PySR and I found that it is a powerful tool, thanks for this work!\r\n\r\nI have an example that produces me the solution 0 but 0 is not in the inputs, the solution should be the type of x1+x2 (with a multiplicative coefficient). It is for that I wrote my own symbolic regression tool in Python, it is available here: [https://github.com/Julien-Livet/SymbolicRegression](https://github.com/Julien-Livet/SymbolicRegression). You are welcome for some feedback ;-) .\r\n```\r\nimport math\r\nimport numpy as np\r\nimport pysr\r\nimport random\r\n\r\nn = 100\r\nxmin = -5\r\nxmax = 10\r\nx1 = (xmax - xmin) * np.random.rand(n) + xmin\r\nx2 = -x1\r\n\r\nmodel = pysr.PySRRegressor(\r\n    model_selection=\"best\",\r\n    niterations=100,\r\n    elementwise_loss=\"loss(x, y) = (x - y)^2\",\r\n    maxsize=20,\r\n    verbosity=1,\r\n)\r\n\r\nmodel.fit(np.transpose([x1, x2]), np.zeros(len(x1)), variable_names = [\"x1\", \"x2\"])\r\n\r\nimport operator\r\nimport sr\r\nimport sympy\r\n\r\nmodel = sr.SR(niterations = 1,\r\n              binary_operators = {\"+\": (operator.add, operator.add)},\r\n              avoided_expr = [sympy.sympify(\"0\")],\r\n              foundBreak = True)\r\n\r\nmodel.fit([x1, x2], np.zeros(len(x1)), [\"x1\", \"x2\"])\r\n\r\nassert(len(model.bestExpressions) == 1)\r\nprint(model.bestExpressions[0][0])\r\nassert(sr.sym_expr_eq(sympy.expand(model.bestExpressions[0][0]), sympy.sympify(\"a*(x1+x2)\")))\r\n```\r\n",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

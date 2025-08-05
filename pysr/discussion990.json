@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 990,
+        "title": "Custom power operator with exponents between 0 and 1 in PySR",
+        "body": "Hi, thanks for the great package!\n\nWe’d like to define a custom power operator in PySR such that the exponent is always constrained to lie between 0 and 1. For example, we want expressions like x^a, where a ∈ [0, 1].\n\nIs there a recommended way to implement such a constraint?\n\nThanks!",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Maybe something like\r\n\r\n```julia\r\nfunction my_loss(ex, dataset::Dataset{T,L}, options) where {T,L}\r\n    INDEX_OF_POW = 5  # Note: Julia indexes at 1, so 5 would be the last index if you have 5 operators\r\n    number_invalids = 0\r\n    # each expression within the template expression\r\n    tree = get_tree(ex)\r\n    for node in tree\r\n        # Each node in this expression tree\r\n        if node.degree == 2 && node.op == INDEX_OF_POW\r\n            right_subtree = node.r\r\n            for inner_node in right_subtree\r\n                # Each node within the right argument of ^\r\n                is_variable = inner_node.degree == 0 && !inner_node.constant\r\n                is_constant = inner_node.degree == 0 && inner_node.constant\r\n                if is_variable\r\n                    # prevent anything other than a constant\r\n                    number_invalids += 1\r\n                elseif is_constant\r\n                    val = inner_node.val\r\n                    bad_constant_value = val > 1 || val < 0\r\n                    if bad_constant_value\r\n                        number_invalids += 1\r\n                    end\r\n                else\r\n                    # expressions also disallowed\r\n                    number_invalids += 1\r\n                end\r\n            end\r\n        end\r\n    end\r\n    if number_invalids > 0\r\n        # Return early, but scale by *number* of invalids (rather than just Inf), so that\r\n        # the genetic algorithm knows the \"direction\" to evolve the expression\r\n        big_penalty = 10_000\r\n        return L(big_penalty * number_invalids / length(prediction))  # (Divide by length(prediction) so it scales with batch)\r\n    end\r\n\r\n    predictions, is_valid = eval_tree_array(ex, dataset.X, options)\r\n    if !is_valid\r\n        return L(Inf)\r\n    end\r\n    squared_error = sum(\r\n        i -> (predictions[i] - dataset.y[i])^2,\r\n        eachindex(predictions)\r\n    )\r\n    mse = squared_error / length(predictions)\r\n    return L(mse)\r\nend\r\n```\r\n\r\nand then pass this to `loss_function_expression` (as a string in Python, or just `my_loss` if in Julia)",
+              "createdAt": "2025-07-19T07:20:21Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0xOVQwOToyMDoyMSswMjowMM4A0s12"
+          }
+        }
+      }
+    }
+  }
+}

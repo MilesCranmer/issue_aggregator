@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 989,
+        "title": "Forcing Real Constants in Symbolic Regression with Complex Input/Output",
+        "body": "Hi,\n\nI'm wondering if there's a way to constrain the constants generated in the equations to be **real only**, when the input and output are complex.\n\nFor example, in the code below, the input `X` is real but cast as complex (`0im`), and the output `y` is complex. I'd like to ensure that any constants generated in the regression (i.e., at the leaves) are real numbers. It's acceptable if they appear in the form `a + b*i`, but I want to enforce that `b = 0`.\n\n```julia\nusing SymbolicRegression\n\nn = 100\nX = reshape(range(0, 1, n), 1, n) .+ 0im\ny = @. X + X^2 * im\n\noptions = Options(\n    binary_operators=[+, *],\n    unary_operators=[],\n    populations=20,\n    verbosity=1,\n    should_simplify=true\n)\n\nhall_of_fame = equation_search(\n    X, y, niterations=40, options=options,\n    parallelism=:serial\n)\n```\n\nThank you for your support",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi @SayyedAhmadKhadem, please see the answer here: https://github.com/MilesCranmer/PySR/discussions/768#discussioncomment-11496143",
+              "createdAt": "2025-07-19T06:56:00Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0xOVQwODo1NjowMCswMjowMM4A0s0c"
+          }
+        }
+      }
+    }
+  }
+}

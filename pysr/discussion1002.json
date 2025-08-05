@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 1002,
+        "title": "Define Multiple Outputs with TemplateExpressionSpec",
+        "body": "Hello,\r\n\r\nI would like to define TemplateExpressionSpec for two different outputs with coupled parameters.\r\n\r\nFor instance, with\r\n\r\n```\r\ny_0 = A*x_0^n\r\ny_1 = A*x_0-n\r\n```\r\n\r\nWhat would I add here to define templates for both outputs?\r\n\r\n```\r\ntemplate = TemplateExpressionSpec(\r\n    expressions=[\"f\",],\r\n    variable_names=[\"x_0\"],\r\n    parameters={\"p\": 2}\r\n    combine=\"\"\"\r\n        A, n = p[1], p[2]\r\n        y_0 = A * x_0 ^ n\r\n        y_1 = A*x_0-n\r\n        <???>\r\n    \"\"\"\r\n)\r\n```\r\n\r\nThanks.",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "You can set it up so that you pass `y_0` and `y_1` as features, and have the template returns the per-row loss:\r\n\r\n```python\r\ntemplate = TemplateExpressionSpec(\r\n    expressions=[\"f\",],\r\n    variable_names=[\"x_0\", \"y_0\", \"y_1\"],\r\n    parameters={\"p\": 2}\r\n    combine=\"\"\"\r\n        A, n = p[1], p[2]\r\n        y_0_predicted = A * x_0 ^ n\r\n        y_1_predicted = A * x_0 - n\r\n        \r\n        (y_0 - y_0_predicted)^2 + (y_1 - y_1_predicted)^2\r\n    \"\"\"\r\n)\r\n```\r\n\r\nthen, your PySRRegressor would have a custom loss that simply returns the predicted\r\n\r\n```python\r\nmodel = PySRRegressor(\r\n    expression_spec=template,\r\n    elementwise_loss=\"my_custom_loss(predicted, target) = predicted\"\r\n)\r\n\r\nmodel.fit(X, np.zeros(len(X)))\r\n```\r\n\r\nand pass y_0 and y_1 as the 2nd and 3rd columns of X basically. And then simply pass whatever for `y`.",
+              "createdAt": "2025-07-30T15:30:01Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0zMFQxNzozMDowMSswMjowMM4A1KVr"
+          }
+        }
+      }
+    }
+  }
+}

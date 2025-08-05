@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 982,
+        "title": "Better error message for bad loss function",
+        "body": "> \n> When I try precomputing data rankings and then fitting a model using [**incorrect API**]\n> ```\n> loss_function = \"\"\"\n> begin\n>        using Statistics\n>        function loss_function(prediction, target)\n>            return 1 - cor(prediction, target)\n>        end\n>    end\n> \"\"\"\n> ```\n> I run into the very long Julia error \n\n_Originally posted by @Waswas321123 in https://github.com/MilesCranmer/PySR/discussions/981#discussioncomment-13797958_\n\n\nWould be nice if the error message was better here. Rather than a MethodError we could\ntest the loss function earlier and validate it. Especially for Python users who might not understand it.",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

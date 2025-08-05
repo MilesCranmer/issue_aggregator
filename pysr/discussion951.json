@@ -6,10 +6,18 @@
         "title": "Symbolic imputation for missing data",
         "body": "Hi Miles (and the PySR/SymbolicRegression.jl community),\r\nConsidering the versatility of template expressions, perhaps a a 'symbolic data imputation' for missing data could now be feasible.\r\n\r\nWhat if an expressionspec could define a structure for simultaneously evolving imputed variables for missing data and the remaining functions. E.g:\r\nLet's say we want to evolve f(x1,x2,x3,x4) but have some missing x1s.\r\n -There could be imputation sub-expression, e.g. x1.na = f_sr_impute(x2,x3,x4) which would evolve an expression using all rows with full data to predict x1 as the target for that function, then use the now completed X1 to carry on as normal for the remaining code, e.g. return f(x1,x2,x3,x4), where X1 is now X1 and imputed X1 in a new validvector.\r\n\r\nBy co evolving the imputation and actual functions, the imputed function would hopefully have reduced over fitting and minimised complexity by the nature of SR and the loss function for pred and y. We'd essentially get imputation logic tailored and simplified for the end-task. Perhaps SR would choose an optimised constant as a stand in for missing data, but it could leverage any relationship between variables.\r\n\r\nObviously this would significantly increase computation and perhaps a two step approach is more practical, which is what I've been doing at the moment.\r\n\r\nI've specifically avoided using y in predicting missing x1s because I want to avoid data leaking, and have a model that handles real life scenarios of missing data, where y is not available (e.g..some older equipment doesn't measure x1 but you want your model to be compatible, something where other imputation techniques like MICE would be less useful).",
         "comments": {
-          "nodes": [],
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Cool idea. I think it should be easy to set up by making a template expression, and in the combiner function, have lines that replace the missing data with imputed data. \r\n\r\n```julia\r\nmagic_number = -1000  # Missing data => fill it with -1000.0 exactly\r\n\r\nx1_imput = f_x1(x2, x3, x4)\r\nx1_fixed = ValidVector(\r\n    map(i -> x1.x[i] == magic_number ? x1_imput.x[i] : x1.x[i], eachindex(x1.x, x1_imput.x)),\r\n    x1.valid && x1_imput.valid\r\n)\r\n\r\nx2_imput = f_x2(x1_fixed, x3, x4)\r\n\r\n#= ... =#\r\n\r\nf(x1_fixed, x2_fixed, x3_fixed, x4_fixed)  # With imputed data applied\r\n```",
+              "createdAt": "2025-06-18T17:36:15Z"
+            }
+          ],
           "pageInfo": {
             "hasNextPage": false,
-            "endCursor": null
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNi0xOFQxOTozNjoxNSswMjowMM4Azi3P"
           }
         }
       }

@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 968,
+        "title": "Some questions for help. 1. No constants are introduced. 2. Mutation of variables. 3. A bug of custom loss function.",
+        "body": "Hi Miles, \r\n\r\nI have encountered some problems while using PySR and hope to get your reply.\r\n\r\n# 1. No constants are introduced\r\n\r\nI don't want constants in my expressions, so I set it up as follows, but I'm not sure if it's correct. Also, I'm not sure if this setting will affect the search efficiency of PySR.\r\n\r\n```python\r\nmodel = PySRRegressor(\r\n  maxsize=30, maxdepth=30, \r\n  binary_operators=[\"+\", \"*\", \"-\", \"/\"],\r\n  complexity_of_constants=100\r\n)\r\n```\r\n\r\n# 2. Mutation of variables\r\n\r\nI noticed that the mutation weights of PySR are only set for operators and constants. Is it possible to mutate variables, for example, `y=2*x0` mutates to `y=2*x1`? This will be very helpful for the convergence of the expression of my research.\r\n\r\n# 3. A bug of custom loss function\r\n\r\nBelow is the loss function I use, which outputs a loss value between 0 and 1. In order to prevent the output expression from being a single value (such as a constant), I added an equality check, which returns 1. However, I found that this equality check sometimes does not work in actual operation, such as the expression `y = ((((x0 - x1) + x1) - x0) / x1) / x2`, in which case the loss value is 0.\r\n\r\n```python\r\nhellinger_loss = \"\"\"\r\nfunction hellinger_loss(tree, dataset::Dataset{T,L}, options)::L where {T,L}\r\n    prediction, flag = eval_tree_array(tree, dataset.X, options)\r\n    if !flag\r\n        return L(Inf) # Return Inf if evaluation failed\r\n    end\r\n\r\n    # Use approximate equality check for floating point numbers\r\n    eps_tol = L(1e-6)\r\n    pred_range = maximum(prediction) - minimum(prediction)\r\n    \r\n    # Check if all predictions are approximately the same\r\n    if pred_range < eps_tol\r\n        return L(1.0) # If all predictions are the same, return 1 loss\r\n    end\r\n\r\n    Omit some code\r\n    return loss\r\nend\r\n\"\"\"\r\n```",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

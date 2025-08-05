@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "issue": {
+        "number": 1001,
+        "title": "[Feature]: automated tips",
+        "body": "### Feature Request\n\nIt might be useful to go through the discussions forum, and see if there are instances where we can automatically print “tips” to help the user. For example, for very large dataset size, we could tell the user they probably don’t need it.\n\n(And a parameter like `tips` could turn it off)",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

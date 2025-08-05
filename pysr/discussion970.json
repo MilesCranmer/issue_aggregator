@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 970,
+        "title": "Custom unary_operator ignored",
+        "body": "Hello!\r\nI am new to PySR but I am fascinated by it and willing to apply it for finding equations for elliptic curves. \r\nI am right now testing just simple custom function that is supposed to return multiplicative inverse and it is not working. Could you probably help?\r\n\r\n```python\r\ndef stop_if(loss, complexity):\r\n        return loss < 1e-6 and complexity < 20\r\n    \r\n    \r\nlist1 = [(67, 9811), (68, 9811), (69, 9811)]\r\nlist2 = [(4393), (3607), (7536)]\r\n\r\nX = np.array(list1)\r\nY = np.array(list2)       \r\nx_prime = Y        \r\n\r\nmodel_x = PySRRegressor(\r\n    niterations=100,\r\n    unary_operators=[\"my_inv(x::T) where {T} = if x > 0 && x isa Integer try return Base.GMP.invmod(x, 9811) catch err return T(NaN) end else return T(NaN) end\"],\r\n    binary_operators=[],\r\n    model_selection=\"best\",\r\n    verbosity=1,\r\n    extra_sympy_mappings={\"my_inv\": lambda x: pow(x, -1, 9811)},\r\n    maxdepth=10,\r\n    nested_constraints={\r\n        \"my_inv\": {\"my_inv\": 0},  # Don't nest myfunc inside itself\r\n    },\r\n    maxsize = 21,\r\n      early_stop_condition=(\r\n        \"stop_if(loss, complexity) = loss < 1e-6 && complexity < 20\"\r\n        # Stop early if we find a good and simple equation\r\n    ),\r\n)\r\n\r\n\r\nmodel_x.fit(X, x_prime)\r\n```\r\n\r\nI do not get any errors, just the final equation is something like y = 5178.7 while I'm expecting something like y = my_inv(x0)\r\n(4393 is multiplicative inverse of 67 modulo 9811, 3607 for 68 and so on). I tried adding operators, removing operators with no effect. In online Julia compilers this function \"my_inv\" works. Also I remember running my program once and seeing in the console my_inv in some equation for a split second, so this function was used but apparently discarded. But when I run again and again, I always get slightly different results, and I do not see it any more. I wonder why is that.\r\n\r\nIf you could direct me and hint what I'm doing wrong, I would greatly appreciate it!\r\n\r\nBest regards,\r\nAlexa",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Hi Alexa\r\nWhat happens if you remove the `try` / `catch` from the operator? I guess that might be hiding the error.\r\nBest,\r\nMiles",
+              "createdAt": "2025-06-22T22:34:19Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Oh I think part of the issue is `x isa Integer`. This is just checking the type, which is never an integer. I guess what you are looking for is the `isinteger` function that checks if something is close to an integer\r\n\r\n```julia\r\njulia> isinteger(1.0)\r\ntrue\r\n\r\njulia> 1.0 isa Integer\r\nfalse\r\n```",
+              "createdAt": "2025-06-22T22:36:00Z"
+            },
+            {
+              "author": {
+                "login": "kaleksee"
+              },
+              "body": "That didn't help but I found a working solution, I now get the correct equation y₀ = my_inv(x₀) with loss 0.000e+00\r\nI needed to cast return value to Float32 and also add some minor checks for input value",
+              "createdAt": "2025-06-24T16:28:38Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNi0yNFQxODoyODozOCswMjowMM4AzvmX"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 1000,
+        "title": "How to reduce the startup time of model",
+        "body": "Hi, \r\nThank you for taking your time and take a look for my question.\r\n\r\nMy dataset is kinda large with  20 features and 1000000+ point.  And I have set that `parallelism=:multiprocessing` and `numprocs=20` and `batch=True` and `batch_size=10000` and `turbo=True`. But it takes forever to wait before the symbolic regression actually starts. The script stuck at :\r\n`Info: Copying definition of mse_loss to workers...`\r\n`Info: Finished! `\r\n\r\nHow could I faster the startup with large dataset.\r\n\r\nThank you",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Can you downsample the dataset? Normally symbolic regression doesn’t need so much data to converge",
+              "createdAt": "2025-07-30T08:50:22Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0zMFQxMDo1MDoyMiswMjowMM4A1JYt"
+          }
+        }
+      }
+    }
+  }
+}

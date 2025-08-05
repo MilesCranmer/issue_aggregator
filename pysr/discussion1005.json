@@ -1,0 +1,18 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 1005,
+        "title": "Convert  h.o.f  file's  equations",
+        "body": "Hi,\r\nThere is an output file during Symbolic Regression training, storing hall of fame information about complexity, loss, equation. Is there any possible way that I could convert those equations(type=String) back to tree and generate prediction value  from input X.\r\nThank you.",
+        "comments": {
+          "nodes": [],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    }
+  }
+}

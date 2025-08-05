@@ -1,0 +1,33 @@
+{
+  "data": {
+    "repository": {
+      "discussion": {
+        "number": 978,
+        "title": "Pysr for simplification / computational graph optimization",
+        "body": "Hello\r\n\r\nIf I have the exact expression available, but it is too complicated to be simplified and it contains many sub expressions that can be reused within it to decrease the Flops count, would it be possible to define some variables that can hold smaller expressions within them, and have two level of allowed complexities? something like a computational graph optimisation",
+        "comments": {
+          "nodes": [
+            {
+              "author": {
+                "login": "folivetti"
+              },
+              "body": "This might be of interest https://github.com/folivetti/reggression/blob/main/tutorial/reggression.pdf\nIt is compatible with PySR expressions, I can try making it more convenient if you show me examples of what you want ",
+              "createdAt": "2025-07-16T09:00:23Z"
+            },
+            {
+              "author": {
+                "login": "MilesCranmer"
+              },
+              "body": "Thanks @folivetti!\r\n\r\n@dka-3 sorry just seeing this now. One other thing you could look at is to try using template expressions and setting up a hierarchy of expressions. See https://ai.damtp.cam.ac.uk/pysr/examples/#11-expression-specifications.\r\n\r\nFor example:\r\n\r\n\r\n```python\r\ntemplate = TemplateExpressionSpec(\r\n    expressions=[\"f\", \"f1\", \"f2\"],\r\n    variable_names=[\"x1\", \"x2\", \"x3\"],\r\n    combine=\"f(x1, x2, x3, f1(x1, x2, x3), f2(x1, x2, x3))\"\r\n)\r\nmodel = PySRRegressor(\r\n    expression_spec=template,\r\n    binary_operators=[\"+\", \"*\", \"-\", \"/\"],\r\n    unary_operators=[\"sin\"],\r\n)\r\n```\r\nThis basically defines two intermediate variables which can get used as normal features for f.\r\n\r\nTemplate expressions won’t “double count” complexity. So it can learn a general sub-expression in `f1`, and then use it 3 times in `f`, without it being +3*complexity(f1), it would actually just be +3. \r\n\r\nSo the total complexity is complexity(f) + complexity(f1) + complexity(f2), _before_ expanding f. \r\n\r\nFor example, a template expression f(g(x1, x2)), for g equal to `#1 + 2.5 * #2` and f equal to `#1 * sin(#1)`, the total complexity would be 5+4=9, rather than 12 as it would be if we were expanding. i.e., the expanded expression is: `(x1 + 2.5 * x2) * sin(x1 + 2.5 * x2)`, but the complexity would only be 9!\r\n\r\nTherefore the algorithm is incentivised to share as many subexpressions as it can.\r\n\r\n",
+              "createdAt": "2025-07-16T10:02:06Z"
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": "Y3Vyc29yOnYyOpK5MjAyNS0wNy0xNlQxMjowMjowNiswMjowMM4A0jJS"
+          }
+        }
+      }
+    }
+  }
+}
